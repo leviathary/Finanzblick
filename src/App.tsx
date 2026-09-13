@@ -1,0 +1,87 @@
+import { t } from "./i18n";
+import "./App.css";
+import { Settings } from "./features/settings/Settings";
+import { useSettings } from "./settings";
+import { VaultGate, useVaultLock } from "./VaultGate";
+import { useEffect, useState, type ReactNode } from "react";
+import { ImportWizard } from "./features/imports/ImportWizard";
+import { ImportHistory } from "./features/imports/ImportHistory";
+import { Overview } from "./features/overview/Overview";
+import { Accounts } from "./features/accounts/Accounts";
+import { Assets } from "./features/assets/Assets";
+import { Transactions } from "./features/transactions/Transactions";
+
+import { Categories } from "./features/categories/Categories";
+
+type Page = "settings" | "categories" | "overview" | "accounts" | "assets" | "transactions" | "imports" | "import-history";
+
+type NavIconName = "home" | "bank" | "chart" | "transactions" | "tag" | "import" | "history" | "settings" | "logout";
+
+function NavIcon({ name }: { name: NavIconName }) {
+  const paths: Record<NavIconName, ReactNode> = {
+    home: <><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v10h13V10M9 20v-6h6v6"/></>,
+    bank: <><path d="M3 9h18L12 4 3 9Z"/><path d="M5 9v8m4-8v8m6-8v8m4-8v8M3 20h18"/></>,
+    chart: <><path d="M4 19V5"/><path d="M4 19h16"/><path d="m7 15 4-5 3 3 5-7"/></>,
+    transactions: <><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h.01M11 8h5M8 12h.01M11 12h5M8 16h.01M11 16h5"/></>,
+    tag: <><path d="M20 13 13 20l-9-9V4h7l9 9Z"/><circle cx="8.5" cy="8.5" r="1"/></>,
+    import: <><path d="M12 3v12m-4-4 4 4 4-4"/><path d="M5 16v4h14v-4"/></>,
+    history: <><path d="M4 7h16v13H4zM8 4h8l2 3H6l2-3Z"/><path d="M9 12h6M9 16h4"/></>,
+    settings: <><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-2.83 2.83-.06-.06a1.7 1.7 0 0 0-1.88-.34 1.7 1.7 0 0 0-1.03 1.56V21h-4v-.08A1.7 1.7 0 0 0 8.96 19.4a1.7 1.7 0 0 0-1.88.34l-.06.06-2.83-2.83.06-.06A1.7 1.7 0 0 0 4.6 15 1.7 1.7 0 0 0 3 14H3v-4h.08A1.7 1.7 0 0 0 4.6 9a1.7 1.7 0 0 0-.34-1.88l-.06-.06 2.83-2.83.06.06A1.7 1.7 0 0 0 9 4.6 1.7 1.7 0 0 0 10 3h4v.08A1.7 1.7 0 0 0 15 4.6a1.7 1.7 0 0 0 1.88-.34l.06-.06 2.83 2.83-.06.06A1.7 1.7 0 0 0 19.4 9 1.7 1.7 0 0 0 21 10v4h-.08A1.7 1.7 0 0 0 19.4 15Z"/></>,
+    logout: <><path d="M10 4H5v16h5M14 8l4 4-4 4M18 12H9"/></>,
+  };
+  return <svg className="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false">{paths[name]}</svg>;
+}
+
+function pageFromHash(): Page {
+  if (window.location.hash === "#settings") return "settings";
+  if (window.location.hash === "#categories") return "categories";
+  if (window.location.hash === "#import-history") return "import-history";
+  if (window.location.hash === "#imports") return "imports";
+  if (window.location.hash === "#banks") return "accounts";
+  if (window.location.hash === "#assets") return "assets";
+  if (window.location.hash === "#transactions") return "transactions";
+  return "overview";
+}
+
+function App() {
+  useSettings();
+  const lockVault = useVaultLock();
+  const [page, setPage] = useState<Page>(pageFromHash);
+
+  useEffect(() => {
+    const syncPage = () => setPage(pageFromHash());
+    window.addEventListener("hashchange", syncPage);
+    return () => window.removeEventListener("hashchange", syncPage);
+  }, []);
+
+  function navigate(next: Page) {
+    window.location.hash = next === "accounts" ? "banks" : next;
+    setPage(next);
+  }
+
+  return (
+    <main className="app-shell">
+      <aside className="sidebar">
+        <strong className="brand">Finanzblick</strong>
+        <nav className="sidebar-primary" aria-label={t("Hauptnavigation")}>
+          <a className={page === "overview" ? "active" : ""} href="#overview"><NavIcon name="home"/><span>{t("Übersicht")}</span></a>
+          <a className={page === "accounts" ? "active" : ""} href="#banks"><NavIcon name="bank"/><span>{t("Banken & Konten")}</span></a>
+          <a className={page === "assets" ? "active" : ""} href="#assets"><NavIcon name="chart"/><span>{t("Vermögen")}</span></a>
+          <a className={page === "transactions" ? "active" : ""} href="#transactions"><NavIcon name="transactions"/><span>{t("Transaktionen")}</span></a>
+          <a className={page === "categories" ? "active" : ""} href="#categories"><NavIcon name="tag"/><span>{t("Kategorien")}</span></a>
+          <a className={page === "imports" ? "active" : ""} href="#imports"><NavIcon name="import"/><span>{t("Import")}</span></a>
+          <a className={page === "import-history" ? "active" : ""} href="#import-history"><NavIcon name="history"/><span>{t("Importverwaltung")}</span></a>
+        </nav>
+        <nav className="sidebar-secondary" aria-label={t("Kontonavigation")}>
+          <a className={page === "settings" ? "active" : ""} href="#settings"><NavIcon name="settings"/><span>{t("Einstellungen")}</span></a>
+          <button type="button" onClick={() => { void lockVault(); }}><NavIcon name="logout"/><span>{t("Abmelden")}</span></button>
+        </nav>
+      </aside>
+      <div className="content">{page === "settings" ? <Settings /> : page === "overview" ? <Overview onImport={() => navigate("imports")} /> : page === "accounts" ? <Accounts /> : page === "assets" ? <Assets onAccounts={() => navigate("accounts")} onImport={() => navigate("imports")} /> : page === "transactions" ? <Transactions /> : page === "categories" ? <Categories /> : page === "import-history" ? <ImportHistory /> : null}<div hidden={page !== "imports"}><ImportWizard /></div></div>
+    </main>
+  );
+}
+
+export default function ProtectedApp() {
+  return <VaultGate><App /></VaultGate>;
+}
