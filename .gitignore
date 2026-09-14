@@ -24,6 +24,13 @@ work/
 *.sqlite-*
 *.sqlite3
 *.sqlite3-*
+*.bundle
+*.bak
+*.backup
+*.p12
+*.pfx
+*.key
+*.pem
 
 # Editor directories and files
 .vscode/*

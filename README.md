@@ -103,5 +103,5 @@ die passenden Tauri-Bundle-Argumente verwenden; macOS ist noch nicht getestet.
 Für native Bibliotheken wie OpenSSL muss auch `CARGO_TARGET_DIR` auf ein neutrales
 Build-Verzeichnis ohne persönlichen Benutzernamen zeigen. Ein fehlgeschlagener
 Pfadcheck bedeutet, dass der erzeugte Installer nicht veröffentlicht werden darf.
-Historische Installer und Logos bleiben bis zu einer gesondert freigegebenen
-Bereinigung in älteren Git-Commits erreichbar.
+Hinweise zur Veröffentlichung und zum Umgang mit lokalen Daten stehen in
+[SECURITY.md](SECURITY.md).
