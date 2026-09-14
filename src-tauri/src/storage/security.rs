@@ -467,7 +467,15 @@ mod tests {
                      (1,1,'2026-02-01','Recurring sensitive payment',100000,NULL,'CHF',1,3),
                      (1,1,'2026-03-01','Recurring sensitive payment',100000,NULL,'CHF',1,4);
              INSERT INTO balance_snapshots(account_id,import_id,balance_date,amount_minor,currency)
-               VALUES(1,1,'2026-01-01',500000,'CHF');",
+               VALUES(1,1,'2026-01-01',500000,'CHF');
+             INSERT INTO annual_tax_snapshots(
+               tax_year,valuation_date,gross_assets_minor,liabilities_minor,taxable_wealth_minor,
+               currency,source_name,source_hash,parser_version,extraction_confidence,imported_at)
+               VALUES(2025,'2025-12-31',100000000,20000000,80000000,'CHF',
+                 'Persönliche Steuererklärung.pdf','tax-hash','test',1,'2026-01-01');
+             INSERT INTO annual_tax_snapshot_breakdowns(
+               snapshot_id,securities_and_cash_minor,real_estate_minor,other_assets_minor)
+               SELECT id,30000000,60000000,10000000 FROM annual_tax_snapshots WHERE tax_year=2025;",
         ).unwrap();
         vault.anonymize_database(true).unwrap();
         {
@@ -508,6 +516,26 @@ mod tests {
                 )
                 .unwrap();
             assert!(distinct_recurring_amounts > 1);
+            let tax_values: (i64, i64, i64, String) = db
+                .query_row(
+                    "SELECT gross_assets_minor,liabilities_minor,taxable_wealth_minor,source_name
+                     FROM annual_tax_snapshots",
+                    [],
+                    |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?, row.get(3)?)),
+                )
+                .unwrap();
+            assert_eq!(tax_values.0 - tax_values.1, tax_values.2);
+            assert_ne!(tax_values.0, 100000000);
+            assert_eq!(tax_values.3, "Anonymisierte Steuererklärung 2025.pdf");
+            let breakdown: (i64, i64, i64) = db
+                .query_row(
+                    "SELECT securities_and_cash_minor,real_estate_minor,other_assets_minor
+                     FROM annual_tax_snapshot_breakdowns",
+                    [],
+                    |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?)),
+                )
+                .unwrap();
+            assert_eq!(breakdown.0 + breakdown.1 + breakdown.2, tax_values.0);
         }
         let original = fs::read(&vault.path).unwrap();
         vault
@@ -589,7 +617,15 @@ mod tests {
                VALUES(1,1,'2026-01-01','Private income',1000000,2000000,'CHF',1,1),
                      (1,1,'2026-01-02','Private expense',-250000,NULL,'CHF',1,2);
              INSERT INTO balance_snapshots(account_id,import_id,balance_date,amount_minor,currency)
-               VALUES(1,1,'2026-01-01',2000000,'CHF');",
+               VALUES(1,1,'2026-01-01',2000000,'CHF');
+             INSERT INTO annual_tax_snapshots(
+               tax_year,valuation_date,gross_assets_minor,liabilities_minor,taxable_wealth_minor,
+               currency,source_name,source_hash,parser_version,extraction_confidence,imported_at)
+               VALUES(2025,'2025-12-31',100000000,20000000,80000000,'CHF',
+                 'Private tax.pdf','factor-tax-hash','test',1,'2026-01-01');
+             INSERT INTO annual_tax_snapshot_breakdowns(
+               snapshot_id,securities_and_cash_minor,real_estate_minor,other_assets_minor)
+               SELECT id,30000000,60000000,10000000 FROM annual_tax_snapshots WHERE tax_year=2025;",
         ).unwrap();
 
         assert!(vault.anonymize_database_with_factor(1.0, false).is_err());
@@ -620,6 +656,27 @@ mod tests {
             .unwrap(),
             values.2
         );
+        let tax_values: (i64, i64, i64, String) = db
+            .query_row(
+                "SELECT gross_assets_minor,liabilities_minor,taxable_wealth_minor,source_name
+                 FROM annual_tax_snapshots",
+                [],
+                |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?, row.get(3)?)),
+            )
+            .unwrap();
+        assert_eq!(tax_values.0, 50000000);
+        assert_eq!(tax_values.1, 10000000);
+        assert_eq!(tax_values.2, 40000000);
+        assert_eq!(tax_values.3, "Private tax.pdf");
+        let breakdown: (i64, i64, i64) = db
+            .query_row(
+                "SELECT securities_and_cash_minor,real_estate_minor,other_assets_minor
+                 FROM annual_tax_snapshot_breakdowns",
+                [],
+                |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?)),
+            )
+            .unwrap();
+        assert_eq!(breakdown, (15000000, 30000000, 5000000));
     }
 
     #[test]

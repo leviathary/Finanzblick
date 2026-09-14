@@ -226,9 +226,49 @@ impl Storage {
              UPDATE balance_snapshots SET
                amount_minor=(CASE WHEN amount_minor<0 THEN -1 ELSE 1 END) *
                  (SELECT changed FROM anonymized_balances m WHERE m.currency=balance_snapshots.currency AND m.original=abs(balance_snapshots.amount_minor));
+             CREATE TEMP TABLE anonymized_tax_factors(
+               snapshot_id INTEGER PRIMARY KEY,
+               factor_ppm INTEGER NOT NULL
+             );
+             INSERT INTO anonymized_tax_factors(snapshot_id, factor_ppm)
+               SELECT id, (random() & 2147483647) % 2900000
+               FROM annual_tax_snapshots;
+             UPDATE anonymized_tax_factors SET factor_ppm=CASE
+               WHEN factor_ppm<900000 THEN factor_ppm+100000
+               ELSE factor_ppm+100001 END;
+             UPDATE annual_tax_snapshots SET
+               gross_assets_minor=CAST(round(gross_assets_minor *
+                 (SELECT factor_ppm / 1000000.0 FROM anonymized_tax_factors f WHERE f.snapshot_id=annual_tax_snapshots.id)) AS INTEGER),
+               liabilities_minor=CAST(round(liabilities_minor *
+                 (SELECT factor_ppm / 1000000.0 FROM anonymized_tax_factors f WHERE f.snapshot_id=annual_tax_snapshots.id)) AS INTEGER),
+               taxable_wealth_minor=CAST(round(gross_assets_minor *
+                 (SELECT factor_ppm / 1000000.0 FROM anonymized_tax_factors f WHERE f.snapshot_id=annual_tax_snapshots.id)) AS INTEGER)
+                 - CAST(round(liabilities_minor *
+                 (SELECT factor_ppm / 1000000.0 FROM anonymized_tax_factors f WHERE f.snapshot_id=annual_tax_snapshots.id)) AS INTEGER),
+               canton_taxable_wealth_minor=CASE WHEN canton_taxable_wealth_minor IS NULL THEN NULL ELSE
+                 min(CAST(round(canton_taxable_wealth_minor *
+                 (SELECT factor_ppm / 1000000.0 FROM anonymized_tax_factors f WHERE f.snapshot_id=annual_tax_snapshots.id)) AS INTEGER),
+                 CAST(round(gross_assets_minor *
+                 (SELECT factor_ppm / 1000000.0 FROM anonymized_tax_factors f WHERE f.snapshot_id=annual_tax_snapshots.id)) AS INTEGER)
+                 - CAST(round(liabilities_minor *
+                 (SELECT factor_ppm / 1000000.0 FROM anonymized_tax_factors f WHERE f.snapshot_id=annual_tax_snapshots.id)) AS INTEGER)) END,
+               source_name=CASE WHEN {anonymize_descriptions}=1
+                 THEN 'Anonymisierte Steuererklärung ' || tax_year || '.pdf' ELSE source_name END;
+             UPDATE annual_tax_snapshot_breakdowns SET
+               securities_and_cash_minor=CAST(round(securities_and_cash_minor *
+                 (SELECT factor_ppm / 1000000.0 FROM anonymized_tax_factors f WHERE f.snapshot_id=annual_tax_snapshot_breakdowns.snapshot_id)) AS INTEGER),
+               real_estate_minor=CAST(round(real_estate_minor *
+                 (SELECT factor_ppm / 1000000.0 FROM anonymized_tax_factors f WHERE f.snapshot_id=annual_tax_snapshot_breakdowns.snapshot_id)) AS INTEGER),
+               other_assets_minor=(SELECT gross_assets_minor FROM annual_tax_snapshots s
+                 WHERE s.id=annual_tax_snapshot_breakdowns.snapshot_id)
+                 - CAST(round(securities_and_cash_minor *
+                 (SELECT factor_ppm / 1000000.0 FROM anonymized_tax_factors f WHERE f.snapshot_id=annual_tax_snapshot_breakdowns.snapshot_id)) AS INTEGER)
+                 - CAST(round(real_estate_minor *
+                 (SELECT factor_ppm / 1000000.0 FROM anonymized_tax_factors f WHERE f.snapshot_id=annual_tax_snapshot_breakdowns.snapshot_id)) AS INTEGER);
              DELETE FROM merchant_category_rules;
              DROP TABLE anonymized_transaction_amounts;
              DROP TABLE anonymized_balances;
+             DROP TABLE anonymized_tax_factors;
              COMMIT;
              VACUUM;"
         ))
@@ -267,6 +307,30 @@ impl Storage {
                    amount_minor=CASE WHEN amount_minor=0 THEN 0 ELSE
                      (CASE WHEN amount_minor<0 THEN -1 ELSE 1 END) *
                      max(1,CAST(round(abs(amount_minor) * ?1) AS INTEGER)) END",
+                rusqlite::params![factor],
+            )?;
+            db.execute(
+                "UPDATE annual_tax_snapshots SET
+                   gross_assets_minor=CAST(round(gross_assets_minor * ?1) AS INTEGER),
+                   liabilities_minor=CAST(round(liabilities_minor * ?1) AS INTEGER),
+                   taxable_wealth_minor=CAST(round(gross_assets_minor * ?1) AS INTEGER)
+                     - CAST(round(liabilities_minor * ?1) AS INTEGER),
+                   canton_taxable_wealth_minor=CASE WHEN canton_taxable_wealth_minor IS NULL THEN NULL ELSE
+                     min(CAST(round(canton_taxable_wealth_minor * ?1) AS INTEGER),
+                     CAST(round(gross_assets_minor * ?1) AS INTEGER)
+                       - CAST(round(liabilities_minor * ?1) AS INTEGER)) END,
+                   source_name=CASE WHEN ?2
+                     THEN 'Anonymisierte Steuererklärung ' || tax_year || '.pdf' ELSE source_name END",
+                rusqlite::params![factor, anonymize_descriptions],
+            )?;
+            db.execute(
+                "UPDATE annual_tax_snapshot_breakdowns SET
+                   securities_and_cash_minor=CAST(round(securities_and_cash_minor * ?1) AS INTEGER),
+                   real_estate_minor=CAST(round(real_estate_minor * ?1) AS INTEGER),
+                   other_assets_minor=(SELECT gross_assets_minor FROM annual_tax_snapshots s
+                     WHERE s.id=annual_tax_snapshot_breakdowns.snapshot_id)
+                     - CAST(round(securities_and_cash_minor * ?1) AS INTEGER)
+                     - CAST(round(real_estate_minor * ?1) AS INTEGER)",
                 rusqlite::params![factor],
             )?;
             db.execute("DELETE FROM merchant_category_rules", [])?;
@@ -404,4 +468,114 @@ pub async fn delete_database(app: tauri::AppHandle) -> Result<(), String> {
     tauri::async_runtime::spawn_blocking(move || app.state::<Storage>().delete_database())
         .await
         .map_err(|_| "Datenbank konnte nicht gelöscht werden.".to_string())?
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    type TaxValues = (i64, i64, i64, i64, i64, i64, i64);
+
+    fn storage_with_tax_snapshot() -> (tempfile::TempDir, Storage) {
+        let directory = tempfile::tempdir().unwrap();
+        let storage = Storage {
+            path: directory.path().join("anonymization-test.sqlite3"),
+            session: std::sync::RwLock::new(Session::default()),
+            _lock: None,
+        };
+        storage.unlock("test-password".into(), true).unwrap();
+        let connection = storage.connect().unwrap();
+        connection
+            .execute(
+                "INSERT INTO annual_tax_snapshots(
+               tax_year,valuation_date,gross_assets_minor,liabilities_minor,
+               taxable_wealth_minor,canton_taxable_wealth_minor,currency,
+               source_name,source_hash,parser_version,extraction_confidence,imported_at
+             ) VALUES(2025,'2025-12-31',100000000,20000000,80000000,80000000,
+               'CHF','Steuererklärung 2025.pdf','test-hash','test',1.0,'2026-01-01')",
+                [],
+            )
+            .unwrap();
+        connection
+            .execute(
+                "INSERT INTO annual_tax_snapshot_breakdowns(
+               snapshot_id,securities_and_cash_minor,real_estate_minor,other_assets_minor
+             ) VALUES(1,60000000,30000000,10000000)",
+                [],
+            )
+            .unwrap();
+        drop(connection);
+        (directory, storage)
+    }
+
+    fn tax_values(storage: &Storage) -> TaxValues {
+        let connection = storage.connect().unwrap();
+        connection
+            .query_row(
+                "SELECT s.gross_assets_minor,s.liabilities_minor,s.taxable_wealth_minor,
+                    s.canton_taxable_wealth_minor,b.securities_and_cash_minor,
+                    b.real_estate_minor,b.other_assets_minor
+             FROM annual_tax_snapshots s
+             JOIN annual_tax_snapshot_breakdowns b ON b.snapshot_id=s.id",
+                [],
+                |row| {
+                    Ok((
+                        row.get(0)?,
+                        row.get(1)?,
+                        row.get(2)?,
+                        row.get(3)?,
+                        row.get(4)?,
+                        row.get(5)?,
+                        row.get(6)?,
+                    ))
+                },
+            )
+            .unwrap()
+    }
+
+    fn assert_consistent(values: TaxValues) {
+        assert_eq!(values.0 - values.1, values.2);
+        assert!(values.3 <= values.2);
+        assert_eq!(values.4 + values.5 + values.6, values.0);
+    }
+
+    #[test]
+    fn random_anonymization_changes_every_tax_amount_consistently() {
+        let (_directory, storage) = storage_with_tax_snapshot();
+        let original = tax_values(&storage);
+
+        storage.anonymize_database(false).unwrap();
+
+        let anonymized = tax_values(&storage);
+        assert_ne!(anonymized.0, original.0);
+        assert_ne!(anonymized.1, original.1);
+        assert_ne!(anonymized.2, original.2);
+        assert_ne!(anonymized.3, original.3);
+        assert_ne!(anonymized.4, original.4);
+        assert_ne!(anonymized.5, original.5);
+        assert_ne!(anonymized.6, original.6);
+        assert_consistent(anonymized);
+    }
+
+    #[test]
+    fn factor_anonymization_scales_every_tax_amount_consistently() {
+        let (_directory, storage) = storage_with_tax_snapshot();
+
+        storage.anonymize_database_with_factor(0.5, true).unwrap();
+
+        let anonymized = tax_values(&storage);
+        assert_eq!(
+            anonymized,
+            (50000000, 10000000, 40000000, 40000000, 30000000, 15000000, 5000000)
+        );
+        assert_consistent(anonymized);
+        let source_name: String = storage
+            .connect()
+            .unwrap()
+            .query_row("SELECT source_name FROM annual_tax_snapshots", [], |row| {
+                row.get(0)
+            })
+            .unwrap();
+        assert_eq!(source_name, "Anonymisierte Steuererklärung 2025.pdf");
+    }
 }

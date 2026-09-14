@@ -1,6 +1,6 @@
 [package]
 name = "finanzblick"
-version = "0.5.1"
+version = "0.5.2"
 description = "Lokaler Multi-Bank-Aggregator für persönliche Finanzen"
 edition = "2021"
 

@@ -93,7 +93,13 @@ pub fn run() {
             storage::list_manual_positions,
             storage::delete_manual_position,
             storage::market_data::refresh_market_data,
-            storage::set_institution_logo
+            storage::set_institution_logo,
+            storage::tax_history::preview_tax_statement,
+            storage::tax_history::save_tax_statement,
+            storage::tax_history::save_manual_tax_snapshot,
+            storage::tax_history::list_tax_snapshots,
+            storage::tax_history::update_tax_snapshot,
+            storage::tax_history::delete_tax_snapshot
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

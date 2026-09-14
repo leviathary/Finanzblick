@@ -86,10 +86,13 @@ export function Overview({ onImport }: { onImport: () => void }) {
     );
   }
 
-  const maxProviderBalance = Math.max(
-    ...data.providers.map((provider) => Math.abs(provider.balanceMinor)),
-    1,
+  const includedAccounts = data.accounts.filter(
+    (account) => account.includeInNetWorth,
   );
+  const valuedAccounts = includedAccounts.filter(
+    (account) => account.balanceMinor !== null,
+  ).length;
+  const totalProviderScale = Math.max(Math.abs(data.totalBalanceMinor), 1);
   return (
     <section className="overview">
       <div className="overview-heading">
@@ -110,49 +113,58 @@ export function Overview({ onImport }: { onImport: () => void }) {
             {data.providers.length === 1 ? t("Anbieter") : t("Anbietern")}
           </small>
         </article>
-      </div>
-
-      <div className="overview-grid overview-provider-grid">
-        <article className="dashboard-card">
-          <div className="card-heading">
-            <div>
-              <p className="eyebrow">{t("Aufteilung")}</p>
-              <h2>{t("Vermögen nach Anbieter")}</h2>
-            </div>
-          </div>
-          <div className="provider-list">
-            {data.providers.map((provider) => (
-              <div className="provider-row" key={provider.providerKey}>
-                <div className="provider-label">
-                  <ProviderLogo
-                    name={provider.provider}
-                    providerKey={provider.providerKey}
-                    customLogo={provider.logoDataUrl}
-                  />
-                  <div>
-                    <strong>{provider.provider}</strong>
-                    <small>
-                      {provider.accountCount}{" "}
-                      {provider.accountCount === 1 ? t("Konto") : t("Konten")}
-                    </small>
-                  </div>
-                  <b>{formatMoney(provider.balanceMinor, data.currency)}</b>
-                </div>
-                <div className="provider-bar">
-                  <span
-                    style={{
-                      width: `${Math.max(3, (Math.abs(provider.balanceMinor) / maxProviderBalance) * 100)}%`,
-                    }}
-                  />
-                </div>
-              </div>
-            ))}
-          </div>
+        <article className="summary-card">
+          <span>{t("Konten im Vermögen")}</span>
+          <strong>{includedAccounts.length}</strong>
+          <small>
+            {valuedAccounts} {t("mit aktuellem Wert")}
+          </small>
         </article>
-
+        <article className="summary-card">
+          <span>{t("Anbieter im Vermögen")}</span>
+          <strong>{data.providers.length}</strong>
+          <small>{t("im Gesamtvermögen berücksichtigt")}</small>
+        </article>
       </div>
 
-      <article className="dashboard-card accounts-card">
+      <article className="dashboard-card overview-section-card">
+        <div className="card-heading">
+          <div>
+            <p className="eyebrow">{t("Aufteilung")}</p>
+            <h2>{t("Vermögen nach Anbieter")}</h2>
+          </div>
+        </div>
+        <div className="provider-list">
+          {data.providers.map((provider) => (
+            <div className="provider-row" key={provider.providerKey}>
+              <div className="provider-label">
+                <ProviderLogo
+                  name={provider.provider}
+                  providerKey={provider.providerKey}
+                  customLogo={provider.logoDataUrl}
+                />
+                <div>
+                  <strong>{provider.provider}</strong>
+                  <small>
+                    {provider.accountCount}{" "}
+                    {provider.accountCount === 1 ? t("Konto") : t("Konten")}
+                  </small>
+                </div>
+                <b>{formatMoney(provider.balanceMinor, data.currency)}</b>
+              </div>
+              <div className="provider-bar">
+                <span
+                  style={{
+                    width: `${Math.min(100, (Math.abs(provider.balanceMinor) / totalProviderScale) * 100)}%`,
+                  }}
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+      </article>
+
+      <article className="dashboard-card accounts-card overview-section-card">
         <div className="card-heading">
           <div>
             <p className="eyebrow">{t("Konten")}</p>
@@ -165,16 +177,18 @@ export function Overview({ onImport }: { onImport: () => void }) {
         <div className="account-table">
           {data.accounts.map((account) => (
             <div className="account-row" key={account.id}>
-              <ProviderLogo
-                name={account.provider}
-                providerKey={account.providerKey}
-                customLogo={account.logoDataUrl}
-              />
-              <div>
-                <strong>{account.name}</strong>
-                <small>
-                  {account.provider} · {accountTypeLabel(account.accountType)}
-                </small>
+              <div className="account-identity">
+                <ProviderLogo
+                  name={account.provider}
+                  providerKey={account.providerKey}
+                  customLogo={account.logoDataUrl}
+                />
+                <div>
+                  <strong>{account.name}</strong>
+                  <small>
+                    {account.provider} · {accountTypeLabel(account.accountType)}
+                  </small>
+                </div>
               </div>
               <span>
                 {account.balanceDate
@@ -208,7 +222,9 @@ function accountTypeLabel(value: string): string {
     ? t("Säule 3a")
     : value === "cash"
       ? t("Konto")
-      : value === "manual_asset"
-        ? t("Manuell verwaltete Position")
-        : value;
+      : value === "credit_card"
+        ? t("Kreditkarte")
+        : value === "manual_asset"
+          ? t("Manuell verwaltete Position")
+          : value;
 }

@@ -1,4 +1,4 @@
-import { useId, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 
 import { locale, t, tr } from "../../i18n";
 
@@ -27,10 +27,22 @@ export function TimelineChart({
   } | null>(null);
   const dragStartIndex = useRef<number | null>(null);
   const dragStartClientX = useRef<number | null>(null);
+  const chartRef = useRef<HTMLDivElement>(null);
+  const [chartWidth, setChartWidth] = useState(900);
   const gradientId = useId().replace(/:/g, "");
+  const hasHistory = history.length > 0;
+  useEffect(() => {
+    const chart = chartRef.current;
+    if (!chart) return;
+    const updateWidth = (width: number) => setChartWidth(Math.max(520, Math.round(width)));
+    updateWidth(chart.clientWidth);
+    const observer = new ResizeObserver((entries) => updateWidth(entries[0]?.contentRect.width ?? chart.clientWidth));
+    observer.observe(chart);
+    return () => observer.disconnect();
+  }, [hasHistory]);
   if (!history.length) return <div className="chart-empty">{emptyLabel}</div>;
 
-  const width = 900,
+  const width = chartWidth,
     height = 270,
     left = 92,
     right = 18,
@@ -113,7 +125,7 @@ export function TimelineChart({
     : 0;
 
   return (
-    <div className="wealth-chart">
+    <div className="wealth-chart" ref={chartRef}>
       <svg viewBox={`0 0 ${width} ${height}`} role="img" aria-label={ariaLabel}>
         <defs>
           <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">

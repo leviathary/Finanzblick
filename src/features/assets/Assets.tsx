@@ -45,7 +45,7 @@ export function Assets({
   const [data, setData] = useState<WealthData | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [period, setPeriod] = useState<
-    "all" | "1y" | "2y" | "3y" | "5y" | "custom"
+    "all" | "currentYear" | "1y" | "2y" | "3y" | "5y" | "custom"
   >("all");
   const [customFrom, setCustomFrom] = useState("");
   const [customTo, setCustomTo] = useState("");
@@ -109,6 +109,8 @@ export function Assets({
     if (period === "custom") {
       from = customFrom || fullFrom;
       to = customTo || fullTo;
+    } else if (period === "currentYear") {
+      from = `${new Date().getFullYear()}-01-01`;
     } else if (period !== "all") {
       const years =
         period === "1y" ? 1 : period === "2y" ? 2 : period === "3y" ? 3 : 5;
@@ -225,6 +227,7 @@ export function Assets({
           <div className="period-presets">
             {[
               ["all", t("Gesamt")],
+              ["currentYear", t("Aktuelles Jahr")],
               ["1y", t("1 Jahr")],
               ["2y", t("2 Jahre")],
               ["3y", t("3 Jahre")],

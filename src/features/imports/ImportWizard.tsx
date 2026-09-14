@@ -12,7 +12,7 @@ interface FileSelection {
   warnings: string[];
 }
 
-export function ImportWizard() {
+export function ImportWizard({ enabled = true }: { enabled?: boolean }) {
   const [items, setItems] = useState<BatchItem[]>([]);
   const [accounts, setAccounts] = useState<ImportAccount[]>([]);
   const [accountsLoaded, setAccountsLoaded] = useState(false);
@@ -113,7 +113,7 @@ export function ImportWizard() {
     let disposed = false;
     let unlisten: (() => void) | undefined;
     void getCurrentWebview().onDragDropEvent(event => {
-      if (window.location.hash !== "#imports" || busyRef.current) return;
+      if (!enabled || window.location.hash !== "#imports" || busyRef.current) return;
       if (event.payload.type === "enter" || event.payload.type === "over") setDragging(true);
       else if (event.payload.type === "drop") {
         setDragging(false);
@@ -122,7 +122,7 @@ export function ImportWizard() {
       } else setDragging(false);
     }).then(dispose => { if (disposed) dispose(); else unlisten = dispose; }).catch(reason => setError(String(reason)));
     return () => { disposed = true; unlisten?.(); };
-  }, []);
+  }, [enabled]);
 
   async function analyze(targets: BatchItem[]) {
     if (!begin()) return;

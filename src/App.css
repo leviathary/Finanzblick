@@ -126,6 +126,36 @@ a {
   width: 100%;
   margin: 0 auto;
 }
+.import-kind-tabs {
+  display: inline-flex;
+  gap: 4px;
+  margin: 0 0 28px;
+  padding: 4px;
+  border-radius: 10px;
+  background: #e9eef3;
+}
+.import-kind-tabs button {
+  padding: 10px 16px;
+  border: 0;
+  border-radius: 7px;
+  color: #526278;
+  background: transparent;
+  font-weight: 700;
+  cursor: pointer;
+}
+.import-kind-tabs button:hover {
+  color: var(--text-primary);
+  background: #f7fafc;
+}
+.import-kind-tabs button[aria-selected="true"] {
+  color: #fff;
+  background: #0d1930;
+  box-shadow: 0 2px 5px #0d193026;
+}
+.import-kind-tabs button:focus-visible {
+  outline: 2px solid #176b57;
+  outline-offset: 2px;
+}
 .overview {
   max-width: 1120px;
   margin: 0 auto;
@@ -149,6 +179,9 @@ a {
   max-width: 1120px;
   margin: 0 auto;
 }
+.transaction-analysis-page {
+  max-width: 1680px;
+}
 .overview-heading {
   display: flex;
   justify-content: space-between;
@@ -171,10 +204,7 @@ a {
   margin: 30px 0 18px;
 }
 .overview-summary-grid {
-  grid-template-columns: minmax(280px, 414px);
-}
-.overview-provider-grid {
-  grid-template-columns: 1fr;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 .summary-card {
   display: grid;
@@ -198,6 +228,7 @@ a {
   font-weight: 700;
   line-height: 1.2;
   letter-spacing: -0.035em;
+  font-variant-numeric: tabular-nums;
 }
 .summary-card > small {
   color: var(--text-secondary);
@@ -266,6 +297,7 @@ a {
 .provider-label b {
   font-size: 13px;
   text-align: right;
+  font-variant-numeric: tabular-nums;
 }
 .provider-mark {
   display: grid;
@@ -327,27 +359,41 @@ a {
 .accounts-card {
   padding-bottom: 10px;
 }
+.overview-section-card {
+  width: 100%;
+  margin-bottom: 18px;
+}
 .account-table {
   margin-top: 15px;
 }
 .account-row {
   display: grid;
-  grid-template-columns: auto 1fr 150px 150px;
+  grid-template-columns: minmax(0, 1fr) 150px 150px;
   gap: 13px;
   align-items: center;
   padding: 14px 0;
   border-top: 1px solid #f1f5f9;
 }
-.account-row > div {
+.account-identity {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 13px;
+  min-width: 0;
+}
+.account-identity > div {
   display: grid;
   gap: 3px;
+  min-width: 0;
 }
-.account-row > span:nth-child(3) {
+.account-row > span {
   color: #718095;
   font-size: 12px;
+  font-variant-numeric: tabular-nums;
 }
 .account-row > b {
   text-align: right;
+  font-variant-numeric: tabular-nums;
 }
 .account-form {
   margin-top: 25px;
@@ -1039,7 +1085,7 @@ a {
 .wealth-chart svg {
   display: block;
   width: 100%;
-  height: 260px;
+  height: 270px;
   overflow: visible;
   user-select: none;
 }
@@ -1258,8 +1304,7 @@ a {
   color: #10223f;
   background: #fff;
 }
-.transaction-filters label,
-.month-filter label {
+.transaction-filters label {
   display: grid;
   gap: 5px;
   color: #718095;
@@ -1267,8 +1312,7 @@ a {
   font-weight: 700;
 }
 .transaction-filters input,
-.transaction-filters select,
-.month-filter input {
+.transaction-filters select {
   min-height: 36px;
   padding: 7px 9px;
   border: 1px solid #cfd8e1;
@@ -1299,11 +1343,11 @@ a {
 }
 .quick-periods button[aria-pressed="true"] {
   color: #fff;
-  background: #176b57;
-  box-shadow: 0 2px 5px #176b5726;
+  background: #0d1930;
+  box-shadow: 0 2px 5px #0d193026;
 }
 .quick-periods button:focus-visible {
-  outline: 2px solid #176b57;
+  outline: 2px solid #0d1930;
   outline-offset: 2px;
 }
 .transaction-kpis {
@@ -1512,7 +1556,7 @@ a {
   background: #fff;
   font-size: 10px;
 }
-.detail-only-row {
+.card-detail-row {
   background: #f6f8fa;
 }
 .expense-row > b {
@@ -2363,10 +2407,10 @@ p {
     grid-column: 1 / -1;
   }
   .overview-summary-grid {
-    grid-template-columns: minmax(280px, 414px);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
   .overview-summary-grid .summary-card.primary {
-    grid-column: auto;
+    grid-column: 1 / -1;
   }
   .import-management-overview {
     grid-template-columns: 1fr 1fr;
@@ -2709,11 +2753,18 @@ p {
 }
 .vault-card button {
   padding: 13px;
-  background: #245b49;
+  background: var(--color-primary);
   color: white;
   border: 0;
   border-radius: 8px;
   cursor: pointer;
+}
+.vault-card button:hover:not(:disabled) {
+  background: #1e293b;
+}
+.vault-card button:focus-visible {
+  outline: 2px solid #334155;
+  outline-offset: 2px;
 }
 .vault-card button:disabled {
   opacity: 0.6;
@@ -2845,20 +2896,6 @@ p {
   }
 }
 
-.month-filter {
-  display: flex;
-  align-items: end;
-  gap: 4px;
-}
-.month-filter .secondary-button {
-  min-height: 36px;
-  padding: 4px 12px;
-  font-size: 20px;
-}
-.month-filter input {
-  width: 170px;
-}
-
 .category-controls {
   display: flex;
   flex-wrap: wrap;
@@ -2869,6 +2906,213 @@ p {
 }
 .category-controls .category-mode {
   margin: 0;
+}
+
+.analysis-view-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 6px;
+  padding: 3px;
+  border-radius: 9px;
+  background: #f3f6f8;
+}
+.analysis-view-tabs button {
+  padding: 9px 13px;
+  border: 0;
+  border-radius: 7px;
+  color: #526278;
+  background: transparent;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 750;
+  cursor: pointer;
+}
+.analysis-view-tabs button:hover {
+  background: #fff;
+}
+.analysis-view-tabs button[aria-selected="true"] {
+  color: #fff;
+  background: #0d1930;
+  box-shadow: 0 2px 5px #0d193026;
+}
+.analysis-view-tabs button:focus-visible {
+  outline: 2px solid #176b57;
+  outline-offset: 2px;
+}
+.monthly-comparison-toolbar {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 20px;
+}
+.monthly-comparison-options {
+  display: flex;
+  align-items: end;
+  gap: 16px;
+}
+.monthly-comparison-options > span {
+  min-height: 38px;
+  display: flex;
+  align-items: center;
+  color: #718095;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.comparison-year-select {
+  display: grid;
+  min-width: 130px;
+  gap: 5px;
+  color: #718095;
+  font-size: 10px;
+  font-weight: 700;
+}
+.comparison-year-select select {
+  min-height: 38px;
+  padding: 7px 32px 7px 10px;
+  border: 1px solid #cfd8e1;
+  border-radius: 7px;
+  color: #10223f;
+  background: #fff;
+  font: inherit;
+  font-size: 12px;
+}
+.monthly-comparison-scroll {
+  margin-top: 22px;
+  overflow-x: auto;
+  border: 1px solid #e0e6ec;
+  border-radius: 10px;
+  scrollbar-color: #cbd5df #edf1f5;
+  scrollbar-width: thin;
+}
+.monthly-comparison table {
+  width: 100%;
+  min-width: 1220px;
+  border-collapse: separate;
+  border-spacing: 0;
+  color: #10223f;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+.monthly-comparison th,
+.monthly-comparison td {
+  min-width: 80px;
+  padding: 12px 11px;
+  border-right: 1px solid #edf0f3;
+  border-bottom: 1px solid #e7ebef;
+  text-align: right;
+  white-space: nowrap;
+}
+.monthly-comparison tr > :last-child {
+  border-right: 0;
+}
+.monthly-comparison thead th {
+  color: #607088;
+  background: #f5f7f9;
+  font-weight: 700;
+}
+.monthly-comparison thead th:first-child,
+.monthly-comparison tbody th,
+.monthly-comparison tfoot th {
+  position: sticky;
+  z-index: 1;
+  left: 0;
+  min-width: 165px;
+  text-align: left;
+}
+.monthly-comparison thead th:first-child {
+  z-index: 2;
+  background: #f5f7f9;
+}
+.monthly-comparison tbody th {
+  background: #fff;
+}
+.monthly-comparison tbody th .category-color {
+  display: inline-block;
+  width: 8px;
+  height: 26px;
+  margin-right: 9px;
+  vertical-align: middle;
+}
+.monthly-comparison td.high-spend {
+  background: #e5f5ef;
+  color: #125f4c;
+  font-weight: 700;
+}
+.monthly-value-button {
+  display: block;
+  width: calc(100% + 22px);
+  min-height: 42px;
+  margin: -12px -11px;
+  padding: 12px 11px;
+  border: 0;
+  color: inherit;
+  background: transparent;
+  text-align: right;
+  white-space: nowrap;
+  font: inherit;
+  font-weight: inherit;
+  cursor: pointer;
+}
+.monthly-value-button:hover {
+  background: #edf6f3;
+  color: #125f4c;
+}
+.monthly-value-button:focus-visible {
+  position: relative;
+  z-index: 1;
+  outline: 2px solid #176b57;
+  outline-offset: -3px;
+}
+.monthly-comparison td.selected-month-cell {
+  background: #d6eee5;
+  box-shadow: inset 0 0 0 2px #176b57;
+  color: #125f4c;
+  font-weight: 800;
+}
+.monthly-comparison .outside-range {
+  color: #a2adba;
+  background: #fafbfc;
+}
+.monthly-comparison .row-average {
+  font-weight: 700;
+}
+.monthly-comparison tfoot th,
+.monthly-comparison tfoot td {
+  border-bottom: 0;
+  background: #f5f7f9;
+  font-weight: 800;
+}
+.monthly-comparison-empty {
+  margin-top: 20px;
+}
+.drilldown-heading-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  color: #718095;
+  font-size: 12px;
+}
+
+@media (max-width: 720px) {
+  .monthly-comparison-toolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .monthly-comparison-options {
+    align-items: stretch;
+    flex-direction: column-reverse;
+    gap: 8px;
+  }
+  .comparison-year-select {
+    width: 100%;
+  }
+  .drilldown-heading-actions {
+    align-items: flex-end;
+    flex-direction: column;
+  }
 }
 
 .expense-row .amount-select {
@@ -3080,5 +3324,380 @@ p {
   }
   .database-anonymization-options {
     grid-template-columns: 1fr;
+  }
+}
+
+.tax-history-page {
+  max-width: 1480px;
+  margin: 0 auto;
+}
+.privacy-note {
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+  margin: 22px 0;
+  padding: 13px 15px;
+  border: 1px solid #cce8de;
+  border-radius: 10px;
+  color: #176b57;
+  background: #edf8f4;
+  font-size: 13px;
+}
+.privacy-note span {
+  color: #526c66;
+}
+.preserve-lines {
+  white-space: pre-line;
+}
+.tax-preview-section {
+  margin: 22px 0;
+  padding: 24px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-card);
+  background: var(--bg-surface);
+  box-shadow: var(--shadow-card);
+}
+.tax-drop-zone {
+  min-height: 240px;
+  margin: 22px 0;
+}
+.tax-drop-zone .file-icon {
+  width: 58px;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+.tax-manual-prompt {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  margin: -6px 0 22px;
+  padding: 16px 18px;
+  border: 1px solid #dce4eb;
+  border-radius: 10px;
+  background: #fff;
+}
+.tax-manual-prompt > div {
+  display: grid;
+  gap: 4px;
+}
+.tax-manual-prompt small {
+  color: var(--text-secondary);
+}
+.tax-manual-entry {
+  margin-top: 18px;
+}
+.tax-year-field {
+  display: grid;
+  max-width: 220px;
+  gap: 7px;
+  margin-top: 18px;
+  color: #34445a;
+  font-size: 12px;
+  font-weight: 700;
+}
+.tax-year-field input {
+  min-height: 42px;
+  padding: 9px 11px;
+  border: 1px solid #cfd8e1;
+  border-radius: 8px;
+  color: #10223f;
+  background: #fff;
+}
+.tax-preview-list {
+  display: grid;
+  gap: 16px;
+  margin-top: 18px;
+}
+.tax-preview-card {
+  padding: 20px;
+  border: 1px solid #dce4eb;
+  border-radius: 11px;
+  background: #fbfcfd;
+}
+.tax-preview-heading,
+.tax-preview-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+.tax-preview-heading > div {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+.tax-preview-heading small,
+.tax-table-card small {
+  color: var(--text-secondary);
+  overflow-wrap: anywhere;
+}
+.confidence {
+  flex: 0 0 auto;
+  padding: 5px 9px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 750;
+}
+.confidence.high {
+  color: #087a5b;
+  background: #def3eb;
+}
+.confidence.medium {
+  color: #805d0b;
+  background: #fff0c7;
+}
+.tax-value-fields {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 18px;
+}
+.tax-editor-groups {
+  display: grid;
+  gap: 18px;
+  margin-top: 18px;
+}
+.tax-editor-groups section {
+  padding: 16px;
+  border: 1px solid #e0e7ed;
+  border-radius: 10px;
+  background: #fff;
+}
+.tax-editor-groups h4 {
+  margin: 0;
+  color: #10223f;
+}
+.tax-editor-groups .tax-value-fields {
+  margin-top: 12px;
+}
+.tax-value-fields label {
+  display: grid;
+  gap: 7px;
+  color: #34445a;
+  font-size: 12px;
+  font-weight: 700;
+}
+.money-input {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  min-height: 42px;
+  overflow: hidden;
+  border: 1px solid #cfd8e1;
+  border-radius: 8px;
+  background: #fff;
+}
+.money-input:focus-within {
+  border-color: #176b57;
+  box-shadow: 0 0 0 3px rgba(23, 107, 87, 0.12);
+}
+.money-input > span {
+  display: grid;
+  padding: 0 12px;
+  place-items: center;
+  color: #607088;
+  border-right: 1px solid #dce4eb;
+  background: #f3f6f8;
+}
+.money-input input {
+  width: 100%;
+  min-width: 0;
+  padding: 9px 11px;
+  border: 0;
+  outline: 0;
+  color: #10223f;
+  background: transparent;
+  font-variant-numeric: tabular-nums;
+}
+.tax-validation {
+  margin: 16px 0;
+  padding: 11px 13px;
+  border-radius: 8px;
+  font-size: 13px;
+}
+.tax-validation.valid {
+  color: #087a5b;
+  background: #e5f5ef;
+}
+.tax-validation.notice {
+  color: #805d0b;
+  background: #fff4d6;
+}
+.tax-validation.invalid {
+  color: #a53a35;
+  background: #fff0ef;
+}
+.tax-preview-actions {
+  justify-content: flex-end;
+}
+.tax-preview-actions .text-button {
+  margin-left: 0;
+}
+.tax-summary-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin: 24px 0 18px;
+}
+.tax-summary-grid .positive {
+  color: #087a5b;
+}
+.tax-summary-grid .negative {
+  color: #c43c35;
+}
+.tax-chart-card,
+.tax-table-card {
+  margin-top: 18px;
+}
+.annual-tax-chart {
+  width: 100%;
+  margin-top: 18px;
+}
+.tax-chart-series {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.tax-chart-series button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 36px;
+  padding: 7px 11px;
+  border: 1px solid #d7e0e7;
+  border-radius: 8px;
+  color: #607088;
+  background: #fff;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.tax-chart-series button:hover {
+  border-color: #9cabb8;
+  background: #f8fafb;
+}
+.tax-chart-series button.selected {
+  color: #10223f;
+  border-color: #9cabb8;
+  background: #eef3f6;
+  box-shadow: inset 0 0 0 1px #fff;
+}
+.tax-chart-series button:focus-visible {
+  outline: 2px solid #176b57;
+  outline-offset: 2px;
+}
+.tax-chart-series button > span {
+  width: 10px;
+  height: 10px;
+  flex: 0 0 auto;
+  border-radius: 999px;
+  opacity: 0.35;
+}
+.tax-chart-series button.selected > span {
+  opacity: 1;
+}
+.annual-tax-chart svg {
+  display: block;
+  width: 100%;
+  height: 290px;
+  overflow: visible;
+}
+.tax-chart-area {
+  fill: rgba(16, 185, 129, 0.1);
+  stroke: none;
+}
+.tax-chart-line {
+  fill: none;
+  stroke: #059669;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.tax-chart-dot {
+  fill: #fff;
+  stroke: #059669;
+  stroke-width: 3;
+}
+.tax-table-scroll {
+  margin-top: 18px;
+  overflow-x: auto;
+}
+.tax-inline-editor {
+  margin-top: 18px;
+  padding: 20px;
+  border: 1px solid #cfdde6;
+  border-radius: 11px;
+  background: #f8fafb;
+}
+.tax-inline-editor h3 {
+  margin: 3px 0 0;
+}
+.tax-row-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+.tax-row-actions .text-button {
+  margin-left: 0;
+  padding: 4px 0;
+}
+.tax-row-actions .danger-text {
+  color: #b33a35;
+}
+.tax-table-card table {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+.tax-table-card th,
+.tax-table-card td {
+  padding: 13px 11px;
+  border-bottom: 1px solid #e7ebef;
+  text-align: right;
+  white-space: nowrap;
+}
+.tax-table-card th {
+  color: #607088;
+  background: #f5f7f9;
+  font-size: 11px;
+}
+.tax-table-card th:first-child,
+.tax-table-card td:first-child,
+.tax-table-card th:last-child,
+.tax-table-card td:last-child {
+  text-align: left;
+}
+.tax-table-card td:first-child {
+  display: grid;
+  gap: 3px;
+}
+.tax-source-name {
+  max-width: 260px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.tax-empty-state {
+  display: grid;
+  max-width: 720px;
+  margin-top: 28px;
+  justify-items: start;
+}
+.tax-empty-state h2 {
+  margin: 4px 0 0;
+}
+
+@media (max-width: 900px) {
+  .tax-value-fields,
+  .tax-summary-grid {
+    grid-template-columns: 1fr;
+  }
+  .privacy-note {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .tax-manual-prompt {
+    align-items: stretch;
+    flex-direction: column;
   }
 }

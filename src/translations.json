@@ -1,4 +1,59 @@
 {
+  "Steuererklärungen als PDF auslesen oder Jahreswerte ohne Datei manuell erfassen.": ["Read tax returns from PDF or enter annual values manually without a file.", "Lisez les déclarations fiscales au format PDF ou saisissez manuellement les valeurs annuelles sans fichier.", "Leggi le dichiarazioni fiscali in PDF oppure inserisci manualmente i valori annuali senza file."],
+  "Kein lesbares PDF vorhanden?": ["No readable PDF available?", "Aucun PDF lisible disponible ?", "Nessun PDF leggibile disponibile?"],
+  "Erfasse die Jahreswerte direkt von Hand.": ["Enter the annual values manually.", "Saisissez directement les valeurs annuelles à la main.", "Inserisci manualmente i valori annuali."],
+  "Manuelle Eingabe schliessen": ["Close manual entry", "Fermer la saisie manuelle", "Chiudi inserimento manuale"],
+  "Steuerjahr manuell erfassen": ["Enter tax year manually", "Saisir manuellement l’année fiscale", "Inserisci manualmente l’anno fiscale"],
+  "Manuelle Eingabe": ["Manual entry", "Saisie manuelle", "Inserimento manuale"],
+  "Steuerjahr ohne PDF erfassen": ["Enter tax year without PDF", "Saisir une année fiscale sans PDF", "Inserisci anno fiscale senza PDF"],
+  "Bitte ein Steuerjahr zwischen 1990 und 2100 eingeben.": ["Enter a tax year between 1990 and 2100.", "Saisissez une année fiscale comprise entre 1990 et 2100.", "Inserisci un anno fiscale compreso tra il 1990 e il 2100."],
+  "Jede Buchung und jedes Steuerjahr erhält einen unabhängigen Zufallsfaktor zwischen 10 und 300 % des ursprünglichen Werts.": ["Each transaction and tax year receives an independent random factor between 10 and 300% of its original value.", "Chaque transaction et chaque année fiscale reçoit un facteur aléatoire indépendant compris entre 10 et 300 % de sa valeur initiale.", "Ogni transazione e anno fiscale riceve un fattore casuale indipendente compreso tra il 10 e il 300% del valore originale."],
+  "Alle Buchungs-, Salden- und Steuerbeträge werden mit demselben Faktor multipliziert; ihre Verhältnisse bleiben erhalten.": ["All transaction, balance and tax amounts are multiplied by the same factor; their proportions are preserved.", "Tous les montants des transactions, des soldes et des impôts sont multipliés par le même facteur ; leurs proportions sont conservées.", "Tutti gli importi di transazioni, saldi e imposte vengono moltiplicati per lo stesso fattore; le proporzioni restano invariate."],
+  "Importart": ["Import type", "Type d'import", "Tipo di importazione"],
+  "Steuererklärungen importieren": ["Import tax returns", "Importer des déclarations fiscales", "Importa dichiarazioni fiscali"],
+  "Eine oder mehrere PDF-Dateien auswählen und die erkannten Jahreswerte vor dem Speichern prüfen.": ["Select one or more PDF files and review the detected annual values before saving.", "Sélectionnez un ou plusieurs fichiers PDF et vérifiez les valeurs annuelles détectées avant l’enregistrement.", "Seleziona uno o più file PDF e verifica i valori annuali rilevati prima del salvataggio."],
+  "Prüfe die gespeicherten Jahreswerte und passe sie bei Bedarf an.": ["Review the stored annual values and adjust them if necessary.", "Vérifiez les valeurs annuelles enregistrées et modifiez-les si nécessaire.", "Verifica i valori annuali salvati e modificali se necessario."],
+  "Steuererklärung importieren": ["Import tax return", "Importer une déclaration fiscale", "Importa dichiarazione fiscale"],
+  "Importiere zuerst eine Steuererklärung, um ihre Jahreswerte hier verwalten zu können.": ["Import a tax return first to manage its annual values here.", "Importez d’abord une déclaration fiscale afin de gérer ici ses valeurs annuelles.", "Importa prima una dichiarazione fiscale per gestire qui i relativi valori annuali."],
+  "Vermögensentwicklung nach Steuerjahren": ["Asset development by tax year", "Évolution du patrimoine par année fiscale", "Evoluzione patrimoniale per anno fiscale"],
+  "Angezeigte Werte": ["Displayed values", "Valeurs affichées", "Valori visualizzati"],
+  "Jährlicher Verlauf der ausgewählten Vermögenswerte": ["Annual history of the selected asset values", "Évolution annuelle des valeurs patrimoniales sélectionnées", "Andamento annuale dei valori patrimoniali selezionati"],
+  "Wertschriften & Guthaben": ["Securities & cash", "Titres et avoirs", "Titoli e averi"],
+  "Liegenschaften": ["Real estate", "Biens immobiliers", "Immobili"],
+  "Übrige / Korrekturen": ["Other / adjustments", "Autres / corrections", "Altri / rettifiche"],
+  "Übrige Vermögenswerte / Bewertungskorrekturen": ["Other assets / valuation adjustments", "Autres actifs / corrections d'évaluation", "Altri attivi / rettifiche di valutazione"],
+  "Vermögensaufteilung": ["Asset breakdown", "Répartition du patrimoine", "Ripartizione del patrimonio"],
+  "Gesamtrechnung": ["Overall calculation", "Calcul global", "Calcolo complessivo"],
+  "Plausibel: Vermögensaufteilung und Nettowert sind rechnerisch konsistent.": ["Plausible: the asset breakdown and net value are mathematically consistent.", "Plausible : la répartition du patrimoine et la valeur nette sont cohérentes.", "Plausibile: la ripartizione del patrimonio e il valore netto sono coerenti."],
+  "Hinweis: Die Vermögensaufteilung entspricht nicht den gesamten Vermögenswerten. Das Steuerjahr kann trotzdem gespeichert werden.": ["Note: the asset breakdown does not match total assets. The tax year can still be saved.", "Remarque : la répartition du patrimoine ne correspond pas au total des actifs. L’année fiscale peut tout de même être enregistrée.", "Nota: la ripartizione del patrimonio non corrisponde al totale delle attività. L’anno fiscale può comunque essere salvato."],
+  "Bitte Werte korrigieren: Die Aufteilung muss den gesamten Vermögenswerten und nach Abzug der Schulden dem steuerbaren Vermögen entsprechen.": ["Please correct the values: the breakdown must equal total assets and, after deducting liabilities, taxable assets.", "Veuillez corriger les valeurs : la répartition doit correspondre au total des actifs et, après déduction des dettes, au patrimoine imposable.", "Correggi i valori: la ripartizione deve corrispondere al totale degli attivi e, dopo la deduzione dei debiti, al patrimonio imponibile."],
+  "Steuerjahr bearbeiten": ["Edit tax year", "Modifier l'année fiscale", "Modifica anno fiscale"],
+  "Änderungen speichern": ["Save changes", "Enregistrer les modifications", "Salva modifiche"],
+  "Steuererklärungen hierher ziehen": ["Drag tax returns here", "Déposer les déclarations fiscales ici", "Trascina qui le dichiarazioni fiscali"],
+  "Eine oder mehrere PDF-Dateien ablegen und die erkannten Jahreswerte anschliessend prüfen.": ["Drop one or more PDF files and then review the detected annual values.", "Déposez un ou plusieurs fichiers PDF, puis vérifiez les valeurs annuelles détectées.", "Trascina uno o più file PDF e verifica poi i valori annuali rilevati."],
+  "Unterstützt werden elektronisch erzeugte Steuererklärungen im PDF-Format.": ["Electronically generated tax returns in PDF format are supported.", "Les déclarations fiscales générées électroniquement au format PDF sont prises en charge.", "Sono supportate le dichiarazioni fiscali generate elettronicamente in formato PDF."],
+  "Bitte eine PDF-Datei ablegen.": ["Please drop a PDF file.", "Veuillez déposer un fichier PDF.", "Trascina un file PDF."],
+  "Steuerhistorie": ["Tax history", "Historique fiscal", "Storico fiscale"],
+  "Langzeitverlauf": ["Long-term history", "Historique à long terme", "Andamento a lungo termine"],
+  "Vermögen nach Steuerjahren": ["Assets by tax year", "Patrimoine par année fiscale", "Patrimonio per anno fiscale"],
+  "Jährliche Vermögenswerte aus deinen Steuererklärungen, unabhängig von Bankimporten.": ["Annual asset values from your tax returns, independent of bank imports.", "Valeurs patrimoniales annuelles issues de vos déclarations fiscales, indépendamment des imports bancaires.", "Valori patrimoniali annuali dalle dichiarazioni fiscali, indipendenti dalle importazioni bancarie."],
+  "Steuererklärungen auswählen": ["Select tax returns", "Sélectionner les déclarations fiscales", "Seleziona dichiarazioni fiscali"],
+  "Steuererklärungen": ["Tax returns", "Déclarations fiscales", "Dichiarazioni fiscali"],
+  "Die Steuerhistorie ist in der Desktop-App verfügbar.": ["Tax history is available in the desktop app.", "L’historique fiscal est disponible dans l’application de bureau.", "Lo storico fiscale è disponibile nell’app desktop."],
+  "Die PDFs werden nur ausgelesen. Gespeichert werden das Steuerjahr, die geprüften Summen und ein Dateifingerabdruck - nicht das PDF selbst.": ["The PDFs are read only. The tax year, verified totals and a file fingerprint are stored - not the PDF itself.", "Les PDF sont uniquement lus. L’année fiscale, les totaux vérifiés et une empreinte du fichier sont enregistrés - pas le PDF lui-même.", "I PDF vengono soltanto letti. Sono salvati l’anno fiscale, i totali verificati e un’impronta del file - non il PDF stesso."],
+  "Erkannte Steuerwerte prüfen": ["Review detected tax values", "Vérifier les valeurs fiscales détectées", "Verifica i valori fiscali rilevati"],
+  "Total Vermögenswerte": ["Total assets", "Total des actifs", "Totale attività"],
+  "Steuerbares Vermögen gesamt": ["Total taxable assets", "Patrimoine imposable total", "Patrimonio imponibile totale"],
+  "Plausibel: Vermögenswerte minus Schulden entsprechen dem steuerbaren Vermögen.": ["Plausible: assets minus liabilities equal taxable assets.", "Plausible : les actifs moins les dettes correspondent au patrimoine imposable.", "Plausibile: le attività meno i debiti corrispondono al patrimonio imponibile."],
+  "Bitte Werte korrigieren: Vermögenswerte minus Schulden müssen dem steuerbaren Vermögen entsprechen.": ["Please correct the values: assets minus liabilities must equal taxable assets.", "Veuillez corriger les valeurs : les actifs moins les dettes doivent correspondre au patrimoine imposable.", "Correggi i valori: le attività meno i debiti devono corrispondere al patrimonio imponibile."],
+  "Für dieses Jahr besteht bereits ein Wert. Beim Speichern wird er ersetzt.": ["A value already exists for this year. Saving will replace it.", "Une valeur existe déjà pour cette année. Elle sera remplacée lors de l’enregistrement.", "Esiste già un valore per quest’anno. Verrà sostituito al salvataggio."],
+  "Letzter Steuerwert": ["Latest tax value", "Dernière valeur fiscale", "Ultimo valore fiscale"],
+  "Veränderung seit erstem Jahr": ["Change since first year", "Évolution depuis la première année", "Variazione dal primo anno"],
+  "Importierte Steuererklärungen": ["Imported tax returns", "Déclarations fiscales importées", "Dichiarazioni fiscali importate"],
+  "Noch keine Jahreswerte": ["No annual values yet", "Aucune valeur annuelle", "Nessun valore annuale"],
+  "Beginne mit einer Steuererklärung": ["Start with a tax return", "Commencer par une déclaration fiscale", "Inizia con una dichiarazione fiscale"],
+  "Wähle eine oder mehrere Zürcher Steuererklärungen als PDF. Die erkannten Summen werden vor dem Speichern angezeigt.": ["Select one or more Zurich tax returns as PDFs. Detected totals are shown before saving.", "Sélectionnez une ou plusieurs déclarations fiscales zurichoises au format PDF. Les totaux détectés sont affichés avant l’enregistrement.", "Seleziona una o più dichiarazioni fiscali di Zurigo in PDF. I totali rilevati vengono mostrati prima del salvataggio."],
+  "Jährlicher Verlauf des steuerbaren Vermögens": ["Annual history of taxable assets", "Évolution annuelle du patrimoine imposable", "Andamento annuale del patrimonio imponibile"],
   "Einstellungsbereiche": ["Settings sections", "Sections des paramètres", "Sezioni delle impostazioni"],
   "Optionale Datenquellen für automatische Tageskurse und Wechselkurse.": ["Optional data sources for automatic daily prices and exchange rates.", "Sources de données facultatives pour les cours journaliers et les taux de change automatiques.", "Fonti dati facoltative per prezzi giornalieri e tassi di cambio automatici."],
   "Übersicht": ["Overview", "Vue d’ensemble", "Panoramica"],
@@ -354,6 +409,26 @@
     "Saldi attuali degli ultimi estratti conto importati."
   ],
   "Gesamtvermögen": ["Total assets", "Patrimoine total", "Patrimonio totale"],
+  "Konten im Vermögen": [
+    "Accounts in total assets",
+    "Comptes dans le patrimoine",
+    "Conti nel patrimonio"
+  ],
+  "mit aktuellem Wert": [
+    "with a current value",
+    "avec une valeur actuelle",
+    "con un valore attuale"
+  ],
+  "Anbieter im Vermögen": [
+    "Providers in total assets",
+    "Prestataires dans le patrimoine",
+    "Fornitori nel patrimonio"
+  ],
+  "im Gesamtvermögen berücksichtigt": [
+    "included in total assets",
+    "inclus dans le patrimoine total",
+    "inclusi nel patrimonio totale"
+  ],
   "Gespeicherte Buchungen": [
     "Saved transactions",
     "Opérations enregistrées",
@@ -535,6 +610,24 @@
   "Nach Anbieter": ["By provider", "Par prestataire", "Per fornitore"],
   "Nach Kategorie": ["By category", "Par catégorie", "Per categoria"],
   "Aufteilung": ["Breakdown", "Répartition", "Ripartizione"],
+  "Darstellung auswählen": ["Select view", "Choisir la vue", "Seleziona vista"],
+  "Ausgaben nach Kategorie": ["Spending by category", "Dépenses par catégorie", "Spese per categoria"],
+  "Einnahmen nach Kategorie": ["Income by category", "Revenus par catégorie", "Entrate per categoria"],
+  "Ausgaben nach Monat": ["Spending by month", "Dépenses par mois", "Spese per mese"],
+  "Einnahmen nach Monat": ["Income by month", "Revenus par mois", "Entrate per mese"],
+  "Kategorien im gewählten Jahr vergleichen.": [
+    "Compare categories in the selected year.",
+    "Comparer les catégories durant l’année sélectionnée.",
+    "Confronta le categorie nell’anno selezionato."
+  ],
+  "Alle Beträge in CHF": ["All amounts in CHF", "Tous les montants en CHF", "Tutti gli importi in CHF"],
+  "Monatsauswahl aufheben": ["Clear month selection", "Effacer la sélection du mois", "Cancella selezione del mese"],
+  "Ø / Monat": ["Avg. / month", "Moy. / mois", "Media / mese"],
+  "Keine Buchungen für dieses Jahr vorhanden.": [
+    "No transactions are available for this year.",
+    "Aucune écriture n’est disponible pour cette année.",
+    "Nessuna transazione disponibile per quest’anno."
+  ],
   "Details": ["Details", "Détails", "Dettagli"],
   "Vermögenspositionen": [
     "Asset positions",
@@ -1494,10 +1587,10 @@
     "Compte individuel : les débits et crédits réels incluent les règlements carte. Tous les comptes : les achats individuels comptent ; les règlements identifiés sont exclus. Achat et règlement peuvent relever de périodes différentes.",
     "Conto singolo: sono mostrati addebiti e accrediti reali inclusi i saldi carta. Tutti i conti: contano i singoli acquisti; i saldi identificati sono esclusi. Acquisto e saldo possono cadere in periodi diversi."
   ],
-  "Klicke auf eine Kategorie, um die einzelnen Buchungen zu sehen. Diese Auswertung berücksichtigt CHF-Buchungen; Fremdwährungen werden nicht in CHF umgerechnet.": [
-    "Click a category to see individual transactions. This analysis includes CHF transactions; foreign currencies are not converted to CHF.",
-    "Cliquez sur une catégorie pour voir les opérations. Cette analyse porte sur les opérations CHF ; les devises étrangères ne sont pas converties en CHF.",
-    "Fai clic su una categoria per vedere i movimenti. L’analisi include i movimenti CHF; le valute estere non vengono convertite in CHF."
+  "Klicke auf eine Kategorie, um die einzelnen Buchungen zu sehen.": [
+    "Click a category to see the individual transactions.",
+    "Cliquez sur une catégorie pour voir les opérations individuelles.",
+    "Fai clic su una categoria per vedere le singole transazioni."
   ],
   "Veränderung durch diese Buchungen:": [
     "Change from these transactions:",
@@ -1558,15 +1651,15 @@
     "Règlement de carte de crédit",
     "Saldo della carta di credito"
   ],
-  "Kreditkartendetail · nicht in Summen enthalten": [
-    "Credit card detail · excluded from totals",
-    "Détail de carte de crédit · exclu des totaux",
-    "Dettaglio carta di credito · escluso dai totali"
+  "Kreditkartendetail · in Ausgabenanalyse enthalten": [
+    "Credit card detail · included in spending analysis",
+    "Détail de carte de crédit · inclus dans l’analyse des dépenses",
+    "Dettaglio carta di credito · incluso nell’analisi delle spese"
   ],
-  "Kreditkartenabrechnung · in Summen enthalten": [
-    "Credit card settlement · included in totals",
-    "Règlement de carte de crédit · inclus dans les totaux",
-    "Saldo della carta di credito · incluso nei totali"
+  "Kreditkartenabrechnung · im Geldfluss enthalten": [
+    "Credit card settlement · included in cash flow",
+    "Règlement de carte de crédit · inclus dans le flux de trésorerie",
+    "Saldo della carta di credito · incluso nel flusso di cassa"
   ],
   "absteigend": ["descending", "décroissant", "decrescente"],
   "aufsteigend": ["ascending", "croissant", "crescente"],
@@ -1590,9 +1683,6 @@
     "Impossible de lire les paramètres.",
     "Impossibile leggere le impostazioni."
   ],
-  "Monat": ["Month", "Mois", "Mese"],
-  "Vorheriger Monat": ["Previous month", "Mois précédent", "Mese precedente"],
-  "Nächster Monat": ["Next month", "Mois suivant", "Mese successivo"],
   "Betrag auswählen: {0} · {1}": [
     "Select amount: {0} · {1}",
     "Sélectionner le montant : {0} · {1}",

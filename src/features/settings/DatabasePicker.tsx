@@ -154,7 +154,7 @@ export function DatabasePicker({ allowCreate = false }: { allowCreate?: boolean 
         <div className="database-anonymization-options">
           <section>
             <h4>{t("Zufällige Beträge")}</h4>
-            <p className="settings-hint">{t("Jede Buchung erhält einen unabhängigen Zufallsbetrag zwischen 10 und 300 % des ursprünglichen Werts.")}</p>
+            <p className="settings-hint">{t("Jede Buchung und jedes Steuerjahr erhält einen unabhängigen Zufallsfaktor zwischen 10 und 300 % des ursprünglichen Werts.")}</p>
             <div className="database-anonymization-card-actions">
               <label className="database-anonymize-descriptions">
                 <input type="checkbox" checked={randomizeDescriptions} disabled={busy} onChange={event => setRandomizeDescriptions(event.target.checked)} />
@@ -165,7 +165,7 @@ export function DatabasePicker({ allowCreate = false }: { allowCreate?: boolean 
           </section>
           <section>
             <h4>{t("Fester Faktor")}</h4>
-            <p className="settings-hint">{t("Alle Buchungs- und Saldenbeträge werden mit demselben Faktor multipliziert; ihre Verhältnisse bleiben erhalten.")}</p>
+            <p className="settings-hint">{t("Alle Buchungs-, Salden- und Steuerbeträge werden mit demselben Faktor multipliziert; ihre Verhältnisse bleiben erhalten.")}</p>
             <form className="database-factor-form" onSubmit={anonymizeDatabaseWithFactor}>
               <label>{t("Faktor")}
                 <input name="anonymization-factor" type="text" inputMode="decimal" defaultValue="0.5" disabled={busy} required />

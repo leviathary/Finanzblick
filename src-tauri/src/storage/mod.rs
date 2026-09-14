@@ -4,6 +4,7 @@ pub mod categories;
 pub mod market_data;
 pub mod reconciliation;
 pub mod security;
+pub mod tax_history;
 
 use crate::importers::ParsedStatement;
 use chrono::{Duration, Local, NaiveDate, Utc};
@@ -636,6 +637,34 @@ fn initialize_schema(connection: &Connection) -> Result<(), rusqlite::Error> {
          CREATE TABLE IF NOT EXISTS market_sync_state (
            id INTEGER PRIMARY KEY CHECK(id=1), last_attempt_at TEXT, last_success_at TEXT
          );
+         CREATE TABLE IF NOT EXISTS annual_tax_snapshots (
+           id INTEGER PRIMARY KEY,
+           tax_year INTEGER NOT NULL UNIQUE CHECK(tax_year BETWEEN 1990 AND 2100),
+           valuation_date TEXT NOT NULL,
+           gross_assets_minor INTEGER NOT NULL CHECK(gross_assets_minor >= 0),
+           liabilities_minor INTEGER NOT NULL CHECK(liabilities_minor >= 0),
+           taxable_wealth_minor INTEGER NOT NULL CHECK(
+             taxable_wealth_minor >= 0 AND gross_assets_minor - liabilities_minor = taxable_wealth_minor
+           ),
+           canton_taxable_wealth_minor INTEGER CHECK(
+             canton_taxable_wealth_minor IS NULL OR
+             (canton_taxable_wealth_minor >= 0 AND canton_taxable_wealth_minor <= taxable_wealth_minor)
+           ),
+           currency TEXT NOT NULL DEFAULT 'CHF' CHECK(currency='CHF'),
+           source_name TEXT NOT NULL,
+           source_hash TEXT NOT NULL,
+           parser_version TEXT NOT NULL,
+           extraction_confidence REAL NOT NULL,
+           imported_at TEXT NOT NULL
+         );
+         CREATE UNIQUE INDEX IF NOT EXISTS idx_annual_tax_snapshots_source_hash
+           ON annual_tax_snapshots(source_hash);
+         CREATE TABLE IF NOT EXISTS annual_tax_snapshot_breakdowns (
+           snapshot_id INTEGER PRIMARY KEY REFERENCES annual_tax_snapshots(id) ON DELETE CASCADE,
+           securities_and_cash_minor INTEGER NOT NULL CHECK(securities_and_cash_minor >= 0),
+           real_estate_minor INTEGER NOT NULL CHECK(real_estate_minor >= 0),
+           other_assets_minor INTEGER NOT NULL
+         );
 
          INSERT OR IGNORE INTO categories(category_key,label,color,sort_order) VALUES
            ('housing','Wohnen','#5B7CFA',10),
@@ -1064,16 +1093,19 @@ fn analyze_transactions(
 ) -> Result<TransactionAnalysis, String> {
     card_settlements::prepare(connection).map_err(db_error)?;
     let history = transaction_history(connection, &provider_key, account_id).map_err(db_error)?;
-    let filter = "t.amount_minor < 0 AND a.is_active = 1 AND t.currency = 'CHF'
+    // Category analysis describes what the money was spent on. Card statement
+    // debits are only transfers to settle the card and would double-count the
+    // individual card purchases, so exclude settlements and include card rows.
+    let category_filter = "t.amount_minor < 0 AND a.is_active = 1 AND t.currency = 'CHF'
                   AND (?1 IS NULL OR t.booking_date >= ?1)
                   AND (?2 IS NULL OR t.booking_date <= ?2)
                   AND (?3 IS NULL OR i.provider_key = ?3)
                   AND (?4 IS NULL OR a.id = ?4)
-                  AND (?4 IS NOT NULL OR a.account_type <> 'credit_card')";
+                  AND t.id NOT IN (SELECT id FROM card_settlement_transactions)";
     let mut category_query = connection.prepare(&format!(
         "SELECT c.category_key, c.label, c.color, SUM(-t.amount_minor), COUNT(*)
          FROM transactions t JOIN accounts a ON a.id=t.account_id JOIN institutions i ON i.id=a.institution_id
-         JOIN categories c ON c.id=t.category_id WHERE {filter}
+         JOIN categories c ON c.id=t.category_id WHERE {category_filter}
          GROUP BY c.id ORDER BY SUM(-t.amount_minor) DESC"
     )).map_err(db_error)?;
     let categories = category_query
@@ -1093,7 +1125,7 @@ fn analyze_transactions(
         .prepare(&format!(
             "SELECT substr(t.booking_date,1,7), SUM(-t.amount_minor) FROM transactions t
          JOIN accounts a ON a.id=t.account_id JOIN institutions i ON i.id=a.institution_id
-         WHERE {filter} GROUP BY substr(t.booking_date,1,7) ORDER BY 1"
+         WHERE {category_filter} GROUP BY substr(t.booking_date,1,7) ORDER BY 1"
         ))
         .map_err(db_error)?;
     let months = month_query
@@ -1161,14 +1193,25 @@ fn analyze_transactions(
         let result = providers.collect::<Result<Vec<_>, _>>().map_err(db_error)?;
         result
     };
-    let total_spend_minor = categories
-        .iter()
-        .map(|category| category.amount_minor)
-        .sum();
-    let transaction_count = categories
-        .iter()
-        .map(|category| category.transaction_count)
-        .sum();
+    // Cash-flow totals deliberately keep the opposite perspective: the bank
+    // account settlement is real cash movement, while card details are not
+    // added a second time unless the card account itself is selected.
+    let (total_spend_minor, transaction_count) = connection
+        .query_row(
+            "SELECT COALESCE(SUM(-t.amount_minor),0), COUNT(*)
+             FROM transactions t
+             JOIN accounts a ON a.id=t.account_id
+             JOIN institutions i ON i.id=a.institution_id
+             WHERE t.amount_minor<0 AND a.is_active=1 AND t.currency='CHF'
+               AND (?1 IS NULL OR t.booking_date>=?1)
+               AND (?2 IS NULL OR t.booking_date<=?2)
+               AND (?3 IS NULL OR i.provider_key=?3)
+               AND (?4 IS NULL OR a.id=?4)
+               AND (?4 IS NOT NULL OR a.account_type<>'credit_card')",
+            params![from, to, provider_key, account_id],
+            |row| Ok((row.get(0)?, row.get(1)?)),
+        )
+        .map_err(db_error)?;
     let (total_income_minor, income_count, first_date, last_date) =
         income_summary(&connection, &from, &to, &provider_key, account_id).map_err(db_error)?;
     Ok(TransactionAnalysis {
@@ -1325,15 +1368,33 @@ mod income_tests {
             .any(|transaction| transaction.id == 1
                 && !transaction.excluded_from_totals
                 && transaction.is_card_settlement));
+        // Spending analysis replaces the card settlement with its purchases.
         assert_eq!(
             result
                 .categories
                 .iter()
                 .map(|c| c.amount_minor)
                 .sum::<i64>(),
-            419280
+            9955
         );
-        assert_eq!(result.months[0].amount_minor, 419280);
+        assert_eq!(
+            result
+                .categories
+                .iter()
+                .map(|c| c.transaction_count)
+                .sum::<i64>(),
+            4
+        );
+        assert_eq!(result.months[0].amount_minor, 9955);
+        assert_eq!(
+            result
+                .transactions
+                .iter()
+                .filter(|transaction| !transaction.is_card_settlement)
+                .map(|transaction| -transaction.amount_minor)
+                .sum::<i64>(),
+            9955
+        );
         assert_eq!(result.history.len(), 18);
         assert_eq!(result.history.first().unwrap().date, "2026-08-14");
         assert_eq!(result.history.last().unwrap().total_minor, 580720);
@@ -1348,10 +1409,13 @@ mod income_tests {
         let account = analyze_transactions(&db, None, None, None, Some(1)).unwrap();
         assert_eq!(account.total_spend_minor, 419280);
         assert_eq!(account.transaction_count, 3);
+        assert_eq!(account.categories[0].amount_minor, 4600);
         assert_eq!(account.history.last().unwrap().total_minor, 580720);
 
         let db = make_db();
         let card = analyze_transactions(&db, None, None, None, Some(2)).unwrap();
+        assert_eq!(card.total_spend_minor, 5355);
+        assert_eq!(card.categories[0].amount_minor, 5355);
         assert_eq!(card.history.len(), 7);
         assert_eq!(card.history.last().unwrap().total_minor, 5045);
     }
@@ -2527,6 +2591,8 @@ mod tests {
             "manual_position_values",
             "fx_rates",
             "daily_valuations",
+            "annual_tax_snapshots",
+            "annual_tax_snapshot_breakdowns",
         ] {
             assert!(tables.contains(required), "missing table {required}");
         }
