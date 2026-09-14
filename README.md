@@ -15,6 +15,24 @@ Die Demo ist bereits enthalten: **Finanzprofil → Demo-Daten**, Passwort **`dem
 Sie wird beim ersten Öffnen lokal erzeugt; es ist kein zusätzlicher Download nötig.
 Falls WebView2 fehlt, benötigt dessen Einrichtung eine Internetverbindung.
 
+## macOS installieren
+
+[macOS-DMG 0.5.3 herunterladen (Apple Silicon)](https://github.com/leviathary/Finanzblick/raw/refs/heads/main/installers/Finanzblick_0.5.3_aarch64.dmg)
+
+Für Macs mit Apple Silicon (M-Chips). DMG öffnen und **Finanzblick** auf **Applications**
+ziehen, danach die App aus dem Programme-Ordner starten.
+
+Diese Testversion ist ad-hoc signiert, aber nicht von Apple notarisiert.
+Bei einer Sperre nach dem Download lässt sich der Start unter
+**Systemeinstellungen → Datenschutz & Sicherheit → Dennoch öffnen** freigeben.
+Eine Intel-Version ist in diesem DMG nicht enthalten.
+
+Build und Start mit sichtbaren Demo-Daten wurden am 14.09.2026 auf macOS 26.6.2
+(Apple Silicon) geprüft. Die 13 Frontend- und 62 aktiven Rust-Tests bestehen.
+Installation und Funktion wurden zusätzlich vom Anwender bestätigt.
+Andere macOS-Versionen und eine frische Installation nach einem GitHub-Download
+sind noch nicht getestet.
+
 ## Einblick
 
 Die Screenshots zeigen ausschliesslich fiktive Demo-Daten.
@@ -75,8 +93,8 @@ Tauri 2 · React · TypeScript · Rust · SQLCipher
 
 Voraussetzungen: Node.js 22+, Rust/Cargo und die Tauri-Systemabhängigkeiten.
 Unter Windows zusätzlich WebView2, Microsoft C++ Build Tools und natives Perl
-für den OpenSSL-Build. macOS ist architektonisch vorgesehen, aber noch nicht
-durch Build und praktische Tests verifiziert.
+für den OpenSSL-Build. Unter macOS werden die Xcode Command Line Tools
+(`xcode-select --install`) und Perl für den OpenSSL-Build benötigt.
 
 ```sh
 npm install
@@ -97,9 +115,24 @@ Alle eingecheckten Tests verwenden synthetische Daten. Echte Finanzdaten gehöre
 nicht ins Repository.
 
 Veröffentlichungs-Build: `npm run release -- --bundles nsis` (Windows).
+Für ein natives macOS-DMG auf einem Mac:
+
+```sh
+cargo fetch --manifest-path src-tauri/Cargo.toml --locked
+CARGO_TARGET_DIR=/tmp/finanzblick-build npm run release:mac
+```
+
+Das DMG liegt danach unter `/tmp/finanzblick-build/release/bundle/dmg/`.
+Die Architektur entspricht dem Build-Mac: Apple Silicon erzeugt `aarch64`,
+Intel erzeugt `x64`. Das DMG kann als Asset eines GitHub-Releases hochgeladen
+werden. Der Build veröffentlicht nichts automatisch.
+
 Das plattformneutrale Build-Skript sammelt Lizenzhinweise, neutralisiert lokale
-Rust-Build-Pfade und prüft die EXE vor der Weitergabe. Bei anderen Zielplattformen
-die passenden Tauri-Bundle-Argumente verwenden; macOS ist noch nicht getestet.
+Rust-Build-Pfade und prüft die ausführbare Datei vor der Weitergabe.
+Die macOS-Konfiguration verwendet eine Ad-hoc-Signatur. Für eine von Apple
+signierte und notarisierte Veröffentlichung sind ein Developer-ID-Zertifikat
+und die entsprechende Tauri-Signierungs-/Notarisierungskonfiguration nötig;
+siehe [Tauri macOS Code Signing](https://v2.tauri.app/distribute/sign/macos/).
 Für native Bibliotheken wie OpenSSL muss auch `CARGO_TARGET_DIR` auf ein neutrales
 Build-Verzeichnis ohne persönlichen Benutzernamen zeigen. Ein fehlgeschlagener
 Pfadcheck bedeutet, dass der erzeugte Installer nicht veröffentlicht werden darf.

@@ -1,7 +1,7 @@
 # Architekturvorgaben
 
-- Die App soll später auch auf macOS laufen. Aktuell ist keine Umsetzung,
-  Build-Pipeline oder Veröffentlichung für macOS beauftragt.
+- Die App unterstützt Windows; ein lokaler macOS-Build mit DMG ist ebenfalls
+  beauftragt. Eine automatische Veröffentlichung ist nicht beauftragt.
 - Neue Funktionen und Abhängigkeiten müssen Windows und macOS unterstützen.
   Keine Windows-spezifischen APIs, Programme oder Shell-Befehle als Voraussetzung
   für die Anwendung oder ihre Geschäftslogik einführen.
