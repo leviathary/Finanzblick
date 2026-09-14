@@ -5,7 +5,7 @@ Vermögen und Ausgaben. Ohne Benutzerkonto oder Cloud-Synchronisierung.
 
 ## Windows installieren
 
-[Windows-Installer 0.5.6 herunterladen (64 Bit)](https://github.com/leviathary/Finanzblick/releases/download/v0.5.6/Finanzblick_0.5.6_x64-setup.exe)
+[Windows-Installer 0.5.7 herunterladen (64 Bit)](https://github.com/leviathary/Finanzblick/releases/download/v0.5.7/Finanzblick_0.5.7_x64-setup.exe)
 
 Die heruntergeladene Datei ausführen. Ein Windows-Entwicklermodus ist nicht nötig.
 Der Installer ist nicht signiert; Windows kann deshalb eine Sicherheitswarnung anzeigen.
@@ -72,11 +72,21 @@ Unter **Finanzchat → Mit ChatGPT anmelden** verbindet sich Finanzblick über d
 mitgelieferte Codex-Laufzeit mit einem unterstützten ChatGPT-Konto. Kein API-Schlüssel
 und kein separates API-Guthaben erforderlich. Die Anmeldung wird pro Finanzprofil im geschützten Anmeldespeicher des Geräts
 behalten und lässt sich im Finanzchat entfernen. Der Mikrofonknopf erkennt deutsche
-Fragen lokal, ohne Audio hochzuladen. Standardmässig werden Zusammenfassungen vor jeder Übermittlung
-zur Prüfung angezeigt. Unter **Datenschutz & Modell-Info** kann man freiwillig den
+Fragen lokal, ohne Audio hochzuladen. Standardmässig werden neue Datenpakete vor der Übermittlung
+zur Prüfung angezeigt. Folgefragen verwenden den bestehenden Chatkontext und werden
+ohne erneute Datenfreigabe gesendet. Ändern sich Daten, Zeitraum oder Kontenauswahl,
+wird bei aktivierter Prüfung eine neue Freigabe verlangt. Unter **Datenschutz & Modell-Info** kann man freiwillig den
 Fearless-Modus mit Detailtransaktionen für einen gewählten Zeitraum aktivieren und
 unabhängig davon die Prüfung vor dem Senden ausschalten. Direktversand erfolgt dann
-mit Enter oder Sendepfeil. Der Chatbot bleibt rein lesend.
+mit Enter oder Sendepfeil. Fragen nach Kreditkarten werden automatisch auf aktive
+Kreditkartenkonten begrenzt; unter **Kontenauswahl** lässt sich der Umfang auch
+ausdrücklich wählen. Allgemeines Einkommen und Vermögen werden bei reinen
+Kreditkartenfragen nicht mitgegeben. Der Chatbot bleibt rein lesend.
+
+Auch im Fearless-Modus bleiben Buchungstexte, Konto- und Banknamen, IBAN,
+Kontonummern, Inhaber- und Adressfelder ausgeschlossen. Persönliche Angaben in
+eigenen Kategorienamen und Fragen werden mitgesendet. „Neuer Chat“, Verlassen
+oder Sperren beendet den flüchtigen Chatkontext; die Anmeldung bleibt gespeichert.
 
 Details, Grenzen und Tests: [Finanzchat](docs/finance-chat.md).
 

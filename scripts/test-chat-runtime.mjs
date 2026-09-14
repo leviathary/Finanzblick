@@ -82,6 +82,16 @@ try {
   assert.equal(notifications.filter(x => x.id != null && x.method).length, 0);
   assert.ok(notifications.some(x => x.method === "item/agentMessage/delta"));
   assert.equal(await fs.stat(path.join(home, "auth.json")).then(() => true, () => false), false);
+  const secondFinished = new Promise((resolve, reject) => { complete = resolve; const timer = setTimeout(() => reject(new Error("Follow-up timeout")), 25000); timer.unref(); });
+  const followUp = JSON.stringify({ question: "Explain the previous answer." });
+  await rpc("turn/start", { threadId: started.thread.id, input: [{ type: "text", text: followUp, text_elements: [] }] });
+  assert.equal((await secondFinished).turn.status, "completed");
+  const followUpInput = requests.at(-1).input;
+  const userMessages = followUpInput.filter(item => item.role === "user");
+  assert.equal(userMessages.length, 2, "The same thread must retain the first question.");
+  assert.ok(JSON.stringify(userMessages.at(-1)).includes("Explain the previous answer."));
+  assert.equal(followUpInput.filter(item => item.role === "assistant").length > 0, true, "Prior answer remains available.");
+  for (const request of requests) assert.deepEqual(request.tools ?? [], []);
   await rpc("thread/unsubscribe", { threadId: started.thread.id });
   let loaded;
   for (let attempt = 0; attempt < 30; attempt++) {
@@ -90,7 +100,7 @@ try {
     await new Promise(resolve => setTimeout(resolve, 100));
   }
   assert.ok(!loaded.data.includes(started.thread.id), "Completed ephemeral thread must be unloaded immediately.");
-  console.log("PASS: actual runtime, empty tool set, rejected shell/file/image attacks, ephemeral thread, streamed synthetic answer, no stored auth.");
+  console.log("PASS: actual runtime, empty tool set, rejected shell/file/image attacks, ephemeral thread, streamed synthetic answer, same-thread follow-up, no stored auth.");
 } finally {
   if (proc) { proc.kill(); await new Promise(resolve => proc.once("close", resolve)); }
   server.closeAllConnections(); await new Promise(resolve => server.close(resolve));

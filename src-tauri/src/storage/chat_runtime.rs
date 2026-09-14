@@ -25,6 +25,7 @@ pub struct Runtime {
     pub session: (String, u64),
     pub login_id: Option<String>,
     home: TempDir,
+    thread_id: Option<String>,
 }
 
 impl Runtime {
@@ -126,6 +127,7 @@ impl Runtime {
             session,
             login_id: None,
             home,
+            thread_id: None,
         };
         runtime.rpc("initialize", json!({"clientInfo":{"name":"finanzblick","title":"Finanzblick","version":env!("CARGO_PKG_VERSION")},"capabilities":{"experimentalApi":false}}))?;
         runtime.write(json!({"method":"initialized"}))?;
@@ -199,16 +201,28 @@ impl Runtime {
         &mut self,
         payload: &str,
         instructions: &str,
+        reuse_context: bool,
         authorize: impl FnOnce() -> Result<L, String>,
     ) -> Result<String, String> {
         if !self.connected()? {
             return Err("Bitte zuerst mit ChatGPT anmelden.".into());
         }
-        let thread = self.rpc("thread/start", json!({"ephemeral":true,"model":MODEL,"modelProvider":"openai","cwd":self.home.path(),"sandbox":"read-only","approvalPolicy":"never","baseInstructions":instructions}))?;
-        if thread["thread"]["ephemeral"] != true {
-            return Err(FAILED.into());
-        }
-        let thread_id = thread["thread"]["id"].as_str().ok_or(FAILED)?.to_string();
+        let thread_id = if reuse_context {
+            self.thread_id
+                .clone()
+                .ok_or("Der Chatkontext ist abgelaufen. Bitte die Daten erneut freigeben.")?
+        } else {
+            if let Some(id) = self.thread_id.take() {
+                self.rpc("thread/unsubscribe", json!({"threadId":id}))?;
+            }
+            let thread = self.rpc("thread/start", json!({"ephemeral":true,"model":MODEL,"modelProvider":"openai","cwd":self.home.path(),"sandbox":"read-only","approvalPolicy":"never","baseInstructions":instructions}))?;
+            if thread["thread"]["ephemeral"] != true {
+                return Err(FAILED.into());
+            }
+            let id = thread["thread"]["id"].as_str().ok_or(FAILED)?.to_string();
+            self.thread_id = Some(id.clone());
+            id
+        };
         self.events.clear();
         let request_id = {
             let _lease = authorize()?;
@@ -252,8 +266,6 @@ impl Runtime {
                             "ChatGPT hat keine Antwort geliefert. Bitte erneut versuchen.".into(),
                         );
                     }
-                    // Unload the ephemeral thread: full history is supplied afresh in the approved preview.
-                    self.rpc("thread/unsubscribe", json!({"threadId":thread_id}))?;
                     return Ok(answer);
                 }
                 _ => {}
@@ -268,7 +280,7 @@ impl Drop for Runtime {
             let _ = process.kill();
             let _ = process.wait();
         }
-        // TempDir deletes configuration and any runtime files; authentication is memory-only.
+        // The ephemeral chat ends with this process; the separate OS login store remains.
     }
 }
 

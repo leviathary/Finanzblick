@@ -20,6 +20,7 @@ export function FinanceChat() {
   const [error, setError] = useState("");
   const [from, setFrom] = useState(`${new Date().getFullYear()}-01-01`);
   const [to, setTo] = useState(today);
+  const [accountScope, setAccountScope] = useState<"auto" | "all" | "credit_cards">("auto");
   const [fearless, setFearless] = useState(false);
   const [reviewBeforeSend, setReviewBeforeSend] = useState(true);
   const [question, setQuestion] = useState("");
@@ -88,10 +89,15 @@ export function FinanceChat() {
     if (!question.trim() || !account.connected || busy || draft || dictation.active || history.length >= 12) return;
     const id = ++revision.current; setBusy("preview"); setError(""); setDraft(null); setConfirmed(false);
     try {
-      const value = await invoke<Preview & { previewId: number }>("prepare_finance_chat", { request: { from, to, question, history, includeDetails: fearless } });
+      const value = await invoke<Preview & { previewId: number }>("prepare_finance_chat", { request: { from, to, question, history, includeDetails: fearless, accountScope } });
       if (valid(id)) {
+        const scope = JSON.parse(value.payload).data.accountScope;
+        if (scope === "credit_cards" && accountScope !== "credit_cards") {
+          setHistory([]); setAccountScope("credit_cards");
+        }
         const prepared = { ...value, question: question.trim() };
-        if (reviewBeforeSend) setDraft(prepared);
+        if (!value.followUp && history.length) setHistory([]);
+        if (reviewBeforeSend && !value.followUp) setDraft(prepared);
         else await deliver(prepared);
       }
     } catch (e) { if (valid(id)) setError(String(e)); }
@@ -127,7 +133,7 @@ export function FinanceChat() {
   return <section className="finance-chat" aria-label={t("Finanzchat")}>
     <header className="chat-header">
       <div><h1>{t("Finanzchat")}</h1><button className="chat-mode-button" onClick={() => setSettings(true)}>
-        {fearless ? "Fearless" : t("Zusammenfassungen")} · {reviewBeforeSend ? t("Mit Prüfung") : t("Direkt senden")}
+        {accountScope === "credit_cards" && <>{t("Nur Kreditkarten")} · </>}{fearless ? "Fearless" : t("Zusammenfassungen")} · {reviewBeforeSend ? t("Mit Prüfung") : t("Direkt senden")}
       </button></div>
       <div className="chat-header-actions">
         <button className="chat-quiet-button" disabled={!!busy || !!draft} onClick={newChat}><ChatIcon name="plus" /><span>{t("Neuer Chat")}</span></button>
@@ -180,7 +186,11 @@ export function FinanceChat() {
       <fieldset className="chat-sharing-options" disabled={!!busy || !!draft}>
         <legend>{t("Daten & Versand")}</legend>
         <label className="chat-option"><span><strong>{t("Fearless-Modus: Detailtransaktionen")}</strong><small>{t("Einzelne Buchungen mit Datum, Betrag, Währung und Kategorie übermitteln – ohne Buchungstexte, Namen, Adressen oder Kontodaten.")}</small></span><input type="checkbox" role="switch" checked={fearless} onChange={e => { newChat(); setFearless(e.target.checked); }} /></label>
-        <label className="chat-option"><span><strong>{t("Vor dem Senden prüfen")}</strong><small>{t("Ausgeschaltet: Enter und der Sendepfeil senden die gewählten Daten direkt an OpenAI, ohne weitere Bestätigung.")}</small></span><input type="checkbox" role="switch" checked={reviewBeforeSend} onChange={e => { newChat(); setReviewBeforeSend(e.target.checked); }} /></label>
+        <label className="chat-option"><span><strong>{t("Vor dem Senden prüfen")}</strong><small>{t("Neue Daten werden vor dem Senden geprüft. Folgefragen verwenden die bereits freigegebenen Daten und werden direkt gesendet.")} {t("Ausgeschaltet: Enter und der Sendepfeil senden die gewählten Daten direkt an OpenAI, ohne weitere Bestätigung.")}</small></span><input type="checkbox" role="switch" checked={reviewBeforeSend} onChange={e => { newChat(); setReviewBeforeSend(e.target.checked); }} /></label>
+        <label>{t("Kontenauswahl")}<select aria-label={t("Kontenauswahl")} value={accountScope} onChange={e => { newChat(); setAccountScope(e.target.value as typeof accountScope); }}>
+          <option value="auto">{t("Automatisch nach Frage")}</option><option value="credit_cards">{t("Nur Kreditkarten")}</option><option value="all">{t("Alle aktiven Konten")}</option>
+        </select></label>
+        <p className="chat-note">{t("Kreditkartenfragen werden automatisch auf Kreditkartenkonten begrenzt. Die Begrenzung bleibt für Folgefragen erhalten. Beim Wechsel werden bisherige Nachrichten verworfen.")}</p>
         <div className="chat-period-fields"><label>{t("Von")}<input type="date" value={from} max={to} onChange={e => { newChat(); setFrom(e.target.value); }} /></label><label>{t("Bis")}<input type="date" value={to} min={from} max={today()} onChange={e => { newChat(); setTo(e.target.value); }} /></label></div>
         <p className="chat-note">{t("Der Zeitraum gilt für die freigegebenen Daten. Änderungen starten einen neuen Chat. Diese Optionen gelten nur in dieser Chatansicht.")}</p>
       </fieldset>

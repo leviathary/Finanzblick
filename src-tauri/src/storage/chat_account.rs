@@ -21,9 +21,15 @@ pub struct ChatState {
     runtime: Mutex<Option<Runtime>>,
     process: Mutex<Option<(Process, (String, u64))>>,
     pending: Mutex<Option<Pending>>,
+    context: Mutex<Option<Context>>,
     epoch: AtomicU64,
     sequence: AtomicU64,
     sending: AtomicBool,
+}
+struct Context {
+    fingerprint: String,
+    session: (String, u64),
+    epoch: u64,
 }
 struct Pending {
     id: u64,
@@ -32,11 +38,16 @@ struct Pending {
     created: Instant,
     payload: String,
     instructions: &'static str,
+    fingerprint: String,
+    follow_up: bool,
 }
 
 impl ChatState {
     pub fn stop(&self) {
         self.epoch.fetch_add(1, Ordering::SeqCst);
+        if let Ok(mut context) = self.context.lock() {
+            *context = None;
+        }
         if let Ok(mut pending) = self.pending.lock() {
             *pending = None;
         }
@@ -77,7 +88,8 @@ impl ChatState {
         session: (String, u64),
         payload: String,
         instructions: &'static str,
-    ) -> Result<u64, String> {
+        fingerprint: String,
+    ) -> Result<(u64, bool), String> {
         if self.sending.load(Ordering::SeqCst) {
             return Err("Bitte die laufende Antwort abwarten oder abbrechen.".into());
         }
@@ -86,6 +98,20 @@ impl ChatState {
         if epoch != self.epoch() {
             return Err(STALE.into());
         }
+        let follow_up = self
+            .context
+            .lock()
+            .map_err(|_| STALE)?
+            .as_ref()
+            .is_some_and(|c| {
+                c.fingerprint == fingerprint && c.session == session && c.epoch == epoch
+            });
+        let payload = if follow_up {
+            let data: serde_json::Value = serde_json::from_str(&payload).map_err(|_| STALE)?;
+            serde_json::to_string(&json!({"question":data["question"]})).map_err(|_| STALE)?
+        } else {
+            payload
+        };
         *pending = Some(Pending {
             id,
             session,
@@ -93,8 +119,10 @@ impl ChatState {
             created: Instant::now(),
             payload,
             instructions,
+            fingerprint,
+            follow_up,
         });
-        Ok(id)
+        Ok((id, follow_up))
     }
 }
 
@@ -154,6 +182,7 @@ pub async fn chatgpt_status(app: tauri::AppHandle) -> Result<AccountStatus, Stri
             *guard = None;
         }
         if guard.is_none() {
+            *state.context.lock().map_err(|_| STALE)? = None;
             let runtime = Runtime::start(
                 &binary(&app)?,
                 session.clone(),
@@ -172,6 +201,7 @@ pub async fn chatgpt_status(app: tauri::AppHandle) -> Result<AccountStatus, Stri
                 Ok(connected) => (connected, runtime.login_id.is_some()),
                 Err(_) => {
                     *guard = None;
+                    *state.context.lock().map_err(|_| STALE)? = None;
                     (false, false)
                 }
             }
@@ -199,6 +229,7 @@ pub async fn chatgpt_login_start(app: tauri::AppHandle) -> Result<(), String> {
             *guard = None;
         }
         if guard.is_none() {
+            *state.context.lock().map_err(|_| STALE)? = None;
             let runtime = Runtime::start(
                 &binary(&app)?,
                 session.clone(),
@@ -255,13 +286,9 @@ pub async fn chatgpt_disconnect(app: tauri::AppHandle) -> Result<(), String> {
 
 #[tauri::command]
 pub fn cancel_finance_chat(state: State<'_, ChatState>) {
-    state.epoch.fetch_add(1, Ordering::SeqCst);
-    if let Ok(mut pending) = state.pending.lock() {
-        *pending = None;
-    }
-    if state.sending.load(Ordering::SeqCst) {
-        state.stop();
-    }
+    // End the ephemeral conversation on New Chat, leaving the view or cancellation.
+    // The next send can restore the independent saved ChatGPT login.
+    state.stop();
 }
 
 #[tauri::command]
@@ -287,25 +314,48 @@ pub async fn send_finance_chat(app: tauri::AppHandle, preview_id: u64) -> Result
                 return Err(STALE.into());
             }
             let mut guard = state.runtime.lock().map_err(|_| STALE)?;
+            if guard.is_none() && !pending.follow_up {
+                let runtime = Runtime::start(
+                    &binary(&app)?,
+                    pending.session.clone(),
+                    Some(&credentials_home(&app, &pending.session.0)?),
+                )?;
+                *state.process.lock().map_err(|_| STALE)? =
+                    Some((runtime.process.clone(), pending.session.clone()));
+                *guard = Some(runtime);
+            }
             let runtime = guard
                 .as_mut()
                 .filter(|r| r.session == pending.session)
                 .ok_or("Bitte zuerst mit ChatGPT anmelden.")?;
-            let answer = runtime.answer(&pending.payload, pending.instructions, || {
-                if state.epoch.load(Ordering::SeqCst) != pending.epoch
-                    || storage.chat_session()? != pending.session
-                {
-                    return Err(STALE.to_string());
-                }
-                storage.require_chat_session(&pending.session)
-            });
+            let answer = runtime.answer(
+                &pending.payload,
+                pending.instructions,
+                pending.follow_up,
+                || {
+                    if state.epoch.load(Ordering::SeqCst) != pending.epoch
+                        || storage.chat_session()? != pending.session
+                    {
+                        return Err(STALE.to_string());
+                    }
+                    storage.require_chat_session(&pending.session)
+                },
+            );
             if answer.is_err() {
                 *guard = None;
+                *state.context.lock().map_err(|_| STALE)? = None;
             }
             if storage.chat_session()? != pending.session
                 || state.epoch.load(Ordering::SeqCst) != pending.epoch
             {
                 return Err(STALE.into());
+            }
+            if answer.is_ok() {
+                *state.context.lock().map_err(|_| STALE)? = Some(Context {
+                    fingerprint: pending.fingerprint,
+                    session: pending.session,
+                    epoch: pending.epoch,
+                });
             }
             answer
         })();
@@ -320,22 +370,72 @@ pub async fn send_finance_chat(app: tauri::AppHandle, preview_id: u64) -> Result
 mod tests {
     use super::*;
     #[test]
+    fn follow_up_sends_only_question_and_requires_same_authorized_context() {
+        let state = ChatState::default();
+        let session = ("demo".into(), 3);
+        let payload = json!({"data":{"amount":123}, "question":"Und warum?"}).to_string();
+        let prepare = |fingerprint: &str, session| {
+            state
+                .preview(
+                    state.epoch(),
+                    session,
+                    payload.clone(),
+                    "instructions",
+                    fingerprint.into(),
+                )
+                .unwrap()
+                .1
+        };
+        assert!(!prepare("snapshot", session.clone()));
+        *state.context.lock().unwrap() = Some(Context {
+            fingerprint: "snapshot".into(),
+            session: session.clone(),
+            epoch: state.epoch(),
+        });
+        assert!(prepare("snapshot", session.clone()));
+        assert_eq!(
+            serde_json::from_str::<serde_json::Value>(
+                &state.pending.lock().unwrap().as_ref().unwrap().payload
+            )
+            .unwrap(),
+            json!({"question":"Und warum?"})
+        );
+        assert!(!prepare("changed-data", session.clone()));
+        assert!(!prepare("snapshot", ("other-profile".into(), 3)));
+        assert!(!prepare("snapshot", ("demo".into(), 4)));
+        state.stop();
+        assert!(!prepare("snapshot", session));
+    }
+
+    #[test]
     fn preview_is_bound_to_session_and_invalidated_on_disconnect() {
         let state = ChatState::default();
         let id = state
-            .preview(0, ("demo".into(), 3), "synthetic".into(), "instructions")
+            .preview(
+                0,
+                ("demo".into(), 3),
+                "synthetic".into(),
+                "instructions",
+                "snapshot".into(),
+            )
             .unwrap();
         {
             let guard = state.pending.lock().unwrap();
             let pending = guard.as_ref().unwrap();
-            assert_eq!(pending.id, id);
+            assert_eq!(pending.id, id.0);
             assert_eq!(pending.session, ("demo".into(), 3));
         }
         state.stop();
         assert!(state.pending.lock().unwrap().is_none());
         assert_eq!(state.epoch.load(Ordering::SeqCst), 1);
         assert!(state
-            .preview(0, ("demo".into(), 3), "late preview".into(), "instructions")
+            .preview(
+                0,
+                ("demo".into(), 3),
+                "late preview".into(),
+                "instructions",
+                "snapshot".into()
+            )
             .is_err());
     }
 }

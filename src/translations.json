@@ -4263,5 +4263,55 @@
     "Speech recognition could not be loaded. Please reopen the app and try again.",
     "La reconnaissance vocale n’a pas pu être chargée. Rouvrez l’application et réessayez.",
     "Impossibile caricare il riconoscimento vocale. Riapri l’app e riprova."
+  ],
+  "Nur Kreditkarten": [
+    "Credit cards only",
+    "Cartes de crédit uniquement",
+    "Solo carte di credito"
+  ],
+  "Kontenauswahl": [
+    "Account selection",
+    "Sélection des comptes",
+    "Selezione dei conti"
+  ],
+  "Automatisch nach Frage": [
+    "Automatically from the question",
+    "Automatiquement selon la question",
+    "Automaticamente dalla domanda"
+  ],
+  "Alle aktiven Konten": [
+    "All active accounts",
+    "Tous les comptes actifs",
+    "Tutti i conti attivi"
+  ],
+  "Kreditkartenfragen werden automatisch auf Kreditkartenkonten begrenzt. Die Begrenzung bleibt für Folgefragen erhalten. Beim Wechsel werden bisherige Nachrichten verworfen.": [
+    "Credit card questions are automatically restricted to credit card accounts. Follow-up questions retain this restriction. Changing the selection clears previous messages.",
+    "Les questions sur les cartes de crédit sont automatiquement limitées à ces comptes. Cette limite reste active pour les questions suivantes. Changer la sélection efface les messages précédents.",
+    "Le domande sulle carte di credito vengono limitate automaticamente a questi conti. Il limite resta per le domande successive. Cambiare selezione elimina i messaggi precedenti."
+  ],
+  "Keine Daten anderer Konten, keine Einkommens- oder Vermögensübersicht.": [
+    "No data from other accounts, no income or wealth overview.",
+    "Aucune donnée d’autres comptes, aucun aperçu des revenus ou du patrimoine.",
+    "Nessun dato di altri conti, nessun riepilogo del reddito o del patrimonio."
+  ],
+  "Kreditkartenbelastungen": [
+    "Credit card charges",
+    "Débits des cartes de crédit",
+    "Addebiti sulle carte di credito"
+  ],
+  "Kreditkartengutschriften": [
+    "Credit card credits",
+    "Crédits des cartes de crédit",
+    "Accrediti sulle carte di credito"
+  ],
+  "Summen nur in CHF. Gutschriften können Rückzahlungen oder Erstattungen sein und sind kein Einkommen.": [
+    "Totals in CHF only. Credits may be repayments or refunds and are not income.",
+    "Totaux en CHF uniquement. Les crédits peuvent être des remboursements et ne sont pas des revenus.",
+    "Totali solo in CHF. Gli accrediti possono essere rimborsi e non costituiscono reddito."
+  ],
+  "Neue Daten werden vor dem Senden geprüft. Folgefragen verwenden die bereits freigegebenen Daten und werden direkt gesendet.": [
+    "New data is reviewed before sending. Follow-up questions use the data already shared and are sent directly.",
+    "Les nouvelles données sont vérifiées avant envoi. Les questions suivantes utilisent les données déjà autorisées et sont envoyées directement.",
+    "I nuovi dati vengono verificati prima dell’invio. Le domande successive utilizzano i dati già autorizzati e vengono inviate direttamente."
   ]
 }

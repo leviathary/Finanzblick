@@ -10,7 +10,7 @@ ständig sichtbaren, mitwachsenden Eingabeleiste. Enter oder der runde Sendepfei
 öffnet standardmässig die Datenfreigabe als Dialog; Shift+Enter fügt eine neue Zeile ein.
 „Vor dem Senden prüfen“ lässt sich unter „Datenschutz & Modell-Info“ ausschalten.
 Dann senden Enter und Sendepfeil die gewählten Daten direkt, ohne weitere Bestätigung.
-Mit aktiver Prüfung sind weiterhin Freigabekästchen und „Freigeben & an ChatGPT senden“
+Für neue Daten sind mit aktiver Prüfung Freigabekästchen und „Freigeben & an ChatGPT senden“
 erforderlich. Escape oder „Frage bearbeiten“ kehrt zur Eingabe zurück.
 
 Der Zeitraum steht unter „Datenschutz & Modell-Info“, standardmässig laufendes
@@ -63,9 +63,16 @@ Gemini und Anthropic sind in dieser Variante nicht enthalten.
   eine kurze Tresorsperre die Sitzung. Das Warten auf die Modellantwort hält keine
   Tresorsperre. Ein Hintergrundwächter beendet die Laufzeit nach Sperren/Profilwechsel;
   verspätete Antworten werden zusätzlich gegen die Sitzung geprüft und verworfen.
-- Jede Anfrage nutzt einen neuen flüchtigen Thread. Der freigegebene bisherige Chat
-  ist im Payload sichtbar. Nach Abschluss wird der Thread sofort entladen
-  (`thread_unload_delay_secs = 0`). Chatverläufe werden nicht dauerhaft gespeichert.
+- Die erste Frage eröffnet einen flüchtigen Thread mit dem freigegebenen Datenpaket.
+  Folgefragen verwenden denselben Thread und übergeben nur die neue Frage; die App
+  fügt weder Transaktionen noch den bisherigen Chat erneut ein. Ein lokaler SHA-256-
+  Vergleich von Datenpaket und Sprache prüft, ob der Kontext unverändert ist.
+  Geänderte Daten, Zeiträume, Kontenauswahl oder Modi erfordern einen neuen Thread
+  und bei aktiver Prüfung eine neue Freigabe. Folgefragen werden direkt gesendet.
+  Neuer Chat, Verlassen, Sperren und Abbruch verwerfen den Kontext. Nach einem
+  Laufzeitfehler wird keine Frage stillschweigend mit einem neuen Datenpaket gesendet.
+  Chatverläufe werden nicht dauerhaft gespeichert. Der Anbieter kann den bestehenden
+  Kontext intern erneut verarbeiten und auf Nutzungslimits anrechnen.
 - Ein Abbruch während einer Antwort beendet die Verbindung; danach wird die
   gespeicherte Anmeldung erneut geladen. Bereits übertragene Inhalte lassen sich damit nicht zurückholen.
 - Anbieterfehler werden auf feste Meldungen abgebildet, ohne Anbieterantworten oder
@@ -165,3 +172,20 @@ Die Detailabfrage nutzt eine explizite Feldfreigabe; Beschreibung, Kontoname und
 Kontoreferenz werden nicht selektiert. Ein Regressionstest prüft den vollständigen
 Snapshot auf synthetische Namen, Adressen, IBAN und Kontonummern und erzwingt
 die erlaubten JSON-Felder für jede Detailtransaktion.
+
+## Auf Kreditkarten begrenzter Kontext
+
+Die lokale Kontenauswahl steht standardmässig auf „Automatisch nach Frage“.
+Erwähnungen von Kreditkarten (auch englisch, französisch oder italienisch) begrenzen
+Zusammenfassungen und Details auf aktive Konten vom Typ `credit_card`. Es werden
+keine Bankumsätze, globalen Geldflusssummen oder Vermögensdaten beigefügt. Eine eigene
+SQL-Abfrage erstellt Kartenbelastungen und Gutschriften pro Monat im gewählten
+Zeitraum. CHF-Summen vermischen keine Fremdwährungen; Kartengutschriften sind kein
+Einkommen. Es gelten weiterhin die Feldfreigabe und die Grenze von 2000 Detailzeilen.
+
+Die Vorschau und der Chat-Kopf zeigen „Nur Kreditkarten“. Die Auswahl bleibt für
+Folgefragen erhalten. Beim automatischen Wechsel wird alter globaler Chatkontext
+auch im Backend weggelassen. Unter „Kontenauswahl“ kann die Einschränkung ausdrücklich
+gewählt oder mit „Alle aktiven Konten“ aufgehoben werden; Änderungen starten einen
+neuen Chat. Die Erkennung verwendet lokale Schlüsselwörter, keine externe Modellabfrage.
+Der Zeitraum wird weiterhin über Von/Bis festgelegt.
