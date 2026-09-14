@@ -27,6 +27,13 @@
   },
   "bundle": {
     "active": true,
+    "license": "MIT",
+    "licenseFile": "../LICENSE",
+    "resources": {
+      "../LICENSE": "licenses/LICENSE",
+      "../THIRD_PARTY_LICENSES.txt": "licenses/THIRD_PARTY_LICENSES.txt",
+      "../DEPENDENCIES.md": "licenses/DEPENDENCIES.md"
+    },
     "targets": "all",
     "icon": [
       "icons/32x32.png",

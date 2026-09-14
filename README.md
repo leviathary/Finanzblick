@@ -9,6 +9,7 @@ Vermögen und Ausgaben. Ohne Benutzerkonto oder Cloud-Synchronisierung.
 
 Die heruntergeladene Datei ausführen. Ein Windows-Entwicklermodus ist nicht nötig.
 Der Installer ist nicht signiert; Windows kann deshalb eine Sicherheitswarnung anzeigen.
+Frühe Testversion: vor der Nutzung mit echten Daten ein Backup erstellen.
 
 Die Demo ist bereits enthalten: **Finanzprofil → Demo-Daten**, Passwort **`demo1234`**.
 Sie wird beim ersten Öffnen lokal erzeugt; es ist kein zusätzlicher Download nötig.
@@ -60,6 +61,14 @@ legt ein zusätzliches Finanzprofil an; bestehende Daten bleiben erhalten.
 **Wichtig:** Es gibt keinen Passwort-Reset. Backups benötigen das Passwort vom
 Zeitpunkt der Sicherung. Bewahre sie möglichst auf einem anderen Datenträger auf.
 
+## Lizenz
+
+Der eigene Quellcode steht unter der [MIT-Lizenz](LICENSE).
+[Abhängigkeiten](DEPENDENCIES.md) behalten ihre eigenen Lizenzen; deren Texte und
+Hinweise stehen in [THIRD_PARTY_LICENSES.txt](THIRD_PARTY_LICENSES.txt) und werden
+im Installer mitgeliefert. Banklogos werden nicht mitgeliefert; stattdessen
+erscheinen Kürzel. Eigene Logos lassen sich lokal im Finanzprofil hochladen.
+
 ## Entwicklung
 
 Tauri 2 · React · TypeScript · Rust · SQLCipher
@@ -86,3 +95,13 @@ cargo test --manifest-path src-tauri/Cargo.toml --lib
 
 Alle eingecheckten Tests verwenden synthetische Daten. Echte Finanzdaten gehören
 nicht ins Repository.
+
+Veröffentlichungs-Build: `npm run release -- --bundles nsis` (Windows).
+Das plattformneutrale Build-Skript sammelt Lizenzhinweise, neutralisiert lokale
+Rust-Build-Pfade und prüft die EXE vor der Weitergabe. Bei anderen Zielplattformen
+die passenden Tauri-Bundle-Argumente verwenden; macOS ist noch nicht getestet.
+Für native Bibliotheken wie OpenSSL muss auch `CARGO_TARGET_DIR` auf ein neutrales
+Build-Verzeichnis ohne persönlichen Benutzernamen zeigen. Ein fehlgeschlagener
+Pfadcheck bedeutet, dass der erzeugte Installer nicht veröffentlicht werden darf.
+Historische Installer und Logos bleiben bis zu einer gesondert freigegebenen
+Bereinigung in älteren Git-Commits erreichbar.

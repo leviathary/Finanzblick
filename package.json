@@ -2,9 +2,12 @@
   "name": "finanzblick",
   "private": true,
   "version": "0.5.3",
+  "license": "MIT",
   "type": "module",
   "scripts": {
-    "test": "node --test scripts/test-import-batch.mjs scripts/test-i18n.mjs scripts/test-position-history.mjs",
+    "test": "node --test scripts/test-import-batch.mjs scripts/test-i18n.mjs scripts/test-position-history.mjs scripts/test-bank-initials.mjs",
+    "licenses": "node scripts/collect-licenses.mjs",
+    "release": "node scripts/release.mjs",
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",

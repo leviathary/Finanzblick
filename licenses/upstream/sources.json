@@ -1,0 +1,97 @@
+{
+  "alloc-stdlib@0.2.4": [
+    {
+      "file": "licenses/upstream/alloc-stdlib-0.2.4/LICENSE",
+      "source": "https://raw.githubusercontent.com/dropbox/rust-alloc-no-stdlib/ae42d22078b98549e987d2f03d12df7b984fde47/LICENSE"
+    }
+  ],
+  "defmt-parser@1.0.0": [
+    {
+      "file": "licenses/upstream/defmt-parser-1.0.0/LICENSE-MIT",
+      "source": "https://raw.githubusercontent.com/knurling-rs/defmt/4a8cdb44891ed57b8ff5a023b6bec7137c48708f/LICENSE-MIT"
+    },
+    {
+      "file": "licenses/upstream/defmt-parser-1.0.0/LICENSE-APACHE",
+      "source": "https://raw.githubusercontent.com/knurling-rs/defmt/4a8cdb44891ed57b8ff5a023b6bec7137c48708f/LICENSE-APACHE"
+    }
+  ],
+  "selectors@0.36.1": [],
+  "tauri-plugin@2.6.3": [
+    {
+      "file": "licenses/upstream/tauri-plugin-2.6.3/LICENSE_MIT",
+      "source": "https://raw.githubusercontent.com/tauri-apps/tauri/6f6ab1207bb3923c2721fbc67d2fdb1c8deb0c7a/LICENSE_MIT"
+    },
+    {
+      "file": "licenses/upstream/tauri-plugin-2.6.3/LICENSE_APACHE-2.0",
+      "source": "https://raw.githubusercontent.com/tauri-apps/tauri/6f6ab1207bb3923c2721fbc67d2fdb1c8deb0c7a/LICENSE_APACHE-2.0"
+    }
+  ],
+  "unic-char-property@0.9.0": [
+    {
+      "file": "licenses/upstream/unic-char-property-0.9.0/LICENSE-MIT",
+      "source": "https://raw.githubusercontent.com/open-i18n/rust-unic/5878605364af97a3358368a6eaef02104af2e016/LICENSE-MIT"
+    },
+    {
+      "file": "licenses/upstream/unic-char-property-0.9.0/LICENSE-APACHE",
+      "source": "https://raw.githubusercontent.com/open-i18n/rust-unic/5878605364af97a3358368a6eaef02104af2e016/LICENSE-APACHE"
+    }
+  ],
+  "unic-char-range@0.9.0": [
+    {
+      "file": "licenses/upstream/unic-char-range-0.9.0/LICENSE-MIT",
+      "source": "https://raw.githubusercontent.com/open-i18n/rust-unic/5878605364af97a3358368a6eaef02104af2e016/LICENSE-MIT"
+    },
+    {
+      "file": "licenses/upstream/unic-char-range-0.9.0/LICENSE-APACHE",
+      "source": "https://raw.githubusercontent.com/open-i18n/rust-unic/5878605364af97a3358368a6eaef02104af2e016/LICENSE-APACHE"
+    }
+  ],
+  "unic-common@0.9.0": [
+    {
+      "file": "licenses/upstream/unic-common-0.9.0/LICENSE-MIT",
+      "source": "https://raw.githubusercontent.com/open-i18n/rust-unic/5878605364af97a3358368a6eaef02104af2e016/LICENSE-MIT"
+    },
+    {
+      "file": "licenses/upstream/unic-common-0.9.0/LICENSE-APACHE",
+      "source": "https://raw.githubusercontent.com/open-i18n/rust-unic/5878605364af97a3358368a6eaef02104af2e016/LICENSE-APACHE"
+    }
+  ],
+  "unic-ucd-ident@0.9.0": [
+    {
+      "file": "licenses/upstream/unic-ucd-ident-0.9.0/LICENSE-MIT",
+      "source": "https://raw.githubusercontent.com/open-i18n/rust-unic/8a6ce83063d90b91ae2ce59eddb803edd393fca9/LICENSE-MIT"
+    },
+    {
+      "file": "licenses/upstream/unic-ucd-ident-0.9.0/LICENSE-APACHE",
+      "source": "https://raw.githubusercontent.com/open-i18n/rust-unic/8a6ce83063d90b91ae2ce59eddb803edd393fca9/LICENSE-APACHE"
+    }
+  ],
+  "unic-ucd-version@0.9.0": [
+    {
+      "file": "licenses/upstream/unic-ucd-version-0.9.0/LICENSE-MIT",
+      "source": "https://raw.githubusercontent.com/open-i18n/rust-unic/5878605364af97a3358368a6eaef02104af2e016/LICENSE-MIT"
+    },
+    {
+      "file": "licenses/upstream/unic-ucd-version-0.9.0/LICENSE-APACHE",
+      "source": "https://raw.githubusercontent.com/open-i18n/rust-unic/5878605364af97a3358368a6eaef02104af2e016/LICENSE-APACHE"
+    }
+  ],
+  "webview2-com@0.38.2": [
+    {
+      "file": "licenses/upstream/webview2-com-0.38.2/LICENSE",
+      "source": "https://raw.githubusercontent.com/wravery/webview2-rs/b74dc5e2b394044bea5191052868ce7a106c202c/LICENSE"
+    }
+  ],
+  "webview2-com-macros@0.8.1": [
+    {
+      "file": "licenses/upstream/webview2-com-macros-0.8.1/LICENSE",
+      "source": "https://raw.githubusercontent.com/wravery/webview2-rs/dffa41a8a46d3f5565eefbff2de57d38d399f158/LICENSE"
+    }
+  ],
+  "webview2-com-sys@0.38.2": [
+    {
+      "file": "licenses/upstream/webview2-com-sys-0.38.2/LICENSE",
+      "source": "https://raw.githubusercontent.com/wravery/webview2-rs/b74dc5e2b394044bea5191052868ce7a106c202c/LICENSE"
+    }
+  ]
+}
