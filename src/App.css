@@ -939,6 +939,7 @@ a {
 }
 .asset-kpis article {
   display: grid;
+  align-content: start;
   gap: 8px;
   padding: 21px;
   border: 1px solid var(--border-subtle);
