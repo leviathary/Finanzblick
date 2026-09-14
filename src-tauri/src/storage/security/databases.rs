@@ -33,6 +33,7 @@ pub struct DatabaseChoice {
     id: String,
     name: String,
     active: bool,
+    demo: bool,
 }
 
 impl Storage {
@@ -46,12 +47,12 @@ impl Storage {
 
     pub(super) fn select_database(&self, id: &str) -> Result<(), String> {
         if !valid_id(id) {
-            return Err("Ungültige Datenbankauswahl.".into());
+            return Err("Ungültige Profilauswahl.".into());
         }
         let mut session = self.session.write().map_err(|_| LOCKED)?;
         let path = self.path_for_database(id);
         if !path.is_file() {
-            return Err("Die gewählte Datenbank fehlt.".into());
+            return Err("Das gewählte Finanzprofil fehlt.".into());
         }
         self.persist_database_choice(id)?;
         session.clear();
@@ -63,34 +64,33 @@ impl Storage {
         self.path_for_database(session_id(session))
     }
 
-    fn persist_database_choice(&self, id: &str) -> Result<(), String> {
+    pub(super) fn persist_database_choice(&self, id: &str) -> Result<(), String> {
         let mut stage =
             tempfile::NamedTempFile::new_in(self.path.parent().ok_or("Speicherort fehlt.")?)
-                .map_err(|_| "Datenbankauswahl konnte nicht gespeichert werden.")?;
+                .map_err(|_| "Profilauswahl konnte nicht gespeichert werden.")?;
         stage
             .write_all(id.as_bytes())
             .and_then(|_| stage.as_file().sync_all())
-            .map_err(|_| "Datenbankauswahl konnte nicht gespeichert werden.")?;
+            .map_err(|_| "Profilauswahl konnte nicht gespeichert werden.")?;
         stage
             .persist(self.path.with_file_name("database-choice"))
-            .map_err(|_| "Datenbankauswahl konnte nicht gespeichert werden.")?;
+            .map_err(|_| "Profilauswahl konnte nicht gespeichert werden.")?;
         Ok(())
     }
 
-    fn available_destination(&self, name: &str) -> Result<PathBuf, String> {
+    pub(super) fn available_destination(&self, name: &str) -> Result<PathBuf, String> {
         let name = name.trim();
         if !valid_id(name) || name == PRIMARY_DATABASE_ID {
-            return Err("Bitte einen gültigen, eindeutigen Datenbanknamen eingeben.".into());
+            return Err("Bitte einen gültigen, eindeutigen Profilnamen eingeben.".into());
         }
         let destination = self.path_for_database(name);
         if destination.exists() {
-            return Err("Eine Datenbank mit diesem Namen existiert bereits.".into());
+            return Err("Ein Finanzprofil mit diesem Namen existiert bereits.".into());
         }
         Ok(destination)
     }
 
     pub(super) fn create_database(&self, name: &str, password: String) -> Result<(), String> {
-        drop(self.require_unlocked()?);
         let name = name.trim();
         if password.chars().count() < 7 {
             return Err("Bitte mindestens 7 Zeichen verwenden.".into());
@@ -99,25 +99,25 @@ impl Storage {
 
         let directory = self.path.parent().ok_or("Speicherort fehlt.")?;
         let stage = tempfile::NamedTempFile::new_in(directory)
-            .map_err(|_| "Datenbank konnte nicht erstellt werden.")?;
+            .map_err(|_| "Finanzprofil konnte nicht erstellt werden.")?;
         {
             let db = open(stage.path(), &password, true)
-                .map_err(|_| "Datenbank konnte nicht erstellt werden.")?;
-            initialize_schema(&db).map_err(|_| "Datenbank konnte nicht eingerichtet werden.")?;
+                .map_err(|_| "Finanzprofil konnte nicht erstellt werden.")?;
+            initialize_schema(&db).map_err(|_| "Finanzprofil konnte nicht eingerichtet werden.")?;
             let integrity: String = db
                 .query_row("PRAGMA integrity_check", [], |row| row.get(0))
-                .map_err(|_| "Datenbank konnte nicht geprüft werden.")?;
+                .map_err(|_| "Finanzprofil konnte nicht geprüft werden.")?;
             if integrity != "ok" {
-                return Err("Datenbank konnte nicht geprüft werden.".into());
+                return Err("Finanzprofil konnte nicht geprüft werden.".into());
             }
         }
         stage
             .as_file()
             .sync_all()
-            .map_err(|_| "Datenbank konnte nicht gespeichert werden.")?;
+            .map_err(|_| "Finanzprofil konnte nicht gespeichert werden.")?;
         stage
             .persist_noclobber(&destination)
-            .map_err(|_| "Datenbank konnte nicht gespeichert werden.")?;
+            .map_err(|_| "Finanzprofil konnte nicht gespeichert werden.")?;
 
         self.persist_database_choice(name)?;
         let mut session = self.session.write().map_err(|_| LOCKED)?;
@@ -140,45 +140,45 @@ impl Storage {
             .ok_or(LOCKED)?;
         let directory = self.path.parent().ok_or("Speicherort fehlt.")?;
         let stage = tempfile::NamedTempFile::new_in(directory)
-            .map_err(|_| "Datenbank konnte nicht kopiert werden.")?;
+            .map_err(|_| "Finanzprofil konnte nicht kopiert werden.")?;
         {
             let source = open(&self.database_path(&session), password, false)
-                .map_err(|_| "Datenbank konnte nicht kopiert werden.")?;
+                .map_err(|_| "Finanzprofil konnte nicht kopiert werden.")?;
             source
                 .execute(
                     "ATTACH DATABASE ?1 AS copied_database KEY ?2",
                     rusqlite::params![stage.path().to_string_lossy(), password.as_str()],
                 )
-                .map_err(|_| "Datenbank konnte nicht kopiert werden.")?;
+                .map_err(|_| "Finanzprofil konnte nicht kopiert werden.")?;
             source
                 .query_row("SELECT sqlcipher_export('copied_database')", [], |_| Ok(()))
-                .map_err(|_| "Datenbank konnte nicht kopiert werden.")?;
+                .map_err(|_| "Finanzprofil konnte nicht kopiert werden.")?;
             source
                 .execute_batch("DETACH DATABASE copied_database;")
-                .map_err(|_| "Datenbank konnte nicht kopiert werden.")?;
+                .map_err(|_| "Finanzprofil konnte nicht kopiert werden.")?;
         }
         {
             let copy = open(stage.path(), password, false)
-                .map_err(|_| "Datenbankkopie konnte nicht geprüft werden.")?;
+                .map_err(|_| "Profilkopie konnte nicht geprüft werden.")?;
             let integrity: String = copy
                 .query_row("PRAGMA integrity_check", [], |row| row.get(0))
-                .map_err(|_| "Datenbankkopie konnte nicht geprüft werden.")?;
+                .map_err(|_| "Profilkopie konnte nicht geprüft werden.")?;
             if integrity != "ok"
                 || copy
                     .prepare("PRAGMA foreign_key_check")
                     .and_then(|mut query| query.exists([]))
                     .unwrap_or(true)
             {
-                return Err("Datenbankkopie konnte nicht geprüft werden.".into());
+                return Err("Profilkopie konnte nicht geprüft werden.".into());
             }
         }
         stage
             .as_file()
             .sync_all()
-            .map_err(|_| "Datenbank konnte nicht kopiert werden.")?;
+            .map_err(|_| "Finanzprofil konnte nicht kopiert werden.")?;
         stage
             .persist_noclobber(destination)
-            .map_err(|_| "Datenbank konnte nicht kopiert werden.")?;
+            .map_err(|_| "Finanzprofil konnte nicht kopiert werden.")?;
         self.persist_database_choice(name)?;
         session.database_id = name.to_string();
         session.activity = Some(SystemTime::now());
@@ -272,7 +272,7 @@ impl Storage {
              COMMIT;
              VACUUM;"
         ))
-        .map_err(|_| "Datenbank konnte nicht anonymisiert werden.")?;
+        .map_err(|_| "Finanzprofil konnte nicht anonymisiert werden.")?;
         Ok(())
     }
 
@@ -288,7 +288,7 @@ impl Storage {
         }
         let db = self.connect().map_err(|_| LOCKED)?;
         db.execute_batch("PRAGMA secure_delete=ON; BEGIN IMMEDIATE;")
-            .map_err(|_| "Datenbank konnte nicht anonymisiert werden.")?;
+            .map_err(|_| "Finanzprofil konnte nicht anonymisiert werden.")?;
         let result = (|| -> rusqlite::Result<()> {
             db.execute(
                 "UPDATE transactions SET
@@ -339,7 +339,7 @@ impl Storage {
         })();
         if result.is_err() {
             let _ = db.execute_batch("ROLLBACK;");
-            return Err("Datenbank konnte nicht anonymisiert werden.".into());
+            return Err("Finanzprofil konnte nicht anonymisiert werden.".into());
         }
         Ok(())
     }
@@ -351,13 +351,13 @@ impl Storage {
             session_id(&session).to_string()
         };
         if id == PRIMARY_DATABASE_ID {
-            return Err("Die Hauptdatenbank kann nicht gelöscht werden.".into());
+            return Err("Das Hauptprofil kann nicht gelöscht werden.".into());
         }
         let path = self.path_for_database(&id);
         self.persist_database_choice(PRIMARY_DATABASE_ID)?;
         if fs::remove_file(path).is_err() {
             let _ = self.persist_database_choice(&id);
-            return Err("Datenbank konnte nicht gelöscht werden.".into());
+            return Err("Finanzprofil konnte nicht gelöscht werden.".into());
         }
         {
             let mut session = self.session.write().map_err(|_| LOCKED)?;
@@ -372,11 +372,11 @@ impl Storage {
 #[tauri::command]
 pub fn list_databases(storage: State<'_, Storage>) -> Result<Vec<DatabaseChoice>, String> {
     let session = storage.session.read().map_err(|_| LOCKED)?;
-    let mut ids = vec![PRIMARY_DATABASE_ID.to_string()];
+    let mut ids = if storage.path.is_file() { vec![PRIMARY_DATABASE_ID.to_string()] } else { Vec::new() };
     for entry in fs::read_dir(storage.path.parent().ok_or("Speicherort fehlt.")?)
-        .map_err(|_| "Datenbanken konnten nicht gelesen werden.")?
+        .map_err(|_| "Finanzprofile konnten nicht gelesen werden.")?
     {
-        let entry = entry.map_err(|_| "Datenbanken konnten nicht gelesen werden.")?;
+        let entry = entry.map_err(|_| "Finanzprofile konnten nicht gelesen werden.")?;
         let name = entry.file_name().to_string_lossy().into_owned();
         if entry.path() == storage.path {
             continue;
@@ -386,7 +386,7 @@ pub fn list_databases(storage: State<'_, Storage>) -> Result<Vec<DatabaseChoice>
                 && valid_id(id)
                 && entry
                     .file_type()
-                    .map_err(|_| "Datenbank nicht lesbar.")?
+                    .map_err(|_| "Finanzprofil nicht lesbar.")?
                     .is_file()
             {
                 ids.push(id.into());
@@ -398,6 +398,7 @@ pub fn list_databases(storage: State<'_, Storage>) -> Result<Vec<DatabaseChoice>
     Ok(ids
         .into_iter()
         .map(|id| DatabaseChoice {
+            demo: demo::is_reusable_demo(&storage.path_for_database(&id), &id),
             name: if id == PRIMARY_DATABASE_ID {
                 "Meine Daten".into()
             } else {
@@ -419,21 +420,21 @@ pub async fn create_database(
         app.state::<Storage>().create_database(&name, password)
     })
     .await
-    .map_err(|_| "Datenbank konnte nicht erstellt werden.".to_string())?
+    .map_err(|_| "Finanzprofil konnte nicht erstellt werden.".to_string())?
 }
 
 #[tauri::command]
 pub async fn copy_database(app: tauri::AppHandle, name: String) -> Result<(), String> {
     tauri::async_runtime::spawn_blocking(move || app.state::<Storage>().copy_database(&name))
         .await
-        .map_err(|_| "Datenbank konnte nicht kopiert werden.".to_string())?
+        .map_err(|_| "Finanzprofil konnte nicht kopiert werden.".to_string())?
 }
 
 #[tauri::command]
 pub async fn switch_database(app: tauri::AppHandle, id: String) -> Result<(), String> {
     tauri::async_runtime::spawn_blocking(move || app.state::<Storage>().select_database(&id))
         .await
-        .map_err(|_| "Datenbank konnte nicht gewechselt werden.".to_string())?
+        .map_err(|_| "Finanzprofil konnte nicht gewechselt werden.".to_string())?
 }
 
 #[tauri::command]
@@ -446,7 +447,7 @@ pub async fn anonymize_database(
             .anonymize_database(anonymize_descriptions)
     })
     .await
-    .map_err(|_| "Datenbank konnte nicht anonymisiert werden.".to_string())?
+    .map_err(|_| "Finanzprofil konnte nicht anonymisiert werden.".to_string())?
 }
 
 #[tauri::command]
@@ -460,14 +461,14 @@ pub async fn anonymize_database_with_factor(
             .anonymize_database_with_factor(factor, anonymize_descriptions)
     })
     .await
-    .map_err(|_| "Datenbank konnte nicht anonymisiert werden.".to_string())?
+    .map_err(|_| "Finanzprofil konnte nicht anonymisiert werden.".to_string())?
 }
 
 #[tauri::command]
 pub async fn delete_database(app: tauri::AppHandle) -> Result<(), String> {
     tauri::async_runtime::spawn_blocking(move || app.state::<Storage>().delete_database())
         .await
-        .map_err(|_| "Datenbank konnte nicht gelöscht werden.".to_string())?
+        .map_err(|_| "Finanzprofil konnte nicht gelöscht werden.".to_string())?
 }
 
 #[cfg(test)]

@@ -1,5 +1,7 @@
 import { t } from "./i18n";
+import { invoke } from "@tauri-apps/api/core";
 import "./App.css";
+import { DataSecurity } from "./features/settings/DataSecurity";
 import { Settings } from "./features/settings/Settings";
 import { useSettings } from "./settings";
 import { VaultGate, useVaultLock } from "./VaultGate";
@@ -14,7 +16,7 @@ import { TaxHistory } from "./features/tax-history/TaxHistory";
 
 import { Categories } from "./features/categories/Categories";
 
-type Page = "settings" | "categories" | "overview" | "accounts" | "assets" | "tax-history" | "transactions" | "imports" | "import-history";
+type Page = "data-security" | "settings" | "categories" | "overview" | "accounts" | "assets" | "tax-history" | "transactions" | "imports" | "import-history";
 type ImportKind = "bank" | "tax";
 
 type NavIconName = "home" | "bank" | "chart" | "tax" | "transactions" | "tag" | "import" | "history" | "settings" | "logout";
@@ -43,6 +45,7 @@ function ImportKindTabs({ value, onChange }: { value: ImportKind; onChange: (val
 }
 
 function pageFromHash(): Page {
+  if (window.location.hash === "#data-security") return "data-security";
   if (window.location.hash === "#settings") return "settings";
   if (window.location.hash === "#categories") return "categories";
   if (window.location.hash.startsWith("#import-history")) return "import-history";
@@ -58,6 +61,8 @@ function App() {
   useSettings();
   const lockVault = useVaultLock();
   const [page, setPage] = useState<Page>(pageFromHash);
+  const [isDemo, setIsDemo] = useState(false);
+  useEffect(() => { void invoke<boolean>("demo_status").then(setIsDemo).catch(() => setIsDemo(false)); }, []);
   const [importKind, setImportKind] = useState<ImportKind>(window.location.hash === "#imports/tax" ? "tax" : "bank");
   const [managementKind, setManagementKind] = useState<ImportKind>(window.location.hash === "#import-history/tax" ? "tax" : "bank");
 
@@ -92,12 +97,14 @@ function App() {
           <a className={page === "import-history" ? "active" : ""} href="#import-history"><NavIcon name="history"/><span>{t("Importverwaltung")}</span></a>
         </nav>
         <nav className="sidebar-secondary" aria-label={t("Kontonavigation")}>
+          <a className={page === "data-security" ? "active" : ""} href="#data-security"><NavIcon name="history"/><span>{t("Daten & Sicherheit")}</span></a>
           <a className={page === "settings" ? "active" : ""} href="#settings"><NavIcon name="settings"/><span>{t("Einstellungen")}</span></a>
           <button type="button" onClick={() => { void lockVault(); }}><NavIcon name="logout"/><span>{t("Abmelden")}</span></button>
         </nav>
       </aside>
       <div className="content">
-        {page === "settings" ? <Settings /> : page === "overview" ? <Overview onImport={() => navigate("imports")} /> : page === "accounts" ? <Accounts /> : page === "assets" ? <Assets onAccounts={() => navigate("accounts")} onImport={() => navigate("imports")} /> : page === "tax-history" ? <TaxHistory /> : page === "transactions" ? <Transactions /> : page === "categories" ? <Categories /> : null}
+        {isDemo && <aside className="demo-banner" role="note"><strong>{t("Demo – fiktive Daten")}</strong><span>{t("Alle Beträge, Kurse und Transaktionen sind simuliert. Passwort: demo1234. Bitte keine persönlichen Daten in der Demo speichern.")}</span><a href="#data-security">{t("Eigenes Finanzprofil erstellen")}</a></aside>}
+        {page === "data-security" ? <DataSecurity /> : page === "settings" ? <Settings /> : page === "overview" ? <Overview onImport={() => navigate("imports")} /> : page === "accounts" ? <Accounts /> : page === "assets" ? <Assets onAccounts={() => navigate("accounts")} onImport={() => navigate("imports")} /> : page === "tax-history" ? <TaxHistory /> : page === "transactions" ? <Transactions /> : page === "categories" ? <Categories /> : null}
         <div hidden={page !== "imports"}>
           <ImportKindTabs value={importKind} onChange={(kind) => { setImportKind(kind); window.location.hash = kind === "tax" ? "imports/tax" : "imports"; }} />
           <div hidden={importKind !== "bank"}><ImportWizard enabled={page === "imports" && importKind === "bank"} /></div>

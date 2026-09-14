@@ -49,6 +49,18 @@ pub async fn refresh_market_data(
     force: Option<bool>,
 ) -> Result<MarketRefreshResult, String> {
     let now = Local::now();
+    {
+        let connection = storage.connect().map_err(db_error)?;
+        if security::demo::is_demo(&connection) {
+            return Ok(MarketRefreshResult {
+                updated_positions: 0,
+                stored_days: 0,
+                skipped_positions: connection.query_row("SELECT COUNT(*) FROM portfolio_positions", [], |row| row.get(0)).map_err(db_error)?,
+                errors: vec!["Demo: Simulierte Kurse werden nicht durch Live-Kurse ersetzt.".into()],
+                refreshed_at: now.to_rfc3339(),
+            });
+        }
+    }
     if !force.unwrap_or(false) {
         let connection = storage.connect().map_err(db_error)?;
         let last_success: Option<String> = connection

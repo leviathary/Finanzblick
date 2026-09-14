@@ -213,6 +213,7 @@ export function Accounts() {
         request: {
           id: account.id,
           name: account.name,
+          institutionName: editing?.id === account.id ? account.provider : null,
           accountType: account.accountType,
           currency: account.currency,
           externalReference: account.externalReference || null,
@@ -1394,6 +1395,13 @@ function AccountEditor({
         </div>
       )}
       <div className="account-logo-editor">
+        <div className="form-grid institution-name-field">
+          <label>
+            {t("Bank / Anbieter")}
+            <input maxLength={120} disabled={saving} value={account.provider} onChange={(event) => setAccount({ ...account, provider: event.target.value })} />
+          </label>
+        </div>
+        <small>{t("Der Name gilt für alle Konten dieser Bank oder dieses Anbieters.")}</small>
         <span>{t("Logo der Bank oder des Anbieters")}</span>
         <label className="secondary-button">
           {t("Eigenes Logo hochladen")}

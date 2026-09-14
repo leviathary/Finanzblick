@@ -354,6 +354,7 @@ pub struct CreateAccountRequest {
 #[serde(rename_all = "camelCase")]
 pub struct UpdateAccountRequest {
     pub id: i64,
+    pub institution_name: Option<String>,
     pub name: String,
     pub account_type: String,
     pub currency: String,
@@ -1508,16 +1509,28 @@ pub fn update_account(
     request: UpdateAccountRequest,
 ) -> Result<(), String> {
     validate_account(&request.name, &request.currency, &request.account_type)?;
-    let connection = storage.connect().map_err(db_error)?;
-    let changed = connection.execute(
+    if let Some(name) = &request.institution_name {
+        let name = name.trim();
+        if name.is_empty() || name.chars().count() > 120 || name.chars().any(char::is_control) {
+            return Err("Bitte einen Banknamen mit 1 bis 120 Zeichen eingeben.".into());
+        }
+    }
+    let mut connection = storage.connect().map_err(db_error)?;
+    let transaction = connection.transaction().map_err(db_error)?;
+    let changed = transaction.execute(
         "UPDATE accounts SET name = ?1, account_type = ?2, currency = ?3, external_reference = ?4, is_active = ?5, include_in_net_worth = ?6 WHERE id = ?7",
         params![request.name.trim(), request.account_type, request.currency.trim().to_uppercase(), clean_optional(request.external_reference), request.is_active, request.include_in_net_worth, request.id],
     ).map_err(db_error)?;
     if changed == 0 {
-        Err("Das Konto wurde nicht gefunden.".to_string())
-    } else {
-        Ok(())
+        return Err("Das Konto wurde nicht gefunden.".to_string());
     }
+    if let Some(name) = request.institution_name {
+        transaction.execute(
+            "UPDATE institutions SET name = ?1 WHERE id = (SELECT institution_id FROM accounts WHERE id = ?2)",
+            params![name.trim(), request.id],
+        ).map_err(db_error)?;
+    }
+    transaction.commit().map_err(db_error)
 }
 
 #[tauri::command]
@@ -1918,7 +1931,7 @@ fn rebuild_daily_valuations_with_mode(storage: &Storage, incremental: bool) -> R
     let today = Local::now().date_naive();
     for (position_id, listing_id, start, end, _account_currency) in positions {
         let mut day = NaiveDate::parse_from_str(&start, "%Y-%m-%d")
-            .map_err(|_| "Ungültiges Einstandsdatum in der Datenbank.".to_string())?;
+            .map_err(|_| "Ungültiges Einstandsdatum in dem Finanzprofil.".to_string())?;
         if incremental {
             if listing_id.is_none() {
                 continue;
@@ -2067,6 +2080,7 @@ pub fn set_institution_logo(
         Ok(())
     }
 }
+
 
 fn accounts_from(storage: &Storage) -> Result<Vec<ManagedAccount>, String> {
     let connection = storage.connect().map_err(db_error)?;
@@ -2557,7 +2571,7 @@ fn db_error(error: rusqlite::Error) -> String {
     if matches!(error, rusqlite::Error::InvalidQuery) {
         return "Finanzblick ist gesperrt. Bitte erneut entsperren.".into();
     }
-    format!("Die lokale Datenbank konnte nicht aktualisiert werden: {error}")
+    format!("Das lokale Finanzprofil konnte nicht aktualisiert werden: {error}")
 }
 
 #[cfg(test)]

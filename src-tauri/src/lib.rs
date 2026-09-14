@@ -55,6 +55,10 @@ pub fn run() {
         })
         .invoke_handler(tauri::generate_handler![
             storage::security::vault_status,
+            storage::security::demo::create_demo_database,
+            storage::security::demo::demo_status,
+            storage::security::backups::create_backup,
+            storage::security::backups::restore_backup,
             storage::security::databases::list_databases,
             storage::security::databases::create_database,
             storage::security::databases::copy_database,

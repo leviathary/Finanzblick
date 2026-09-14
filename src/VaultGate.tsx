@@ -1,4 +1,5 @@
 import { DatabasePicker } from "./features/settings/DatabasePicker";
+import { BackupPanel } from "./features/settings/BackupPanel";
 import { t, setLanguage, setRegion } from "./i18n";
 import {
   createContext,
@@ -37,6 +38,7 @@ export function VaultGate({ children }: { children: ReactNode }) {
   const [confirmation, setConfirmation] = useState("");
   const [acknowledged, setAcknowledged] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [creatingDatabase, setCreatingDatabase] = useState(false);
   const [error, setError] = useState("");
   const revision = useRef(0);
 
@@ -247,8 +249,8 @@ export function VaultGate({ children }: { children: ReactNode }) {
                     "Schütze deine Finanzen mit einem Passwort aus mindestens 7 Zeichen.",
                   )}
             </p>
-            <DatabasePicker />
-            <form onSubmit={submit} autoComplete="on">
+            <DatabasePicker onCreatingChange={setCreatingDatabase} />
+            {!creatingDatabase && <form onSubmit={submit} autoComplete="on">
               <label htmlFor="vault-password">{t("Passwort")}</label>
               <input
                 id="vault-password"
@@ -308,7 +310,11 @@ export function VaultGate({ children }: { children: ReactNode }) {
                     ? t("Entsperren")
                     : t("Lokalen Schutz einrichten")}
               </button>
-            </form>
+            </form>}
+            <details className="vault-backup">
+              <summary>{t("Backup wiederherstellen")}</summary>
+              <BackupPanel restoreOnly onRestored={() => window.location.reload()} />
+            </details>
           </>
         )}
       </section>

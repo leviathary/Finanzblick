@@ -126,6 +126,25 @@ a {
   width: 100%;
   margin: 0 auto;
 }
+.demo-banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 18px;
+  margin-bottom: 24px;
+  padding: 14px 18px;
+  border: 1px solid #e2cc87;
+  border-radius: 10px;
+  background: #fff8e5;
+  color: #6d5313;
+  font-size: 13px;
+}
+.demo-banner span {
+  flex: 1 1 320px;
+}
+.institution-name-field {
+  width: 100%;
+}
 .import-kind-tabs {
   display: inline-flex;
   gap: 4px;
@@ -3327,6 +3346,19 @@ p {
   }
 }
 
+.backup-path {
+  overflow-wrap: anywhere;
+}
+.backup-panel form {
+  margin-top: 20px;
+}
+.vault-backup {
+  margin-top: 24px;
+  text-align: left;
+}
+.vault-backup summary {
+  cursor: pointer;
+}
 .tax-history-page {
   max-width: 1480px;
   margin: 0 auto;

@@ -1,84 +1,69 @@
 # Finanzblick
 
-Finanzblick ist eine lokale Desktop-App zur Auswertung von Konten, Depots,
-Vorsorgevermögen und Transaktionen. Bankauszüge werden importiert, vereinheitlicht
-und in einer verschlüsselten Datenbank gespeichert.
+Deine Finanzen auf einen Blick: eine lokale Desktop-App für Konten, Depots,
+Vermögen und Ausgaben. Ohne Benutzerkonto oder Cloud-Synchronisierung.
+
+## Einblick
+
+Die Screenshots zeigen ausschliesslich fiktive Demo-Daten.
+
+![Vermögensübersicht mit Konten und Anbietern](docs/screenshots/uebersicht.png)
+
+![Vermögensentwicklung über acht Jahre](docs/screenshots/vermoegensentwicklung.png)
 
 ## Funktionen
 
-- Konten und selbst verwaltete Vermögenswerte gemeinsam darstellen
-- Excel-, CSV-, PDF- und MT940-Dateien per Dateidialog oder Drag-and-drop importieren
-- mehrere Dateien gesammelt prüfen und importieren
-- Salden, Vermögensentwicklung und kumulierten Geldfluss visualisieren
-- Transaktionen durchsuchen und kategorisieren
-- Kreditkartenbuchungen als Detail behandeln, ohne Zahlungen doppelt zu zählen
-- Aktien und Kryptowährungen mit historischen Marktpreisen bewerten
-- mehrere unabhängige Datenbanken verwalten, kopieren und anonymisieren
-- Deutsch, Englisch, Französisch und Italienisch sowie regionale Zahlen- und
-  Datumsformate verwenden
+- Bankauszüge aus Excel, CSV, PDF und MT940 importieren und vor dem Speichern prüfen
+- Konten, Aktien, ETFs, Kryptowährungen und Vorsorgevermögen gemeinsam auswerten
+- Vermögensentwicklung, Geldfluss und Steuerhistorie visualisieren
+- Transaktionen kategorisieren und Kreditkartenzahlungen ohne Doppelzählung erfassen
+- Unabhängige Finanzprofile erstellen, kopieren, anonymisieren und sichern
+- Deutsch, Englisch, Französisch und Italienisch mit regionalen Zahlenformaten
 
-## Datenschutz
+Importvorlagen gibt es unter anderem für UBS inklusive Mastercard, Swissquote,
+Migros Bank, Raiffeisen und Generali. [Testauszüge](fixtures/bank-statements)
+enthalten nur erfundene Daten.
 
-Konten, Buchungen und Auswertungen bleiben auf dem eigenen Gerät. Die lokale
-SQLite-Datenbank wird mit SQLCipher verschlüsselt und durch ein selbst gewähltes
-Passwort geschützt. Es gibt weder Benutzerkonto noch Cloud-Synchronisierung oder
-Passwort-Reset.
+## Einfach ausprobieren
 
-Für automatische Bewertungen fragt die App ausschließlich Wertpapierkennungen,
-Zeiträume und Währungspaare bei den konfigurierten Marktdatenanbietern ab. Bankauszüge,
-Buchungstexte und Kontostände werden nicht übertragen. Optionale API-Schlüssel
-liegen verschlüsselt in der Datenbank.
+In der Auswahl **Finanzprofil → Demo-Daten** findest du Banken, Aktien und ETFs,
+kategorisierte Kreditkartenbuchungen und acht Jahre simulierter Historie.
+Die Demo funktioniert offline und wird beim nächsten Öffnen wiederverwendet.
+Ihr Passwort lautet `demo1234`.
 
-Die App sperrt sich nach der eingestellten Inaktivitätszeit und beim Minimieren.
-Ohne Passwort kann eine verschlüsselte Datenbank nicht wiederhergestellt werden;
-eine zusätzliche Datenträgerverschlüsselung und eigene Sicherungskopien bleiben
-empfohlen.
+Für persönliche Daten wählst du **Neues Finanzprofil** und ein eigenes Passwort.
+Demo-Kurse sind keine historischen Börsendaten oder Anlageempfehlungen.
 
-## Unterstützte Importe
+## Datenschutz und Backup
 
-Der Import vereinheitlicht unterschiedliche Bankformate und zeigt die erkannten
-Buchungen vor dem Speichern zur Kontrolle an. Salden und Summen werden soweit im
-Quellformat vorhanden gegengeprüft. Datei-Fingerabdrücke und ein zusätzlicher
-Buchungsvergleich verhindern doppelte Importe bei überlappenden Auszügen.
+Finanzdaten bleiben auf deinem Gerät und sind mit SQLCipher verschlüsselt.
+Für automatische Bewertungen werden Wertpapierkennungen, Zeiträume und
+Währungspaare an Marktdatenanbieter übermittelt – keine Kontostände oder Buchungen.
 
-Aktuell bestehen Parser unter anderem für:
+Unter **Daten & Sicherheit** kannst du dein Passwort ändern und verschlüsselte
+Backups per Dateidialog erstellen oder wiederherstellen. Eine Wiederherstellung
+legt ein zusätzliches Finanzprofil an; bestehende Daten bleiben erhalten.
 
-- UBS-Kontoauszüge und UBS-Mastercard-Abrechnungen
-- Swissquote-Kontoauszüge
-- Migros Bank
-- Raiffeisen
-- Generali
-- MT940 sowie allgemeine CSV- und Excel-Formate
-
-Unter [fixtures/bank-statements](fixtures/bank-statements) liegen ausschließlich
-frei erfundene Testauszüge. Echte Finanzdaten gehören nicht in das Repository.
-
-## Technik
-
-- [Tauri 2](https://tauri.app/) für die Desktop-Anwendung
-- React und TypeScript für die Benutzeroberfläche
-- Rust für Import, Geschäftslogik und lokale Systemfunktionen
-- SQLCipher für die verschlüsselte SQLite-Datenbank
-
-Die Anwendung wird derzeit unter Windows entwickelt. Die Architektur ist für
-Windows und macOS ausgelegt; macOS-Kompatibilität ist noch nicht durch einen
-Build und praktische Tests bestätigt.
+**Wichtig:** Es gibt keinen Passwort-Reset. Backups benötigen das Passwort vom
+Zeitpunkt der Sicherung. Bewahre sie möglichst auf einem anderen Datenträger auf.
 
 ## Entwicklung
 
-Vorausgesetzt werden Node.js 22 oder neuer, Rust mit Cargo sowie die für Tauri
-benötigten Systemabhängigkeiten. Unter Windows werden zusätzlich WebView2, die
-Microsoft C++ Build Tools und ein natives Perl für den OpenSSL-Build benötigt.
+Tauri 2 · React · TypeScript · Rust · SQLCipher
+
+Voraussetzungen: Node.js 22+, Rust/Cargo und die Tauri-Systemabhängigkeiten.
+Unter Windows zusätzlich WebView2, Microsoft C++ Build Tools und natives Perl
+für den OpenSSL-Build. macOS ist architektonisch vorgesehen, aber noch nicht
+durch Build und praktische Tests verifiziert.
 
 ```sh
 npm install
 npm run tauri dev
 ```
 
-`npm run dev` startet nur die Weboberfläche. Datenbankzugriff und native Funktionen
-stehen in der vollständigen Tauri-App zur Verfügung.
+`npm run dev` startet nur die Weboberfläche ohne native Funktionen.
 
-### Tests und Build
+Tests und Build:
 
 ```sh
 npm test
@@ -86,14 +71,5 @@ npm run build
 cargo test --manifest-path src-tauri/Cargo.toml --lib
 ```
 
-Alle eingecheckten Tests verwenden synthetische Daten.
-
-## Projektstruktur
-
-```text
-src/                         React-Oberfläche
-src/features/                Fachbereiche der Oberfläche
-src-tauri/src/importers/     Parser und Importadapter
-src-tauri/src/storage/       verschlüsselte Persistenz und Auswertungen
-fixtures/bank-statements/    synthetische Testauszüge
-```
+Alle eingecheckten Tests verwenden synthetische Daten. Echte Finanzdaten gehören
+nicht ins Repository.

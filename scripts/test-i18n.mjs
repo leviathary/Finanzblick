@@ -11,6 +11,22 @@ const sandbox = { exports: {}, require: () => messages };
 vm.runInNewContext(compiled.outputText, sandbox);
 const { t, tr, setLanguage, setRegion, categoryName, locale } = sandbox.exports;
 
+test('financial profile labels are localized consistently', () => {
+  for (const [language, singular, plural, create] of [
+    ['de', 'Finanzprofil', 'Finanzprofile', 'Neues Finanzprofil'],
+    ['en', 'Financial profile', 'Financial profiles', 'New financial profile'],
+    ['fr', 'Profil financier', 'Profils financiers', 'Nouveau profil financier'],
+    ['it', 'Profilo finanziario', 'Profili finanziari', 'Nuovo profilo finanziario'],
+  ]) {
+    setLanguage(language);
+    assert.equal(t('Finanzprofil'), singular);
+    assert.equal(t('Finanzprofile'), plural);
+    assert.equal(t('Neues Finanzprofil'), create);
+    assert.equal(t('Mein persönliches Profil'), 'Mein persönliches Profil');
+  }
+  setLanguage('de');
+});
+
 test('translations retain every interpolation and provide all three languages', () => {
   const placeholders = text => [...text.matchAll(/\{\d+\}/g)].map(match => match[0]).sort();
   for (const [key, values] of Object.entries(messages)) {

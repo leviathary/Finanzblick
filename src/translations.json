@@ -1,4 +1,40 @@
 {
+  "Neues Finanzprofil": ["New financial profile", "Nouveau profil financier", "Nuovo profilo finanziario"],
+  "Demo-Daten": ["Demo data", "Données de démonstration", "Dati dimostrativi"],
+  "Demo-Finanzprofil": ["Demo financial profile", "Profil de démonstration", "Profilo finanziario dimostrativo"],
+  "Mit Demodaten ausprobieren": ["Try with demo data", "Essayer avec des données de démonstration", "Prova con dati dimostrativi"],
+  "Demo wird geöffnet …": ["Opening demo …", "Ouverture de la démonstration …", "Apertura demo …"],
+  "Drei Banken, Aktien und ETF mit acht Jahren simulierter Historie. Jede Demo wird als zusätzliches Finanzprofil angelegt. Passwort: demo1234.": ["Three banks, stocks and an ETF with eight years of simulated history. Each demo creates an additional financial profile. Password: demo1234.", "Trois banques, des actions et un ETF avec huit ans d’historique simulé. Chaque démonstration crée un profil financier supplémentaire. Mot de passe : demo1234.", "Tre banche, azioni e un ETF con otto anni di storico simulato. Ogni demo crea un profilo finanziario aggiuntivo. Password: demo1234."],
+  "Demo – fiktive Daten": ["Demo – fictional data", "Démo – données fictives", "Demo – dati fittizi"],
+  "Alle Beträge, Kurse und Transaktionen sind simuliert. Passwort: demo1234. Bitte keine persönlichen Daten in der Demo speichern.": ["All amounts, prices and transactions are simulated. Password: demo1234. Do not store personal data in the demo.", "Tous les montants, cours et transactions sont simulés. Mot de passe : demo1234. Ne stockez pas de données personnelles dans la démonstration.", "Tutti gli importi, prezzi e transazioni sono simulati. Password: demo1234. Non salvare dati personali nella demo."],
+  "Eigenes Finanzprofil erstellen": ["Create your own financial profile", "Créer votre propre profil financier", "Crea il tuo profilo finanziario"],
+  "Demo konnte nicht erstellt werden.": ["Could not create demo.", "Impossible de créer la démonstration.", "Impossibile creare la demo."],
+  "Demo: Simulierte Kurse werden nicht durch Live-Kurse ersetzt.": ["Demo: simulated prices are not replaced by live prices.", "Démo : les cours simulés ne sont pas remplacés par des cours réels.", "Demo: i prezzi simulati non vengono sostituiti da prezzi reali."],
+  "Banknamen ändern": ["Rename bank", "Renommer la banque", "Rinomina banca"],
+  "Der Name gilt für alle Konten dieser Bank oder dieses Anbieters.": ["The name applies to all accounts at this bank or provider.", "Le nom s’applique à tous les comptes de cette banque ou de ce prestataire.", "Il nome si applica a tutti i conti di questa banca o di questo fornitore."],
+  "Bitte einen Banknamen mit 1 bis 120 Zeichen eingeben.": ["Enter a bank name with 1 to 120 characters.", "Saisissez un nom de banque de 1 à 120 caractères.", "Inserisci un nome di banca da 1 a 120 caratteri."],
+  "Daten & Sicherheit": ["Data & security","Données et sécurité","Dati e sicurezza"],
+  "Backup": ["Backup","Sauvegarde","Backup"],
+  "Backup erstellen": ["Create backup","Créer une sauvegarde","Crea backup"],
+  "Backup wiederherstellen": ["Restore backup","Restaurer une sauvegarde","Ripristina backup"],
+  "Backup importieren": ["Import backup","Importer la sauvegarde","Importa backup"],
+  "Backup erfolgreich gespeichert.": ["Backup saved successfully.","Sauvegarde enregistrée.","Backup salvato."],
+  "Backup importiert. Das zusätzliche Finanzprofil kann unter Finanzprofil ausgewählt werden.": ["Backup imported. Select the additional financial profile under Financial profile.","Sauvegarde importée. Sélectionnez le profil financier supplémentaire sous Profil financier.","Backup importato. Seleziona il profilo finanziario aggiuntivo sotto Profilo finanziario."],
+  "Gesichert wird das aktuell ausgewählte Finanzprofil mit allen Daten und Einstellungen. Weitere Finanzprofile bitte einzeln sichern.": ["The selected financial profile is backed up with all data and settings. Back up other financial profiles separately.","Le profil financier sélectionné est sauvegardé avec toutes ses données et ses paramètres. Sauvegardez les autres profils financiers séparément.","Il profilo finanziario selezionato viene salvato con tutti i dati e le impostazioni. Salva gli altri profili finanziari separatamente."],
+  "Backups bleiben verschlüsselt. Zum Wiederherstellen brauchst du das Passwort zum Zeitpunkt der Sicherung.": ["Backups remain encrypted. Restoring requires the password used when the backup was created.","Les sauvegardes restent chiffrées. La restauration nécessite le mot de passe utilisé lors de la sauvegarde.","I backup restano crittografati. Per ripristinarli serve la password usata al momento della creazione."],
+  "Das Backup wird als zusätzliches Finanzprofil importiert. Bestehende Finanzprofile bleiben erhalten.": ["The backup is imported as an additional financial profile. Existing financial profiles are preserved.","La sauvegarde est importée comme profil financier supplémentaire. Les profils financiers existants sont conservés.","Il backup viene importato come profilo finanziario aggiuntivo. I profili finanziari esistenti vengono conservati."],
+  "Name des wiederhergestellten Finanzprofils": ["Restored financial profile name","Nom du profil financier restauré","Nome del profilo finanziario ripristinato"],
+  "Passwort des Backups": ["Backup password","Mot de passe de la sauvegarde","Password del backup"],
+  "Bitte eine Datei mit der Endung .finanzblick-backup wählen.": ["Choose a file ending in .finanzblick-backup.","Choisissez un fichier avec l’extension .finanzblick-backup.","Scegli un file con estensione .finanzblick-backup."],
+  "Backup konnte nicht erstellt werden.": ["Could not create backup.","Impossible de créer la sauvegarde.","Impossibile creare il backup."],
+  "Backup konnte nicht gespeichert werden.": ["Could not save backup.","Impossible d’enregistrer la sauvegarde.","Impossibile salvare il backup."],
+  "Backup konnte nicht gespeichert werden. Bitte einen neuen Dateinamen wählen.": ["Could not save backup. Choose a new filename.","Impossible d’enregistrer la sauvegarde. Choisissez un nouveau nom de fichier.","Impossibile salvare il backup. Scegli un nuovo nome file."],
+  "Backup konnte nicht importiert werden.": ["Could not import backup.","Impossible d’importer la sauvegarde.","Impossibile importare il backup."],
+  "Backup konnte nicht gelesen werden.": ["Could not read backup.","Impossible de lire la sauvegarde.","Impossibile leggere il backup."],
+  "Bitte eine Backup-Datei wählen.": ["Choose a backup file.","Choisissez un fichier de sauvegarde.","Scegli un file di backup."],
+  "Backup oder Passwort ungültig.": ["Invalid backup or password.","Sauvegarde ou mot de passe invalide.","Backup o password non validi."],
+  "Backup ist beschädigt.": ["Backup is damaged.","La sauvegarde est endommagée.","Il backup è danneggiato."],
+  "Ungültiges Finanzblick-Backup.": ["Invalid Finanzblick backup.","Sauvegarde Finanzblick invalide.","Backup Finanzblick non valido."],
   "Steuererklärungen als PDF auslesen oder Jahreswerte ohne Datei manuell erfassen.": ["Read tax returns from PDF or enter annual values manually without a file.", "Lisez les déclarations fiscales au format PDF ou saisissez manuellement les valeurs annuelles sans fichier.", "Leggi le dichiarazioni fiscali in PDF oppure inserisci manualmente i valori annuali senza file."],
   "Kein lesbares PDF vorhanden?": ["No readable PDF available?", "Aucun PDF lisible disponible ?", "Nessun PDF leggibile disponibile?"],
   "Erfasse die Jahreswerte direkt von Hand.": ["Enter the annual values manually.", "Saisissez directement les valeurs annuelles à la main.", "Inserisci manualmente i valori annuali."],
@@ -274,10 +310,10 @@
     "Finanzblick est verrouillé.",
     "Finanzblick è bloccato."
   ],
-  "Passwort falsch oder Datenbank nicht lesbar.": [
-    "Incorrect password or database unreadable.",
-    "Mot de passe incorrect ou base de données illisible.",
-    "Password errata o database non leggibile."
+  "Passwort falsch oder Finanzprofil nicht lesbar.": [
+    "Incorrect password or financial profile unreadable.",
+    "Mot de passe incorrect ou profil financier illisible.",
+    "Password errata o profilo finanziario non leggibile."
   ],
   "Bitte mit dem neuen Passwort erneut entsperren.": [
     "Please unlock again with the new password.",
@@ -601,7 +637,7 @@
     "Faites glisser pour zoomer · Maj + glisser pour mesurer",
     "Trascina per ingrandire · Maiusc + trascina per misurare"
   ],
-  "Datenbasis": ["Data source", "Base de données", "Base dati"],
+  "Datenbasis": ["Data source", "Profil financier", "Base dati"],
   "Gesamte Datenbasis:": [
     "Full data range:",
     "Toutes les données :",
@@ -1698,112 +1734,112 @@
     "Cliquez sur les montants ou faites glisser la souris en maintenant le bouton enfoncé.",
     "Fai clic sugli importi o trascina tenendo premuto il pulsante del mouse."
   ],
-  "Datenbank": ["Database", "Base de données", "Database"],
+  "Finanzprofil": ["Financial profile", "Profil financier", "Profilo finanziario"],
   "Meine Daten": ["My data", "Mes données", "I miei dati"],
-  "Datenbanken": ["Databases", "Bases de données", "Database"],
-  "Neue Datenbank anlegen": [
-    "Create a new database",
-    "Créer une nouvelle base de données",
-    "Crea un nuovo database"
+  "Finanzprofile": ["Financial profiles", "Profils financiers", "Profili finanziari"],
+  "Neues Finanzprofil erstellen": [
+    "Create a new financial profile",
+    "Créer un nouveau profil financier",
+    "Crea un nuovo profilo finanziario"
   ],
-  "Datenbank anlegen und öffnen": [
-    "Create and open database",
-    "Créer et ouvrir la base de données",
-    "Crea e apri database"
+  "Finanzprofil erstellen": [
+    "Create and open financial profile",
+    "Créer et ouvrir le profil financier",
+    "Crea e apri profilo finanziario"
   ],
-  "Die gewählte Datenbank wird beim nächsten Start wieder geöffnet. Jede Datenbank hat ihr eigenes Passwort und ihren eigenen Datenbestand.": [
-    "The selected database will reopen on the next launch. Each database has its own password and data.",
-    "La base sélectionnée sera ouverte au prochain démarrage. Chaque base possède son propre mot de passe et ses propres données.",
-    "Il database selezionato verrà riaperto al prossimo avvio. Ogni database ha la propria password e i propri dati."
+  "Das gewählte Finanzprofil wird beim nächsten Start wieder geöffnet. Jedes Finanzprofil hat sein eigenes Passwort und seinen eigenen Datenbestand.": [
+    "The selected financial profile will reopen on the next launch. Each financial profile has its own password and data.",
+    "Le profil financier sélectionné sera ouvert au prochain démarrage. Chaque profil financier possède son propre mot de passe et ses propres données.",
+    "Il profilo finanziario selezionato verrà riaperto al prossimo avvio. Ogni profilo finanziario ha la propria password e i propri dati."
   ],
-  "Datenbanken konnten nicht gelesen werden.": [
-    "Could not read databases.",
-    "Impossible de lire les bases de données.",
-    "Impossibile leggere i database."
+  "Finanzprofile konnten nicht gelesen werden.": [
+    "Could not read financial profiles.",
+    "Impossible de lire les profils financiers.",
+    "Impossibile leggere i profili finanziari."
   ],
-  "Ungültige Datenbankauswahl.": [
-    "Invalid database selection.",
-    "Sélection de base de données invalide.",
-    "Selezione del database non valida."
+  "Ungültige Profilauswahl.": [
+    "Invalid financial profile selection.",
+    "Sélection de profil financier invalide.",
+    "Selezione del profilo finanziario non valida."
   ],
-  "Die gewählte Datenbank fehlt.": [
-    "The selected database is missing.",
-    "La base sélectionnée est introuvable.",
-    "Il database selezionato non è presente."
+  "Das gewählte Finanzprofil fehlt.": [
+    "The selected financial profile is missing.",
+    "Le profil financier sélectionné est introuvable.",
+    "Il profilo finanziario selezionato non è presente."
   ],
-  "Datenbankauswahl konnte nicht gespeichert werden.": [
-    "Could not save database selection.",
+  "Profilauswahl konnte nicht gespeichert werden.": [
+    "Could not save financial profile selection.",
     "Impossible d’enregistrer la sélection.",
     "Impossibile salvare la selezione."
   ],
-  "Bitte einen gültigen, eindeutigen Datenbanknamen eingeben.": [
-    "Enter a valid, unique database name.",
-    "Saisissez un nom de base de données valide et unique.",
-    "Inserisci un nome di database valido e univoco."
+  "Bitte einen gültigen, eindeutigen Profilnamen eingeben.": [
+    "Enter a valid, unique financial profile name.",
+    "Saisissez un nom de profil financier valide et unique.",
+    "Inserisci un nome di profilo finanziario valido e univoco."
   ],
-  "Eine Datenbank mit diesem Namen existiert bereits.": [
-    "A database with this name already exists.",
-    "Une base de données portant ce nom existe déjà.",
-    "Esiste già un database con questo nome."
+  "Ein Finanzprofil mit diesem Namen existiert bereits.": [
+    "A financial profile with this name already exists.",
+    "Un profil financier portant ce nom existe déjà.",
+    "Esiste già un profilo finanziario con questo nome."
   ],
-  "Datenbank konnte nicht erstellt werden.": [
-    "Could not create database.",
-    "Impossible de créer la base de données.",
-    "Impossibile creare il database."
+  "Finanzprofil konnte nicht erstellt werden.": [
+    "Could not create financial profile.",
+    "Impossible de créer le profil financier.",
+    "Impossibile creare il profilo finanziario."
   ],
-  "Datenbank konnte nicht eingerichtet werden.": [
-    "Could not set up database.",
-    "Impossible de configurer la base de données.",
-    "Impossibile configurare il database."
+  "Finanzprofil konnte nicht eingerichtet werden.": [
+    "Could not set up financial profile.",
+    "Impossible de configurer le profil financier.",
+    "Impossibile configurare il profilo finanziario."
   ],
-  "Datenbank konnte nicht geprüft werden.": [
-    "Could not verify database.",
-    "Impossible de vérifier la base de données.",
-    "Impossibile verificare il database."
+  "Finanzprofil konnte nicht geprüft werden.": [
+    "Could not verify financial profile.",
+    "Impossible de vérifier le profil financier.",
+    "Impossibile verificare il profilo finanziario."
   ],
-  "Datenbank konnte nicht gespeichert werden.": [
-    "Could not save database.",
-    "Impossible d’enregistrer la base de données.",
-    "Impossibile salvare il database."
+  "Finanzprofil konnte nicht gespeichert werden.": [
+    "Could not save financial profile.",
+    "Impossible d’enregistrer le profil financier.",
+    "Impossibile salvare il profilo finanziario."
   ],
-  "Aktuelle Datenbank verwalten": [
-    "Manage current database",
-    "Gérer la base de données actuelle",
-    "Gestisci il database corrente"
+  "Aktuelles Finanzprofil verwalten": [
+    "Manage current financial profile",
+    "Gérer le profil financier actuel",
+    "Gestisci il profilo finanziario corrente"
   ],
-  "Datenbankaktionen": [
-    "Database actions",
-    "Actions de la base de données",
-    "Azioni database"
+  "Profilaktionen": [
+    "Financial profile actions",
+    "Actions du profil financier",
+    "Azioni profilo finanziario"
   ],
   "Verwalten": ["Manage", "Gérer", "Gestisci"],
   "Neu anlegen": ["Create new", "Créer", "Crea nuovo"],
   "Kopieren": ["Copy", "Copier", "Copia"],
-  "Datenbank kopieren": [
-    "Copy database",
-    "Copier la base de données",
-    "Copia database"
+  "Finanzprofil kopieren": [
+    "Copy financial profile",
+    "Copier le profil financier",
+    "Copia profilo finanziario"
   ],
-  "Datenbank anonymisieren": [
-    "Anonymise database",
-    "Anonymiser la base de données",
-    "Anonimizza database"
+  "Finanzprofil anonymisieren": [
+    "Anonymise financial profile",
+    "Anonymiser le profil financier",
+    "Anonimizza profilo finanziario"
   ],
-  "Datenbank löschen": [
-    "Delete database",
-    "Supprimer la base de données",
-    "Elimina database"
+  "Finanzprofil löschen": [
+    "Delete financial profile",
+    "Supprimer le profil financier",
+    "Elimina profilo finanziario"
   ],
   "Name der Kopie": ["Copy name", "Nom de la copie", "Nome della copia"],
-  "Datenbank kopieren und öffnen": [
-    "Copy and open database",
-    "Copier et ouvrir la base de données",
-    "Copia e apri database"
+  "Finanzprofil kopieren und öffnen": [
+    "Copy and open financial profile",
+    "Copier et ouvrir le profil financier",
+    "Copia e apri profilo finanziario"
   ],
-  "Die Kopie enthält den vollständigen Datenbestand und verwendet zunächst dasselbe Passwort wie die aktuelle Datenbank.": [
-    "The copy contains all data and initially uses the same password as the current database.",
-    "La copie contient toutes les données et utilise initialement le même mot de passe que la base actuelle.",
-    "La copia contiene tutti i dati e inizialmente utilizza la stessa password del database corrente."
+  "Die Kopie enthält den vollständigen Datenbestand und verwendet zunächst dasselbe Passwort wie das aktuelle Finanzprofil.": [
+    "The copy contains all data and initially uses the same password as the current financial profile.",
+    "La copie contient toutes les données et utilise initialement le même mot de passe que le profil financier actuel.",
+    "La copia contiene tutti i dati e inizialmente utilizza la stessa password del profilo finanziario corrente."
   ],
   "Beim Anonymisieren werden Buchungstexte ersetzt und Buchungs- sowie Saldenbeträge zufällig auf 10 bis 300 % des ursprünglichen Werts verändert. Dieser Vorgang kann nicht rückgängig gemacht werden.": [
     "Anonymisation replaces transaction descriptions and randomly changes transaction and balance amounts to between 10% and 300% of their original value. This action cannot be undone.",
@@ -1855,65 +1891,65 @@
     "Les libellés et les montants seront anonymisés de manière irréversible avec le facteur indiqué. Continuer ?",
     "Le descrizioni e gli importi verranno anonimizzati in modo irreversibile con il fattore specificato. Continuare?"
   ],
-  "Die Beträge dieser Datenbank werden unwiderruflich zufällig verändert. Die Buchungstexte bleiben erhalten. Jetzt fortfahren?": [
-    "The amounts in this database will be changed randomly and irreversibly. Transaction descriptions will be preserved. Continue?",
-    "Les montants de cette base seront modifiés aléatoirement et de manière irréversible. Les libellés seront conservés. Continuer ?",
-    "Gli importi di questo database verranno modificati casualmente e in modo irreversibile. Le descrizioni verranno mantenute. Continuare?"
+  "Die Beträge dieses Finanzprofils werden unwiderruflich zufällig verändert. Die Buchungstexte bleiben erhalten. Jetzt fortfahren?": [
+    "The amounts in this financial profile will be changed randomly and irreversibly. Transaction descriptions will be preserved. Continue?",
+    "Les montants de ce profil financier seront modifiés aléatoirement et de manière irréversible. Les libellés seront conservés. Continuer ?",
+    "Gli importi di questo profilo finanziario verranno modificati casualmente e in modo irreversibile. Le descrizioni verranno mantenute. Continuare?"
   ],
   "Die Beträge werden unwiderruflich mit dem angegebenen Faktor anonymisiert. Die Buchungstexte bleiben erhalten. Jetzt fortfahren?": [
     "The amounts will be irreversibly anonymised using the specified factor. Transaction descriptions will be preserved. Continue?",
     "Les montants seront anonymisés de manière irréversible avec le facteur indiqué. Les libellés seront conservés. Continuer ?",
     "Gli importi verranno anonimizzati in modo irreversibile con il fattore specificato. Le descrizioni verranno mantenute. Continuare?"
   ],
-  "Datenbank wurde mit festem Faktor anonymisiert.": [
-    "Database anonymised with a fixed factor.",
-    "Base de données anonymisée avec un facteur fixe.",
-    "Database anonimizzato con un fattore fisso."
+  "Finanzprofil wurde mit festem Faktor anonymisiert.": [
+    "Financial profile anonymised with a fixed factor.",
+    "Profil financier anonymisé avec un facteur fixe.",
+    "Profilo finanziario anonimizzato con un fattore fisso."
   ],
-  "Buchungstexte und Beträge dieser Datenbank werden unwiderruflich verändert. Datenbank jetzt anonymisieren?": [
-    "Transaction descriptions and amounts in this database will be changed irreversibly. Anonymise the database now?",
-    "Les libellés et les montants de cette base seront modifiés de manière irréversible. Anonymiser la base maintenant ?",
-    "Le descrizioni e gli importi di questo database verranno modificati in modo irreversibile. Anonimizzare ora il database?"
+  "Buchungstexte und Beträge dieses Finanzprofils werden unwiderruflich verändert. Finanzprofil jetzt anonymisieren?": [
+    "Transaction descriptions and amounts in this financial profile will be changed irreversibly. Anonymise the financial profile now?",
+    "Les libellés et les montants de ce profil financier seront modifiés de manière irréversible. Anonymiser le profil financier maintenant ?",
+    "Le descrizioni e gli importi di questo profilo finanziario verranno modificati in modo irreversibile. Anonimizzare ora il profilo finanziario?"
   ],
-  "Diese Datenbank und alle darin enthaltenen Daten werden dauerhaft gelöscht. Datenbank jetzt löschen?": [
-    "This database and all its data will be permanently deleted. Delete the database now?",
-    "Cette base de données et toutes ses données seront définitivement supprimées. Supprimer la base maintenant ?",
-    "Questo database e tutti i dati contenuti verranno eliminati definitivamente. Eliminare ora il database?"
+  "Dieses Finanzprofil und alle darin enthaltenen Daten werden dauerhaft gelöscht. Finanzprofil jetzt löschen?": [
+    "This financial profile and all its data will be permanently deleted. Delete the financial profile now?",
+    "Ce profil financier et toutes ses données seront définitivement supprimés. Supprimer le profil financier maintenant ?",
+    "Questo profilo finanziario e tutti i dati contenuti verranno eliminati definitivamente. Eliminare ora il profilo finanziario?"
   ],
-  "Datenbank wurde anonymisiert.": [
-    "Database anonymised.",
-    "Base de données anonymisée.",
-    "Database anonimizzato."
+  "Finanzprofil wurde anonymisiert.": [
+    "Financial profile anonymised.",
+    "Profil financier anonymisé.",
+    "Profilo finanziario anonimizzato."
   ],
-  "Die Hauptdatenbank kann nicht gelöscht werden.": [
-    "The primary database cannot be deleted.",
-    "La base de données principale ne peut pas être supprimée.",
-    "Il database principale non può essere eliminato."
+  "Das Hauptprofil kann nicht gelöscht werden.": [
+    "The primary financial profile cannot be deleted.",
+    "Le profil financier principal ne peut pas être supprimé.",
+    "Il profilo finanziario principale non può essere eliminato."
   ],
-  "Datenbank konnte nicht anonymisiert werden.": [
-    "Could not anonymise database.",
-    "Impossible d’anonymiser la base de données.",
-    "Impossibile anonimizzare il database."
+  "Finanzprofil konnte nicht anonymisiert werden.": [
+    "Could not anonymise financial profile.",
+    "Impossible d’anonymiser le profil financier.",
+    "Impossibile anonimizzare il profilo finanziario."
   ],
-  "Datenbank konnte nicht gelöscht werden.": [
-    "Could not delete database.",
-    "Impossible de supprimer la base de données.",
-    "Impossibile eliminare il database."
+  "Finanzprofil konnte nicht gelöscht werden.": [
+    "Could not delete financial profile.",
+    "Impossible de supprimer le profil financier.",
+    "Impossibile eliminare il profilo finanziario."
   ],
-  "Datenbank konnte nicht kopiert werden.": [
-    "Could not copy database.",
-    "Impossible de copier la base de données.",
-    "Impossibile copiare il database."
+  "Finanzprofil konnte nicht kopiert werden.": [
+    "Could not copy financial profile.",
+    "Impossible de copier le profil financier.",
+    "Impossibile copiare il profilo finanziario."
   ],
-  "Datenbankkopie konnte nicht geprüft werden.": [
-    "Could not verify database copy.",
-    "Impossible de vérifier la copie de la base de données.",
-    "Impossibile verificare la copia del database."
+  "Profilkopie konnte nicht geprüft werden.": [
+    "Could not verify financial profile copy.",
+    "Impossible de vérifier la copie du profil financier.",
+    "Impossibile verificare la copia del profilo finanziario."
   ],
-  "Datenbank konnte nicht gewechselt werden.": [
-    "Could not switch database.",
-    "Impossible de changer de base de données.",
-    "Impossibile cambiare database."
+  "Finanzprofil konnte nicht gewechselt werden.": [
+    "Could not switch financial profile.",
+    "Impossible de changer de profil financier.",
+    "Impossibile cambiare profilo finanziario."
   ],
   "Branche": ["Industry", "Secteur", "Settore"],
   "Manuell gewählt": [
@@ -2288,15 +2324,15 @@
     "Saisir la clé API",
     "Inserisci la chiave API"
   ],
-  "Der Schlüssel wird verschlüsselt in dieser Datenbank gespeichert. Damit lädt Finanzblick Tageskurse und FX-Wechselkurse automatisch.": [
-    "The key is stored encrypted in this database. Finanzblick uses it to load daily prices and FX rates automatically.",
-    "La clé est chiffrée dans cette base de données. Finanzblick l’utilise pour charger automatiquement les cours quotidiens et les taux de change.",
-    "La chiave viene salvata cifrata in questo database. Finanzblick la usa per caricare automaticamente prezzi giornalieri e tassi di cambio."
+  "Der Schlüssel wird verschlüsselt in diesem Finanzprofil gespeichert. Damit lädt Finanzblick Tageskurse und FX-Wechselkurse automatisch.": [
+    "The key is stored encrypted in this financial profile. Finanzblick uses it to load daily prices and FX rates automatically.",
+    "La clé est chiffrée dans ce profil financier. Finanzblick l’utilise pour charger automatiquement les cours quotidiens et les taux de change.",
+    "La chiave viene salvata cifrata in questo profilo finanziario. Finanzblick la usa per caricare automaticamente prezzi giornalieri e tassi di cambio."
   ],
-  "Optionale API-Schlüssel werden verschlüsselt in dieser Datenbank gespeichert. Ohne Schlüssel verwendet Finanzblick Yahoo Finance als Rückfall für Tageskurse und FX-Wechselkurse.": [
-    "Optional API keys are stored encrypted in this database. Without a key, Finanzblick uses Yahoo Finance as a fallback for daily prices and FX rates.",
-    "Les clés API facultatives sont chiffrées dans cette base de données. Sans clé, Finanzblick utilise Yahoo Finance comme solution de repli pour les cours quotidiens et les taux de change.",
-    "Le chiavi API facoltative vengono salvate cifrate in questo database. Senza una chiave, Finanzblick usa Yahoo Finance come fonte di riserva per prezzi giornalieri e tassi di cambio."
+  "Optionale API-Schlüssel werden verschlüsselt in diesem Finanzprofil gespeichert. Ohne Schlüssel verwendet Finanzblick Yahoo Finance als Rückfall für Tageskurse und FX-Wechselkurse.": [
+    "Optional API keys are stored encrypted in this financial profile. Without a key, Finanzblick uses Yahoo Finance as a fallback for daily prices and FX rates.",
+    "Les clés API facultatives sont chiffrées dans ce profil financier. Sans clé, Finanzblick utilise Yahoo Finance comme solution de repli pour les cours quotidiens et les taux de change.",
+    "Le chiavi API facoltative vengono salvate cifrate in questo profilo finanziario. Senza una chiave, Finanzblick usa Yahoo Finance come fonte di riserva per prezzi giornalieri e tassi di cambio."
   ],
   "Automatische Tagesbewertung": [
     "Automatic daily valuation",

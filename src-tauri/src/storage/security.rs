@@ -1,6 +1,8 @@
 //! Local SQLCipher vault. No credentials, plaintext copies or remote services.
 use super::{initialize_schema, Storage};
 pub mod databases;
+pub mod demo;
+pub mod backups;
 use fs2::FileExt;
 use rusqlite::{Connection, OpenFlags, OptionalExtension};
 use serde::{Deserialize, Serialize};
@@ -164,10 +166,10 @@ impl Storage {
         if choice.exists() {
             let id = fs::read_to_string(choice)?;
             if !databases::valid_id(&id) {
-                return Err("Ungültige Datenbankauswahl.".into());
+                return Err("Ungültige Profilauswahl.".into());
             }
             if id != "original" && !directory.join(format!("{id}.vault.sqlite3")).exists() {
-                return Err("Die gewählte Datenbank fehlt.".into());
+                return Err("Das gewählte Finanzprofil fehlt.".into());
             }
             session.database_id = id;
         }
@@ -247,20 +249,20 @@ impl Storage {
             if password.chars().count() < 7 {
                 return Err("Bitte mindestens 7 Zeichen verwenden.".into());
             }
-            self.create_vault(&password).map_err(|_| "Die verschlüsselte Datenbank konnte nicht eingerichtet werden. Bestehende Quelldaten bleiben erhalten.".to_string())?;
+            self.create_vault(&password).map_err(|_| "Das verschlüsselte Finanzprofil konnte nicht eingerichtet werden. Bestehende Quelldaten bleiben erhalten.".to_string())?;
         } else {
             let db = match open(&self.database_path(&session), &password, false) {
                 Ok(db) => db,
                 Err(_) => {
                     session.retry_after = Some(SystemTime::now() + Duration::from_secs(3));
-                    return Err("Passwort falsch oder Datenbank nicht lesbar.".into());
+                    return Err("Passwort falsch oder Finanzprofil nicht lesbar.".into());
                 }
             };
             initialize_schema(&db)
-                .map_err(|_| "Die Datenbank konnte nicht aktualisiert werden.".to_string())?;
+                .map_err(|_| "Das Finanzprofil konnte nicht aktualisiert werden.".to_string())?;
         }
         let db = open(&self.database_path(&session), &password, false)
-            .map_err(|_| "Datenbank nicht lesbar.")?;
+            .map_err(|_| "Finanzprofil nicht lesbar.")?;
         session.settings = read_settings(&db)?;
         session.password = Some(password);
         session.activity = Some(SystemTime::now());
@@ -278,7 +280,7 @@ impl Storage {
             .filter(|_| !session.expired())
             .ok_or(LOCKED)?;
         let db = open(&self.database_path(&session), password, false)
-            .map_err(|_| "Datenbank nicht lesbar.")?;
+            .map_err(|_| "Finanzprofil nicht lesbar.")?;
         let json = serde_json::to_string(&settings)
             .map_err(|_| "Einstellungen konnten nicht gespeichert werden.")?;
         let transaction = db
