@@ -42,3 +42,9 @@ work/
 *.njsproj
 *.sln
 *.sw?
+
+# Staged platform-specific chat runtime
+src-tauri/chat-runtime/bin/
+
+# Verified speech model staged at build time
+/public/speech/*.tar.gz

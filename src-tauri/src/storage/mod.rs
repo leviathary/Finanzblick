@@ -1,6 +1,9 @@
 //! Lokale SQLite-Persistenz und Initialisierung des aktuellen Datenmodells.
 mod card_settlements;
 pub mod categories;
+pub mod chat_account;
+mod chat_runtime;
+pub mod finance_chat;
 pub mod market_data;
 pub mod position_history;
 pub mod reconciliation;
@@ -528,8 +531,11 @@ pub struct TransactionAnalysis {
 
 fn initialize_schema(connection: &Connection) -> Result<(), rusqlite::Error> {
     connection.execute_batch(
-        "BEGIN;
+        "PRAGMA secure_delete=ON;
+         BEGIN;
          CREATE TABLE IF NOT EXISTS app_settings (id INTEGER PRIMARY KEY CHECK(id=1), value TEXT NOT NULL);
+         CREATE TABLE IF NOT EXISTS finance_chat_settings (id INTEGER PRIMARY KEY CHECK(id=1), value TEXT NOT NULL);
+         DELETE FROM finance_chat_settings;
          CREATE TABLE IF NOT EXISTS institutions (
            id INTEGER PRIMARY KEY, provider_key TEXT NOT NULL UNIQUE, name TEXT NOT NULL,
            institution_type TEXT NOT NULL, logo_data_url TEXT, created_at TEXT NOT NULL
@@ -2082,9 +2088,12 @@ pub fn set_institution_logo(
     }
 }
 
-
 fn accounts_from(storage: &Storage) -> Result<Vec<ManagedAccount>, String> {
     let connection = storage.connect().map_err(db_error)?;
+    accounts_on(&connection)
+}
+
+fn accounts_on(connection: &Connection) -> Result<Vec<ManagedAccount>, String> {
     let mut statement = connection.prepare(
         "SELECT a.id, i.id, i.name, i.provider_key, i.institution_type, a.name, a.account_type,
                 a.currency, a.external_reference, a.is_active, a.include_in_net_worth,
@@ -2139,7 +2148,12 @@ fn accounts_from(storage: &Storage) -> Result<Vec<ManagedAccount>, String> {
 }
 
 fn wealth_from(storage: &Storage, account_ids: Option<&[i64]>) -> Result<WealthData, String> {
-    let all_accounts = accounts_from(storage)?;
+    let connection = storage.connect().map_err(db_error)?;
+    wealth_on(&connection, account_ids)
+}
+
+fn wealth_on(connection: &Connection, account_ids: Option<&[i64]>) -> Result<WealthData, String> {
+    let all_accounts = accounts_on(connection)?;
     let excluded_account_count = all_accounts
         .iter()
         .filter(|account| !account.is_active || !account.include_in_net_worth)
@@ -2158,7 +2172,6 @@ fn wealth_from(storage: &Storage, account_ids: Option<&[i64]>) -> Result<WealthD
         .filter(|account| account.balance_currency == "CHF")
         .filter_map(|account| account.balance_minor)
         .sum();
-    let connection = storage.connect().map_err(db_error)?;
     let regular_accounts = accounts
         .iter()
         .filter(|account| account.account_type != "manual_asset")

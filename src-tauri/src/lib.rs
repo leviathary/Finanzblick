@@ -28,9 +28,13 @@ fn parse_statement(
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
+        .manage(storage::chat_account::ChatState::default())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_opener::init())
         .on_window_event(|window, event| {
+            if matches!(event, tauri::WindowEvent::Destroyed) {
+                window.state::<storage::chat_account::ChatState>().stop();
+            }
             // Native minimize changes do not reliably produce WebView visibility events.
             // Check the actual state: ordinary focus loss must not lock the vault.
             if matches!(
@@ -50,11 +54,20 @@ pub fn run() {
                     lock_if_minimized(&handle, window.is_minimized().unwrap_or(false));
                 }
                 handle.state::<storage::Storage>().expire_session();
+                handle
+                    .state::<storage::chat_account::ChatState>()
+                    .expire(&handle.state::<storage::Storage>());
             });
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
             storage::security::vault_status,
+            storage::finance_chat::prepare_finance_chat,
+            storage::chat_account::chatgpt_status,
+            storage::chat_account::chatgpt_login_start,
+            storage::chat_account::chatgpt_disconnect,
+            storage::chat_account::cancel_finance_chat,
+            storage::chat_account::send_finance_chat,
             storage::security::demo::create_demo_database,
             storage::security::demo::demo_status,
             storage::security::backups::create_backup,

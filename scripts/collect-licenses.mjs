@@ -23,6 +23,11 @@ for (const [location, item] of Object.entries(lock.packages)) {
   packages.push({ ecosystem: "npm", name: manifest.name, version: manifest.version, license: manifest.license, directory, source: item.resolved });
 }
 
+// This development dependency is deliberately shipped as a native runtime.
+packages.push({ ecosystem: "Bundled runtime", name: "OpenAI Codex", version: "0.154.0", license: "Apache-2.0", directory: path.join(root, "src-tauri/chat-runtime"), source: "https://github.com/openai/codex/releases/tag/rust-v0.154.0" });
+
+packages.push({ ecosystem: "Bundled speech model", name: "Vosk German small", version: "0.15", license: "Apache-2.0", directory: path.join(root, "public/speech"), source: "https://alphacephei.com/vosk/models" });
+
 async function licenseFiles(directory, relative = "") {
   const found = [];
   for (const entry of await fs.readdir(path.join(directory, relative), { withFileTypes: true })) {

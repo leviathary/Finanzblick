@@ -160,6 +160,8 @@ impl Storage {
         {
             let copy = open(stage.path(), password, false)
                 .map_err(|_| "Profilkopie konnte nicht geprüft werden.")?;
+            super::super::finance_chat::clear_config(&copy)
+                .map_err(|_| "Profilkopie konnte nicht geprüft werden.")?;
             let integrity: String = copy
                 .query_row("PRAGMA integrity_check", [], |row| row.get(0))
                 .map_err(|_| "Profilkopie konnte nicht geprüft werden.")?;
@@ -191,6 +193,7 @@ impl Storage {
         db.execute_batch(&format!(
             "PRAGMA secure_delete=ON;
              BEGIN IMMEDIATE;
+             DELETE FROM finance_chat_settings;
              CREATE TEMP TABLE anonymized_transaction_amounts(
                transaction_id INTEGER PRIMARY KEY,
                original INTEGER NOT NULL,
@@ -290,6 +293,7 @@ impl Storage {
         db.execute_batch("PRAGMA secure_delete=ON; BEGIN IMMEDIATE;")
             .map_err(|_| "Finanzprofil konnte nicht anonymisiert werden.")?;
         let result = (|| -> rusqlite::Result<()> {
+            super::super::finance_chat::clear_config(&db)?;
             db.execute(
                 "UPDATE transactions SET
                    description=CASE WHEN ?2
@@ -372,7 +376,11 @@ impl Storage {
 #[tauri::command]
 pub fn list_databases(storage: State<'_, Storage>) -> Result<Vec<DatabaseChoice>, String> {
     let session = storage.session.read().map_err(|_| LOCKED)?;
-    let mut ids = if storage.path.is_file() { vec![PRIMARY_DATABASE_ID.to_string()] } else { Vec::new() };
+    let mut ids = if storage.path.is_file() {
+        vec![PRIMARY_DATABASE_ID.to_string()]
+    } else {
+        Vec::new()
+    };
     for entry in fs::read_dir(storage.path.parent().ok_or("Speicherort fehlt.")?)
         .map_err(|_| "Finanzprofile konnten nicht gelesen werden.")?
     {

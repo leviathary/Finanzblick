@@ -31,6 +31,12 @@ impl Storage {
                 .map_err(|_| "Backup konnte nicht erstellt werden.")?;
         }
         validate_backup(stage.path(), password)?;
+        {
+            let backup = open(stage.path(), password, false)
+                .map_err(|_| "Backup konnte nicht erstellt werden.")?;
+            super::super::finance_chat::clear_config(&backup)
+                .map_err(|_| "Backup konnte nicht erstellt werden.")?;
+        }
         stage
             .as_file()
             .sync_all()
@@ -65,6 +71,12 @@ impl Storage {
         std::io::copy(&mut input, stage.as_file_mut())
             .map_err(|_| "Backup konnte nicht gelesen werden.")?;
         validate_backup(stage.path(), &password)?;
+        {
+            let restored = open(stage.path(), &password, false)
+                .map_err(|_| "Backup konnte nicht importiert werden.")?;
+            super::super::finance_chat::clear_config(&restored)
+                .map_err(|_| "Backup konnte nicht importiert werden.")?;
+        }
         stage
             .as_file()
             .sync_all()
@@ -127,6 +139,62 @@ pub async fn restore_backup(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn chat_credentials_and_consent_do_not_follow_copies_backups_or_anonymization() {
+        let directory = tempfile::tempdir().unwrap();
+        let storage = Storage {
+            path: directory.path().join("vault.sqlite3"),
+            session: RwLock::new(Session::default()),
+            _lock: None,
+        };
+        storage.unlock("test-password".into(), true).unwrap();
+        let seed = |db: &Connection| {
+            db.execute(
+                "INSERT OR REPLACE INTO finance_chat_settings VALUES(1,?1)",
+                [r#"{"enabled":true,"provider":"openai","model":"test","apiKey":"secret"}"#],
+            )
+            .unwrap();
+        };
+        let count = |db: &Connection| {
+            db.query_row("SELECT COUNT(*) FROM finance_chat_settings", [], |r| {
+                r.get::<_, i64>(0)
+            })
+            .unwrap()
+        };
+        seed(&storage.connect().unwrap());
+        let backup = directory.path().join("chat.finanzblick-backup");
+        storage.create_backup_file(&backup).unwrap();
+        assert_eq!(count(&storage.connect().unwrap()), 1);
+        {
+            let exported = open(&backup, "test-password", false).unwrap();
+            assert_eq!(count(&exported), 0);
+            // Simulate an older/external backup that still includes a credential.
+            seed(&exported);
+        }
+        storage
+            .restore_backup_file(&backup, "restored-chat", "test-password".into())
+            .unwrap();
+        assert_eq!(
+            count(
+                &open(
+                    &directory.path().join("restored-chat.vault.sqlite3"),
+                    "test-password",
+                    false
+                )
+                .unwrap()
+            ),
+            0
+        );
+        storage.copy_database("copied-chat").unwrap();
+        assert_eq!(count(&storage.connect().unwrap()), 0);
+        seed(&storage.connect().unwrap());
+        storage.anonymize_database_with_factor(2.0, true).unwrap();
+        assert_eq!(count(&storage.connect().unwrap()), 0);
+        seed(&storage.connect().unwrap());
+        storage.anonymize_database(true).unwrap();
+        assert_eq!(count(&storage.connect().unwrap()), 0);
+    }
 
     #[test]
     fn backup_includes_committed_wal_data_from_selected_database() {

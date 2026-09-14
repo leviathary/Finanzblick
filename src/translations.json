@@ -1,124 +1,564 @@
 {
-  "Letzter Kurs": ["Latest price","Dernier cours","Ultimo prezzo"],
-  "Positionswert": ["Position value","Valeur de la position","Valore della posizione"],
-  "Ausgewählte Positionen": ["Selected positions","Positions sélectionnées","Posizioni selezionate"],
-  "Preis pro Anteil in Originalwährung": ["Price per unit in original currency","Prix par part dans la devise d’origine","Prezzo per quota nella valuta originale"],
-  "Wert der ausgewählten Positionen in CHF": ["Value of selected positions in CHF","Valeur des positions sélectionnées en CHF","Valore delle posizioni selezionate in CHF"],
-  "Positionen werden geladen …": ["Loading positions …","Chargement des positions …","Caricamento posizioni …"],
-  "Bitte mindestens eine Position auswählen.": ["Select at least one position.","Sélectionnez au moins une position.","Seleziona almeno una posizione."],
-  "Kurs": ["Price","Cours","Prezzo"],
-  "Alle auswählen": ["Select all","Tout sélectionner","Seleziona tutto"],
-  "Keine Positionen vorhanden.": ["No positions available.","Aucune position disponible.","Nessuna posizione disponibile."],
-  "Enddatum": ["End date","Date de fin","Data di fine"],
-  "Neues Finanzprofil": ["New financial profile", "Nouveau profil financier", "Nuovo profilo finanziario"],
-  "Demo-Daten": ["Demo data", "Données de démonstration", "Dati dimostrativi"],
-  "Demo-Finanzprofil": ["Demo financial profile", "Profil de démonstration", "Profilo finanziario dimostrativo"],
-  "Mit Demodaten ausprobieren": ["Try with demo data", "Essayer avec des données de démonstration", "Prova con dati dimostrativi"],
-  "Demo wird geöffnet …": ["Opening demo …", "Ouverture de la démonstration …", "Apertura demo …"],
-  "Drei Banken, Aktien und ETF mit acht Jahren simulierter Historie. Jede Demo wird als zusätzliches Finanzprofil angelegt. Passwort: demo1234.": ["Three banks, stocks and an ETF with eight years of simulated history. Each demo creates an additional financial profile. Password: demo1234.", "Trois banques, des actions et un ETF avec huit ans d’historique simulé. Chaque démonstration crée un profil financier supplémentaire. Mot de passe : demo1234.", "Tre banche, azioni e un ETF con otto anni di storico simulato. Ogni demo crea un profilo finanziario aggiuntivo. Password: demo1234."],
-  "Demo – fiktive Daten": ["Demo – fictional data", "Démo – données fictives", "Demo – dati fittizi"],
-  "Alle Beträge, Kurse und Transaktionen sind simuliert. Passwort: demo1234. Bitte keine persönlichen Daten in der Demo speichern.": ["All amounts, prices and transactions are simulated. Password: demo1234. Do not store personal data in the demo.", "Tous les montants, cours et transactions sont simulés. Mot de passe : demo1234. Ne stockez pas de données personnelles dans la démonstration.", "Tutti gli importi, prezzi e transazioni sono simulati. Password: demo1234. Non salvare dati personali nella demo."],
-  "Eigenes Finanzprofil erstellen": ["Create your own financial profile", "Créer votre propre profil financier", "Crea il tuo profilo finanziario"],
-  "Demo konnte nicht erstellt werden.": ["Could not create demo.", "Impossible de créer la démonstration.", "Impossibile creare la demo."],
-  "Demo: Simulierte Kurse werden nicht durch Live-Kurse ersetzt.": ["Demo: simulated prices are not replaced by live prices.", "Démo : les cours simulés ne sont pas remplacés par des cours réels.", "Demo: i prezzi simulati non vengono sostituiti da prezzi reali."],
-  "Banknamen ändern": ["Rename bank", "Renommer la banque", "Rinomina banca"],
-  "Der Name gilt für alle Konten dieser Bank oder dieses Anbieters.": ["The name applies to all accounts at this bank or provider.", "Le nom s’applique à tous les comptes de cette banque ou de ce prestataire.", "Il nome si applica a tutti i conti di questa banca o di questo fornitore."],
-  "Bitte einen Banknamen mit 1 bis 120 Zeichen eingeben.": ["Enter a bank name with 1 to 120 characters.", "Saisissez un nom de banque de 1 à 120 caractères.", "Inserisci un nome di banca da 1 a 120 caratteri."],
-  "Daten & Sicherheit": ["Data & security","Données et sécurité","Dati e sicurezza"],
-  "Backup": ["Backup","Sauvegarde","Backup"],
-  "Backup erstellen": ["Create backup","Créer une sauvegarde","Crea backup"],
-  "Backup wiederherstellen": ["Restore backup","Restaurer une sauvegarde","Ripristina backup"],
-  "Backup importieren": ["Import backup","Importer la sauvegarde","Importa backup"],
-  "Backup erfolgreich gespeichert.": ["Backup saved successfully.","Sauvegarde enregistrée.","Backup salvato."],
-  "Backup importiert. Das zusätzliche Finanzprofil kann unter Finanzprofil ausgewählt werden.": ["Backup imported. Select the additional financial profile under Financial profile.","Sauvegarde importée. Sélectionnez le profil financier supplémentaire sous Profil financier.","Backup importato. Seleziona il profilo finanziario aggiuntivo sotto Profilo finanziario."],
-  "Gesichert wird das aktuell ausgewählte Finanzprofil mit allen Daten und Einstellungen. Weitere Finanzprofile bitte einzeln sichern.": ["The selected financial profile is backed up with all data and settings. Back up other financial profiles separately.","Le profil financier sélectionné est sauvegardé avec toutes ses données et ses paramètres. Sauvegardez les autres profils financiers séparément.","Il profilo finanziario selezionato viene salvato con tutti i dati e le impostazioni. Salva gli altri profili finanziari separatamente."],
-  "Backups bleiben verschlüsselt. Zum Wiederherstellen brauchst du das Passwort zum Zeitpunkt der Sicherung.": ["Backups remain encrypted. Restoring requires the password used when the backup was created.","Les sauvegardes restent chiffrées. La restauration nécessite le mot de passe utilisé lors de la sauvegarde.","I backup restano crittografati. Per ripristinarli serve la password usata al momento della creazione."],
-  "Das Backup wird als zusätzliches Finanzprofil importiert. Bestehende Finanzprofile bleiben erhalten.": ["The backup is imported as an additional financial profile. Existing financial profiles are preserved.","La sauvegarde est importée comme profil financier supplémentaire. Les profils financiers existants sont conservés.","Il backup viene importato come profilo finanziario aggiuntivo. I profili finanziari esistenti vengono conservati."],
-  "Name des wiederhergestellten Finanzprofils": ["Restored financial profile name","Nom du profil financier restauré","Nome del profilo finanziario ripristinato"],
-  "Passwort des Backups": ["Backup password","Mot de passe de la sauvegarde","Password del backup"],
-  "Bitte eine Datei mit der Endung .finanzblick-backup wählen.": ["Choose a file ending in .finanzblick-backup.","Choisissez un fichier avec l’extension .finanzblick-backup.","Scegli un file con estensione .finanzblick-backup."],
-  "Backup konnte nicht erstellt werden.": ["Could not create backup.","Impossible de créer la sauvegarde.","Impossibile creare il backup."],
-  "Backup konnte nicht gespeichert werden.": ["Could not save backup.","Impossible d’enregistrer la sauvegarde.","Impossibile salvare il backup."],
-  "Backup konnte nicht gespeichert werden. Bitte einen neuen Dateinamen wählen.": ["Could not save backup. Choose a new filename.","Impossible d’enregistrer la sauvegarde. Choisissez un nouveau nom de fichier.","Impossibile salvare il backup. Scegli un nuovo nome file."],
-  "Backup konnte nicht importiert werden.": ["Could not import backup.","Impossible d’importer la sauvegarde.","Impossibile importare il backup."],
-  "Backup konnte nicht gelesen werden.": ["Could not read backup.","Impossible de lire la sauvegarde.","Impossibile leggere il backup."],
-  "Bitte eine Backup-Datei wählen.": ["Choose a backup file.","Choisissez un fichier de sauvegarde.","Scegli un file di backup."],
-  "Backup oder Passwort ungültig.": ["Invalid backup or password.","Sauvegarde ou mot de passe invalide.","Backup o password non validi."],
-  "Backup ist beschädigt.": ["Backup is damaged.","La sauvegarde est endommagée.","Il backup è danneggiato."],
-  "Ungültiges Finanzblick-Backup.": ["Invalid Finanzblick backup.","Sauvegarde Finanzblick invalide.","Backup Finanzblick non valido."],
-  "Steuererklärungen als PDF auslesen oder Jahreswerte ohne Datei manuell erfassen.": ["Read tax returns from PDF or enter annual values manually without a file.", "Lisez les déclarations fiscales au format PDF ou saisissez manuellement les valeurs annuelles sans fichier.", "Leggi le dichiarazioni fiscali in PDF oppure inserisci manualmente i valori annuali senza file."],
-  "Kein lesbares PDF vorhanden?": ["No readable PDF available?", "Aucun PDF lisible disponible ?", "Nessun PDF leggibile disponibile?"],
-  "Erfasse die Jahreswerte direkt von Hand.": ["Enter the annual values manually.", "Saisissez directement les valeurs annuelles à la main.", "Inserisci manualmente i valori annuali."],
-  "Manuelle Eingabe schliessen": ["Close manual entry", "Fermer la saisie manuelle", "Chiudi inserimento manuale"],
-  "Steuerjahr manuell erfassen": ["Enter tax year manually", "Saisir manuellement l’année fiscale", "Inserisci manualmente l’anno fiscale"],
-  "Manuelle Eingabe": ["Manual entry", "Saisie manuelle", "Inserimento manuale"],
-  "Steuerjahr ohne PDF erfassen": ["Enter tax year without PDF", "Saisir une année fiscale sans PDF", "Inserisci anno fiscale senza PDF"],
-  "Bitte ein Steuerjahr zwischen 1990 und 2100 eingeben.": ["Enter a tax year between 1990 and 2100.", "Saisissez une année fiscale comprise entre 1990 et 2100.", "Inserisci un anno fiscale compreso tra il 1990 e il 2100."],
-  "Jede Buchung und jedes Steuerjahr erhält einen unabhängigen Zufallsfaktor zwischen 10 und 300 % des ursprünglichen Werts.": ["Each transaction and tax year receives an independent random factor between 10 and 300% of its original value.", "Chaque transaction et chaque année fiscale reçoit un facteur aléatoire indépendant compris entre 10 et 300 % de sa valeur initiale.", "Ogni transazione e anno fiscale riceve un fattore casuale indipendente compreso tra il 10 e il 300% del valore originale."],
-  "Alle Buchungs-, Salden- und Steuerbeträge werden mit demselben Faktor multipliziert; ihre Verhältnisse bleiben erhalten.": ["All transaction, balance and tax amounts are multiplied by the same factor; their proportions are preserved.", "Tous les montants des transactions, des soldes et des impôts sont multipliés par le même facteur ; leurs proportions sont conservées.", "Tutti gli importi di transazioni, saldi e imposte vengono moltiplicati per lo stesso fattore; le proporzioni restano invariate."],
-  "Importart": ["Import type", "Type d'import", "Tipo di importazione"],
-  "Steuererklärungen importieren": ["Import tax returns", "Importer des déclarations fiscales", "Importa dichiarazioni fiscali"],
-  "Eine oder mehrere PDF-Dateien auswählen und die erkannten Jahreswerte vor dem Speichern prüfen.": ["Select one or more PDF files and review the detected annual values before saving.", "Sélectionnez un ou plusieurs fichiers PDF et vérifiez les valeurs annuelles détectées avant l’enregistrement.", "Seleziona uno o più file PDF e verifica i valori annuali rilevati prima del salvataggio."],
-  "Prüfe die gespeicherten Jahreswerte und passe sie bei Bedarf an.": ["Review the stored annual values and adjust them if necessary.", "Vérifiez les valeurs annuelles enregistrées et modifiez-les si nécessaire.", "Verifica i valori annuali salvati e modificali se necessario."],
-  "Steuererklärung importieren": ["Import tax return", "Importer une déclaration fiscale", "Importa dichiarazione fiscale"],
-  "Importiere zuerst eine Steuererklärung, um ihre Jahreswerte hier verwalten zu können.": ["Import a tax return first to manage its annual values here.", "Importez d’abord une déclaration fiscale afin de gérer ici ses valeurs annuelles.", "Importa prima una dichiarazione fiscale per gestire qui i relativi valori annuali."],
-  "Vermögensentwicklung nach Steuerjahren": ["Asset development by tax year", "Évolution du patrimoine par année fiscale", "Evoluzione patrimoniale per anno fiscale"],
-  "Angezeigte Werte": ["Displayed values", "Valeurs affichées", "Valori visualizzati"],
-  "Jährlicher Verlauf der ausgewählten Vermögenswerte": ["Annual history of the selected asset values", "Évolution annuelle des valeurs patrimoniales sélectionnées", "Andamento annuale dei valori patrimoniali selezionati"],
-  "Wertschriften & Guthaben": ["Securities & cash", "Titres et avoirs", "Titoli e averi"],
-  "Liegenschaften": ["Real estate", "Biens immobiliers", "Immobili"],
-  "Übrige / Korrekturen": ["Other / adjustments", "Autres / corrections", "Altri / rettifiche"],
-  "Übrige Vermögenswerte / Bewertungskorrekturen": ["Other assets / valuation adjustments", "Autres actifs / corrections d'évaluation", "Altri attivi / rettifiche di valutazione"],
-  "Vermögensaufteilung": ["Asset breakdown", "Répartition du patrimoine", "Ripartizione del patrimonio"],
-  "Gesamtrechnung": ["Overall calculation", "Calcul global", "Calcolo complessivo"],
-  "Plausibel: Vermögensaufteilung und Nettowert sind rechnerisch konsistent.": ["Plausible: the asset breakdown and net value are mathematically consistent.", "Plausible : la répartition du patrimoine et la valeur nette sont cohérentes.", "Plausibile: la ripartizione del patrimonio e il valore netto sono coerenti."],
-  "Hinweis: Die Vermögensaufteilung entspricht nicht den gesamten Vermögenswerten. Das Steuerjahr kann trotzdem gespeichert werden.": ["Note: the asset breakdown does not match total assets. The tax year can still be saved.", "Remarque : la répartition du patrimoine ne correspond pas au total des actifs. L’année fiscale peut tout de même être enregistrée.", "Nota: la ripartizione del patrimonio non corrisponde al totale delle attività. L’anno fiscale può comunque essere salvato."],
-  "Bitte Werte korrigieren: Die Aufteilung muss den gesamten Vermögenswerten und nach Abzug der Schulden dem steuerbaren Vermögen entsprechen.": ["Please correct the values: the breakdown must equal total assets and, after deducting liabilities, taxable assets.", "Veuillez corriger les valeurs : la répartition doit correspondre au total des actifs et, après déduction des dettes, au patrimoine imposable.", "Correggi i valori: la ripartizione deve corrispondere al totale degli attivi e, dopo la deduzione dei debiti, al patrimonio imponibile."],
-  "Steuerjahr bearbeiten": ["Edit tax year", "Modifier l'année fiscale", "Modifica anno fiscale"],
-  "Änderungen speichern": ["Save changes", "Enregistrer les modifications", "Salva modifiche"],
-  "Steuererklärungen hierher ziehen": ["Drag tax returns here", "Déposer les déclarations fiscales ici", "Trascina qui le dichiarazioni fiscali"],
-  "Eine oder mehrere PDF-Dateien ablegen und die erkannten Jahreswerte anschliessend prüfen.": ["Drop one or more PDF files and then review the detected annual values.", "Déposez un ou plusieurs fichiers PDF, puis vérifiez les valeurs annuelles détectées.", "Trascina uno o più file PDF e verifica poi i valori annuali rilevati."],
-  "Unterstützt werden elektronisch erzeugte Steuererklärungen im PDF-Format.": ["Electronically generated tax returns in PDF format are supported.", "Les déclarations fiscales générées électroniquement au format PDF sont prises en charge.", "Sono supportate le dichiarazioni fiscali generate elettronicamente in formato PDF."],
-  "Bitte eine PDF-Datei ablegen.": ["Please drop a PDF file.", "Veuillez déposer un fichier PDF.", "Trascina un file PDF."],
-  "Steuerhistorie": ["Tax history", "Historique fiscal", "Storico fiscale"],
-  "Langzeitverlauf": ["Long-term history", "Historique à long terme", "Andamento a lungo termine"],
-  "Vermögen nach Steuerjahren": ["Assets by tax year", "Patrimoine par année fiscale", "Patrimonio per anno fiscale"],
-  "Jährliche Vermögenswerte aus deinen Steuererklärungen, unabhängig von Bankimporten.": ["Annual asset values from your tax returns, independent of bank imports.", "Valeurs patrimoniales annuelles issues de vos déclarations fiscales, indépendamment des imports bancaires.", "Valori patrimoniali annuali dalle dichiarazioni fiscali, indipendenti dalle importazioni bancarie."],
-  "Steuererklärungen auswählen": ["Select tax returns", "Sélectionner les déclarations fiscales", "Seleziona dichiarazioni fiscali"],
-  "Steuererklärungen": ["Tax returns", "Déclarations fiscales", "Dichiarazioni fiscali"],
-  "Die Steuerhistorie ist in der Desktop-App verfügbar.": ["Tax history is available in the desktop app.", "L’historique fiscal est disponible dans l’application de bureau.", "Lo storico fiscale è disponibile nell’app desktop."],
-  "Die PDFs werden nur ausgelesen. Gespeichert werden das Steuerjahr, die geprüften Summen und ein Dateifingerabdruck - nicht das PDF selbst.": ["The PDFs are read only. The tax year, verified totals and a file fingerprint are stored - not the PDF itself.", "Les PDF sont uniquement lus. L’année fiscale, les totaux vérifiés et une empreinte du fichier sont enregistrés - pas le PDF lui-même.", "I PDF vengono soltanto letti. Sono salvati l’anno fiscale, i totali verificati e un’impronta del file - non il PDF stesso."],
-  "Erkannte Steuerwerte prüfen": ["Review detected tax values", "Vérifier les valeurs fiscales détectées", "Verifica i valori fiscali rilevati"],
-  "Total Vermögenswerte": ["Total assets", "Total des actifs", "Totale attività"],
-  "Steuerbares Vermögen gesamt": ["Total taxable assets", "Patrimoine imposable total", "Patrimonio imponibile totale"],
-  "Plausibel: Vermögenswerte minus Schulden entsprechen dem steuerbaren Vermögen.": ["Plausible: assets minus liabilities equal taxable assets.", "Plausible : les actifs moins les dettes correspondent au patrimoine imposable.", "Plausibile: le attività meno i debiti corrispondono al patrimonio imponibile."],
-  "Bitte Werte korrigieren: Vermögenswerte minus Schulden müssen dem steuerbaren Vermögen entsprechen.": ["Please correct the values: assets minus liabilities must equal taxable assets.", "Veuillez corriger les valeurs : les actifs moins les dettes doivent correspondre au patrimoine imposable.", "Correggi i valori: le attività meno i debiti devono corrispondere al patrimonio imponibile."],
-  "Für dieses Jahr besteht bereits ein Wert. Beim Speichern wird er ersetzt.": ["A value already exists for this year. Saving will replace it.", "Une valeur existe déjà pour cette année. Elle sera remplacée lors de l’enregistrement.", "Esiste già un valore per quest’anno. Verrà sostituito al salvataggio."],
-  "Letzter Steuerwert": ["Latest tax value", "Dernière valeur fiscale", "Ultimo valore fiscale"],
-  "Veränderung seit erstem Jahr": ["Change since first year", "Évolution depuis la première année", "Variazione dal primo anno"],
-  "Importierte Steuererklärungen": ["Imported tax returns", "Déclarations fiscales importées", "Dichiarazioni fiscali importate"],
-  "Noch keine Jahreswerte": ["No annual values yet", "Aucune valeur annuelle", "Nessun valore annuale"],
-  "Beginne mit einer Steuererklärung": ["Start with a tax return", "Commencer par une déclaration fiscale", "Inizia con una dichiarazione fiscale"],
-  "Wähle eine oder mehrere Zürcher Steuererklärungen als PDF. Die erkannten Summen werden vor dem Speichern angezeigt.": ["Select one or more Zurich tax returns as PDFs. Detected totals are shown before saving.", "Sélectionnez une ou plusieurs déclarations fiscales zurichoises au format PDF. Les totaux détectés sont affichés avant l’enregistrement.", "Seleziona una o più dichiarazioni fiscali di Zurigo in PDF. I totali rilevati vengono mostrati prima del salvataggio."],
-  "Jährlicher Verlauf des steuerbaren Vermögens": ["Annual history of taxable assets", "Évolution annuelle du patrimoine imposable", "Andamento annuale del patrimonio imponibile"],
-  "Einstellungsbereiche": ["Settings sections", "Sections des paramètres", "Sezioni delle impostazioni"],
-  "Optionale Datenquellen für automatische Tageskurse und Wechselkurse.": ["Optional data sources for automatic daily prices and exchange rates.", "Sources de données facultatives pour les cours journaliers et les taux de change automatiques.", "Fonti dati facoltative per prezzi giornalieri e tassi di cambio automatici."],
-  "Übersicht": ["Overview", "Vue d’ensemble", "Panoramica"],
+  "Letzter Kurs": [
+    "Latest price",
+    "Dernier cours",
+    "Ultimo prezzo"
+  ],
+  "Positionswert": [
+    "Position value",
+    "Valeur de la position",
+    "Valore della posizione"
+  ],
+  "Ausgewählte Positionen": [
+    "Selected positions",
+    "Positions sélectionnées",
+    "Posizioni selezionate"
+  ],
+  "Preis pro Anteil in Originalwährung": [
+    "Price per unit in original currency",
+    "Prix par part dans la devise d’origine",
+    "Prezzo per quota nella valuta originale"
+  ],
+  "Wert der ausgewählten Positionen in CHF": [
+    "Value of selected positions in CHF",
+    "Valeur des positions sélectionnées en CHF",
+    "Valore delle posizioni selezionate in CHF"
+  ],
+  "Positionen werden geladen …": [
+    "Loading positions …",
+    "Chargement des positions …",
+    "Caricamento posizioni …"
+  ],
+  "Bitte mindestens eine Position auswählen.": [
+    "Select at least one position.",
+    "Sélectionnez au moins une position.",
+    "Seleziona almeno una posizione."
+  ],
+  "Kurs": [
+    "Price",
+    "Cours",
+    "Prezzo"
+  ],
+  "Alle auswählen": [
+    "Select all",
+    "Tout sélectionner",
+    "Seleziona tutto"
+  ],
+  "Keine Positionen vorhanden.": [
+    "No positions available.",
+    "Aucune position disponible.",
+    "Nessuna posizione disponibile."
+  ],
+  "Enddatum": [
+    "End date",
+    "Date de fin",
+    "Data di fine"
+  ],
+  "Neues Finanzprofil": [
+    "New financial profile",
+    "Nouveau profil financier",
+    "Nuovo profilo finanziario"
+  ],
+  "Demo-Daten": [
+    "Demo data",
+    "Données de démonstration",
+    "Dati dimostrativi"
+  ],
+  "Demo-Finanzprofil": [
+    "Demo financial profile",
+    "Profil de démonstration",
+    "Profilo finanziario dimostrativo"
+  ],
+  "Mit Demodaten ausprobieren": [
+    "Try with demo data",
+    "Essayer avec des données de démonstration",
+    "Prova con dati dimostrativi"
+  ],
+  "Demo wird geöffnet …": [
+    "Opening demo …",
+    "Ouverture de la démonstration …",
+    "Apertura demo …"
+  ],
+  "Drei Banken, Aktien und ETF mit acht Jahren simulierter Historie. Jede Demo wird als zusätzliches Finanzprofil angelegt. Passwort: demo1234.": [
+    "Three banks, stocks and an ETF with eight years of simulated history. Each demo creates an additional financial profile. Password: demo1234.",
+    "Trois banques, des actions et un ETF avec huit ans d’historique simulé. Chaque démonstration crée un profil financier supplémentaire. Mot de passe : demo1234.",
+    "Tre banche, azioni e un ETF con otto anni di storico simulato. Ogni demo crea un profilo finanziario aggiuntivo. Password: demo1234."
+  ],
+  "Demo – fiktive Daten": [
+    "Demo – fictional data",
+    "Démo – données fictives",
+    "Demo – dati fittizi"
+  ],
+  "Alle Beträge, Kurse und Transaktionen sind simuliert. Passwort: demo1234. Bitte keine persönlichen Daten in der Demo speichern.": [
+    "All amounts, prices and transactions are simulated. Password: demo1234. Do not store personal data in the demo.",
+    "Tous les montants, cours et transactions sont simulés. Mot de passe : demo1234. Ne stockez pas de données personnelles dans la démonstration.",
+    "Tutti gli importi, prezzi e transazioni sono simulati. Password: demo1234. Non salvare dati personali nella demo."
+  ],
+  "Eigenes Finanzprofil erstellen": [
+    "Create your own financial profile",
+    "Créer votre propre profil financier",
+    "Crea il tuo profilo finanziario"
+  ],
+  "Demo konnte nicht erstellt werden.": [
+    "Could not create demo.",
+    "Impossible de créer la démonstration.",
+    "Impossibile creare la demo."
+  ],
+  "Demo: Simulierte Kurse werden nicht durch Live-Kurse ersetzt.": [
+    "Demo: simulated prices are not replaced by live prices.",
+    "Démo : les cours simulés ne sont pas remplacés par des cours réels.",
+    "Demo: i prezzi simulati non vengono sostituiti da prezzi reali."
+  ],
+  "Banknamen ändern": [
+    "Rename bank",
+    "Renommer la banque",
+    "Rinomina banca"
+  ],
+  "Der Name gilt für alle Konten dieser Bank oder dieses Anbieters.": [
+    "The name applies to all accounts at this bank or provider.",
+    "Le nom s’applique à tous les comptes de cette banque ou de ce prestataire.",
+    "Il nome si applica a tutti i conti di questa banca o di questo fornitore."
+  ],
+  "Bitte einen Banknamen mit 1 bis 120 Zeichen eingeben.": [
+    "Enter a bank name with 1 to 120 characters.",
+    "Saisissez un nom de banque de 1 à 120 caractères.",
+    "Inserisci un nome di banca da 1 a 120 caratteri."
+  ],
+  "Daten & Sicherheit": [
+    "Data & security",
+    "Données et sécurité",
+    "Dati e sicurezza"
+  ],
+  "Backup": [
+    "Backup",
+    "Sauvegarde",
+    "Backup"
+  ],
+  "Backup erstellen": [
+    "Create backup",
+    "Créer une sauvegarde",
+    "Crea backup"
+  ],
+  "Backup wiederherstellen": [
+    "Restore backup",
+    "Restaurer une sauvegarde",
+    "Ripristina backup"
+  ],
+  "Backup importieren": [
+    "Import backup",
+    "Importer la sauvegarde",
+    "Importa backup"
+  ],
+  "Backup erfolgreich gespeichert.": [
+    "Backup saved successfully.",
+    "Sauvegarde enregistrée.",
+    "Backup salvato."
+  ],
+  "Backup importiert. Das zusätzliche Finanzprofil kann unter Finanzprofil ausgewählt werden.": [
+    "Backup imported. Select the additional financial profile under Financial profile.",
+    "Sauvegarde importée. Sélectionnez le profil financier supplémentaire sous Profil financier.",
+    "Backup importato. Seleziona il profilo finanziario aggiuntivo sotto Profilo finanziario."
+  ],
+  "Gesichert wird das aktuell ausgewählte Finanzprofil mit allen Daten und Einstellungen. Weitere Finanzprofile bitte einzeln sichern.": [
+    "The selected financial profile is backed up with all data and settings. Back up other financial profiles separately.",
+    "Le profil financier sélectionné est sauvegardé avec toutes ses données et ses paramètres. Sauvegardez les autres profils financiers séparément.",
+    "Il profilo finanziario selezionato viene salvato con tutti i dati e le impostazioni. Salva gli altri profili finanziari separatamente."
+  ],
+  "Backups bleiben verschlüsselt. Zum Wiederherstellen brauchst du das Passwort zum Zeitpunkt der Sicherung.": [
+    "Backups remain encrypted. Restoring requires the password used when the backup was created.",
+    "Les sauvegardes restent chiffrées. La restauration nécessite le mot de passe utilisé lors de la sauvegarde.",
+    "I backup restano crittografati. Per ripristinarli serve la password usata al momento della creazione."
+  ],
+  "Das Backup wird als zusätzliches Finanzprofil importiert. Bestehende Finanzprofile bleiben erhalten.": [
+    "The backup is imported as an additional financial profile. Existing financial profiles are preserved.",
+    "La sauvegarde est importée comme profil financier supplémentaire. Les profils financiers existants sont conservés.",
+    "Il backup viene importato come profilo finanziario aggiuntivo. I profili finanziari esistenti vengono conservati."
+  ],
+  "Name des wiederhergestellten Finanzprofils": [
+    "Restored financial profile name",
+    "Nom du profil financier restauré",
+    "Nome del profilo finanziario ripristinato"
+  ],
+  "Passwort des Backups": [
+    "Backup password",
+    "Mot de passe de la sauvegarde",
+    "Password del backup"
+  ],
+  "Bitte eine Datei mit der Endung .finanzblick-backup wählen.": [
+    "Choose a file ending in .finanzblick-backup.",
+    "Choisissez un fichier avec l’extension .finanzblick-backup.",
+    "Scegli un file con estensione .finanzblick-backup."
+  ],
+  "Backup konnte nicht erstellt werden.": [
+    "Could not create backup.",
+    "Impossible de créer la sauvegarde.",
+    "Impossibile creare il backup."
+  ],
+  "Backup konnte nicht gespeichert werden.": [
+    "Could not save backup.",
+    "Impossible d’enregistrer la sauvegarde.",
+    "Impossibile salvare il backup."
+  ],
+  "Backup konnte nicht gespeichert werden. Bitte einen neuen Dateinamen wählen.": [
+    "Could not save backup. Choose a new filename.",
+    "Impossible d’enregistrer la sauvegarde. Choisissez un nouveau nom de fichier.",
+    "Impossibile salvare il backup. Scegli un nuovo nome file."
+  ],
+  "Backup konnte nicht importiert werden.": [
+    "Could not import backup.",
+    "Impossible d’importer la sauvegarde.",
+    "Impossibile importare il backup."
+  ],
+  "Backup konnte nicht gelesen werden.": [
+    "Could not read backup.",
+    "Impossible de lire la sauvegarde.",
+    "Impossibile leggere il backup."
+  ],
+  "Bitte eine Backup-Datei wählen.": [
+    "Choose a backup file.",
+    "Choisissez un fichier de sauvegarde.",
+    "Scegli un file di backup."
+  ],
+  "Backup oder Passwort ungültig.": [
+    "Invalid backup or password.",
+    "Sauvegarde ou mot de passe invalide.",
+    "Backup o password non validi."
+  ],
+  "Backup ist beschädigt.": [
+    "Backup is damaged.",
+    "La sauvegarde est endommagée.",
+    "Il backup è danneggiato."
+  ],
+  "Ungültiges Finanzblick-Backup.": [
+    "Invalid Finanzblick backup.",
+    "Sauvegarde Finanzblick invalide.",
+    "Backup Finanzblick non valido."
+  ],
+  "Steuererklärungen als PDF auslesen oder Jahreswerte ohne Datei manuell erfassen.": [
+    "Read tax returns from PDF or enter annual values manually without a file.",
+    "Lisez les déclarations fiscales au format PDF ou saisissez manuellement les valeurs annuelles sans fichier.",
+    "Leggi le dichiarazioni fiscali in PDF oppure inserisci manualmente i valori annuali senza file."
+  ],
+  "Kein lesbares PDF vorhanden?": [
+    "No readable PDF available?",
+    "Aucun PDF lisible disponible ?",
+    "Nessun PDF leggibile disponibile?"
+  ],
+  "Erfasse die Jahreswerte direkt von Hand.": [
+    "Enter the annual values manually.",
+    "Saisissez directement les valeurs annuelles à la main.",
+    "Inserisci manualmente i valori annuali."
+  ],
+  "Manuelle Eingabe schliessen": [
+    "Close manual entry",
+    "Fermer la saisie manuelle",
+    "Chiudi inserimento manuale"
+  ],
+  "Steuerjahr manuell erfassen": [
+    "Enter tax year manually",
+    "Saisir manuellement l’année fiscale",
+    "Inserisci manualmente l’anno fiscale"
+  ],
+  "Manuelle Eingabe": [
+    "Manual entry",
+    "Saisie manuelle",
+    "Inserimento manuale"
+  ],
+  "Steuerjahr ohne PDF erfassen": [
+    "Enter tax year without PDF",
+    "Saisir une année fiscale sans PDF",
+    "Inserisci anno fiscale senza PDF"
+  ],
+  "Bitte ein Steuerjahr zwischen 1990 und 2100 eingeben.": [
+    "Enter a tax year between 1990 and 2100.",
+    "Saisissez une année fiscale comprise entre 1990 et 2100.",
+    "Inserisci un anno fiscale compreso tra il 1990 e il 2100."
+  ],
+  "Jede Buchung und jedes Steuerjahr erhält einen unabhängigen Zufallsfaktor zwischen 10 und 300 % des ursprünglichen Werts.": [
+    "Each transaction and tax year receives an independent random factor between 10 and 300% of its original value.",
+    "Chaque transaction et chaque année fiscale reçoit un facteur aléatoire indépendant compris entre 10 et 300 % de sa valeur initiale.",
+    "Ogni transazione e anno fiscale riceve un fattore casuale indipendente compreso tra il 10 e il 300% del valore originale."
+  ],
+  "Alle Buchungs-, Salden- und Steuerbeträge werden mit demselben Faktor multipliziert; ihre Verhältnisse bleiben erhalten.": [
+    "All transaction, balance and tax amounts are multiplied by the same factor; their proportions are preserved.",
+    "Tous les montants des transactions, des soldes et des impôts sont multipliés par le même facteur ; leurs proportions sont conservées.",
+    "Tutti gli importi di transazioni, saldi e imposte vengono moltiplicati per lo stesso fattore; le proporzioni restano invariate."
+  ],
+  "Importart": [
+    "Import type",
+    "Type d'import",
+    "Tipo di importazione"
+  ],
+  "Steuererklärungen importieren": [
+    "Import tax returns",
+    "Importer des déclarations fiscales",
+    "Importa dichiarazioni fiscali"
+  ],
+  "Eine oder mehrere PDF-Dateien auswählen und die erkannten Jahreswerte vor dem Speichern prüfen.": [
+    "Select one or more PDF files and review the detected annual values before saving.",
+    "Sélectionnez un ou plusieurs fichiers PDF et vérifiez les valeurs annuelles détectées avant l’enregistrement.",
+    "Seleziona uno o più file PDF e verifica i valori annuali rilevati prima del salvataggio."
+  ],
+  "Prüfe die gespeicherten Jahreswerte und passe sie bei Bedarf an.": [
+    "Review the stored annual values and adjust them if necessary.",
+    "Vérifiez les valeurs annuelles enregistrées et modifiez-les si nécessaire.",
+    "Verifica i valori annuali salvati e modificali se necessario."
+  ],
+  "Steuererklärung importieren": [
+    "Import tax return",
+    "Importer une déclaration fiscale",
+    "Importa dichiarazione fiscale"
+  ],
+  "Importiere zuerst eine Steuererklärung, um ihre Jahreswerte hier verwalten zu können.": [
+    "Import a tax return first to manage its annual values here.",
+    "Importez d’abord une déclaration fiscale afin de gérer ici ses valeurs annuelles.",
+    "Importa prima una dichiarazione fiscale per gestire qui i relativi valori annuali."
+  ],
+  "Vermögensentwicklung nach Steuerjahren": [
+    "Asset development by tax year",
+    "Évolution du patrimoine par année fiscale",
+    "Evoluzione patrimoniale per anno fiscale"
+  ],
+  "Angezeigte Werte": [
+    "Displayed values",
+    "Valeurs affichées",
+    "Valori visualizzati"
+  ],
+  "Jährlicher Verlauf der ausgewählten Vermögenswerte": [
+    "Annual history of the selected asset values",
+    "Évolution annuelle des valeurs patrimoniales sélectionnées",
+    "Andamento annuale dei valori patrimoniali selezionati"
+  ],
+  "Wertschriften & Guthaben": [
+    "Securities & cash",
+    "Titres et avoirs",
+    "Titoli e averi"
+  ],
+  "Liegenschaften": [
+    "Real estate",
+    "Biens immobiliers",
+    "Immobili"
+  ],
+  "Übrige / Korrekturen": [
+    "Other / adjustments",
+    "Autres / corrections",
+    "Altri / rettifiche"
+  ],
+  "Übrige Vermögenswerte / Bewertungskorrekturen": [
+    "Other assets / valuation adjustments",
+    "Autres actifs / corrections d'évaluation",
+    "Altri attivi / rettifiche di valutazione"
+  ],
+  "Vermögensaufteilung": [
+    "Asset breakdown",
+    "Répartition du patrimoine",
+    "Ripartizione del patrimonio"
+  ],
+  "Gesamtrechnung": [
+    "Overall calculation",
+    "Calcul global",
+    "Calcolo complessivo"
+  ],
+  "Plausibel: Vermögensaufteilung und Nettowert sind rechnerisch konsistent.": [
+    "Plausible: the asset breakdown and net value are mathematically consistent.",
+    "Plausible : la répartition du patrimoine et la valeur nette sont cohérentes.",
+    "Plausibile: la ripartizione del patrimonio e il valore netto sono coerenti."
+  ],
+  "Hinweis: Die Vermögensaufteilung entspricht nicht den gesamten Vermögenswerten. Das Steuerjahr kann trotzdem gespeichert werden.": [
+    "Note: the asset breakdown does not match total assets. The tax year can still be saved.",
+    "Remarque : la répartition du patrimoine ne correspond pas au total des actifs. L’année fiscale peut tout de même être enregistrée.",
+    "Nota: la ripartizione del patrimonio non corrisponde al totale delle attività. L’anno fiscale può comunque essere salvato."
+  ],
+  "Bitte Werte korrigieren: Die Aufteilung muss den gesamten Vermögenswerten und nach Abzug der Schulden dem steuerbaren Vermögen entsprechen.": [
+    "Please correct the values: the breakdown must equal total assets and, after deducting liabilities, taxable assets.",
+    "Veuillez corriger les valeurs : la répartition doit correspondre au total des actifs et, après déduction des dettes, au patrimoine imposable.",
+    "Correggi i valori: la ripartizione deve corrispondere al totale degli attivi e, dopo la deduzione dei debiti, al patrimonio imponibile."
+  ],
+  "Steuerjahr bearbeiten": [
+    "Edit tax year",
+    "Modifier l'année fiscale",
+    "Modifica anno fiscale"
+  ],
+  "Änderungen speichern": [
+    "Save changes",
+    "Enregistrer les modifications",
+    "Salva modifiche"
+  ],
+  "Steuererklärungen hierher ziehen": [
+    "Drag tax returns here",
+    "Déposer les déclarations fiscales ici",
+    "Trascina qui le dichiarazioni fiscali"
+  ],
+  "Eine oder mehrere PDF-Dateien ablegen und die erkannten Jahreswerte anschliessend prüfen.": [
+    "Drop one or more PDF files and then review the detected annual values.",
+    "Déposez un ou plusieurs fichiers PDF, puis vérifiez les valeurs annuelles détectées.",
+    "Trascina uno o più file PDF e verifica poi i valori annuali rilevati."
+  ],
+  "Unterstützt werden elektronisch erzeugte Steuererklärungen im PDF-Format.": [
+    "Electronically generated tax returns in PDF format are supported.",
+    "Les déclarations fiscales générées électroniquement au format PDF sont prises en charge.",
+    "Sono supportate le dichiarazioni fiscali generate elettronicamente in formato PDF."
+  ],
+  "Bitte eine PDF-Datei ablegen.": [
+    "Please drop a PDF file.",
+    "Veuillez déposer un fichier PDF.",
+    "Trascina un file PDF."
+  ],
+  "Steuerhistorie": [
+    "Tax history",
+    "Historique fiscal",
+    "Storico fiscale"
+  ],
+  "Langzeitverlauf": [
+    "Long-term history",
+    "Historique à long terme",
+    "Andamento a lungo termine"
+  ],
+  "Vermögen nach Steuerjahren": [
+    "Assets by tax year",
+    "Patrimoine par année fiscale",
+    "Patrimonio per anno fiscale"
+  ],
+  "Jährliche Vermögenswerte aus deinen Steuererklärungen, unabhängig von Bankimporten.": [
+    "Annual asset values from your tax returns, independent of bank imports.",
+    "Valeurs patrimoniales annuelles issues de vos déclarations fiscales, indépendamment des imports bancaires.",
+    "Valori patrimoniali annuali dalle dichiarazioni fiscali, indipendenti dalle importazioni bancarie."
+  ],
+  "Steuererklärungen auswählen": [
+    "Select tax returns",
+    "Sélectionner les déclarations fiscales",
+    "Seleziona dichiarazioni fiscali"
+  ],
+  "Steuererklärungen": [
+    "Tax returns",
+    "Déclarations fiscales",
+    "Dichiarazioni fiscali"
+  ],
+  "Die Steuerhistorie ist in der Desktop-App verfügbar.": [
+    "Tax history is available in the desktop app.",
+    "L’historique fiscal est disponible dans l’application de bureau.",
+    "Lo storico fiscale è disponibile nell’app desktop."
+  ],
+  "Die PDFs werden nur ausgelesen. Gespeichert werden das Steuerjahr, die geprüften Summen und ein Dateifingerabdruck - nicht das PDF selbst.": [
+    "The PDFs are read only. The tax year, verified totals and a file fingerprint are stored - not the PDF itself.",
+    "Les PDF sont uniquement lus. L’année fiscale, les totaux vérifiés et une empreinte du fichier sont enregistrés - pas le PDF lui-même.",
+    "I PDF vengono soltanto letti. Sono salvati l’anno fiscale, i totali verificati e un’impronta del file - non il PDF stesso."
+  ],
+  "Erkannte Steuerwerte prüfen": [
+    "Review detected tax values",
+    "Vérifier les valeurs fiscales détectées",
+    "Verifica i valori fiscali rilevati"
+  ],
+  "Total Vermögenswerte": [
+    "Total assets",
+    "Total des actifs",
+    "Totale attività"
+  ],
+  "Steuerbares Vermögen gesamt": [
+    "Total taxable assets",
+    "Patrimoine imposable total",
+    "Patrimonio imponibile totale"
+  ],
+  "Plausibel: Vermögenswerte minus Schulden entsprechen dem steuerbaren Vermögen.": [
+    "Plausible: assets minus liabilities equal taxable assets.",
+    "Plausible : les actifs moins les dettes correspondent au patrimoine imposable.",
+    "Plausibile: le attività meno i debiti corrispondono al patrimonio imponibile."
+  ],
+  "Bitte Werte korrigieren: Vermögenswerte minus Schulden müssen dem steuerbaren Vermögen entsprechen.": [
+    "Please correct the values: assets minus liabilities must equal taxable assets.",
+    "Veuillez corriger les valeurs : les actifs moins les dettes doivent correspondre au patrimoine imposable.",
+    "Correggi i valori: le attività meno i debiti devono corrispondere al patrimonio imponibile."
+  ],
+  "Für dieses Jahr besteht bereits ein Wert. Beim Speichern wird er ersetzt.": [
+    "A value already exists for this year. Saving will replace it.",
+    "Une valeur existe déjà pour cette année. Elle sera remplacée lors de l’enregistrement.",
+    "Esiste già un valore per quest’anno. Verrà sostituito al salvataggio."
+  ],
+  "Letzter Steuerwert": [
+    "Latest tax value",
+    "Dernière valeur fiscale",
+    "Ultimo valore fiscale"
+  ],
+  "Veränderung seit erstem Jahr": [
+    "Change since first year",
+    "Évolution depuis la première année",
+    "Variazione dal primo anno"
+  ],
+  "Importierte Steuererklärungen": [
+    "Imported tax returns",
+    "Déclarations fiscales importées",
+    "Dichiarazioni fiscali importate"
+  ],
+  "Noch keine Jahreswerte": [
+    "No annual values yet",
+    "Aucune valeur annuelle",
+    "Nessun valore annuale"
+  ],
+  "Beginne mit einer Steuererklärung": [
+    "Start with a tax return",
+    "Commencer par une déclaration fiscale",
+    "Inizia con una dichiarazione fiscale"
+  ],
+  "Wähle eine oder mehrere Zürcher Steuererklärungen als PDF. Die erkannten Summen werden vor dem Speichern angezeigt.": [
+    "Select one or more Zurich tax returns as PDFs. Detected totals are shown before saving.",
+    "Sélectionnez une ou plusieurs déclarations fiscales zurichoises au format PDF. Les totaux détectés sont affichés avant l’enregistrement.",
+    "Seleziona una o più dichiarazioni fiscali di Zurigo in PDF. I totali rilevati vengono mostrati prima del salvataggio."
+  ],
+  "Jährlicher Verlauf des steuerbaren Vermögens": [
+    "Annual history of taxable assets",
+    "Évolution annuelle du patrimoine imposable",
+    "Andamento annuale del patrimonio imponibile"
+  ],
+  "Einstellungsbereiche": [
+    "Settings sections",
+    "Sections des paramètres",
+    "Sezioni delle impostazioni"
+  ],
+  "Optionale Datenquellen für automatische Tageskurse und Wechselkurse.": [
+    "Optional data sources for automatic daily prices and exchange rates.",
+    "Sources de données facultatives pour les cours journaliers et les taux de change automatiques.",
+    "Fonti dati facoltative per prezzi giornalieri e tassi di cambio automatici."
+  ],
+  "Übersicht": [
+    "Overview",
+    "Vue d’ensemble",
+    "Panoramica"
+  ],
   "Banken & Konten": [
     "Banks & accounts",
     "Banques et comptes",
     "Banche e conti"
   ],
-  "Vermögen": ["Assets", "Patrimoine", "Patrimonio"],
-  "Transaktionen": ["Transactions", "Transactions", "Transazioni"],
-  "Kategorien": ["Categories", "Catégories", "Categorie"],
-  "Import": ["Import", "Importation", "Importazione"],
+  "Vermögen": [
+    "Assets",
+    "Patrimoine",
+    "Patrimonio"
+  ],
+  "Transaktionen": [
+    "Transactions",
+    "Transactions",
+    "Transazioni"
+  ],
+  "Kategorien": [
+    "Categories",
+    "Catégories",
+    "Categorie"
+  ],
+  "Import": [
+    "Import",
+    "Importation",
+    "Importazione"
+  ],
   "Importverwaltung": [
     "Import history",
     "Historique des imports",
     "Cronologia importazioni"
   ],
-  "Einstellungen": ["Settings", "Paramètres", "Impostazioni"],
+  "Einstellungen": [
+    "Settings",
+    "Paramètres",
+    "Impostazioni"
+  ],
   "Hauptnavigation": [
     "Main navigation",
     "Navigation principale",
@@ -129,8 +569,16 @@
     "Navigation du compte",
     "Navigazione account"
   ],
-  "Abmelden": ["Log out", "Se dÃ©connecter", "Disconnetti"],
-  "Lokaler Modus": ["Local mode", "Mode local", "Modalità locale"],
+  "Abmelden": [
+    "Log out",
+    "Se dÃ©connecter",
+    "Disconnetti"
+  ],
+  "Lokaler Modus": [
+    "Local mode",
+    "Mode local",
+    "Modalità locale"
+  ],
   "Keine Cloud-Verbindung": [
     "No cloud connection",
     "Aucune connexion au cloud",
@@ -161,7 +609,11 @@
     "Protégez vos finances avec un mot de passe d’au moins 7 caractères.",
     "Proteggi le tue finanze con una password di almeno 7 caratteri."
   ],
-  "Passwort": ["Password", "Mot de passe", "Password"],
+  "Passwort": [
+    "Password",
+    "Mot de passe",
+    "Password"
+  ],
   "Passwort wiederholen": [
     "Repeat password",
     "Répéter le mot de passe",
@@ -177,21 +629,41 @@
     "Activer la protection locale",
     "Attiva la protezione locale"
   ],
-  "Entsperren": ["Unlock", "Déverrouiller", "Sblocca"],
-  "Jetzt sperren": ["Lock now", "Verrouiller", "Blocca ora"],
+  "Entsperren": [
+    "Unlock",
+    "Déverrouiller",
+    "Sblocca"
+  ],
+  "Jetzt sperren": [
+    "Lock now",
+    "Verrouiller",
+    "Blocca ora"
+  ],
   "Lokal verschlüsselt · Sperre nach": [
     "Locally encrypted · Lock after",
     "Chiffrement local · Verrouillage après",
     "Crittografia locale · Blocco dopo"
   ],
-  "Min.": ["min", "min", "min"],
+  "Min.": [
+    "min",
+    "min",
+    "min"
+  ],
   "Lokalen Datentresor prüfen …": [
     "Checking local vault …",
     "Vérification du coffre local…",
     "Verifica dell’archivio locale…"
   ],
-  "Bitte warten …": ["Please wait …", "Veuillez patienter…", "Attendi…"],
-  "Erneut versuchen": ["Try again", "Réessayer", "Riprova"],
+  "Bitte warten …": [
+    "Please wait …",
+    "Veuillez patienter…",
+    "Attendi…"
+  ],
+  "Erneut versuchen": [
+    "Try again",
+    "Réessayer",
+    "Riprova"
+  ],
   "Bitte mindestens 7 Zeichen verwenden.": [
     "Please use at least 7 characters.",
     "Utilisez au moins 7 caractères.",
@@ -217,7 +689,11 @@
     "Le verrouillage n’a pas pu être confirmé. Fermez l’application.",
     "Impossibile confermare il blocco. Chiudi l’app."
   ],
-  "Allgemein": ["General", "Général", "Generale"],
+  "Allgemein": [
+    "General",
+    "Général",
+    "Generale"
+  ],
   "Automatisch sperren nach": [
     "Automatically lock after",
     "Verrouiller automatiquement après",
@@ -228,13 +704,41 @@
     "Le délai court depuis la dernière interaction. La réduction de la fenêtre verrouille aussi l’application.",
     "Il tempo decorre dall’ultima interazione. L’app si blocca anche quando viene ridotta a icona."
   ],
-  "Minute": ["minute", "minute", "minuto"],
-  "Minuten": ["minutes", "minutes", "minuti"],
-  "Sprache": ["Language", "Langue", "Lingua"],
-  "Ländereinstellungen": ["Regional settings", "Paramètres régionaux", "Impostazioni regionali"],
-  "Schweiz": ["Switzerland", "Suisse", "Svizzera"],
-  "Deutschland": ["Germany", "Allemagne", "Germania"],
-  "Österreich": ["Austria", "Autriche", "Austria"],
+  "Minute": [
+    "minute",
+    "minute",
+    "minuto"
+  ],
+  "Minuten": [
+    "minutes",
+    "minutes",
+    "minuti"
+  ],
+  "Sprache": [
+    "Language",
+    "Langue",
+    "Lingua"
+  ],
+  "Ländereinstellungen": [
+    "Regional settings",
+    "Paramètres régionaux",
+    "Impostazioni regionali"
+  ],
+  "Schweiz": [
+    "Switzerland",
+    "Suisse",
+    "Svizzera"
+  ],
+  "Deutschland": [
+    "Germany",
+    "Allemagne",
+    "Germania"
+  ],
+  "Österreich": [
+    "Austria",
+    "Autriche",
+    "Austria"
+  ],
   "Steuert die Darstellung von Datum und Zahlen. Gespeicherte Werte bleiben unverändert.": [
     "Controls how dates and numbers are displayed. Stored values remain unchanged.",
     "Détermine l’affichage des dates et des nombres. Les valeurs enregistrées restent inchangées.",
@@ -270,7 +774,11 @@
     "Mot de passe actuel",
     "Password attuale"
   ],
-  "Neues Passwort": ["New password", "Nouveau mot de passe", "Nuova password"],
+  "Neues Passwort": [
+    "New password",
+    "Nouveau mot de passe",
+    "Nuova password"
+  ],
   "Neues Passwort wiederholen": [
     "Repeat new password",
     "Répéter le nouveau mot de passe",
@@ -331,36 +839,116 @@
     "Déverrouillez à nouveau avec le nouveau mot de passe.",
     "Sblocca di nuovo con la nuova password."
   ],
-  "Abbrechen": ["Cancel", "Annuler", "Annulla"],
-  "Speichern": ["Save", "Enregistrer", "Salva"],
-  "Wird gespeichert…": ["Saving…", "Enregistrement…", "Salvataggio…"],
-  "Bearbeiten": ["Edit", "Modifier", "Modifica"],
-  "Löschen": ["Delete", "Supprimer", "Elimina"],
-  "Entfernen": ["Remove", "Retirer", "Rimuovi"],
-  "Aktualisieren": ["Refresh", "Actualiser", "Aggiorna"],
-  "Verwaltung": ["Management", "Gestion", "Gestione"],
+  "Abbrechen": [
+    "Cancel",
+    "Annuler",
+    "Annulla"
+  ],
+  "Speichern": [
+    "Save",
+    "Enregistrer",
+    "Salva"
+  ],
+  "Wird gespeichert…": [
+    "Saving…",
+    "Enregistrement…",
+    "Salvataggio…"
+  ],
+  "Bearbeiten": [
+    "Edit",
+    "Modifier",
+    "Modifica"
+  ],
+  "Löschen": [
+    "Delete",
+    "Supprimer",
+    "Elimina"
+  ],
+  "Entfernen": [
+    "Remove",
+    "Retirer",
+    "Rimuovi"
+  ],
+  "Aktualisieren": [
+    "Refresh",
+    "Actualiser",
+    "Aggiorna"
+  ],
+  "Verwaltung": [
+    "Management",
+    "Gestion",
+    "Gestione"
+  ],
   "Bank oder Anbieter": [
     "Bank or provider",
     "Banque ou prestataire",
     "Banca o fornitore"
   ],
-  "Anbietertyp": ["Provider type", "Type de prestataire", "Tipo di fornitore"],
-  "Kontoname": ["Account name", "Nom du compte", "Nome del conto"],
-  "Kontotyp": ["Account type", "Type de compte", "Tipo di conto"],
-  "Währung": ["Currency", "Devise", "Valuta"],
+  "Anbietertyp": [
+    "Provider type",
+    "Type de prestataire",
+    "Tipo di fornitore"
+  ],
+  "Kontoname": [
+    "Account name",
+    "Nom du compte",
+    "Nome del conto"
+  ],
+  "Kontotyp": [
+    "Account type",
+    "Type de compte",
+    "Tipo di conto"
+  ],
+  "Währung": [
+    "Currency",
+    "Devise",
+    "Valuta"
+  ],
   "IBAN / Vertragsnummer": [
     "IBAN / contract number",
     "IBAN / numéro de contrat",
     "IBAN / numero di contratto"
   ],
-  "Privatkonto": ["Current account", "Compte courant", "Conto corrente"],
-  "Sparkonto": ["Savings account", "Compte d’épargne", "Conto di risparmio"],
-  "Depot": ["Investment account", "Compte-titres", "Deposito titoli"],
-  "Säule 3a": ["Pillar 3a", "Pilier 3a", "Pilastro 3a"],
-  "Hypothek": ["Mortgage", "Hypothèque", "Ipoteca"],
-  "Kreditkarte": ["Credit card", "Carte de crédit", "Carta di credito"],
-  "Versicherung": ["Insurance", "Assurance", "Assicurazione"],
-  "Vorsorge": ["Pension", "Prévoyance", "Previdenza"],
+  "Privatkonto": [
+    "Current account",
+    "Compte courant",
+    "Conto corrente"
+  ],
+  "Sparkonto": [
+    "Savings account",
+    "Compte d’épargne",
+    "Conto di risparmio"
+  ],
+  "Depot": [
+    "Investment account",
+    "Compte-titres",
+    "Deposito titoli"
+  ],
+  "Säule 3a": [
+    "Pillar 3a",
+    "Pilier 3a",
+    "Pilastro 3a"
+  ],
+  "Hypothek": [
+    "Mortgage",
+    "Hypothèque",
+    "Ipoteca"
+  ],
+  "Kreditkarte": [
+    "Credit card",
+    "Carte de crédit",
+    "Carta di credito"
+  ],
+  "Versicherung": [
+    "Insurance",
+    "Assurance",
+    "Assicurazione"
+  ],
+  "Vorsorge": [
+    "Pension",
+    "Prévoyance",
+    "Previdenza"
+  ],
   "Selbstverwahrung (eigene Wallet)": [
     "Self-custody (own wallet)",
     "Auto-conservation (propre portefeuille)",
@@ -371,25 +959,61 @@
     "p. ex. autogéré",
     "ad es. gestione propria"
   ],
-  "Konto hinzufügen": ["Add account", "Ajouter un compte", "Aggiungi conto"],
-  "Neues Konto": ["New account", "Nouveau compte", "Nuovo conto"],
-  "Konto anlegen": ["Create account", "Créer un compte", "Crea conto"],
+  "Konto hinzufügen": [
+    "Add account",
+    "Ajouter un compte",
+    "Aggiungi conto"
+  ],
+  "Neues Konto": [
+    "New account",
+    "Nouveau compte",
+    "Nuovo conto"
+  ],
+  "Konto anlegen": [
+    "Create account",
+    "Créer un compte",
+    "Crea conto"
+  ],
   "Konto auswählen": [
     "Select account",
     "Sélectionner un compte",
     "Seleziona conto"
   ],
-  "Konto": ["Account", "Compte", "Conto"],
-  "Konten": ["Accounts", "Comptes", "Conti"],
-  "Bank": ["Bank", "Banque", "Banca"],
-  "Anbieter": ["Provider", "Prestataire", "Fornitore"],
-  "Anbietern": ["providers", "prestataires", "fornitori"],
+  "Konto": [
+    "Account",
+    "Compte",
+    "Conto"
+  ],
+  "Konten": [
+    "Accounts",
+    "Comptes",
+    "Conti"
+  ],
+  "Bank": [
+    "Bank",
+    "Banque",
+    "Banca"
+  ],
+  "Anbieter": [
+    "Provider",
+    "Prestataire",
+    "Fornitore"
+  ],
+  "Anbietern": [
+    "providers",
+    "prestataires",
+    "fornitori"
+  ],
   "Alle Anbieter": [
     "All providers",
     "Tous les prestataires",
     "Tutti i fornitori"
   ],
-  "Alle Konten": ["All accounts", "Tous les comptes", "Tutti i conti"],
+  "Alle Konten": [
+    "All accounts",
+    "Tous les comptes",
+    "Tutti i conti"
+  ],
   "Alle Kategorien": [
     "All categories",
     "Toutes les catégories",
@@ -420,9 +1044,21 @@
     "Inclure dans le patrimoine",
     "Includi nel patrimonio"
   ],
-  "Archivieren": ["Archive", "Archiver", "Archivia"],
-  "Aktivieren": ["Activate", "Activer", "Attiva"],
-  " · Archiviert": [" · Archived", " · Archivé", " · Archiviato"],
+  "Archivieren": [
+    "Archive",
+    "Archiver",
+    "Archivia"
+  ],
+  "Aktivieren": [
+    "Activate",
+    "Activer",
+    "Attiva"
+  ],
+  " · Archiviert": [
+    " · Archived",
+    " · Archivé",
+    " · Archiviato"
+  ],
   " · Nicht im Vermögen": [
     " · Excluded from assets",
     " · Exclu du patrimoine",
@@ -433,7 +1069,11 @@
     "p. ex. compte d’épargne",
     "es. conto di risparmio"
   ],
-  "z. B. ZKB": ["e.g. ZKB", "p. ex. ZKB", "es. ZKB"],
+  "z. B. ZKB": [
+    "e.g. ZKB",
+    "p. ex. ZKB",
+    "es. ZKB"
+  ],
   "Konto konnte nicht angelegt werden.": [
     "Could not create account.",
     "Impossible de créer le compte.",
@@ -449,13 +1089,21 @@
     "Impossible de charger les comptes.",
     "Impossibile caricare i conti."
   ],
-  "Dein Vermögen": ["Your assets", "Votre patrimoine", "Il tuo patrimonio"],
+  "Dein Vermögen": [
+    "Your assets",
+    "Votre patrimoine",
+    "Il tuo patrimonio"
+  ],
   "Aktueller Stand aus deinen zuletzt importierten Kontoauszügen.": [
     "Current balances from your latest imported statements.",
     "Soldes actuels de vos derniers relevés importés.",
     "Saldi attuali degli ultimi estratti conto importati."
   ],
-  "Gesamtvermögen": ["Total assets", "Patrimoine total", "Patrimonio totale"],
+  "Gesamtvermögen": [
+    "Total assets",
+    "Patrimoine total",
+    "Patrimonio totale"
+  ],
   "Konten im Vermögen": [
     "Accounts in total assets",
     "Comptes dans le patrimoine",
@@ -481,7 +1129,11 @@
     "Opérations enregistrées",
     "Movimenti salvati"
   ],
-  "Letzter Import": ["Last import", "Dernier import", "Ultima importazione"],
+  "Letzter Import": [
+    "Last import",
+    "Dernier import",
+    "Ultima importazione"
+  ],
   "Noch kein Import": [
     "No imports yet",
     "Aucun import pour le moment",
@@ -502,20 +1154,36 @@
     "Patrimoine par prestataire",
     "Patrimonio per fornitore"
   ],
-  "Aktivität": ["Activity", "Activité", "Attività"],
-  "Buchungen": ["transactions", "opérations", "movimenti"],
+  "Aktivität": [
+    "Activity",
+    "Activité",
+    "Attività"
+  ],
+  "Buchungen": [
+    "transactions",
+    "opérations",
+    "movimenti"
+  ],
   "Buchungen, importiert am": [
     "transactions, imported on",
     "opérations, importées le",
     "movimenti, importati il"
   ],
-  "Aktuelle Salden": ["Current balances", "Soldes actuels", "Saldi attuali"],
+  "Aktuelle Salden": [
+    "Current balances",
+    "Soldes actuels",
+    "Saldi attuali"
+  ],
   "Noch kein Saldo": [
     "No balance yet",
     "Aucun solde disponible",
     "Saldo non ancora disponibile"
   ],
-  "Kein Saldo": ["No balance", "Aucun solde", "Nessun saldo"],
+  "Kein Saldo": [
+    "No balance",
+    "Aucun solde",
+    "Nessun saldo"
+  ],
   "Ohne Stichtag": [
     "No reporting date",
     "Sans date de référence",
@@ -556,8 +1224,16 @@
     "Chargement de la vue d’ensemble…",
     "Caricamento panoramica…"
   ],
-  "bei": ["at", "auprès de", "presso"],
-  "Stand {0}": ["As of {0}", "Au {0}", "Al {0}"],
+  "bei": [
+    "at",
+    "auprès de",
+    "presso"
+  ],
+  "Stand {0}": [
+    "As of {0}",
+    "Au {0}",
+    "Al {0}"
+  ],
   "Vermögensentwicklung": [
     "Asset growth",
     "Évolution du patrimoine",
@@ -648,40 +1324,96 @@
     "Faites glisser pour zoomer · Maj + glisser pour mesurer",
     "Trascina per ingrandire · Maiusc + trascina per misurare"
   ],
-  "Datenbasis": ["Data source", "Profil financier", "Base dati"],
+  "Datenbasis": [
+    "Data source",
+    "Profil financier",
+    "Base dati"
+  ],
   "Gesamte Datenbasis:": [
     "Full data range:",
     "Toutes les données :",
     "Tutti i dati:"
   ],
-  "Nach Anbieter": ["By provider", "Par prestataire", "Per fornitore"],
-  "Nach Kategorie": ["By category", "Par catégorie", "Per categoria"],
-  "Aufteilung": ["Breakdown", "Répartition", "Ripartizione"],
-  "Darstellung auswählen": ["Select view", "Choisir la vue", "Seleziona vista"],
-  "Ausgaben nach Kategorie": ["Spending by category", "Dépenses par catégorie", "Spese per categoria"],
-  "Einnahmen nach Kategorie": ["Income by category", "Revenus par catégorie", "Entrate per categoria"],
-  "Ausgaben nach Monat": ["Spending by month", "Dépenses par mois", "Spese per mese"],
-  "Einnahmen nach Monat": ["Income by month", "Revenus par mois", "Entrate per mese"],
+  "Nach Anbieter": [
+    "By provider",
+    "Par prestataire",
+    "Per fornitore"
+  ],
+  "Nach Kategorie": [
+    "By category",
+    "Par catégorie",
+    "Per categoria"
+  ],
+  "Aufteilung": [
+    "Breakdown",
+    "Répartition",
+    "Ripartizione"
+  ],
+  "Darstellung auswählen": [
+    "Select view",
+    "Choisir la vue",
+    "Seleziona vista"
+  ],
+  "Ausgaben nach Kategorie": [
+    "Spending by category",
+    "Dépenses par catégorie",
+    "Spese per categoria"
+  ],
+  "Einnahmen nach Kategorie": [
+    "Income by category",
+    "Revenus par catégorie",
+    "Entrate per categoria"
+  ],
+  "Ausgaben nach Monat": [
+    "Spending by month",
+    "Dépenses par mois",
+    "Spese per mese"
+  ],
+  "Einnahmen nach Monat": [
+    "Income by month",
+    "Revenus par mois",
+    "Entrate per mese"
+  ],
   "Kategorien im gewählten Jahr vergleichen.": [
     "Compare categories in the selected year.",
     "Comparer les catégories durant l’année sélectionnée.",
     "Confronta le categorie nell’anno selezionato."
   ],
-  "Alle Beträge in CHF": ["All amounts in CHF", "Tous les montants en CHF", "Tutti gli importi in CHF"],
-  "Monatsauswahl aufheben": ["Clear month selection", "Effacer la sélection du mois", "Cancella selezione del mese"],
-  "Ø / Monat": ["Avg. / month", "Moy. / mois", "Media / mese"],
+  "Alle Beträge in CHF": [
+    "All amounts in CHF",
+    "Tous les montants en CHF",
+    "Tutti gli importi in CHF"
+  ],
+  "Monatsauswahl aufheben": [
+    "Clear month selection",
+    "Effacer la sélection du mois",
+    "Cancella selezione del mese"
+  ],
+  "Ø / Monat": [
+    "Avg. / month",
+    "Moy. / mois",
+    "Media / mese"
+  ],
   "Keine Buchungen für dieses Jahr vorhanden.": [
     "No transactions are available for this year.",
     "Aucune écriture n’est disponible pour cette année.",
     "Nessuna transazione disponibile per quest’anno."
   ],
-  "Details": ["Details", "Détails", "Dettagli"],
+  "Details": [
+    "Details",
+    "Détails",
+    "Dettagli"
+  ],
   "Vermögenspositionen": [
     "Asset positions",
     "Positions patrimoniales",
     "Posizioni patrimoniali"
   ],
-  "Positionen": ["positions", "positions", "posizioni"],
+  "Positionen": [
+    "Positions",
+    "Positions",
+    "Posizioni"
+  ],
   "Stichtagen ·": [
     "reporting dates ·",
     "dates de référence ·",
@@ -697,21 +1429,61 @@
     "Compte ou contrat ·",
     "Conto o contratto ·"
   ],
-  "1 Jahr": ["1 year", "1 an", "1 anno"],
-  "2 Jahre": ["2 years", "2 ans", "2 anni"],
-  "3 Jahre": ["3 years", "3 ans", "3 anni"],
-  "5 Jahre": ["5 years", "5 ans", "5 anni"],
-  "Jahr": ["Year", "Année", "Anno"],
-  "Jahre": ["years", "ans", "anni"],
-  "Gesamt": ["Total", "Total", "Totale"],
-  "Zeitraum": ["Period", "Période", "Periodo"],
+  "1 Jahr": [
+    "1 year",
+    "1 an",
+    "1 anno"
+  ],
+  "2 Jahre": [
+    "2 years",
+    "2 ans",
+    "2 anni"
+  ],
+  "3 Jahre": [
+    "3 years",
+    "3 ans",
+    "3 anni"
+  ],
+  "5 Jahre": [
+    "5 years",
+    "5 ans",
+    "5 anni"
+  ],
+  "Jahr": [
+    "Year",
+    "Année",
+    "Anno"
+  ],
+  "Jahre": [
+    "years",
+    "ans",
+    "anni"
+  ],
+  "Gesamt": [
+    "Total",
+    "Total",
+    "Totale"
+  ],
+  "Zeitraum": [
+    "Period",
+    "Période",
+    "Periodo"
+  ],
   "Zeitraum auswählen": [
     "Select period",
     "Choisir une période",
     "Seleziona periodo"
   ],
-  "Zeitverlauf": ["Timeline", "Évolution", "Andamento"],
-  "Saldoverlauf": ["Balance history", "Historique du solde", "Andamento del saldo"],
+  "Zeitverlauf": [
+    "Timeline",
+    "Évolution",
+    "Andamento"
+  ],
+  "Saldoverlauf": [
+    "Balance history",
+    "Historique du solde",
+    "Andamento del saldo"
+  ],
   "Verlauf der Kontosalden": [
     "Account balance history",
     "Historique des soldes des comptes",
@@ -722,11 +1494,31 @@
     "Aucun solde n’est disponible pour cette période.",
     "Nessun saldo disponibile per questo periodo."
   ],
-  "Von": ["From", "Du", "Dal"],
-  "Bis": ["To", "Au", "Al"],
-  "bis": ["to", "au", "al"],
-  "von": ["of", "sur", "di"],
-  "Aktuelles Jahr": ["Current year", "Année en cours", "Anno corrente"],
+  "Von": [
+    "From",
+    "Du",
+    "Dal"
+  ],
+  "Bis": [
+    "To",
+    "Au",
+    "Al"
+  ],
+  "bis": [
+    "to",
+    "au",
+    "al"
+  ],
+  "von": [
+    "of",
+    "sur",
+    "di"
+  ],
+  "Aktuelles Jahr": [
+    "Current year",
+    "Année en cours",
+    "Anno corrente"
+  ],
   "Eigener Zeitraum": [
     "Custom period",
     "Période personnalisée",
@@ -737,12 +1529,36 @@
     "Vos revenus et dépenses",
     "Le tue entrate e uscite"
   ],
-  "Einnahmen": ["Income", "Revenus", "Entrate"],
-  "Ausgaben": ["Expenses", "Dépenses", "Uscite"],
-  "Einnahmen gesamt": ["Total income", "Total des revenus", "Entrate totali"],
-  "Ausgaben gesamt": ["Total expenses", "Total des dépenses", "Uscite totali"],
-  "Alle Einnahmen": ["All income", "Tous les revenus", "Tutte le entrate"],
-  "Alle Ausgaben": ["All expenses", "Toutes les dépenses", "Tutte le uscite"],
+  "Einnahmen": [
+    "Income",
+    "Revenus",
+    "Entrate"
+  ],
+  "Ausgaben": [
+    "Expenses",
+    "Dépenses",
+    "Uscite"
+  ],
+  "Einnahmen gesamt": [
+    "Total income",
+    "Total des revenus",
+    "Entrate totali"
+  ],
+  "Ausgaben gesamt": [
+    "Total expenses",
+    "Total des dépenses",
+    "Uscite totali"
+  ],
+  "Alle Einnahmen": [
+    "All income",
+    "Tous les revenus",
+    "Tutte le entrate"
+  ],
+  "Alle Ausgaben": [
+    "All expenses",
+    "Toutes les dépenses",
+    "Tutte le uscite"
+  ],
   "Einnahmen im Zeitraum": [
     "Income in period",
     "Revenus de la période",
@@ -803,10 +1619,26 @@
     "Description, compte ou banque",
     "Descrizione, conto o banca"
   ],
-  "Beschreibung": ["Description", "Description", "Descrizione"],
-  "Betrag": ["Amount", "Montant", "Importo"],
-  "Datum": ["Date", "Date", "Data"],
-  "Kategorie": ["Category", "Catégorie", "Categoria"],
+  "Beschreibung": [
+    "Description",
+    "Description",
+    "Descrizione"
+  ],
+  "Betrag": [
+    "Amount",
+    "Montant",
+    "Importo"
+  ],
+  "Datum": [
+    "Date",
+    "Date",
+    "Data"
+  ],
+  "Kategorie": [
+    "Category",
+    "Catégorie",
+    "Categoria"
+  ],
   "Buchungen durchsuchen": [
     "Search transactions",
     "Rechercher des opérations",
@@ -847,9 +1679,21 @@
     "Aucun regroupement",
     "Nessun raggruppamento"
   ],
-  "Gruppieren nach": ["Group by", "Regrouper par", "Raggruppa per"],
-  "Monat und Jahr": ["Month and year", "Mois et année", "Mese e anno"],
-  "nach Kategorie": ["by category", "par catégorie", "per categoria"],
+  "Gruppieren nach": [
+    "Group by",
+    "Regrouper par",
+    "Raggruppa per"
+  ],
+  "Monat und Jahr": [
+    "Month and year",
+    "Mois et année",
+    "Mese e anno"
+  ],
+  "nach Kategorie": [
+    "by category",
+    "par catégorie",
+    "per categoria"
+  ],
   "Auswahl aufheben": [
     "Clear selection",
     "Annuler la sélection",
@@ -875,7 +1719,11 @@
     "Cliquez, faites glisser avec le bouton gauche ou utilisez Maj-clic pour sélectionner une plage.",
     "Fai clic, trascina con il pulsante sinistro o usa Maiusc-clic per selezionare un intervallo."
   ],
-  "{0}: {1} sortieren": ["{0}: sort {1}", "{0} : trier {1}", "{0}: ordina {1}"],
+  "{0}: {1} sortieren": [
+    "{0}: sort {1}",
+    "{0} : trier {1}",
+    "{0}: ordina {1}"
+  ],
   "{0} Kategorien ausgewählt": [
     "{0} categories selected",
     "{0} catégories sélectionnées",
@@ -901,7 +1749,11 @@
     "Les changements de catégorie s’appliquent aussi aux opérations correspondantes du même commerçant et aux futurs imports.",
     "Le modifiche di categoria si applicano anche ai movimenti corrispondenti dello stesso esercente e alle importazioni future."
   ],
-  "Neue Kategorie": ["New category", "Nouvelle catégorie", "Nuova categoria"],
+  "Neue Kategorie": [
+    "New category",
+    "Nouvelle catégorie",
+    "Nuova categoria"
+  ],
   "Kategorie hinzufügen": [
     "Add category",
     "Ajouter une catégorie",
@@ -942,13 +1794,20 @@
     "Adaptez les noms et couleurs à vos analyses. Les catégories personnalisées sont aussi disponibles pour les transactions.",
     "Personalizza nomi e colori per l’analisi. Le categorie personalizzate sono disponibili anche per le transazioni."
   ],
-  "Name": ["Name", "Nom", "Nome"],
-  "Farbe": ["Color", "Couleur", "Colore"],
-  "Regeln": ["Rules", "Règles", "Regole"],
-  "Änderungen speichern": [
-    "Save changes",
-    "Enregistrer les modifications",
-    "Salva modifiche"
+  "Name": [
+    "Name",
+    "Nom",
+    "Nome"
+  ],
+  "Farbe": [
+    "Color",
+    "Couleur",
+    "Colore"
+  ],
+  "Regeln": [
+    "Rules",
+    "Règles",
+    "Regole"
   ],
   "Löschen / Zusammenführen": [
     "Delete / merge",
@@ -975,7 +1834,11 @@
     "Les règles sont transférées vers la catégorie de destination. Les futurs imports auparavant affectés ici suivront aussi ce choix.",
     "Le regole passano alla categoria di destinazione. Anche le importazioni future precedentemente assegnate qui seguiranno questa scelta."
   ],
-  "Bearbeiten: {0}": ["Edit: {0}", "Modifier : {0}", "Modifica: {0}"],
+  "Bearbeiten: {0}": [
+    "Edit: {0}",
+    "Modifier : {0}",
+    "Modifica: {0}"
+  ],
   "Löschen / Zusammenführen: {0}": [
     "Delete / merge: {0}",
     "Supprimer / fusionner : {0}",
@@ -991,7 +1854,11 @@
     "Importer des relevés bancaires",
     "Importa estratti conto"
   ],
-  "Importieren": ["Import", "Importer", "Importa"],
+  "Importieren": [
+    "Import",
+    "Importer",
+    "Importa"
+  ],
   "Ordne zuerst für jede Datei alle benötigten Konten zu.": [
     "First assign all required accounts for each file.",
     "Attribuez d'abord tous les comptes requis à chaque fichier.",
@@ -1042,7 +1909,11 @@
     "Choisir le dossier des relevés bancaires",
     "Seleziona la cartella degli estratti conto"
   ],
-  "Bankauszüge": ["Bank statements", "Relevés bancaires", "Estratti conto"],
+  "Bankauszüge": [
+    "Bank statements",
+    "Relevés bancaires",
+    "Estratti conto"
+  ],
   "XLSX, XLS, CSV, PDF und MT940 · maximal 25 MB pro Datei": [
     "XLSX, XLS, CSV, PDF and MT940 · up to 25 MB per file",
     "XLSX, XLS, CSV, PDF et MT940 · 25 Mo maximum par fichier",
@@ -1088,16 +1959,36 @@
     "Votre liste d’imports",
     "La tua lista di importazione"
   ],
-  "Liste leeren": ["Clear list", "Vider la liste", "Svuota lista"],
-  "Datei": ["File", "Fichier", "File"],
-  "Dateien": ["files", "fichiers", "file"],
-  "Dateien)": ["files)", "fichiers)", "file)"],
+  "Liste leeren": [
+    "Clear list",
+    "Vider la liste",
+    "Svuota lista"
+  ],
+  "Datei": [
+    "File",
+    "Fichier",
+    "File"
+  ],
+  "Dateien": [
+    "files",
+    "fichiers",
+    "file"
+  ],
+  "Dateien)": [
+    "files)",
+    "fichiers)",
+    "file)"
+  ],
   "Datei / Anbieter": [
     "File / provider",
     "Fichier / prestataire",
     "File / fornitore"
   ],
-  "Dateityp": ["File type", "Type de fichier", "Tipo di file"],
+  "Dateityp": [
+    "File type",
+    "Type de fichier",
+    "Tipo di file"
+  ],
   "Alle Dateitypen": [
     "All file types",
     "Tous les types de fichiers",
@@ -1153,13 +2044,21 @@
     "Supprimer la sélection",
     "Elimina selezione"
   ],
-  "Bereits importiert": ["Already imported", "Déjà importé", "Già importato"],
+  "Bereits importiert": [
+    "Already imported",
+    "Déjà importé",
+    "Già importato"
+  ],
   "Noch nicht analysiert": [
     "Not analyzed yet",
     "Pas encore analysé",
     "Non ancora analizzato"
   ],
-  "Analysieren": ["Analyze", "Analyser", "Analizza"],
+  "Analysieren": [
+    "Analyze",
+    "Analyser",
+    "Analizza"
+  ],
   "Bereit zum Import": [
     "Ready to import",
     "Prêt à importer",
@@ -1200,13 +2099,21 @@
     "Actualiser les comptes",
     "Aggiorna conti"
   ],
-  "Bitte wählen": ["Please select", "Veuillez choisir", "Seleziona"],
+  "Bitte wählen": [
+    "Please select",
+    "Veuillez choisir",
+    "Seleziona"
+  ],
   "Automatisch erkennen": [
     "Detect automatically",
     "Détecter automatiquement",
     "Rileva automaticamente"
   ],
-  "Anbieter für": ["Provider for", "Prestataire pour", "Fornitore per"],
+  "Anbieter für": [
+    "Provider for",
+    "Prestataire pour",
+    "Fornitore per"
+  ],
   "Anderer Anbieter": [
     "Other provider",
     "Autre prestataire",
@@ -1227,7 +2134,11 @@
     "Affectation manuelle",
     "Assegnazione manuale"
   ],
-  "Erkennung": ["Detection", "Détection", "Rilevamento"],
+  "Erkennung": [
+    "Detection",
+    "Détection",
+    "Rilevamento"
+  ],
   "Kontokennung im Auszug:": [
     "Account reference in statement:",
     "Référence du compte sur le relevé :",
@@ -1248,7 +2159,11 @@
     "Aperçu de l’import",
     "Anteprima importazione"
   ],
-  "Vorschau": ["Preview", "Aperçu", "Anteprima"],
+  "Vorschau": [
+    "Preview",
+    "Aperçu",
+    "Anteprima"
+  ],
   "Warnungen in der Vorschau": [
     "Warnings in preview",
     "Avertissements dans l’aperçu",
@@ -1264,7 +2179,11 @@
     "Prochain aperçu en attente",
     "Prossima anteprima in sospeso"
   ],
-  "Datei importieren": ["Import file", "Importer le fichier", "Importa file"],
+  "Datei importieren": [
+    "Import file",
+    "Importer le fichier",
+    "Importa file"
+  ],
   "Importübersicht": [
     "Import summary",
     "Résumé des imports",
@@ -1275,8 +2194,16 @@
     "Import terminé",
     "Importazione completata"
   ],
-  "Importiert": ["Imported", "Importé", "Importato"],
-  "Importiert am": ["Imported on", "Importé le", "Importato il"],
+  "Importiert": [
+    "Imported",
+    "Importé",
+    "Importato"
+  ],
+  "Importiert am": [
+    "Imported on",
+    "Importé le",
+    "Importato il"
+  ],
   "Dateien importiert": [
     "files imported",
     "fichiers importés",
@@ -1327,10 +2254,26 @@
     "opérations · compte affecté :",
     "movimenti · conto assegnato:"
   ],
-  "Buchungen ·": ["transactions ·", "opérations ·", "movimenti ·"],
-  "Buchungen und": ["transactions and", "opérations et", "movimenti e"],
-  "Importe": ["imports", "imports", "importazioni"],
-  "Importe ·": ["imports ·", "imports ·", "importazioni ·"],
+  "Buchungen ·": [
+    "transactions ·",
+    "opérations ·",
+    "movimenti ·"
+  ],
+  "Buchungen und": [
+    "transactions and",
+    "opérations et",
+    "movimenti e"
+  ],
+  "Importe": [
+    "imports",
+    "imports",
+    "importazioni"
+  ],
+  "Importe ·": [
+    "imports ·",
+    "imports ·",
+    "importazioni ·"
+  ],
   "Importe ansehen": [
     "View imports",
     "Voir les imports",
@@ -1341,7 +2284,11 @@
     "Fichiers importés",
     "File importati"
   ],
-  "Alle Importe": ["All imports", "Tous les imports", "Tutte le importazioni"],
+  "Alle Importe": [
+    "All imports",
+    "Tous les imports",
+    "Tutte le importazioni"
+  ],
   "Prüfe deine Importe und entferne bei Bedarf einzelne oder mehrere Auszüge.": [
     "Review your imports and remove one or more statements if needed.",
     "Vérifiez vos imports et supprimez des relevés si nécessaire.",
@@ -1367,14 +2314,26 @@
     "Sélectionner tous les imports de ce groupe",
     "Seleziona tutte le importazioni del gruppo"
   ],
-  "Alle aufklappen": ["Expand all", "Tout développer", "Espandi tutto"],
-  "Alle zuklappen": ["Collapse all", "Tout réduire", "Comprimi tutto"],
+  "Alle aufklappen": [
+    "Expand all",
+    "Tout développer",
+    "Espandi tutto"
+  ],
+  "Alle zuklappen": [
+    "Collapse all",
+    "Tout réduire",
+    "Comprimi tutto"
+  ],
   "Zuordnung nach dem letzten Buchungsdatum des Auszugs; ohne Buchungen nach dem Importdatum.": [
     "Grouped by the last transaction date; if there are no transactions, by import date.",
     "Regroupement selon la dernière opération ; sans opération, selon la date d’import.",
     "Raggruppamento per data dell’ultimo movimento; senza movimenti, per data di importazione."
   ],
-  "Aktion": ["Action", "Action", "Azione"],
+  "Aktion": [
+    "Action",
+    "Action",
+    "Azione"
+  ],
   "Buchungszeitraum": [
     "Transaction period",
     "Période des opérations",
@@ -1390,7 +2349,11 @@
     "Supprimer cet import ?",
     "Eliminare questa importazione?"
   ],
-  "Es werden": ["This will remove", "Cela supprimera", "Verranno rimossi"],
+  "Es werden": [
+    "This will remove",
+    "Cela supprimera",
+    "Verranno rimossi"
+  ],
   "Buchungen und alle zugehörigen Salden entfernt. Konten und Originaldateien bleiben erhalten. Die Übersicht verwendet danach die verbleibenden Importe.": [
     "transactions and all related balances. Accounts and original files stay. The overview will use the remaining imports.",
     "opérations et tous les soldes associés. Les comptes et fichiers d’origine sont conservés. La vue d’ensemble utilisera les imports restants.",
@@ -1401,7 +2364,11 @@
     "Supprimer définitivement les imports",
     "Elimina definitivamente le importazioni"
   ],
-  "Wird gelöscht…": ["Deleting…", "Suppression…", "Eliminazione…"],
+  "Wird gelöscht…": [
+    "Deleting…",
+    "Suppression…",
+    "Eliminazione…"
+  ],
   "Import gelöscht": [
     "Import deleted",
     "Import supprimé",
@@ -1427,13 +2394,21 @@
     "{0} sur {1} imports",
     "{0} di {1} importazioni"
   ],
-  "{0} Importe": ["{0} imports", "{0} imports", "{0} importazioni"],
+  "{0} Importe": [
+    "{0} imports",
+    "{0} imports",
+    "{0} importazioni"
+  ],
   "{0} Importe löschen?": [
     "Delete {0} imports?",
     "Supprimer {0} imports ?",
     "Eliminare {0} importazioni?"
   ],
-  "{0} auswählen": ["Select {0}", "Sélectionner {0}", "Seleziona {0}"],
+  "{0} auswählen": [
+    "Select {0}",
+    "Sélectionner {0}",
+    "Seleziona {0}"
+  ],
   " · {0} ausgewählt": [
     " · {0} selected",
     " · {0} sélectionnés",
@@ -1469,7 +2444,11 @@
     "{0} · Arrêt demandé",
     "{0} · Arresto richiesto"
   ],
-  " · {0} Fehler": [" · {0} errors", " · {0} erreurs", " · {0} errori"],
+  " · {0} Fehler": [
+    " · {0} errors",
+    " · {0} erreurs",
+    " · {0} errori"
+  ],
   " · {0} bereit zum Import": [
     " · {0} ready to import",
     " · {0} prêts à importer",
@@ -1495,7 +2474,11 @@
     "Retirer {0} de la liste",
     "Rimuovi {0} dall’elenco"
   ],
-  "Bank / Trading": ["Bank / trading", "Banque / trading", "Banca / trading"],
+  "Bank / Trading": [
+    "Bank / trading",
+    "Banque / trading",
+    "Banca / trading"
+  ],
   "Versicherung / Vorsorge": [
     "Insurance / pension",
     "Assurance / prévoyance",
@@ -1506,10 +2489,26 @@
     "Taille déterminée à la lecture",
     "Dimensione rilevata alla lettura"
   ],
-  "insgesamt": ["in total", "au total", "in totale"],
-  "ausgewählt": ["selected", "sélectionnés", "selezionati"],
-  "ausgeschlossen": ["excluded", "exclus", "esclusi"],
-  "Keine": ["None", "Aucune", "Nessuna"],
+  "insgesamt": [
+    "in total",
+    "au total",
+    "in totale"
+  ],
+  "ausgewählt": [
+    "selected",
+    "sélectionnés",
+    "selezionati"
+  ],
+  "ausgeschlossen": [
+    "excluded",
+    "exclus",
+    "esclusi"
+  ],
+  "Keine": [
+    "None",
+    "Aucune",
+    "Nessuna"
+  ],
   "Kreditkartenabgleich": [
     "Credit card reconciliation",
     "Rapprochement des cartes de crédit",
@@ -1560,15 +2559,31 @@
     "Dont rapprochés d’un paiement bancaire",
     "Di cui abbinati a pagamenti bancari"
   ],
-  "Differenz": ["Difference", "Différence", "Differenza"],
+  "Differenz": [
+    "Difference",
+    "Différence",
+    "Differenza"
+  ],
   "(Belastungen minus Gutschriften).": [
     "(debits minus credits).",
     "(débits moins crédits).",
     "(addebiti meno accrediti)."
   ],
-  "Schlusssaldo": ["Closing balance", "Solde final", "Saldo finale"],
-  "Anfangssaldo": ["Opening balance", "Solde initial", "Saldo iniziale"],
-  "Saldo": ["Balance", "Solde", "Saldo"],
+  "Schlusssaldo": [
+    "Closing balance",
+    "Solde final",
+    "Saldo finale"
+  ],
+  "Anfangssaldo": [
+    "Opening balance",
+    "Solde initial",
+    "Saldo iniziale"
+  ],
+  "Saldo": [
+    "Balance",
+    "Solde",
+    "Saldo"
+  ],
   "Kein Schlusssaldo gespeichert: Eine offene Kartenschuld lässt sich aus dieser Datei nicht verlässlich bestimmen.": [
     "No closing balance saved: outstanding card debt cannot be reliably determined from this file.",
     "Aucun solde final enregistré : ce fichier ne permet pas de déterminer de façon fiable la dette carte restante.",
@@ -1649,25 +2664,41 @@
     "Aucune période de comparaison",
     "Nessun periodo di confronto"
   ],
-  "Wohnen": ["Housing", "Logement", "Abitazione"],
+  "Wohnen": [
+    "Housing",
+    "Logement",
+    "Abitazione"
+  ],
   "Möbel & Einrichtung": [
     "Furniture & furnishings",
     "Meubles et aménagement",
     "Mobili e arredamento"
   ],
-  "Elektronik": ["Electronics", "Électronique", "Elettronica"],
+  "Elektronik": [
+    "Electronics",
+    "Électronique",
+    "Elettronica"
+  ],
   "Lebensmittel & Haushalt": [
     "Groceries & household",
     "Alimentation et ménage",
     "Alimentari e casa"
   ],
-  "Gesundheit": ["Health", "Santé", "Salute"],
+  "Gesundheit": [
+    "Health",
+    "Santé",
+    "Salute"
+  ],
   "Freizeit & Sport": [
     "Leisure & sport",
     "Loisirs et sport",
     "Tempo libero e sport"
   ],
-  "Restaurants": ["Restaurants", "Restaurants", "Ristoranti"],
+  "Restaurants": [
+    "Restaurants",
+    "Restaurants",
+    "Ristoranti"
+  ],
   "Internet & Mobilfunk": [
     "Internet & mobile",
     "Internet et mobile",
@@ -1678,21 +2709,61 @@
     "Abonnements numériques",
     "Abbonamenti digitali"
   ],
-  "Mobilität": ["Transport", "Mobilité", "Mobilità"],
-  "Reisen": ["Travel", "Voyages", "Viaggi"],
-  "Steuern": ["Taxes", "Impôts", "Imposte"],
-  "Alimente": ["Maintenance payments", "Pensions alimentaires", "Alimenti"],
+  "Mobilität": [
+    "Transport",
+    "Mobilité",
+    "Mobilità"
+  ],
+  "Reisen": [
+    "Travel",
+    "Voyages",
+    "Viaggi"
+  ],
+  "Steuern": [
+    "Taxes",
+    "Impôts",
+    "Imposte"
+  ],
+  "Alimente": [
+    "Maintenance payments",
+    "Pensions alimentaires",
+    "Alimenti"
+  ],
   "Sparen & Vorsorge": [
     "Savings & pension",
     "Épargne et prévoyance",
     "Risparmio e previdenza"
   ],
-  "Einkommen": ["Income", "Revenus", "Reddito"],
-  "Sonstiges": ["Other", "Autres", "Altro"],
-  "Sparkonten": ["Savings accounts", "Comptes d’épargne", "Conti di risparmio"],
-  "Depots": ["Investment accounts", "Comptes-titres", "Depositi titoli"],
-  "Hypotheken": ["Mortgages", "Hypothèques", "Ipoteche"],
-  "Kreditkarten": ["Credit cards", "Cartes de crédit", "Carte di credito"],
+  "Einkommen": [
+    "Income",
+    "Revenus",
+    "Reddito"
+  ],
+  "Sonstiges": [
+    "Other",
+    "Autres",
+    "Altro"
+  ],
+  "Sparkonten": [
+    "Savings accounts",
+    "Comptes d’épargne",
+    "Conti di risparmio"
+  ],
+  "Depots": [
+    "Investment accounts",
+    "Comptes-titres",
+    "Depositi titoli"
+  ],
+  "Hypotheken": [
+    "Mortgages",
+    "Hypothèques",
+    "Ipoteche"
+  ],
+  "Kreditkarten": [
+    "Credit cards",
+    "Cartes de crédit",
+    "Carte di credito"
+  ],
   "Kreditkartenabrechnung": [
     "Credit card settlement",
     "Règlement de carte de crédit",
@@ -1708,8 +2779,16 @@
     "Règlement de carte de crédit · inclus dans le flux de trésorerie",
     "Saldo della carta di credito · incluso nel flusso di cassa"
   ],
-  "absteigend": ["descending", "décroissant", "decrescente"],
-  "aufsteigend": ["ascending", "croissant", "crescente"],
+  "absteigend": [
+    "descending",
+    "décroissant",
+    "decrescente"
+  ],
+  "aufsteigend": [
+    "ascending",
+    "croissant",
+    "crescente"
+  ],
   "Bitte einen Kontonamen eingeben.": [
     "Please enter an account name.",
     "Saisissez un nom de compte.",
@@ -1745,9 +2824,21 @@
     "Cliquez sur les montants ou faites glisser la souris en maintenant le bouton enfoncé.",
     "Fai clic sugli importi o trascina tenendo premuto il pulsante del mouse."
   ],
-  "Finanzprofil": ["Financial profile", "Profil financier", "Profilo finanziario"],
-  "Meine Daten": ["My data", "Mes données", "I miei dati"],
-  "Finanzprofile": ["Financial profiles", "Profils financiers", "Profili finanziari"],
+  "Finanzprofil": [
+    "Financial profile",
+    "Profil financier",
+    "Profilo finanziario"
+  ],
+  "Meine Daten": [
+    "My data",
+    "Mes données",
+    "I miei dati"
+  ],
+  "Finanzprofile": [
+    "Financial profiles",
+    "Profils financiers",
+    "Profili finanziari"
+  ],
   "Neues Finanzprofil erstellen": [
     "Create a new financial profile",
     "Créer un nouveau profil financier",
@@ -1823,9 +2914,21 @@
     "Actions du profil financier",
     "Azioni profilo finanziario"
   ],
-  "Verwalten": ["Manage", "Gérer", "Gestisci"],
-  "Neu anlegen": ["Create new", "Créer", "Crea nuovo"],
-  "Kopieren": ["Copy", "Copier", "Copia"],
+  "Verwalten": [
+    "Manage",
+    "Gérer",
+    "Gestisci"
+  ],
+  "Neu anlegen": [
+    "Create new",
+    "Créer",
+    "Crea nuovo"
+  ],
+  "Kopieren": [
+    "Copy",
+    "Copier",
+    "Copia"
+  ],
   "Finanzprofil kopieren": [
     "Copy financial profile",
     "Copier le profil financier",
@@ -1841,7 +2944,11 @@
     "Supprimer le profil financier",
     "Elimina profilo finanziario"
   ],
-  "Name der Kopie": ["Copy name", "Nom de la copie", "Nome della copia"],
+  "Name der Kopie": [
+    "Copy name",
+    "Nom de la copie",
+    "Nome della copia"
+  ],
   "Finanzprofil kopieren und öffnen": [
     "Copy and open financial profile",
     "Copier et ouvrir le profil financier",
@@ -1857,26 +2964,46 @@
     "L’anonymisation remplace les libellés des opérations et modifie aléatoirement les montants des opérations et des soldes entre 10 % et 300 % de leur valeur initiale. Cette action est irréversible.",
     "L’anonimizzazione sostituisce le descrizioni delle transazioni e modifica casualmente gli importi delle transazioni e dei saldi tra il 10% e il 300% del loro valore originale. Questa operazione è irreversibile."
   ],
-  "Zufällige Beträge": ["Random amounts", "Montants aléatoires", "Importi casuali"],
+  "Zufällige Beträge": [
+    "Random amounts",
+    "Montants aléatoires",
+    "Importi casuali"
+  ],
   "Jede Buchung erhält einen unabhängigen Zufallsbetrag zwischen 10 und 300 % des ursprünglichen Werts.": [
     "Each transaction receives an independent random amount between 10% and 300% of its original value.",
     "Chaque opération reçoit un montant aléatoire indépendant compris entre 10 % et 300 % de sa valeur initiale.",
     "Ogni transazione riceve un importo casuale indipendente compreso tra il 10% e il 300% del valore originale."
   ],
-  "Zufällig anonymisieren": ["Randomise amounts", "Anonymiser aléatoirement", "Anonimizza casualmente"],
-  "Fester Faktor": ["Fixed factor", "Facteur fixe", "Fattore fisso"],
+  "Zufällig anonymisieren": [
+    "Randomise amounts",
+    "Anonymiser aléatoirement",
+    "Anonimizza casualmente"
+  ],
+  "Fester Faktor": [
+    "Fixed factor",
+    "Facteur fixe",
+    "Fattore fisso"
+  ],
   "Alle Buchungs- und Saldenbeträge werden mit demselben Faktor multipliziert; ihre Verhältnisse bleiben erhalten.": [
     "All transaction and balance amounts are multiplied by the same factor, preserving their proportions.",
     "Tous les montants des opérations et des soldes sont multipliés par le même facteur, ce qui préserve leurs proportions.",
     "Tutti gli importi delle transazioni e dei saldi vengono moltiplicati per lo stesso fattore, mantenendo le proporzioni."
   ],
-  "Faktor": ["Factor", "Facteur", "Fattore"],
+  "Faktor": [
+    "Factor",
+    "Facteur",
+    "Fattore"
+  ],
   "Beispiele: 0,5 halbiert; 0,333333 drittelt; 2 verdoppelt.": [
     "Examples: 0.5 halves; 0.333333 divides by three; 2 doubles.",
     "Exemples : 0,5 divise par deux ; 0,333333 divise par trois ; 2 double.",
     "Esempi: 0,5 dimezza; 0,333333 divide per tre; 2 raddoppia."
   ],
-  "Mit Faktor anonymisieren": ["Anonymise with factor", "Anonymiser avec le facteur", "Anonimizza con fattore"],
+  "Mit Faktor anonymisieren": [
+    "Anonymise with factor",
+    "Anonymiser avec le facteur",
+    "Anonimizza con fattore"
+  ],
   "Buchungstexte ebenfalls anonymisieren": [
     "Also anonymise transaction descriptions",
     "Anonymiser également les libellés des opérations",
@@ -1962,7 +3089,11 @@
     "Impossible de changer de profil financier.",
     "Impossibile cambiare profilo finanziario."
   ],
-  "Branche": ["Industry", "Secteur", "Settore"],
+  "Branche": [
+    "Industry",
+    "Secteur",
+    "Settore"
+  ],
   "Manuell gewählt": [
     "Selected manually",
     "Sélectionnée manuellement",
@@ -2028,19 +3159,51 @@
     "Saisissez directement la valeur totale ou calculez-la à partir du nombre d’actions et du cours. Une valeur existante à la même date sera remplacée.",
     "Inserisci direttamente il valore totale oppure calcolalo dal numero di azioni e dal prezzo. Un valore esistente per la stessa data verrà sostituito."
   ],
-  "Gesamtwert": ["Total value", "Valeur totale", "Valore totale"],
-  "Anzahl Aktien": ["Number of shares", "Nombre d’actions", "Numero di azioni"],
+  "Gesamtwert": [
+    "Total value",
+    "Valeur totale",
+    "Valore totale"
+  ],
+  "Anzahl Aktien": [
+    "Number of shares",
+    "Nombre d’actions",
+    "Numero di azioni"
+  ],
   "Kurs pro Aktie": [
     "Price per share",
     "Cours par action",
     "Prezzo per azione"
   ],
-  "Stichtag": ["Valuation date", "Date d’évaluation", "Data di valutazione"],
-  "Wert speichern": ["Save value", "Enregistrer la valeur", "Salva valore"],
-  "Wert eintragen": ["Enter value", "Saisir une valeur", "Inserisci valore"],
-  "Bewertung": ["valuation", "évaluation", "valutazione"],
-  "Bewertungen": ["valuations", "évaluations", "valutazioni"],
-  "Aktien": ["shares", "actions", "azioni"],
+  "Stichtag": [
+    "Valuation date",
+    "Date d’évaluation",
+    "Data di valutazione"
+  ],
+  "Wert speichern": [
+    "Save value",
+    "Enregistrer la valeur",
+    "Salva valore"
+  ],
+  "Wert eintragen": [
+    "Enter value",
+    "Saisir une valeur",
+    "Inserisci valore"
+  ],
+  "Bewertung": [
+    "valuation",
+    "évaluation",
+    "valutazione"
+  ],
+  "Bewertungen": [
+    "valuations",
+    "évaluations",
+    "valutazioni"
+  ],
+  "Aktien": [
+    "shares",
+    "actions",
+    "azioni"
+  ],
   "Menge / Einheiten": [
     "Quantity / units",
     "Quantité / unités",
@@ -2051,19 +3214,51 @@
     "Valeur par unité",
     "Valore per unità"
   ],
-  "Einheiten": ["units", "unités", "unità"],
-  "Anlagetyp": ["Asset type", "Type de placement", "Tipo di investimento"],
-  "Aktie": ["Share", "Action", "Azione"],
-  "Option": ["Option", "Option", "Opzione"],
-  "Kryptowährung": ["Cryptocurrency", "Cryptomonnaie", "Criptovaluta"],
+  "Einheiten": [
+    "units",
+    "unités",
+    "unità"
+  ],
+  "Anlagetyp": [
+    "Asset type",
+    "Type de placement",
+    "Tipo di investimento"
+  ],
+  "Aktie": [
+    "Share",
+    "Action",
+    "Azione"
+  ],
+  "Option": [
+    "Option",
+    "Option",
+    "Opzione"
+  ],
+  "Kryptowährung": [
+    "Cryptocurrency",
+    "Cryptomonnaie",
+    "Criptovaluta"
+  ],
   "Cash / Geldbetrag": [
     "Cash / monetary amount",
     "Espèces / montant",
     "Contanti / importo"
   ],
-  "Fonds / ETF": ["Fund / ETF", "Fonds / ETF", "Fondo / ETF"],
-  "Obligation": ["Bond", "Obligation", "Obbligazione"],
-  "Sonstige Anlage": ["Other asset", "Autre placement", "Altro investimento"],
+  "Fonds / ETF": [
+    "Fund / ETF",
+    "Fonds / ETF",
+    "Fondo / ETF"
+  ],
+  "Obligation": [
+    "Bond",
+    "Obligation",
+    "Obbligazione"
+  ],
+  "Sonstige Anlage": [
+    "Other asset",
+    "Autre placement",
+    "Altro investimento"
+  ],
   "Bitte einen gültigen Anlagetyp auswählen.": [
     "Please select a valid asset type.",
     "Veuillez sélectionner un type de placement valide.",
@@ -2099,7 +3294,11 @@
     "Veuillez saisir la quantité et la valeur unitaire.",
     "Inserisci sia la quantità sia il valore unitario."
   ],
-  "ISIN": ["ISIN", "ISIN", "ISIN"],
+  "ISIN": [
+    "ISIN",
+    "ISIN",
+    "ISIN"
+  ],
   "optional, z. B. CH0012032048": [
     "optional, e.g. CH0012032048",
     "facultatif, p. ex. CH0012032048",
@@ -2121,7 +3320,7 @@
     "I dati dei prezzi sono stati aggiornati in background."
   ],
   "Kurse werden geladen …": [
-    "Prices are loading…",
+    "Loading prices …",
     "Chargement des cours…",
     "Caricamento dei prezzi…"
   ],
@@ -2130,14 +3329,26 @@
     "L’ISIN doit comporter 12 lettres et chiffres et commencer par un code pays à deux lettres.",
     "L’ISIN deve contenere 12 lettere e cifre e iniziare con un codice paese di due lettere."
   ],
-  "Letzter Stand": ["Latest value", "Dernière valeur", "Ultimo valore"],
+  "Letzter Stand": [
+    "Latest value",
+    "Dernière valeur",
+    "Ultimo valore"
+  ],
   "Noch kein Wert erfasst": [
     "No value entered yet",
     "Aucune valeur saisie",
     "Nessun valore inserito"
   ],
-  "Kurswährung": ["Price currency", "Devise du cours", "Valuta del prezzo"],
-  "Wechselkurs": ["Exchange rate", "Taux de change", "Tasso di cambio"],
+  "Kurswährung": [
+    "Price currency",
+    "Devise du cours",
+    "Valuta del prezzo"
+  ],
+  "Wechselkurs": [
+    "Exchange rate",
+    "Taux de change",
+    "Tasso di cambio"
+  ],
   "1 {0} entspricht wie vielen {1}?": [
     "How many {1} equal 1 {0}?",
     "Combien de {1} correspondent à 1 {0} ?",
@@ -2163,8 +3374,16 @@
     "Identifiant du titre",
     "Identificativo del titolo"
   ],
-  "Yahoo-Ticker": ["Yahoo ticker", "Ticker Yahoo", "Ticker Yahoo"],
-  "Ticker": ["Ticker", "Ticker", "Ticker"],
+  "Yahoo-Ticker": [
+    "Yahoo ticker",
+    "Ticker Yahoo",
+    "Ticker Yahoo"
+  ],
+  "Ticker": [
+    "Ticker",
+    "Ticker",
+    "Ticker"
+  ],
   "optional, z. B. XNAS:AAPL": [
     "optional, e.g. XNAS:AAPL",
     "facultatif, p. ex. XNAS:AAPL",
@@ -2195,7 +3414,11 @@
     "Ce taux convertit la valeur du placement dans la devise du compte.",
     "Questo tasso converte il valore dell’investimento nella valuta del conto."
   ],
-  "Schliessen": ["Close", "Fermer", "Chiudi"],
+  "Schliessen": [
+    "Close",
+    "Fermer",
+    "Chiudi"
+  ],
   "Erfasse mehrere Positionen. Der Kontowert ergibt sich aus ihrer Summe.": [
     "Enter multiple positions. Their sum is the account value.",
     "Saisissez plusieurs positions. Leur somme constitue la valeur du compte.",
@@ -2206,9 +3429,16 @@
     "Modifier la position",
     "Modifica posizione"
   ],
-  "Neue Position": ["New position", "Nouvelle position", "Nuova posizione"],
-  "Position": ["Position", "Position", "Posizione"],
-  "Positionen": ["Positions", "Positions", "Posizioni"],
+  "Neue Position": [
+    "New position",
+    "Nouvelle position",
+    "Nuova posizione"
+  ],
+  "Position": [
+    "Position",
+    "Position",
+    "Posizione"
+  ],
   "Manuelle Positionen": [
     "Manual positions",
     "Positions manuelles",
@@ -2229,13 +3459,21 @@
     "Positions existantes",
     "Posizioni esistenti"
   ],
-  "Erfasste Werte": ["Recorded values", "Valeurs saisies", "Valori registrati"],
+  "Erfasste Werte": [
+    "Recorded values",
+    "Valeurs saisies",
+    "Valori registrati"
+  ],
   "Noch keine Position erfasst.": [
     "No position recorded yet.",
     "Aucune position saisie pour le moment.",
     "Nessuna posizione ancora registrata."
   ],
-  "Neu erfassen": ["Add new", "Nouvelle saisie", "Nuovo inserimento"],
+  "Neu erfassen": [
+    "Add new",
+    "Nouvelle saisie",
+    "Nuovo inserimento"
+  ],
   "Position wurde gespeichert und ist oben aufgeführt.": [
     "The position was saved and is now listed above.",
     "La position a été enregistrée et figure maintenant ci-dessus.",
@@ -2246,7 +3484,11 @@
     "La position a été mise à jour et figure ci-dessus.",
     "La posizione è stata aggiornata ed è elencata sopra."
   ],
-  "Bezeichnung": ["Description", "Désignation", "Descrizione"],
+  "Bezeichnung": [
+    "Description",
+    "Désignation",
+    "Descrizione"
+  ],
   "z. B. Beispielaktie oder Mietkaution": [
     "e.g. sample share or rental deposit",
     "p. ex. action d’exemple ou garantie de loyer",
@@ -2282,7 +3524,11 @@
     "La valeur manuelle n’a pas pu être enregistrée.",
     "Non è stato possibile salvare il valore manuale."
   ],
-  "Eigenes Logo": ["Custom logo", "Logo personnalisé", "Logo personalizzato"],
+  "Eigenes Logo": [
+    "Custom logo",
+    "Logo personnalisé",
+    "Logo personalizzato"
+  ],
   "Eigenes Logo hochladen": [
     "Upload custom logo",
     "Téléverser un logo personnalisé",
@@ -2298,8 +3544,16 @@
     "PNG, JPEG, WebP ou SVG · 2 Mo maximum",
     "PNG, JPEG, WebP o SVG · massimo 2 MB"
   ],
-  "Logo ändern": ["Change logo", "Modifier le logo", "Modifica logo"],
-  "Logo entfernen": ["Remove logo", "Supprimer le logo", "Rimuovi logo"],
+  "Logo ändern": [
+    "Change logo",
+    "Modifier le logo",
+    "Modifica logo"
+  ],
+  "Logo entfernen": [
+    "Remove logo",
+    "Supprimer le logo",
+    "Rimuovi logo"
+  ],
   "Das Logo darf maximal 2 MB gross sein.": [
     "The logo must not exceed 2 MB.",
     "Le logo ne doit pas dépasser 2 Mo.",
@@ -2435,11 +3689,6 @@
     "Actualiser les cours maintenant",
     "Aggiorna i prezzi ora"
   ],
-  "Kurse werden geladen …": [
-    "Loading prices …",
-    "Chargement des cours…",
-    "Caricamento dei prezzi…"
-  ],
   "Positionen aktualisiert": [
     "positions updated",
     "positions actualisées",
@@ -2464,5 +3713,555 @@
     "Save position",
     "Enregistrer la position",
     "Salva posizione"
+  ],
+  "API-Schlüssel": [
+    "API key",
+    "Clé API",
+    "Chiave API"
+  ],
+  "Ausgaben nach Kategorien": [
+    "Spending by category",
+    "Dépenses par catégorie",
+    "Spese per categoria"
+  ],
+  "Geldzufluss": [
+    "Cash inflow",
+    "Entrées de trésorerie",
+    "Entrate di cassa"
+  ],
+  "Geldabfluss": [
+    "Cash outflow",
+    "Sorties de trésorerie",
+    "Uscite di cassa"
+  ],
+  "Netto-Geldfluss": [
+    "Net cash flow",
+    "Flux net de trésorerie",
+    "Flusso di cassa netto"
+  ],
+  "Vermögensänderung im Datenzeitraum": [
+    "Wealth change over available dates",
+    "Variation du patrimoine sur les dates disponibles",
+    "Variazione patrimoniale nelle date disponibili"
+  ],
+  "Nur vorhandene CHF-Daten. Interne Überträge sind nicht generell bereinigt; Vermögensänderung ist keine Rendite. Fehlende oder ältere Daten können das Bild verändern.": [
+    "Available CHF data only. Internal transfers are not generally removed; wealth change is not investment return. Missing or older data may affect the picture.",
+    "Uniquement les données CHF disponibles. Les virements internes ne sont pas systématiquement éliminés ; la variation du patrimoine n’est pas un rendement. Des données manquantes ou anciennes peuvent modifier le résultat.",
+    "Solo dati CHF disponibili. I trasferimenti interni non sono generalmente eliminati; la variazione patrimoniale non è un rendimento. Dati mancanti o datati possono influire sul risultato."
+  ],
+  "Vollständige Anfrageinhalte": [
+    "Full request contents",
+    "Contenu complet de la requête",
+    "Contenuto completo della richiesta"
+  ],
+  "Instruktionen zum Finanzmodell": [
+    "Financial model instructions",
+    "Instructions du modèle financier",
+    "Istruzioni sul modello finanziario"
+  ],
+  "Lokale Auswertungen": [
+    "Local reports",
+    "Analyses locales",
+    "Analisi locali"
+  ],
+  "Ausgaben & Geldfluss öffnen": [
+    "Open spending & cash flow",
+    "Ouvrir dépenses et flux",
+    "Apri spese e flussi"
+  ],
+  "Vermögen öffnen": [
+    "Open wealth",
+    "Ouvrir le patrimoine",
+    "Apri patrimonio"
+  ],
+  "Bitte einen gültigen Zeitraum auswählen.": [
+    "Please select a valid period.",
+    "Choisis une période valide.",
+    "Seleziona un periodo valido."
+  ],
+  "Bitte einen Zeitraum von höchstens fünf Jahren bis heute auswählen.": [
+    "Please select a period of up to five years ending no later than today.",
+    "Choisis une période de cinq ans au maximum se terminant au plus tard aujourd’hui.",
+    "Seleziona un periodo di massimo cinque anni che termini entro oggi."
+  ],
+  "Die Frage oder der Chat ist zu lang. Bitte einen neuen Chat beginnen.": [
+    "The question or chat is too long. Please start a new chat.",
+    "La question ou le chat est trop long. Commence un nouveau chat.",
+    "La domanda o la chat è troppo lunga. Avvia una nuova chat."
+  ],
+  "Die Datenmenge ist zu gross. Bitte Zeitraum oder Chat verkürzen.": [
+    "Too much data. Please shorten the period or chat.",
+    "Trop de données. Réduis la période ou le chat.",
+    "Troppi dati. Riduci il periodo o la chat."
+  ],
+  "Finanzchat": [
+    "Finance chat",
+    "Chat financier",
+    "Chat finanziaria"
+  ],
+  "Freiwillige KI-Funktion": [
+    "Optional AI feature",
+    "Fonction IA facultative",
+    "Funzione IA facoltativa"
+  ],
+  "Mit ChatGPT anmelden": [
+    "Sign in with ChatGPT",
+    "Se connecter avec ChatGPT",
+    "Accedi con ChatGPT"
+  ],
+  "Mit ChatGPT verbinden": [
+    "Connect to ChatGPT",
+    "Connexion à ChatGPT",
+    "Collega ChatGPT"
+  ],
+  "Mit ChatGPT verbunden": [
+    "Connected to ChatGPT",
+    "Connecté à ChatGPT",
+    "Collegato a ChatGPT"
+  ],
+  "ChatGPT & Datenfreigabe": [
+    "ChatGPT & data sharing",
+    "ChatGPT et partage des données",
+    "ChatGPT e condivisione dei dati"
+  ],
+  "Zurück zum Chat": [
+    "Back to chat",
+    "Retour au chat",
+    "Torna alla chat"
+  ],
+  "ChatGPT abmelden": [
+    "Sign out of ChatGPT",
+    "Déconnecter ChatGPT",
+    "Disconnetti ChatGPT"
+  ],
+  "Anmeldung abbrechen": [
+    "Cancel sign-in",
+    "Annuler la connexion",
+    "Annulla accesso"
+  ],
+  "Anmeldung erneut öffnen": [
+    "Reopen sign-in",
+    "Rouvrir la connexion",
+    "Riapri accesso"
+  ],
+  "Anmeldung wird geöffnet …": [
+    "Opening sign-in …",
+    "Ouverture de la connexion…",
+    "Apertura accesso…"
+  ],
+  "Verbindung wird geprüft …": [
+    "Checking connection …",
+    "Vérification de la connexion…",
+    "Verifica della connessione…"
+  ],
+  "Fragen zu Ausgaben, Geldfluss und Vermögen – mit deinem ChatGPT-Konto.": [
+    "Questions about spending, cash flow and wealth — with your ChatGPT account.",
+    "Des questions sur les dépenses, les flux de trésorerie et le patrimoine, avec votre compte ChatGPT.",
+    "Domande su spese, flussi di cassa e patrimonio, con il tuo account ChatGPT."
+  ],
+  "Melde dich im Browser mit deinem ChatGPT-Konto an. Du brauchst einen für Codex freigeschalteten Zugang. Es gelten die Nutzungslimits deines Kontos; ein API-Schlüssel ist nicht nötig.": [
+    "Sign in to your ChatGPT account in the browser. Your account needs access to Codex. Your account's usage limits apply; no API key is needed.",
+    "Connectez-vous à votre compte ChatGPT dans le navigateur. Votre compte doit avoir accès à Codex. Les limites d'utilisation de votre compte s'appliquent ; aucune clé API n'est nécessaire.",
+    "Accedi al tuo account ChatGPT nel browser. Il tuo account deve avere accesso a Codex. Si applicano i limiti di utilizzo del tuo account; non serve una chiave API."
+  ],
+  "Die Anmeldung gilt für diese entsperrte Sitzung in Finanzblick. Beim Sperren oder Schliessen endet sie. Deine Anmeldung in anderen Apps bleibt unberührt.": [
+    "Sign-in lasts for this unlocked Finanzblick session. Locking or closing ends it. Sign-ins in other apps are unaffected.",
+    "La connexion reste active pendant cette session déverrouillée de Finanzblick. Elle se termine au verrouillage ou à la fermeture. Les connexions dans les autres applications restent inchangées.",
+    "L'accesso vale per questa sessione sbloccata di Finanzblick. Termina al blocco o alla chiusura. Gli accessi nelle altre app restano invariati."
+  ],
+  "OpenAI erhält erst nach deiner Sendefreigabe die angezeigten Zusammenfassungen, deine Frage und den bisherigen Chat. Es gelten die Datenverwendungs- und Speicherregeln deines ChatGPT-Kontos.": [
+    "Only after you approve sending does OpenAI receive the displayed summaries, your question and the previous chat. Your ChatGPT account's data use and retention rules apply.",
+    "OpenAI reçoit les résumés affichés, votre question et le chat précédent uniquement après votre autorisation d'envoi. Les règles d'utilisation et de conservation des données de votre compte ChatGPT s'appliquent.",
+    "OpenAI riceve i riepiloghi visualizzati, la tua domanda e la chat precedente solo dopo la tua autorizzazione all'invio. Si applicano le regole di utilizzo e conservazione dei dati del tuo account ChatGPT."
+  ],
+  "Bitte die Anmeldung im Browser abschliessen. Diese Ansicht aktualisiert sich automatisch.": [
+    "Please complete sign-in in your browser. This view updates automatically.",
+    "Veuillez terminer la connexion dans le navigateur. Cette vue se met à jour automatiquement.",
+    "Completa l'accesso nel browser. Questa vista si aggiorna automaticamente."
+  ],
+  "Nur Zusammenfassungen · Nur lesend": [
+    "Summaries only · Read only",
+    "Résumés uniquement · Lecture seule",
+    "Solo riepiloghi · Sola lettura"
+  ],
+  "Keine Buchungstexte, Kontonummern, Banknamen oder eigenen Kategorienamen. Persönliche Angaben in deinen Fragen werden mitgesendet. Der Chat wird beim Verlassen dieser Ansicht oder beim Sperren lokal verworfen.": [
+    "No transaction descriptions, account numbers, bank names or custom category names. Personal information in your questions is sent too. The local chat is discarded when leaving this view or locking the app.",
+    "Aucun libellé d'écriture, numéro de compte, nom de banque ou nom de catégorie personnalisé. Les informations personnelles dans vos questions sont également envoyées. Le chat local est effacé en quittant cette vue ou au verrouillage.",
+    "Nessuna descrizione di movimento, numero di conto, nome di banca o categoria personalizzata. Anche i dati personali nelle tue domande vengono inviati. La chat locale viene eliminata uscendo da questa vista o bloccando l'app."
+  ],
+  "Der ausgewählte Zeitraum gilt für alle Antworten. Ein anderer Zeitraum startet einen neuen Chat.": [
+    "The selected period applies to all answers. Changing the period starts a new chat.",
+    "La période sélectionnée s'applique à toutes les réponses. Changer de période démarre un nouveau chat.",
+    "Il periodo selezionato vale per tutte le risposte. Cambiandolo si avvia una nuova chat."
+  ],
+  "Deine Frage": [
+    "Your question",
+    "Votre question",
+    "La tua domanda"
+  ],
+  "Neuer Chat": [
+    "New chat",
+    "Nouveau chat",
+    "Nuova chat"
+  ],
+  "Datenvorschau vorbereiten": [
+    "Prepare data preview",
+    "Préparer l'aperçu des données",
+    "Prepara anteprima dati"
+  ],
+  "Vorschau wird erstellt …": [
+    "Preparing preview …",
+    "Préparation de l'aperçu…",
+    "Preparazione anteprima…"
+  ],
+  "ChatGPT erstellt die Antwort …": [
+    "ChatGPT is preparing the answer …",
+    "ChatGPT prépare la réponse…",
+    "ChatGPT sta preparando la risposta…"
+  ],
+  "Datenfreigabe prüfen": [
+    "Review data sharing",
+    "Vérifier les données à partager",
+    "Verifica i dati da condividere"
+  ],
+  "Ich gebe die angezeigten Anfrageinhalte für die Übermittlung an OpenAI frei.": [
+    "I approve sending the displayed request contents to OpenAI.",
+    "J'autorise l'envoi à OpenAI du contenu affiché de la demande.",
+    "Autorizzo l'invio a OpenAI dei contenuti della richiesta visualizzati."
+  ],
+  "Freigeben & an ChatGPT senden": [
+    "Approve & send to ChatGPT",
+    "Autoriser et envoyer à ChatGPT",
+    "Autorizza e invia a ChatGPT"
+  ],
+  "Frage bearbeiten": [
+    "Edit question",
+    "Modifier la question",
+    "Modifica domanda"
+  ],
+  "Antwort abbrechen und Verbindung beenden": [
+    "Cancel answer and disconnect",
+    "Annuler la réponse et déconnecter",
+    "Annulla risposta e disconnetti"
+  ],
+  "Bitte für weitere Fragen einen neuen Chat beginnen.": [
+    "Please start a new chat for more questions.",
+    "Veuillez démarrer un nouveau chat pour d'autres questions.",
+    "Avvia una nuova chat per altre domande."
+  ],
+  "Wie unterscheiden sich meine monatlichen Ausgaben?": [
+    "How do my monthly expenses compare?",
+    "Comment mes dépenses mensuelles se comparent-elles ?",
+    "Come variano le mie spese mensili?"
+  ],
+  "Erkläre meinen Geldfluss im gewählten Zeitraum.": [
+    "Explain my cash flow over the selected period.",
+    "Explique mes flux de trésorerie sur la période sélectionnée.",
+    "Spiega i miei flussi di cassa nel periodo selezionato."
+  ],
+  "Wie hat sich mein Vermögen entwickelt?": [
+    "How has my wealth changed?",
+    "Comment mon patrimoine a-t-il évolué ?",
+    "Come è cambiato il mio patrimonio?"
+  ],
+  "KI-Antworten können Fehler enthalten. Prüfe wichtige Zahlen anhand der angezeigten Quellen. Bereits gesendete Inhalte werden durch das Löschen des lokalen Chats nicht beim Anbieter gelöscht.": [
+    "AI answers can contain errors. Check important figures against the displayed sources. Deleting the local chat does not delete previously sent content at the provider.",
+    "Les réponses de l'IA peuvent contenir des erreurs. Vérifiez les chiffres importants à l'aide des sources affichées. Effacer le chat local ne supprime pas les contenus déjà envoyés chez le fournisseur.",
+    "Le risposte IA possono contenere errori. Verifica le cifre importanti nelle fonti visualizzate. Eliminare la chat locale non elimina i contenuti già inviati al fornitore."
+  ],
+  "Die Freigabe ist abgelaufen. Bitte die Datenvorschau erneut erstellen.": [
+    "Approval has expired. Please prepare the data preview again.",
+    "L'autorisation a expiré. Veuillez recréer l'aperçu des données.",
+    "L'autorizzazione è scaduta. Prepara di nuovo l'anteprima dei dati."
+  ],
+  "Bitte die laufende Antwort abwarten oder abbrechen.": [
+    "Please wait for the current answer or cancel it.",
+    "Veuillez attendre la réponse en cours ou l'annuler.",
+    "Attendi la risposta in corso o annullala."
+  ],
+  "Bitte zuerst mit ChatGPT anmelden.": [
+    "Please sign in with ChatGPT first.",
+    "Veuillez d'abord vous connecter avec ChatGPT.",
+    "Accedi prima con ChatGPT."
+  ],
+  "Bitte erneut mit ChatGPT anmelden.": [
+    "Please sign in with ChatGPT again.",
+    "Veuillez vous reconnecter avec ChatGPT.",
+    "Accedi nuovamente con ChatGPT."
+  ],
+  "Die Verbindung zu ChatGPT wurde unterbrochen. Bitte erneut anmelden.": [
+    "The connection to ChatGPT was interrupted. Please sign in again.",
+    "La connexion à ChatGPT a été interrompue. Veuillez vous reconnecter.",
+    "La connessione a ChatGPT è stata interrotta. Accedi nuovamente."
+  ],
+  "ChatGPT antwortet nicht rechtzeitig. Bitte später erneut versuchen.": [
+    "ChatGPT did not respond in time. Please try again later.",
+    "ChatGPT n'a pas répondu à temps. Veuillez réessayer plus tard.",
+    "ChatGPT non ha risposto in tempo. Riprova più tardi."
+  ],
+  "ChatGPT hat eine nicht erlaubte Aktion angefordert. Die Anfrage wurde abgebrochen.": [
+    "ChatGPT requested an unavailable action. The request was cancelled.",
+    "ChatGPT a demandé une action non autorisée. La demande a été annulée.",
+    "ChatGPT ha richiesto un'azione non consentita. La richiesta è stata annullata."
+  ],
+  "Die Antwort ist zu lang. Bitte die Frage eingrenzen.": [
+    "The answer is too long. Please narrow your question.",
+    "La réponse est trop longue. Veuillez préciser votre question.",
+    "La risposta è troppo lunga. Restringi la domanda."
+  ],
+  "ChatGPT hat keine Antwort geliefert. Bitte erneut versuchen.": [
+    "ChatGPT returned no answer. Please try again.",
+    "ChatGPT n'a fourni aucune réponse. Veuillez réessayer.",
+    "ChatGPT non ha fornito una risposta. Riprova."
+  ],
+  "Das Nutzungslimit deines ChatGPT-Kontos ist erreicht. Bitte später erneut versuchen. API-Guthaben ist hierfür nicht nötig.": [
+    "Your ChatGPT account's usage limit has been reached. Please try again later. API credit is not required.",
+    "La limite d'utilisation de votre compte ChatGPT est atteinte. Veuillez réessayer plus tard. Aucun crédit API n'est nécessaire.",
+    "È stato raggiunto il limite di utilizzo del tuo account ChatGPT. Riprova più tardi. Non serve credito API."
+  ],
+  "Die Anfrage an ChatGPT ist fehlgeschlagen. Bitte Verbindung und Kontozugang prüfen.": [
+    "The request to ChatGPT failed. Please check your connection and account access.",
+    "La demande à ChatGPT a échoué. Vérifiez votre connexion et l'accès au compte.",
+    "La richiesta a ChatGPT non è riuscita. Verifica la connessione e l'accesso all'account."
+  ],
+  "Der Browser konnte nicht geöffnet werden. Bitte die Anmeldung erneut starten.": [
+    "The browser could not be opened. Please restart sign-in.",
+    "Le navigateur n'a pas pu être ouvert. Veuillez relancer la connexion.",
+    "Impossibile aprire il browser. Riavvia l'accesso."
+  ],
+  "ChatGPT-Komponente nicht verfügbar.": [
+    "ChatGPT component unavailable.",
+    "Composant ChatGPT indisponible.",
+    "Componente ChatGPT non disponibile."
+  ],
+  "Die ChatGPT-Komponente fehlt. Bitte Finanzblick neu installieren.": [
+    "The ChatGPT component is missing. Please reinstall Finanzblick.",
+    "Le composant ChatGPT est absent. Veuillez réinstaller Finanzblick.",
+    "Il componente ChatGPT manca. Reinstalla Finanzblick."
+  ],
+  "Die ChatGPT-Komponente konnte nicht gestartet werden. Bitte Finanzblick neu installieren.": [
+    "The ChatGPT component could not be started. Please reinstall Finanzblick.",
+    "Le composant ChatGPT n'a pas pu démarrer. Veuillez réinstaller Finanzblick.",
+    "Impossibile avviare il componente ChatGPT. Reinstalla Finanzblick."
+  ],
+  "Die ChatGPT-Komponente stimmt nicht mit dieser App-Version überein. Bitte Finanzblick neu installieren.": [
+    "The ChatGPT component does not match this app version. Please reinstall Finanzblick.",
+    "Le composant ChatGPT ne correspond pas à cette version de l'application. Veuillez réinstaller Finanzblick.",
+    "Il componente ChatGPT non corrisponde a questa versione dell'app. Reinstalla Finanzblick."
+  ],
+  "Die Datenvorschau konnte nicht erstellt werden.": [
+    "The data preview could not be prepared.",
+    "L'aperçu des données n'a pas pu être créé.",
+    "Impossibile preparare l'anteprima dei dati."
+  ],
+  "Die ChatGPT-Konfiguration erlaubt keinen geschützten Finanzchat auf diesem Gerät.": [
+    "The ChatGPT configuration does not allow a protected financial chat on this device.",
+    "La configuration ChatGPT ne permet pas un chat financier protégé sur cet appareil.",
+    "La configurazione ChatGPT non consente una chat finanziaria protetta su questo dispositivo."
+  ],
+  "Datenschutz & Modell-Info": [
+    "Privacy & model info",
+    "Confidentialité et modèle",
+    "Privacy e modello"
+  ],
+  "Nachrichten": [
+    "Messages",
+    "Messages",
+    "Messaggi"
+  ],
+  "Nachricht": [
+    "Message",
+    "Message",
+    "Messaggio"
+  ],
+  "Nachricht senden": [
+    "Send message",
+    "Envoyer le message",
+    "Invia messaggio"
+  ],
+  "Stelle eine Frage zu deinen Finanzen...": [
+    "Ask a question about your finances...",
+    "Posez une question sur vos finances...",
+    "Fai una domanda sulle tue finanze..."
+  ],
+  "Was möchtest du über deine Finanzen wissen?": [
+    "What would you like to know about your finances?",
+    "Que souhaitez-vous savoir sur vos finances ?",
+    "Cosa vuoi sapere sulle tue finanze?"
+  ],
+  "Verbinde dein ChatGPT-Konto, um loszulegen.": [
+    "Connect your ChatGPT account to get started.",
+    "Connectez votre compte ChatGPT pour commencer.",
+    "Collega il tuo account ChatGPT per iniziare."
+  ],
+  "Der Chat verwendet die Auswertungen des laufenden Kalenderjahres bis heute.": [
+    "The chat uses reports from the current calendar year through today.",
+    "Le chat utilise les analyses de l'année civile en cours jusqu'à aujourd'hui.",
+    "La chat utilizza le analisi dell'anno solare in corso fino a oggi."
+  ],
+  "Nicht verbunden": [
+    "Not connected",
+    "Non connecté",
+    "Non connesso"
+  ],
+  "Du": [
+    "You",
+    "Vous",
+    "Tu"
+  ],
+  "Zusammenfassungen": [
+    "Summaries",
+    "Résumés",
+    "Riepiloghi"
+  ],
+  "Mit Prüfung": [
+    "Review before sending",
+    "Avec vérification",
+    "Con verifica"
+  ],
+  "Direkt senden": [
+    "Send directly",
+    "Envoi direct",
+    "Invio diretto"
+  ],
+  "Daten & Versand": [
+    "Data & sending",
+    "Données et envoi",
+    "Dati e invio"
+  ],
+  "Fearless-Modus: Detailtransaktionen": [
+    "Fearless mode: transaction details",
+    "Mode Fearless : détail des transactions",
+    "Modalità Fearless: dettagli delle transazioni"
+  ],
+  "Auch Buchungstexte, Beträge, Währungen, Kategorien sowie Konto- und Banknamen an ChatGPT übermitteln.": [
+    "Also share descriptions, amounts, currencies, categories, account names and bank names with ChatGPT.",
+    "Transmettre aussi à ChatGPT les libellés, montants, devises, catégories et noms de comptes et de banques.",
+    "Invia a ChatGPT anche descrizioni, importi, valute, categorie e nomi di conti e banche."
+  ],
+  "Vor dem Senden prüfen": [
+    "Review before sending",
+    "Vérifier avant l'envoi",
+    "Verifica prima dell'invio"
+  ],
+  "Ausgeschaltet: Enter und der Sendepfeil senden die gewählten Daten direkt an OpenAI, ohne weitere Bestätigung.": [
+    "When off, Enter and the send arrow send the selected data directly to OpenAI without further confirmation.",
+    "Si désactivé, Entrée et la flèche d'envoi transmettent les données choisies directement à OpenAI, sans autre confirmation.",
+    "Se disattivato, Invio e la freccia inviano i dati selezionati direttamente a OpenAI, senza altre conferme."
+  ],
+  "Der Zeitraum gilt für die freigegebenen Daten. Änderungen starten einen neuen Chat. Diese Optionen gelten nur in dieser Chatansicht.": [
+    "The period applies to the shared data. Changes start a new chat. These options apply only in this chat view.",
+    "La période s'applique aux données partagées. Les modifications démarrent un nouveau chat. Ces options ne valent que dans cette vue.",
+    "Il periodo si applica ai dati condivisi. Le modifiche avviano una nuova chat. Queste opzioni valgono solo in questa vista."
+  ],
+  "OpenAI erhält deine Frage, den bisherigen Chat und die gewählten Zusammenfassungen oder Detailtransaktionen. Es gelten die Datenverwendungs- und Speicherregeln deines ChatGPT-Kontos.": [
+    "OpenAI receives your question, previous chat and selected summaries or transaction details. Your ChatGPT account's data use and retention rules apply.",
+    "OpenAI reçoit votre question, le chat précédent et les résumés ou détails sélectionnés. Les règles d'utilisation et de conservation de votre compte ChatGPT s'appliquent.",
+    "OpenAI riceve la domanda, la chat precedente e i riepiloghi o dettagli selezionati. Si applicano le regole di utilizzo e conservazione del tuo account ChatGPT."
+  ],
+  "Detailtexte und Namen können persönliche Angaben enthalten, auch Kontonummern im Buchungstext. Der Zugriff bleibt lesend; der Chatbot kann keine Buchungen oder Kategorien ändern.": [
+    "Descriptions and names may contain personal information, including account numbers in transaction text. Access remains read only; the chatbot cannot change transactions or categories.",
+    "Les libellés et noms peuvent contenir des données personnelles, y compris des numéros de compte. L'accès reste en lecture seule ; le chatbot ne peut modifier ni écritures ni catégories.",
+    "Descrizioni e nomi possono contenere dati personali, compresi numeri di conto nei testi. L'accesso resta in sola lettura; il chatbot non può modificare movimenti o categorie."
+  ],
+  "Im Modus Zusammenfassungen werden keine Buchungstexte, Konto- oder Banknamen und keine eigenen Kategorienamen übertragen. Persönliche Angaben in deinen Fragen werden dennoch mitgesendet.": [
+    "Summary mode excludes transaction descriptions, account or bank names and custom category names. Personal information in your questions is still sent.",
+    "Le mode Résumés exclut les libellés, noms de comptes ou de banques et noms de catégories personnalisés. Les données personnelles dans vos questions restent transmises.",
+    "La modalità Riepiloghi esclude descrizioni, nomi di conti o banche e categorie personalizzate. I dati personali nelle tue domande vengono comunque inviati."
+  ],
+  "Detailtransaktionen": [
+    "Transaction details",
+    "Détail des transactions",
+    "Dettagli delle transazioni"
+  ],
+  "Enthält Buchungstexte, Kategorien, Konto- und Banknamen. Beträge in Fremdwährungen sind nicht in den CHF-Summen enthalten.": [
+    "Includes descriptions, categories, account and bank names. Foreign currency amounts are not included in CHF totals.",
+    "Contient les libellés, catégories et noms de comptes et de banques. Les montants en devises étrangères sont exclus des totaux CHF.",
+    "Include descrizioni, categorie e nomi di conti e banche. Gli importi in altre valute non sono inclusi nei totali CHF."
+  ],
+  "Alle freigegebenen Buchungen anzeigen": [
+    "Show all shared transactions",
+    "Afficher toutes les écritures partagées",
+    "Mostra tutti i movimenti condivisi"
+  ],
+  "Zu viele Detailtransaktionen. Bitte einen kürzeren Zeitraum wählen (maximal 2000 Buchungen).": [
+    "Too many transaction details. Choose a shorter period (maximum 2000 transactions).",
+    "Trop de transactions détaillées. Choisissez une période plus courte (2000 écritures maximum).",
+    "Troppi dettagli. Scegli un periodo più breve (massimo 2000 movimenti)."
+  ],
+  "Frage sprechen (Deutsch)": [
+    "Dictate a question (German)",
+    "Dicter une question (allemand)",
+    "Detta una domanda (tedesco)"
+  ],
+  "Spracheingabe beenden": [
+    "Stop dictation",
+    "Arrêter la dictée",
+    "Termina dettatura"
+  ],
+  "Spracherkennung wird geladen …": [
+    "Loading speech recognition …",
+    "Chargement de la reconnaissance vocale …",
+    "Caricamento del riconoscimento vocale …"
+  ],
+  "Spracheingabe wird abgeschlossen …": [
+    "Finishing dictation …",
+    "Finalisation de la dictée …",
+    "Completamento della dettatura …"
+  ],
+  "Ich höre zu … Deutsch · lokal auf deinem Gerät": [
+    "Listening … German · locally on your device",
+    "À l’écoute … Allemand · localement sur votre appareil",
+    "In ascolto … Tedesco · sul tuo dispositivo"
+  ],
+  "Das Sprachmodell konnte nicht geladen werden. Bitte erneut versuchen.": [
+    "The speech model could not be loaded. Please try again.",
+    "Le modèle vocal n’a pas pu être chargé. Veuillez réessayer.",
+    "Impossibile caricare il modello vocale. Riprova."
+  ],
+  "Die Spracheingabe wurde unterbrochen. Bitte erneut versuchen.": [
+    "Dictation was interrupted. Please try again.",
+    "La dictée a été interrompue. Veuillez réessayer.",
+    "La dettatura è stata interrotta. Riprova."
+  ],
+  "Bitte den Mikrofonzugriff in den Geräteinstellungen erlauben.": [
+    "Please allow microphone access in your device settings.",
+    "Veuillez autoriser l’accès au microphone dans les paramètres de l’appareil.",
+    "Consenti l’accesso al microfono nelle impostazioni del dispositivo."
+  ],
+  "Das Mikrofon ist nicht verfügbar. Bitte Anschluss und Berechtigung prüfen.": [
+    "The microphone is unavailable. Please check its connection and permission.",
+    "Le microphone est indisponible. Vérifiez la connexion et l’autorisation.",
+    "Microfono non disponibile. Controlla il collegamento e le autorizzazioni."
+  ],
+  "Das Mikrofon erkennt deutsche Sprache lokal auf deinem Gerät. Aufnahmen werden weder gespeichert noch hochgeladen. Der erkannte Text wird erst beim Absenden mit deiner Frage übermittelt.": [
+    "The microphone recognizes German speech locally on your device. Recordings are neither saved nor uploaded. Recognized text is transmitted only when you send your question.",
+    "Le microphone reconnaît l’allemand localement sur votre appareil. Les enregistrements ne sont ni conservés ni envoyés. Le texte reconnu est transmis uniquement lorsque vous envoyez votre question.",
+    "Il microfono riconosce il tedesco localmente sul dispositivo. Le registrazioni non vengono salvate né caricate. Il testo riconosciuto viene trasmesso solo quando invii la domanda."
+  ],
+  "Die ChatGPT-Anmeldung wird für dieses Finanzprofil im geschützten Anmeldespeicher deines Geräts behalten. Beim erneuten Öffnen wirst du automatisch verbunden. „ChatGPT abmelden“ entfernt die gespeicherte Anmeldung. Andere Apps bleiben unberührt.": [
+    "Your ChatGPT sign-in is retained for this financial profile in your device’s protected credential store. You reconnect automatically when reopening the chat. “Sign out of ChatGPT” removes the saved sign-in. Other apps are unaffected.",
+    "Votre connexion ChatGPT est conservée pour ce profil financier dans le coffre d’identifiants protégé de votre appareil. La reconnexion est automatique à la réouverture. « Déconnecter ChatGPT » supprime la connexion enregistrée. Les autres applications ne sont pas affectées.",
+    "L’accesso a ChatGPT viene conservato per questo profilo finanziario nell’archivio protetto delle credenziali del dispositivo. La riconnessione è automatica alla riapertura. «Disconnetti ChatGPT» rimuove l’accesso salvato. Le altre app restano invariate."
+  ],
+  "Enthält nur Datum, Beträge, Währungen und Kategorien. Keine Buchungstexte oder Kontodaten. Fremdwährungen sind nicht in den CHF-Summen enthalten.": [
+    "Contains only dates, amounts, currencies and categories. No transaction descriptions or account details. Foreign currencies are excluded from CHF totals.",
+    "Contient uniquement les dates, montants, devises et catégories. Aucun libellé de transaction ni donnée de compte. Les devises étrangères sont exclues des totaux CHF.",
+    "Contiene solo date, importi, valute e categorie. Nessuna descrizione delle transazioni o dato del conto. Le valute estere sono escluse dai totali CHF."
+  ],
+  "Einzelne Buchungen mit Datum, Betrag, Währung und Kategorie übermitteln – ohne Buchungstexte, Namen, Adressen oder Kontodaten.": [
+    "Share individual transactions with date, amount, currency and category, without descriptions, names, addresses or account details.",
+    "Transmettre les transactions avec date, montant, devise et catégorie, sans libellés, noms, adresses ni données de compte.",
+    "Trasmetti le transazioni con data, importo, valuta e categoria, senza descrizioni, nomi, indirizzi o dati del conto."
+  ],
+  "Auch im Fearless-Modus werden keine Buchungstexte, Konto- oder Banknamen, IBAN, Kontonummern, Kontoinhabernamen oder Adressfelder übertragen. Eigene Kategorienamen und deine Fragen werden mitgesendet; persönliche Angaben darin bitte selbst weglassen.": [
+    "Even Fearless mode excludes transaction descriptions, account and bank names, IBANs, account numbers, account holder names and address fields. Custom category names and your questions are shared; please omit personal information from them.",
+    "Même le mode Fearless exclut les libellés, noms de comptes et de banques, IBAN, numéros de compte, noms des titulaires et champs d’adresse. Les noms de catégories personnalisées et vos questions sont transmis ; veuillez en retirer les informations personnelles.",
+    "Anche la modalità Fearless esclude descrizioni, nomi di conti e banche, IBAN, numeri di conto, nomi dei titolari e campi di indirizzo. I nomi delle categorie personali e le domande vengono trasmessi: ometti eventuali dati personali."
+  ],
+  "Die Spracherkennung konnte nicht geladen werden. Bitte die App neu öffnen und erneut versuchen.": [
+    "Speech recognition could not be loaded. Please reopen the app and try again.",
+    "La reconnaissance vocale n’a pas pu être chargée. Rouvrez l’application et réessayez.",
+    "Impossibile caricare il riconoscimento vocale. Riapri l’app e riprova."
   ]
 }

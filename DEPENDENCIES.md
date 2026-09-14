@@ -1,6 +1,6 @@
 # Third-party dependencies
 
-Target: `aarch64-apple-darwin`. Generated with `npm run licenses` from the locked Cargo dependencies
+Target: `x86_64-pc-windows-msvc`. Generated with `npm run licenses` from the locked Cargo dependencies
 and installed production npm packages. Includes Cargo build dependencies; this is
 a conservative inventory, not a claim that every listed package is linked at runtime.
 
@@ -11,6 +11,8 @@ Regenerate for each release target after dependency changes.
 
 | Ecosystem | Package | Version | Declared license | Source archive |
 | --- | --- | --- | --- | --- |
+| Bundled runtime | OpenAI Codex | 0.154.0 | Apache-2.0 | [Source](https://github.com/openai/codex/releases/tag/rust-v0.154.0) |
+| Bundled speech model | Vosk German small | 0.15 | Apache-2.0 | [Source](https://alphacephei.com/vosk/models) |
 | Cargo | adler2 | 2.0.1 | 0BSD OR MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/adler2/2.0.1/download) |
 | Cargo | adobe-cmap-parser | 0.4.1 | MIT | [Source](https://crates.io/api/v1/crates/adobe-cmap-parser/0.4.1/download) |
 | Cargo | aes | 0.8.4 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/aes/0.8.4/download) |
@@ -21,7 +23,6 @@ Regenerate for each release target after dependency changes.
 | Cargo | atoi_simd | 0.18.1 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/atoi_simd/0.18.1/download) |
 | Cargo | atomic-waker | 1.1.2 | Apache-2.0 OR MIT | [Source](https://crates.io/api/v1/crates/atomic-waker/1.1.2/download) |
 | Cargo | autocfg | 1.5.1 | Apache-2.0 OR MIT | [Source](https://crates.io/api/v1/crates/autocfg/1.5.1/download) |
-| Cargo | base64 | 0.21.7 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/base64/0.21.7/download) |
 | Cargo | base64 | 0.22.1 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/base64/0.22.1/download) |
 | Cargo | bit-set | 0.8.0 | Apache-2.0 OR MIT | [Source](https://crates.io/api/v1/crates/bit-set/0.8.0/download) |
 | Cargo | bit-vec | 0.8.0 | Apache-2.0 OR MIT | [Source](https://crates.io/api/v1/crates/bit-vec/0.8.0/download) |
@@ -29,7 +30,6 @@ Regenerate for each release target after dependency changes.
 | Cargo | bitflags | 2.13.1 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/bitflags/2.13.1/download) |
 | Cargo | block-buffer | 0.10.4 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/block-buffer/0.10.4/download) |
 | Cargo | block-padding | 0.3.3 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/block-padding/0.3.3/download) |
-| Cargo | block2 | 0.6.2 | MIT | [Source](https://crates.io/api/v1/crates/block2/0.6.2/download) |
 | Cargo | brotli-decompressor | 5.0.3 | BSD-3-Clause/MIT | [Source](https://crates.io/api/v1/crates/brotli-decompressor/5.0.3/download) |
 | Cargo | brotli | 8.0.4 | BSD-3-Clause AND MIT | [Source](https://crates.io/api/v1/crates/brotli/8.0.4/download) |
 | Cargo | bs58 | 0.5.1 | MIT/Apache-2.0 | [Source](https://crates.io/api/v1/crates/bs58/0.5.1/download) |
@@ -51,12 +51,8 @@ Regenerate for each release target after dependency changes.
 | Cargo | cipher | 0.4.4 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/cipher/0.4.4/download) |
 | Cargo | codepage | 0.1.2 | Apache-2.0 OR MIT | [Source](https://crates.io/api/v1/crates/codepage/0.1.2/download) |
 | Cargo | cookie | 0.18.2 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/cookie/0.18.2/download) |
-| Cargo | core-foundation-sys | 0.8.7 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/core-foundation-sys/0.8.7/download) |
-| Cargo | core-foundation | 0.10.1 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/core-foundation/0.10.1/download) |
-| Cargo | core-foundation | 0.9.4 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/core-foundation/0.9.4/download) |
-| Cargo | core-graphics-types | 0.2.0 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/core-graphics-types/0.2.0/download) |
-| Cargo | core-graphics | 0.25.0 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/core-graphics/0.25.0/download) |
 | Cargo | cpufeatures | 0.2.17 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/cpufeatures/0.2.17/download) |
+| Cargo | cpufeatures | 0.3.1 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/cpufeatures/0.3.1/download) |
 | Cargo | crc32fast | 1.5.1 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/crc32fast/1.5.1/download) |
 | Cargo | crossbeam-channel | 0.5.17 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/crossbeam-channel/0.5.17/download) |
 | Cargo | crossbeam-utils | 0.8.23 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/crossbeam-utils/0.8.23/download) |
@@ -80,7 +76,6 @@ Regenerate for each release target after dependency changes.
 | Cargo | digest | 0.10.7 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/digest/0.10.7/download) |
 | Cargo | dirs-sys | 0.5.0 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/dirs-sys/0.5.0/download) |
 | Cargo | dirs | 6.0.0 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/dirs/6.0.0/download) |
-| Cargo | dispatch2 | 0.3.1 | Zlib OR Apache-2.0 OR MIT | [Source](https://crates.io/api/v1/crates/dispatch2/0.3.1/download) |
 | Cargo | displaydoc | 0.2.7 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/displaydoc/0.2.7/download) |
 | Cargo | dom_query | 0.27.0 | MIT | [Source](https://crates.io/api/v1/crates/dom_query/0.27.0/download) |
 | Cargo | dpi | 0.1.2 | Apache-2.0 AND MIT | [Source](https://crates.io/api/v1/crates/dpi/0.1.2/download) |
@@ -91,12 +86,10 @@ Regenerate for each release target after dependency changes.
 | Cargo | dunce | 1.0.5 | CC0-1.0 OR MIT-0 OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/dunce/1.0.5/download) |
 | Cargo | dyn-clone | 1.0.20 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/dyn-clone/1.0.20/download) |
 | Cargo | ecb | 0.1.2 | MIT | [Source](https://crates.io/api/v1/crates/ecb/0.1.2/download) |
-| Cargo | embed_plist | 1.2.2 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/embed_plist/1.2.2/download) |
 | Cargo | embed-resource | 3.0.11 | MIT | [Source](https://crates.io/api/v1/crates/embed-resource/3.0.11/download) |
 | Cargo | encoding_rs | 0.8.35 | (Apache-2.0 OR MIT) AND BSD-3-Clause | [Source](https://crates.io/api/v1/crates/encoding_rs/0.8.35/download) |
 | Cargo | equivalent | 1.0.2 | Apache-2.0 OR MIT | [Source](https://crates.io/api/v1/crates/equivalent/1.0.2/download) |
 | Cargo | erased-serde | 0.4.10 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/erased-serde/0.4.10/download) |
-| Cargo | errno | 0.3.14 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/errno/0.3.14/download) |
 | Cargo | euclid | 0.20.14 | MIT / Apache-2.0 | [Source](https://crates.io/api/v1/crates/euclid/0.20.14/download) |
 | Cargo | fallible-iterator | 0.3.0 | MIT/Apache-2.0 | [Source](https://crates.io/api/v1/crates/fallible-iterator/0.3.0/download) |
 | Cargo | fallible-streaming-iterator | 0.1.9 | MIT/Apache-2.0 | [Source](https://crates.io/api/v1/crates/fallible-streaming-iterator/0.1.9/download) |
@@ -108,9 +101,6 @@ Regenerate for each release target after dependency changes.
 | Cargo | fnv | 1.0.7 | Apache-2.0 / MIT | [Source](https://crates.io/api/v1/crates/fnv/1.0.7/download) |
 | Cargo | foldhash | 0.1.5 | Zlib | [Source](https://crates.io/api/v1/crates/foldhash/0.1.5/download) |
 | Cargo | foldhash | 0.2.0 | Zlib | [Source](https://crates.io/api/v1/crates/foldhash/0.2.0/download) |
-| Cargo | foreign-types-macros | 0.2.4 | MIT/Apache-2.0 | [Source](https://crates.io/api/v1/crates/foreign-types-macros/0.2.4/download) |
-| Cargo | foreign-types-shared | 0.3.1 | MIT/Apache-2.0 | [Source](https://crates.io/api/v1/crates/foreign-types-shared/0.3.1/download) |
-| Cargo | foreign-types | 0.5.0 | MIT/Apache-2.0 | [Source](https://crates.io/api/v1/crates/foreign-types/0.5.0/download) |
 | Cargo | form_urlencoded | 1.2.2 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/form_urlencoded/1.2.2/download) |
 | Cargo | fs2 | 0.4.3 | MIT/Apache-2.0 | [Source](https://crates.io/api/v1/crates/fs2/0.4.3/download) |
 | Cargo | futures-channel | 0.3.34 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/futures-channel/0.3.34/download) |
@@ -141,7 +131,6 @@ Regenerate for each release target after dependency changes.
 | Cargo | hyper-tls | 0.6.0 | MIT/Apache-2.0 | [Source](https://crates.io/api/v1/crates/hyper-tls/0.6.0/download) |
 | Cargo | hyper-util | 0.1.20 | MIT | [Source](https://crates.io/api/v1/crates/hyper-util/0.1.20/download) |
 | Cargo | hyper | 1.11.1 | MIT | [Source](https://crates.io/api/v1/crates/hyper/1.11.1/download) |
-| Cargo | iana-time-zone | 0.1.65 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/iana-time-zone/0.1.65/download) |
 | Cargo | ico | 0.5.0 | MIT | [Source](https://crates.io/api/v1/crates/ico/0.5.0/download) |
 | Cargo | icu_collections | 2.3.0 | Unicode-3.0 | [Source](https://crates.io/api/v1/crates/icu_collections/2.3.0/download) |
 | Cargo | icu_locale_core | 2.3.0 | Unicode-3.0 | [Source](https://crates.io/api/v1/crates/icu_locale_core/2.3.0/download) |
@@ -160,6 +149,8 @@ Regenerate for each release target after dependency changes.
 | Cargo | ipnet | 2.12.2 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/ipnet/2.12.2/download) |
 | Cargo | itoa | 1.0.18 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/itoa/1.0.18/download) |
 | Cargo | jiff-core | 0.1.0 | Unlicense OR MIT | [Source](https://crates.io/api/v1/crates/jiff-core/0.1.0/download) |
+| Cargo | jiff-tzdb-platform | 0.1.3 | Unlicense OR MIT | [Source](https://crates.io/api/v1/crates/jiff-tzdb-platform/0.1.3/download) |
+| Cargo | jiff-tzdb | 0.1.8 | Unlicense OR MIT | [Source](https://crates.io/api/v1/crates/jiff-tzdb/0.1.8/download) |
 | Cargo | jiff | 0.2.35 | Unlicense OR MIT | [Source](https://crates.io/api/v1/crates/jiff/0.2.35/download) |
 | Cargo | json-patch | 3.0.1 | MIT/Apache-2.0 | [Source](https://crates.io/api/v1/crates/json-patch/3.0.1/download) |
 | Cargo | jsonptr | 0.6.3 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/jsonptr/0.6.3/download) |
@@ -183,15 +174,6 @@ Regenerate for each release target after dependency changes.
 | Cargo | nom | 8.0.0 | MIT | [Source](https://crates.io/api/v1/crates/nom/8.0.0/download) |
 | Cargo | num-conv | 0.2.2 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/num-conv/0.2.2/download) |
 | Cargo | num-traits | 0.2.19 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/num-traits/0.2.19/download) |
-| Cargo | objc2-app-kit | 0.3.2 | Zlib OR Apache-2.0 OR MIT | [Source](https://crates.io/api/v1/crates/objc2-app-kit/0.3.2/download) |
-| Cargo | objc2-core-foundation | 0.3.2 | Zlib OR Apache-2.0 OR MIT | [Source](https://crates.io/api/v1/crates/objc2-core-foundation/0.3.2/download) |
-| Cargo | objc2-core-graphics | 0.3.2 | Zlib OR Apache-2.0 OR MIT | [Source](https://crates.io/api/v1/crates/objc2-core-graphics/0.3.2/download) |
-| Cargo | objc2-encode | 4.1.0 | MIT | [Source](https://crates.io/api/v1/crates/objc2-encode/4.1.0/download) |
-| Cargo | objc2-exception-helper | 0.1.1 | Zlib OR Apache-2.0 OR MIT | [Source](https://crates.io/api/v1/crates/objc2-exception-helper/0.1.1/download) |
-| Cargo | objc2-foundation | 0.3.2 | MIT | [Source](https://crates.io/api/v1/crates/objc2-foundation/0.3.2/download) |
-| Cargo | objc2-io-surface | 0.3.2 | Zlib OR Apache-2.0 OR MIT | [Source](https://crates.io/api/v1/crates/objc2-io-surface/0.3.2/download) |
-| Cargo | objc2-web-kit | 0.3.2 | Zlib OR Apache-2.0 OR MIT | [Source](https://crates.io/api/v1/crates/objc2-web-kit/0.3.2/download) |
-| Cargo | objc2 | 0.6.4 | MIT | [Source](https://crates.io/api/v1/crates/objc2/0.6.4/download) |
 | Cargo | once_cell | 1.21.4 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/once_cell/1.21.4/download) |
 | Cargo | open | 5.4.3 | MIT | [Source](https://crates.io/api/v1/crates/open/5.4.3/download) |
 | Cargo | openssl-src | 300.6.1+3.6.3 | MIT/Apache-2.0 | [Source](https://crates.io/api/v1/crates/openssl-src/300.6.1+3.6.3/download) |
@@ -210,7 +192,6 @@ Regenerate for each release target after dependency changes.
 | Cargo | pkg-config | 0.3.34 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/pkg-config/0.3.34/download) |
 | Cargo | plist | 1.10.0 | MIT | [Source](https://crates.io/api/v1/crates/plist/1.10.0/download) |
 | Cargo | png | 0.17.16 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/png/0.17.16/download) |
-| Cargo | png | 0.18.1 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/png/0.18.1/download) |
 | Cargo | pom | 1.1.0 | MIT | [Source](https://crates.io/api/v1/crates/pom/1.1.0/download) |
 | Cargo | postscript | 0.14.1 | Apache-2.0/MIT | [Source](https://crates.io/api/v1/crates/postscript/0.14.1/download) |
 | Cargo | potential_utf | 0.1.6 | Unicode-3.0 | [Source](https://crates.io/api/v1/crates/potential_utf/0.1.6/download) |
@@ -234,20 +215,18 @@ Regenerate for each release target after dependency changes.
 | Cargo | rusqlite | 0.37.0 | MIT | [Source](https://crates.io/api/v1/crates/rusqlite/0.37.0/download) |
 | Cargo | rustc_version | 0.4.1 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/rustc_version/0.4.1/download) |
 | Cargo | rustc-hash | 2.1.3 | Apache-2.0 OR MIT | [Source](https://crates.io/api/v1/crates/rustc-hash/2.1.3/download) |
-| Cargo | rustix | 1.1.4 | Apache-2.0 WITH LLVM-exception OR Apache-2.0 OR MIT | [Source](https://crates.io/api/v1/crates/rustix/1.1.4/download) |
 | Cargo | rustls-pki-types | 1.15.1 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/rustls-pki-types/1.15.1/download) |
 | Cargo | rustls-webpki | 0.103.15 | ISC | [Source](https://crates.io/api/v1/crates/rustls-webpki/0.103.15/download) |
 | Cargo | rustls | 0.23.44 | Apache-2.0 OR ISC OR MIT | [Source](https://crates.io/api/v1/crates/rustls/0.23.44/download) |
 | Cargo | rustversion | 1.0.23 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/rustversion/1.0.23/download) |
 | Cargo | ryu | 1.0.23 | Apache-2.0 OR BSL-1.0 | [Source](https://crates.io/api/v1/crates/ryu/1.0.23/download) |
 | Cargo | same-file | 1.0.6 | Unlicense/MIT | [Source](https://crates.io/api/v1/crates/same-file/1.0.6/download) |
+| Cargo | schannel | 0.1.29 | MIT | [Source](https://crates.io/api/v1/crates/schannel/0.1.29/download) |
 | Cargo | schemars_derive | 0.8.22 | MIT | [Source](https://crates.io/api/v1/crates/schemars_derive/0.8.22/download) |
 | Cargo | schemars | 0.8.22 | MIT | [Source](https://crates.io/api/v1/crates/schemars/0.8.22/download) |
 | Cargo | schemars | 0.9.0 | MIT | [Source](https://crates.io/api/v1/crates/schemars/0.9.0/download) |
 | Cargo | schemars | 1.2.2 | MIT | [Source](https://crates.io/api/v1/crates/schemars/1.2.2/download) |
 | Cargo | scopeguard | 1.2.0 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/scopeguard/1.2.0/download) |
-| Cargo | security-framework-sys | 2.17.0 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/security-framework-sys/2.17.0/download) |
-| Cargo | security-framework | 3.7.0 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/security-framework/3.7.0/download) |
 | Cargo | selectors | 0.36.1 | MPL-2.0 | [Source](https://crates.io/api/v1/crates/selectors/0.36.1/download) |
 | Cargo | semver | 1.0.28 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/semver/1.0.28/download) |
 | Cargo | serde_core | 1.0.229 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/serde_core/1.0.229/download) |
@@ -271,19 +250,17 @@ Regenerate for each release target after dependency changes.
 | Cargo | slab | 0.4.12 | MIT | [Source](https://crates.io/api/v1/crates/slab/0.4.12/download) |
 | Cargo | smallvec | 1.16.0 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/smallvec/1.16.0/download) |
 | Cargo | socket2 | 0.6.5 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/socket2/0.6.5/download) |
+| Cargo | softbuffer | 0.4.8 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/softbuffer/0.4.8/download) |
 | Cargo | stable_deref_trait | 1.2.1 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/stable_deref_trait/1.2.1/download) |
 | Cargo | string_cache_codegen | 0.6.1 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/string_cache_codegen/0.6.1/download) |
 | Cargo | string_cache | 0.9.0 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/string_cache/0.9.0/download) |
 | Cargo | stringprep | 0.1.5 | MIT/Apache-2.0 | [Source](https://crates.io/api/v1/crates/stringprep/0.1.5/download) |
 | Cargo | strsim | 0.11.1 | MIT | [Source](https://crates.io/api/v1/crates/strsim/0.11.1/download) |
 | Cargo | subtle | 2.6.1 | BSD-3-Clause | [Source](https://crates.io/api/v1/crates/subtle/2.6.1/download) |
-| Cargo | swift-rs | 1.0.8 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/swift-rs/1.0.8/download) |
 | Cargo | syn | 2.0.119 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/syn/2.0.119/download) |
 | Cargo | syn | 3.0.5 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/syn/3.0.5/download) |
 | Cargo | sync_wrapper | 1.0.2 | Apache-2.0 | [Source](https://crates.io/api/v1/crates/sync_wrapper/1.0.2/download) |
 | Cargo | synstructure | 0.13.2 | MIT | [Source](https://crates.io/api/v1/crates/synstructure/0.13.2/download) |
-| Cargo | system-configuration-sys | 0.6.0 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/system-configuration-sys/0.6.0/download) |
-| Cargo | system-configuration | 0.7.0 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/system-configuration/0.7.0/download) |
 | Cargo | tao | 0.35.3 | Apache-2.0 | [Source](https://crates.io/api/v1/crates/tao/0.35.3/download) |
 | Cargo | tauri-build | 2.6.3 | Apache-2.0 OR MIT | [Source](https://crates.io/api/v1/crates/tauri-build/2.6.3/download) |
 | Cargo | tauri-codegen | 2.6.3 | Apache-2.0 OR MIT | [Source](https://crates.io/api/v1/crates/tauri-codegen/2.6.3/download) |
@@ -351,13 +328,44 @@ Regenerate for each release target after dependency changes.
 | Cargo | uuid | 1.26.0 | Apache-2.0 OR MIT | [Source](https://crates.io/api/v1/crates/uuid/1.26.0/download) |
 | Cargo | vcpkg | 0.2.15 | MIT/Apache-2.0 | [Source](https://crates.io/api/v1/crates/vcpkg/0.2.15/download) |
 | Cargo | version_check | 0.9.5 | MIT/Apache-2.0 | [Source](https://crates.io/api/v1/crates/version_check/0.9.5/download) |
+| Cargo | vswhom-sys | 0.1.3 | MIT | [Source](https://crates.io/api/v1/crates/vswhom-sys/0.1.3/download) |
+| Cargo | vswhom | 0.1.0 | MIT | [Source](https://crates.io/api/v1/crates/vswhom/0.1.0/download) |
 | Cargo | walkdir | 2.5.0 | Unlicense/MIT | [Source](https://crates.io/api/v1/crates/walkdir/2.5.0/download) |
 | Cargo | want | 0.3.1 | MIT | [Source](https://crates.io/api/v1/crates/want/0.3.1/download) |
 | Cargo | web_atoms | 0.2.6 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/web_atoms/0.2.6/download) |
+| Cargo | webview2-com-macros | 0.8.1 | MIT | [Source](https://crates.io/api/v1/crates/webview2-com-macros/0.8.1/download) |
+| Cargo | webview2-com-sys | 0.38.2 | MIT | [Source](https://crates.io/api/v1/crates/webview2-com-sys/0.38.2/download) |
+| Cargo | webview2-com | 0.38.2 | MIT | [Source](https://crates.io/api/v1/crates/webview2-com/0.38.2/download) |
 | Cargo | weezl | 0.1.12 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/weezl/0.1.12/download) |
+| Cargo | winapi-util | 0.1.11 | Unlicense OR MIT | [Source](https://crates.io/api/v1/crates/winapi-util/0.1.11/download) |
+| Cargo | winapi | 0.3.9 | MIT/Apache-2.0 | [Source](https://crates.io/api/v1/crates/winapi/0.3.9/download) |
 | Cargo | window-vibrancy | 0.6.0 | Apache-2.0 OR MIT | [Source](https://crates.io/api/v1/crates/window-vibrancy/0.6.0/download) |
+| Cargo | windows_x86_64_msvc | 0.52.6 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/windows_x86_64_msvc/0.52.6/download) |
+| Cargo | windows_x86_64_msvc | 0.53.1 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/windows_x86_64_msvc/0.53.1/download) |
+| Cargo | windows-collections | 0.2.0 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/windows-collections/0.2.0/download) |
+| Cargo | windows-core | 0.61.2 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/windows-core/0.61.2/download) |
+| Cargo | windows-future | 0.2.1 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/windows-future/0.2.1/download) |
+| Cargo | windows-implement | 0.60.2 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/windows-implement/0.60.2/download) |
+| Cargo | windows-interface | 0.59.3 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/windows-interface/0.59.3/download) |
+| Cargo | windows-link | 0.1.3 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/windows-link/0.1.3/download) |
+| Cargo | windows-link | 0.2.1 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/windows-link/0.2.1/download) |
+| Cargo | windows-numerics | 0.2.0 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/windows-numerics/0.2.0/download) |
+| Cargo | windows-registry | 0.6.1 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/windows-registry/0.6.1/download) |
+| Cargo | windows-result | 0.3.4 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/windows-result/0.3.4/download) |
+| Cargo | windows-result | 0.4.1 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/windows-result/0.4.1/download) |
+| Cargo | windows-strings | 0.4.2 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/windows-strings/0.4.2/download) |
+| Cargo | windows-strings | 0.5.1 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/windows-strings/0.5.1/download) |
+| Cargo | windows-sys | 0.59.0 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/windows-sys/0.59.0/download) |
+| Cargo | windows-sys | 0.60.2 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/windows-sys/0.60.2/download) |
+| Cargo | windows-sys | 0.61.2 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/windows-sys/0.61.2/download) |
+| Cargo | windows-targets | 0.52.6 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/windows-targets/0.52.6/download) |
+| Cargo | windows-targets | 0.53.5 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/windows-targets/0.53.5/download) |
+| Cargo | windows-threading | 0.1.0 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/windows-threading/0.1.0/download) |
+| Cargo | windows-version | 0.1.7 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/windows-version/0.1.7/download) |
+| Cargo | windows | 0.61.3 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/windows/0.61.3/download) |
 | Cargo | winnow | 0.7.15 | MIT | [Source](https://crates.io/api/v1/crates/winnow/0.7.15/download) |
 | Cargo | winnow | 1.0.4 | MIT | [Source](https://crates.io/api/v1/crates/winnow/1.0.4/download) |
+| Cargo | winreg | 0.55.0 | MIT | [Source](https://crates.io/api/v1/crates/winreg/0.55.0/download) |
 | Cargo | writeable | 0.6.4 | Unicode-3.0 | [Source](https://crates.io/api/v1/crates/writeable/0.6.4/download) |
 | Cargo | wry | 0.55.1 | Apache-2.0 OR MIT | [Source](https://crates.io/api/v1/crates/wry/0.55.1/download) |
 | Cargo | yoke-derive | 0.8.2 | Unicode-3.0 | [Source](https://crates.io/api/v1/crates/yoke-derive/0.8.2/download) |
@@ -372,9 +380,113 @@ Regenerate for each release target after dependency changes.
 | Cargo | zlib-rs | 0.6.7 | Zlib | [Source](https://crates.io/api/v1/crates/zlib-rs/0.6.7/download) |
 | Cargo | zmij | 1.0.23 | MIT | [Source](https://crates.io/api/v1/crates/zmij/1.0.23/download) |
 | Cargo | zopfli | 0.8.3 | Apache-2.0 | [Source](https://crates.io/api/v1/crates/zopfli/0.8.3/download) |
+| npm | @lichess-org/vosk-browser | 0.0.3 | Apache-2.0 | [Source](https://registry.npmjs.org/@lichess-org/vosk-browser/-/vosk-browser-0.0.3.tgz) |
 | npm | @tauri-apps/api | 2.11.1 | Apache-2.0 OR MIT | [Source](https://registry.npmjs.org/@tauri-apps/api/-/api-2.11.1.tgz) |
 | npm | @tauri-apps/plugin-dialog | 2.7.3 | MIT OR Apache-2.0 | [Source](https://registry.npmjs.org/@tauri-apps/plugin-dialog/-/plugin-dialog-2.7.3.tgz) |
 | npm | @tauri-apps/plugin-opener | 2.5.5 | MIT OR Apache-2.0 | [Source](https://registry.npmjs.org/@tauri-apps/plugin-opener/-/plugin-opener-2.5.5.tgz) |
+| npm | @types/debug | 4.1.13 | MIT | [Source](https://registry.npmjs.org/@types/debug/-/debug-4.1.13.tgz) |
+| npm | @types/estree-jsx | 1.0.5 | MIT | [Source](https://registry.npmjs.org/@types/estree-jsx/-/estree-jsx-1.0.5.tgz) |
+| npm | @types/estree | 1.0.9 | MIT | [Source](https://registry.npmjs.org/@types/estree/-/estree-1.0.9.tgz) |
+| npm | @types/hast | 3.0.5 | MIT | [Source](https://registry.npmjs.org/@types/hast/-/hast-3.0.5.tgz) |
+| npm | @types/mdast | 4.0.4 | MIT | [Source](https://registry.npmjs.org/@types/mdast/-/mdast-4.0.4.tgz) |
+| npm | @types/ms | 2.1.0 | MIT | [Source](https://registry.npmjs.org/@types/ms/-/ms-2.1.0.tgz) |
+| npm | @types/react | 19.2.18 | MIT | [Source](https://registry.npmjs.org/@types/react/-/react-19.2.18.tgz) |
+| npm | @types/unist | 2.0.11 | MIT | [Source](https://registry.npmjs.org/@types/unist/-/unist-2.0.11.tgz) |
+| npm | @types/unist | 3.0.3 | MIT | [Source](https://registry.npmjs.org/@types/unist/-/unist-3.0.3.tgz) |
+| npm | @ungap/structured-clone | 1.4.0 | ISC | [Source](https://registry.npmjs.org/@ungap/structured-clone/-/structured-clone-1.4.0.tgz) |
+| npm | bail | 2.0.2 | MIT | [Source](https://registry.npmjs.org/bail/-/bail-2.0.2.tgz) |
+| npm | ccount | 2.0.1 | MIT | [Source](https://registry.npmjs.org/ccount/-/ccount-2.0.1.tgz) |
+| npm | character-entities-html4 | 2.1.0 | MIT | [Source](https://registry.npmjs.org/character-entities-html4/-/character-entities-html4-2.1.0.tgz) |
+| npm | character-entities-legacy | 3.0.0 | MIT | [Source](https://registry.npmjs.org/character-entities-legacy/-/character-entities-legacy-3.0.0.tgz) |
+| npm | character-entities | 2.0.2 | MIT | [Source](https://registry.npmjs.org/character-entities/-/character-entities-2.0.2.tgz) |
+| npm | character-reference-invalid | 2.0.1 | MIT | [Source](https://registry.npmjs.org/character-reference-invalid/-/character-reference-invalid-2.0.1.tgz) |
+| npm | comma-separated-tokens | 2.0.3 | MIT | [Source](https://registry.npmjs.org/comma-separated-tokens/-/comma-separated-tokens-2.0.3.tgz) |
+| npm | csstype | 3.2.3 | MIT | [Source](https://registry.npmjs.org/csstype/-/csstype-3.2.3.tgz) |
+| npm | debug | 4.4.3 | MIT | [Source](https://registry.npmjs.org/debug/-/debug-4.4.3.tgz) |
+| npm | decode-named-character-reference | 1.3.0 | MIT | [Source](https://registry.npmjs.org/decode-named-character-reference/-/decode-named-character-reference-1.3.0.tgz) |
+| npm | dequal | 2.0.3 | MIT | [Source](https://registry.npmjs.org/dequal/-/dequal-2.0.3.tgz) |
+| npm | devlop | 1.1.0 | MIT | [Source](https://registry.npmjs.org/devlop/-/devlop-1.1.0.tgz) |
+| npm | escape-string-regexp | 5.0.0 | MIT | [Source](https://registry.npmjs.org/escape-string-regexp/-/escape-string-regexp-5.0.0.tgz) |
+| npm | estree-util-is-identifier-name | 3.0.0 | MIT | [Source](https://registry.npmjs.org/estree-util-is-identifier-name/-/estree-util-is-identifier-name-3.0.0.tgz) |
+| npm | extend | 3.0.2 | MIT | [Source](https://registry.npmjs.org/extend/-/extend-3.0.2.tgz) |
+| npm | hast-util-to-jsx-runtime | 2.3.6 | MIT | [Source](https://registry.npmjs.org/hast-util-to-jsx-runtime/-/hast-util-to-jsx-runtime-2.3.6.tgz) |
+| npm | hast-util-whitespace | 3.0.0 | MIT | [Source](https://registry.npmjs.org/hast-util-whitespace/-/hast-util-whitespace-3.0.0.tgz) |
+| npm | html-url-attributes | 3.0.1 | MIT | [Source](https://registry.npmjs.org/html-url-attributes/-/html-url-attributes-3.0.1.tgz) |
+| npm | inline-style-parser | 0.2.7 | MIT | [Source](https://registry.npmjs.org/inline-style-parser/-/inline-style-parser-0.2.7.tgz) |
+| npm | is-alphabetical | 2.0.1 | MIT | [Source](https://registry.npmjs.org/is-alphabetical/-/is-alphabetical-2.0.1.tgz) |
+| npm | is-alphanumerical | 2.0.1 | MIT | [Source](https://registry.npmjs.org/is-alphanumerical/-/is-alphanumerical-2.0.1.tgz) |
+| npm | is-decimal | 2.0.1 | MIT | [Source](https://registry.npmjs.org/is-decimal/-/is-decimal-2.0.1.tgz) |
+| npm | is-hexadecimal | 2.0.1 | MIT | [Source](https://registry.npmjs.org/is-hexadecimal/-/is-hexadecimal-2.0.1.tgz) |
+| npm | is-plain-obj | 4.1.0 | MIT | [Source](https://registry.npmjs.org/is-plain-obj/-/is-plain-obj-4.1.0.tgz) |
+| npm | longest-streak | 3.1.0 | MIT | [Source](https://registry.npmjs.org/longest-streak/-/longest-streak-3.1.0.tgz) |
+| npm | markdown-table | 3.0.4 | MIT | [Source](https://registry.npmjs.org/markdown-table/-/markdown-table-3.0.4.tgz) |
+| npm | mdast-util-find-and-replace | 3.0.2 | MIT | [Source](https://registry.npmjs.org/mdast-util-find-and-replace/-/mdast-util-find-and-replace-3.0.2.tgz) |
+| npm | mdast-util-from-markdown | 2.0.3 | MIT | [Source](https://registry.npmjs.org/mdast-util-from-markdown/-/mdast-util-from-markdown-2.0.3.tgz) |
+| npm | mdast-util-gfm-autolink-literal | 2.0.1 | MIT | [Source](https://registry.npmjs.org/mdast-util-gfm-autolink-literal/-/mdast-util-gfm-autolink-literal-2.0.1.tgz) |
+| npm | mdast-util-gfm-footnote | 2.1.0 | MIT | [Source](https://registry.npmjs.org/mdast-util-gfm-footnote/-/mdast-util-gfm-footnote-2.1.0.tgz) |
+| npm | mdast-util-gfm-strikethrough | 2.0.0 | MIT | [Source](https://registry.npmjs.org/mdast-util-gfm-strikethrough/-/mdast-util-gfm-strikethrough-2.0.0.tgz) |
+| npm | mdast-util-gfm-table | 2.0.0 | MIT | [Source](https://registry.npmjs.org/mdast-util-gfm-table/-/mdast-util-gfm-table-2.0.0.tgz) |
+| npm | mdast-util-gfm-task-list-item | 2.0.0 | MIT | [Source](https://registry.npmjs.org/mdast-util-gfm-task-list-item/-/mdast-util-gfm-task-list-item-2.0.0.tgz) |
+| npm | mdast-util-gfm | 3.1.0 | MIT | [Source](https://registry.npmjs.org/mdast-util-gfm/-/mdast-util-gfm-3.1.0.tgz) |
+| npm | mdast-util-mdx-expression | 2.0.1 | MIT | [Source](https://registry.npmjs.org/mdast-util-mdx-expression/-/mdast-util-mdx-expression-2.0.1.tgz) |
+| npm | mdast-util-mdx-jsx | 3.2.0 | MIT | [Source](https://registry.npmjs.org/mdast-util-mdx-jsx/-/mdast-util-mdx-jsx-3.2.0.tgz) |
+| npm | mdast-util-mdxjs-esm | 2.0.1 | MIT | [Source](https://registry.npmjs.org/mdast-util-mdxjs-esm/-/mdast-util-mdxjs-esm-2.0.1.tgz) |
+| npm | mdast-util-phrasing | 4.1.0 | MIT | [Source](https://registry.npmjs.org/mdast-util-phrasing/-/mdast-util-phrasing-4.1.0.tgz) |
+| npm | mdast-util-to-hast | 13.2.1 | MIT | [Source](https://registry.npmjs.org/mdast-util-to-hast/-/mdast-util-to-hast-13.2.1.tgz) |
+| npm | mdast-util-to-markdown | 2.1.2 | MIT | [Source](https://registry.npmjs.org/mdast-util-to-markdown/-/mdast-util-to-markdown-2.1.2.tgz) |
+| npm | mdast-util-to-string | 4.0.0 | MIT | [Source](https://registry.npmjs.org/mdast-util-to-string/-/mdast-util-to-string-4.0.0.tgz) |
+| npm | micromark-core-commonmark | 2.0.3 | MIT | [Source](https://registry.npmjs.org/micromark-core-commonmark/-/micromark-core-commonmark-2.0.3.tgz) |
+| npm | micromark-extension-gfm-autolink-literal | 2.1.0 | MIT | [Source](https://registry.npmjs.org/micromark-extension-gfm-autolink-literal/-/micromark-extension-gfm-autolink-literal-2.1.0.tgz) |
+| npm | micromark-extension-gfm-footnote | 2.1.0 | MIT | [Source](https://registry.npmjs.org/micromark-extension-gfm-footnote/-/micromark-extension-gfm-footnote-2.1.0.tgz) |
+| npm | micromark-extension-gfm-strikethrough | 2.1.0 | MIT | [Source](https://registry.npmjs.org/micromark-extension-gfm-strikethrough/-/micromark-extension-gfm-strikethrough-2.1.0.tgz) |
+| npm | micromark-extension-gfm-table | 2.1.2 | MIT | [Source](https://registry.npmjs.org/micromark-extension-gfm-table/-/micromark-extension-gfm-table-2.1.2.tgz) |
+| npm | micromark-extension-gfm-tagfilter | 2.0.0 | MIT | [Source](https://registry.npmjs.org/micromark-extension-gfm-tagfilter/-/micromark-extension-gfm-tagfilter-2.0.0.tgz) |
+| npm | micromark-extension-gfm-task-list-item | 2.1.0 | MIT | [Source](https://registry.npmjs.org/micromark-extension-gfm-task-list-item/-/micromark-extension-gfm-task-list-item-2.1.0.tgz) |
+| npm | micromark-extension-gfm | 3.0.0 | MIT | [Source](https://registry.npmjs.org/micromark-extension-gfm/-/micromark-extension-gfm-3.0.0.tgz) |
+| npm | micromark-factory-destination | 2.0.1 | MIT | [Source](https://registry.npmjs.org/micromark-factory-destination/-/micromark-factory-destination-2.0.1.tgz) |
+| npm | micromark-factory-label | 2.0.1 | MIT | [Source](https://registry.npmjs.org/micromark-factory-label/-/micromark-factory-label-2.0.1.tgz) |
+| npm | micromark-factory-space | 2.0.1 | MIT | [Source](https://registry.npmjs.org/micromark-factory-space/-/micromark-factory-space-2.0.1.tgz) |
+| npm | micromark-factory-title | 2.0.1 | MIT | [Source](https://registry.npmjs.org/micromark-factory-title/-/micromark-factory-title-2.0.1.tgz) |
+| npm | micromark-factory-whitespace | 2.0.1 | MIT | [Source](https://registry.npmjs.org/micromark-factory-whitespace/-/micromark-factory-whitespace-2.0.1.tgz) |
+| npm | micromark-util-character | 2.1.1 | MIT | [Source](https://registry.npmjs.org/micromark-util-character/-/micromark-util-character-2.1.1.tgz) |
+| npm | micromark-util-chunked | 2.0.1 | MIT | [Source](https://registry.npmjs.org/micromark-util-chunked/-/micromark-util-chunked-2.0.1.tgz) |
+| npm | micromark-util-classify-character | 2.0.1 | MIT | [Source](https://registry.npmjs.org/micromark-util-classify-character/-/micromark-util-classify-character-2.0.1.tgz) |
+| npm | micromark-util-combine-extensions | 2.0.1 | MIT | [Source](https://registry.npmjs.org/micromark-util-combine-extensions/-/micromark-util-combine-extensions-2.0.1.tgz) |
+| npm | micromark-util-decode-numeric-character-reference | 2.0.2 | MIT | [Source](https://registry.npmjs.org/micromark-util-decode-numeric-character-reference/-/micromark-util-decode-numeric-character-reference-2.0.2.tgz) |
+| npm | micromark-util-decode-string | 2.0.1 | MIT | [Source](https://registry.npmjs.org/micromark-util-decode-string/-/micromark-util-decode-string-2.0.1.tgz) |
+| npm | micromark-util-encode | 2.0.1 | MIT | [Source](https://registry.npmjs.org/micromark-util-encode/-/micromark-util-encode-2.0.1.tgz) |
+| npm | micromark-util-html-tag-name | 2.0.1 | MIT | [Source](https://registry.npmjs.org/micromark-util-html-tag-name/-/micromark-util-html-tag-name-2.0.1.tgz) |
+| npm | micromark-util-normalize-identifier | 2.0.1 | MIT | [Source](https://registry.npmjs.org/micromark-util-normalize-identifier/-/micromark-util-normalize-identifier-2.0.1.tgz) |
+| npm | micromark-util-resolve-all | 2.0.1 | MIT | [Source](https://registry.npmjs.org/micromark-util-resolve-all/-/micromark-util-resolve-all-2.0.1.tgz) |
+| npm | micromark-util-sanitize-uri | 2.0.1 | MIT | [Source](https://registry.npmjs.org/micromark-util-sanitize-uri/-/micromark-util-sanitize-uri-2.0.1.tgz) |
+| npm | micromark-util-subtokenize | 2.1.0 | MIT | [Source](https://registry.npmjs.org/micromark-util-subtokenize/-/micromark-util-subtokenize-2.1.0.tgz) |
+| npm | micromark-util-symbol | 2.0.1 | MIT | [Source](https://registry.npmjs.org/micromark-util-symbol/-/micromark-util-symbol-2.0.1.tgz) |
+| npm | micromark-util-types | 2.0.2 | MIT | [Source](https://registry.npmjs.org/micromark-util-types/-/micromark-util-types-2.0.2.tgz) |
+| npm | micromark | 4.0.2 | MIT | [Source](https://registry.npmjs.org/micromark/-/micromark-4.0.2.tgz) |
+| npm | ms | 2.1.3 | MIT | [Source](https://registry.npmjs.org/ms/-/ms-2.1.3.tgz) |
+| npm | parse-entities | 4.0.2 | MIT | [Source](https://registry.npmjs.org/parse-entities/-/parse-entities-4.0.2.tgz) |
+| npm | property-information | 7.2.0 | MIT | [Source](https://registry.npmjs.org/property-information/-/property-information-7.2.0.tgz) |
 | npm | react-dom | 19.2.8 | MIT | [Source](https://registry.npmjs.org/react-dom/-/react-dom-19.2.8.tgz) |
+| npm | react-markdown | 10.1.0 | MIT | [Source](https://registry.npmjs.org/react-markdown/-/react-markdown-10.1.0.tgz) |
 | npm | react | 19.2.8 | MIT | [Source](https://registry.npmjs.org/react/-/react-19.2.8.tgz) |
+| npm | remark-gfm | 4.0.1 | MIT | [Source](https://registry.npmjs.org/remark-gfm/-/remark-gfm-4.0.1.tgz) |
+| npm | remark-parse | 11.0.0 | MIT | [Source](https://registry.npmjs.org/remark-parse/-/remark-parse-11.0.0.tgz) |
+| npm | remark-rehype | 11.1.2 | MIT | [Source](https://registry.npmjs.org/remark-rehype/-/remark-rehype-11.1.2.tgz) |
+| npm | remark-stringify | 11.0.0 | MIT | [Source](https://registry.npmjs.org/remark-stringify/-/remark-stringify-11.0.0.tgz) |
 | npm | scheduler | 0.27.0 | MIT | [Source](https://registry.npmjs.org/scheduler/-/scheduler-0.27.0.tgz) |
+| npm | space-separated-tokens | 2.0.2 | MIT | [Source](https://registry.npmjs.org/space-separated-tokens/-/space-separated-tokens-2.0.2.tgz) |
+| npm | stringify-entities | 4.0.4 | MIT | [Source](https://registry.npmjs.org/stringify-entities/-/stringify-entities-4.0.4.tgz) |
+| npm | style-to-js | 1.1.21 | MIT | [Source](https://registry.npmjs.org/style-to-js/-/style-to-js-1.1.21.tgz) |
+| npm | style-to-object | 1.0.14 | MIT | [Source](https://registry.npmjs.org/style-to-object/-/style-to-object-1.0.14.tgz) |
+| npm | trim-lines | 3.0.1 | MIT | [Source](https://registry.npmjs.org/trim-lines/-/trim-lines-3.0.1.tgz) |
+| npm | trough | 2.2.0 | MIT | [Source](https://registry.npmjs.org/trough/-/trough-2.2.0.tgz) |
+| npm | unified | 11.0.5 | MIT | [Source](https://registry.npmjs.org/unified/-/unified-11.0.5.tgz) |
+| npm | unist-util-is | 6.0.1 | MIT | [Source](https://registry.npmjs.org/unist-util-is/-/unist-util-is-6.0.1.tgz) |
+| npm | unist-util-position | 5.0.0 | MIT | [Source](https://registry.npmjs.org/unist-util-position/-/unist-util-position-5.0.0.tgz) |
+| npm | unist-util-stringify-position | 4.0.0 | MIT | [Source](https://registry.npmjs.org/unist-util-stringify-position/-/unist-util-stringify-position-4.0.0.tgz) |
+| npm | unist-util-visit-parents | 6.0.2 | MIT | [Source](https://registry.npmjs.org/unist-util-visit-parents/-/unist-util-visit-parents-6.0.2.tgz) |
+| npm | unist-util-visit | 5.1.0 | MIT | [Source](https://registry.npmjs.org/unist-util-visit/-/unist-util-visit-5.1.0.tgz) |
+| npm | uuid | 11.1.1 | MIT | [Source](https://registry.npmjs.org/uuid/-/uuid-11.1.1.tgz) |
+| npm | vfile-message | 4.0.3 | MIT | [Source](https://registry.npmjs.org/vfile-message/-/vfile-message-4.0.3.tgz) |
+| npm | vfile | 6.0.3 | MIT | [Source](https://registry.npmjs.org/vfile/-/vfile-6.0.3.tgz) |
+| npm | zwitch | 2.0.4 | MIT | [Source](https://registry.npmjs.org/zwitch/-/zwitch-2.0.4.tgz) |

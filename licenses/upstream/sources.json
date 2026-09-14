@@ -153,5 +153,11 @@
       "file": "licenses/upstream/objc2-8852b424193ca41602281b3d7540d7c8ed51e49a/LICENSE.md",
       "source": "https://raw.githubusercontent.com/madsmtm/objc2/8852b424193ca41602281b3d7540d7c8ed51e49a/LICENSE.md"
     }
+  ],
+  "@lichess-org/vosk-browser@0.0.3": [
+    {
+      "file": "licenses/upstream/vosk-browser-0.0.8/COPYING",
+      "source": "https://raw.githubusercontent.com/ccoreilly/vosk-browser/4b8eb257503108d96819854d3984372903c2259e/COPYING"
+    }
   ]
 }

@@ -4,6 +4,7 @@ import { invoke } from "@tauri-apps/api/core";
 
 import { TimelineChart, type TimelinePoint } from "../assets/TimelineChart";
 import { selectAmountRange } from "./amountSelection";
+import { reportPeriod } from "../../domain/reportPeriod";
 
 interface Category { key: string; label: string; color: string; amountMinor: number; transactionCount: number }
 interface Month { month: string; amountMinor: number }
@@ -30,9 +31,9 @@ export function Transactions() {
   useEffect(() => { invoke<{ key: string; label: string }[]>("list_categories").then(setCategoryOptions).catch(() => setError(t("Kategorien konnten nicht geladen werden."))); }, []);
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [account, setAccount] = useState("");
-  const [from, setFrom] = useState(() => `${new Date().getFullYear()}-01-01`);
-  const [to, setTo] = useState("");
-  const [selectedPeriod, setSelectedPeriod] = useState<"all" | "currentYear" | "1y" | "2y" | "3y" | "5y" | "custom">("currentYear");
+  const [from, setFrom] = useState(() => reportPeriod()?.from ?? `${new Date().getFullYear()}-01-01`);
+  const [to, setTo] = useState(() => reportPeriod()?.to ?? "");
+  const [selectedPeriod, setSelectedPeriod] = useState<"all" | "currentYear" | "1y" | "2y" | "3y" | "5y" | "custom">(() => reportPeriod() ? "custom" : "currentYear");
   const [comparisonYear, setComparisonYear] = useState(() => String(new Date().getFullYear()));
   const [monthlyDrilldown, setMonthlyDrilldown] = useState<{ categoryKey: string | null; year: string; month: number } | null>(null);
   const [error, setError] = useState<string | null>(null);

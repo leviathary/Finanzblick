@@ -1,8 +1,8 @@
 //! Local SQLCipher vault. No credentials, plaintext copies or remote services.
 use super::{initialize_schema, Storage};
+pub mod backups;
 pub mod databases;
 pub mod demo;
-pub mod backups;
 use fs2::FileExt;
 use rusqlite::{Connection, OpenFlags, OptionalExtension};
 use serde::{Deserialize, Serialize};
@@ -74,6 +74,7 @@ fn validate_settings(settings: &AppSettings) -> Result<(), String> {
 #[derive(Default)]
 pub(super) struct Session {
     database_id: String,
+    generation: u64,
     password: Option<Zeroizing<String>>,
     activity: Option<SystemTime>,
     retry_after: Option<SystemTime>,
@@ -89,6 +90,7 @@ impl Session {
             })
     }
     fn clear(&mut self) {
+        self.generation = self.generation.wrapping_add(1);
         self.password = None;
         self.activity = None;
     }
@@ -99,6 +101,11 @@ impl Session {
 pub(super) struct VaultConnection<'a> {
     connection: Connection,
     _lease: RwLockReadGuard<'a, Session>,
+}
+impl VaultConnection<'_> {
+    pub(super) fn chat_session(&self) -> (String, u64) {
+        (self._lease.database_id.clone(), self._lease.generation)
+    }
 }
 impl Deref for VaultConnection<'_> {
     type Target = Connection;
@@ -205,6 +212,28 @@ impl Storage {
         Ok(lease)
     }
 
+    pub(super) fn chat_session(&self) -> Result<(String, u64), String> {
+        let session = self.session.read().map_err(|_| LOCKED)?;
+        if session.password.is_none() || session.expired() {
+            return Err(LOCKED.into());
+        }
+        Ok((session.database_id.clone(), session.generation))
+    }
+
+    pub(super) fn require_chat_session(
+        &self,
+        expected: &(String, u64),
+    ) -> Result<impl Drop + '_, String> {
+        let session = self.session.read().map_err(|_| LOCKED)?;
+        if session.password.is_none()
+            || session.expired()
+            || (&session.database_id, session.generation) != (&expected.0, expected.1)
+        {
+            return Err(LOCKED.into());
+        }
+        Ok(session)
+    }
+
     pub fn lock_session(&self) -> Result<bool, String> {
         let mut session = self.session.write().map_err(|_| LOCKED.to_string())?;
         let was_unlocked = session.password.is_some();
@@ -264,6 +293,7 @@ impl Storage {
         let db = open(&self.database_path(&session), &password, false)
             .map_err(|_| "Finanzprofil nicht lesbar.")?;
         session.settings = read_settings(&db)?;
+        session.generation = session.generation.wrapping_add(1);
         session.password = Some(password);
         session.activity = Some(SystemTime::now());
         session.retry_after = None;
@@ -377,6 +407,7 @@ impl Storage {
         Self {
             path,
             session: RwLock::new(Session {
+                generation: 0,
                 database_id: String::new(),
                 password: Some(Zeroizing::new(password)),
                 activity: Some(SystemTime::now()),
@@ -452,6 +483,20 @@ mod tests {
         }
     }
     const PASSWORD: &str = "Test ' Wörter 123456789";
+
+    #[test]
+    fn financial_chat_authorization_does_not_survive_lock_and_reunlock() {
+        let dir = tempfile::tempdir().unwrap();
+        let vault = locked(dir.path());
+        vault.unlock(PASSWORD.into(), true).unwrap();
+        let original = vault.chat_session().unwrap();
+        assert!(vault.require_chat_session(&original).is_ok());
+        vault.lock_session().unwrap();
+        assert!(vault.chat_session().is_err());
+        vault.unlock(PASSWORD.into(), false).unwrap();
+        assert_ne!(vault.chat_session().unwrap(), original);
+        assert!(vault.require_chat_session(&original).is_err());
+    }
 
     #[test]
     fn multiple_databases_have_independent_data_and_passwords() {

@@ -40,7 +40,17 @@ export function VaultGate({ children }: { children: ReactNode }) {
   const [busy, setBusy] = useState(false);
   const [creatingDatabase, setCreatingDatabase] = useState(false);
   const [error, setError] = useState("");
+  const passwordField = useRef<HTMLInputElement>(null);
+  const [failedAttempts, setFailedAttempts] = useState(0);
   const revision = useRef(0);
+
+  useEffect(() => {
+    // Wait for React to re-enable the input before restoring keyboard focus.
+    if (!busy && failedAttempts > 0) {
+      passwordField.current?.focus();
+      passwordField.current?.select();
+    }
+  }, [busy, failedAttempts]);
 
   const refresh = useCallback(async () => {
     const current = revision.current;
@@ -173,6 +183,7 @@ export function VaultGate({ children }: { children: ReactNode }) {
       await refresh();
     } catch (reason) {
       setError(String(reason));
+      setFailedAttempts(attempts => attempts + 1);
     } finally {
       setBusy(false);
     }
@@ -253,6 +264,7 @@ export function VaultGate({ children }: { children: ReactNode }) {
             {!creatingDatabase && <form onSubmit={submit} autoComplete="on">
               <label htmlFor="vault-password">{t("Passwort")}</label>
               <input
+                ref={passwordField}
                 id="vault-password"
                 name="password"
                 type="password"

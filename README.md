@@ -5,7 +5,7 @@ Vermögen und Ausgaben. Ohne Benutzerkonto oder Cloud-Synchronisierung.
 
 ## Windows installieren
 
-[Windows-Installer 0.5.3 herunterladen (64 Bit)](https://github.com/leviathary/Finanzblick/raw/refs/heads/main/installers/Finanzblick_0.5.3_x64-setup.exe)
+[Windows-Installer 0.5.6 herunterladen (64 Bit)](https://github.com/leviathary/Finanzblick/releases/download/v0.5.6/Finanzblick_0.5.6_x64-setup.exe)
 
 Die heruntergeladene Datei ausführen. Ein Windows-Entwicklermodus ist nicht nötig.
 Der Installer ist nicht signiert; Windows kann deshalb eine Sicherheitswarnung anzeigen.
@@ -66,9 +66,23 @@ Die Demo funktioniert offline und wird beim nächsten Öffnen wiederverwendet.
 Für persönliche Daten wählst du **Neues Finanzprofil** und ein eigenes Passwort.
 Demo-Kurse sind keine historischen Börsendaten oder Anlageempfehlungen.
 
+## Optionaler Finanzchat
+
+Unter **Finanzchat → Mit ChatGPT anmelden** verbindet sich Finanzblick über die
+mitgelieferte Codex-Laufzeit mit einem unterstützten ChatGPT-Konto. Kein API-Schlüssel
+und kein separates API-Guthaben erforderlich. Die Anmeldung wird pro Finanzprofil im geschützten Anmeldespeicher des Geräts
+behalten und lässt sich im Finanzchat entfernen. Der Mikrofonknopf erkennt deutsche
+Fragen lokal, ohne Audio hochzuladen. Standardmässig werden Zusammenfassungen vor jeder Übermittlung
+zur Prüfung angezeigt. Unter **Datenschutz & Modell-Info** kann man freiwillig den
+Fearless-Modus mit Detailtransaktionen für einen gewählten Zeitraum aktivieren und
+unabhängig davon die Prüfung vor dem Senden ausschalten. Direktversand erfolgt dann
+mit Enter oder Sendepfeil. Der Chatbot bleibt rein lesend.
+
+Details, Grenzen und Tests: [Finanzchat](docs/finance-chat.md).
+
 ## Datenschutz und Backup
 
-Finanzdaten bleiben auf deinem Gerät und sind mit SQLCipher verschlüsselt.
+Finanzdaten werden auf deinem Gerät mit SQLCipher verschlüsselt gespeichert.
 Für automatische Bewertungen werden Wertpapierkennungen, Zeiträume und
 Währungspaare an Marktdatenanbieter übermittelt – keine Kontostände oder Buchungen.
 

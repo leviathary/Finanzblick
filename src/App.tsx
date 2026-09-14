@@ -1,5 +1,6 @@
 import { t } from "./i18n";
-import { invoke } from "@tauri-apps/api/core";
+import { invoke, isTauri } from "@tauri-apps/api/core";
+import { getCurrentWindow } from "@tauri-apps/api/window";
 import "./App.css";
 import { DataSecurity } from "./features/settings/DataSecurity";
 import { Settings } from "./features/settings/Settings";
@@ -14,15 +15,17 @@ import { Assets } from "./features/assets/Assets";
 import { Transactions } from "./features/transactions/Transactions";
 import { TaxHistory } from "./features/tax-history/TaxHistory";
 
+import { FinanceChat } from "./features/chat/FinanceChat";
 import { Categories } from "./features/categories/Categories";
 
-type Page = "data-security" | "settings" | "categories" | "overview" | "accounts" | "assets" | "tax-history" | "transactions" | "imports" | "import-history";
+type Page = "chat" | "data-security" | "settings" | "categories" | "overview" | "accounts" | "assets" | "tax-history" | "transactions" | "imports" | "import-history";
 type ImportKind = "bank" | "tax";
 
-type NavIconName = "home" | "bank" | "chart" | "tax" | "transactions" | "tag" | "import" | "history" | "settings" | "logout";
+type NavIconName = "chat" | "home" | "bank" | "chart" | "tax" | "transactions" | "tag" | "import" | "history" | "settings" | "logout";
 
 function NavIcon({ name }: { name: NavIconName }) {
   const paths: Record<NavIconName, ReactNode> = {
+    chat: <><path d="M4 4h16v13H9l-5 4V4Z"/><path d="M8 8h8M8 12h5"/></>,
     home: <><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v10h13V10M9 20v-6h6v6"/></>,
     bank: <><path d="M3 9h18L12 4 3 9Z"/><path d="M5 9v8m4-8v8m6-8v8m4-8v8M3 20h18"/></>,
     chart: <><path d="M4 19V5"/><path d="M4 19h16"/><path d="m7 15 4-5 3 3 5-7"/></>,
@@ -45,15 +48,16 @@ function ImportKindTabs({ value, onChange }: { value: ImportKind; onChange: (val
 }
 
 function pageFromHash(): Page {
+  if (window.location.hash === "#chat") return "chat";
   if (window.location.hash === "#data-security") return "data-security";
   if (window.location.hash === "#settings") return "settings";
   if (window.location.hash === "#categories") return "categories";
   if (window.location.hash.startsWith("#import-history")) return "import-history";
   if (window.location.hash.startsWith("#imports")) return "imports";
   if (window.location.hash === "#banks") return "accounts";
-  if (window.location.hash === "#assets") return "assets";
+  if (window.location.hash.split("?")[0] === "#assets") return "assets";
   if (window.location.hash === "#tax-history") return "tax-history";
-  if (window.location.hash === "#transactions") return "transactions";
+  if (window.location.hash.split("?")[0] === "#transactions") return "transactions";
   return "overview";
 }
 
@@ -61,8 +65,18 @@ function App() {
   useSettings();
   const lockVault = useVaultLock();
   const [page, setPage] = useState<Page>(pageFromHash);
-  const [isDemo, setIsDemo] = useState(false);
-  useEffect(() => { void invoke<boolean>("demo_status").then(setIsDemo).catch(() => setIsDemo(false)); }, []);
+  useEffect(() => {
+    let active = true;
+    const setTitle = (title: string) => {
+      document.title = title;
+      if (isTauri()) void getCurrentWindow().setTitle(title).catch(() => {});
+    };
+    setTitle("Finanzblick");
+    void invoke<boolean>("demo_status").then(demo => {
+      if (active) setTitle(demo ? "Finanzblick - Demo" : "Finanzblick");
+    }).catch(() => {});
+    return () => { active = false; setTitle("Finanzblick"); };
+  }, []);
   const [importKind, setImportKind] = useState<ImportKind>(window.location.hash === "#imports/tax" ? "tax" : "bank");
   const [managementKind, setManagementKind] = useState<ImportKind>(window.location.hash === "#import-history/tax" ? "tax" : "bank");
 
@@ -93,6 +107,7 @@ function App() {
           <a className={page === "tax-history" ? "active" : ""} href="#tax-history"><NavIcon name="tax"/><span>{t("Steuerhistorie")}</span></a>
           <a className={page === "transactions" ? "active" : ""} href="#transactions"><NavIcon name="transactions"/><span>{t("Transaktionen")}</span></a>
           <a className={page === "categories" ? "active" : ""} href="#categories"><NavIcon name="tag"/><span>{t("Kategorien")}</span></a>
+          <a className={page === "chat" ? "active" : ""} href="#chat"><NavIcon name="chat"/><span>{t("Finanzchat")}</span></a>
           <a className={page === "imports" ? "active" : ""} href="#imports"><NavIcon name="import"/><span>{t("Import")}</span></a>
           <a className={page === "import-history" ? "active" : ""} href="#import-history"><NavIcon name="history"/><span>{t("Importverwaltung")}</span></a>
         </nav>
@@ -103,8 +118,7 @@ function App() {
         </nav>
       </aside>
       <div className="content">
-        {isDemo && <aside className="demo-banner" role="note"><strong>{t("Demo – fiktive Daten")}</strong><span>{t("Alle Beträge, Kurse und Transaktionen sind simuliert. Passwort: demo1234. Bitte keine persönlichen Daten in der Demo speichern.")}</span><a href="#data-security">{t("Eigenes Finanzprofil erstellen")}</a></aside>}
-        {page === "data-security" ? <DataSecurity /> : page === "settings" ? <Settings /> : page === "overview" ? <Overview onImport={() => navigate("imports")} /> : page === "accounts" ? <Accounts /> : page === "assets" ? <Assets onAccounts={() => navigate("accounts")} onImport={() => navigate("imports")} /> : page === "tax-history" ? <TaxHistory /> : page === "transactions" ? <Transactions /> : page === "categories" ? <Categories /> : null}
+        {page === "chat" ? <FinanceChat /> : page === "data-security" ? <DataSecurity /> : page === "settings" ? <Settings /> : page === "overview" ? <Overview onImport={() => navigate("imports")} /> : page === "accounts" ? <Accounts /> : page === "assets" ? <Assets onAccounts={() => navigate("accounts")} onImport={() => navigate("imports")} /> : page === "tax-history" ? <TaxHistory /> : page === "transactions" ? <Transactions /> : page === "categories" ? <Categories /> : null}
         <div hidden={page !== "imports"}>
           <ImportKindTabs value={importKind} onChange={(kind) => { setImportKind(kind); window.location.hash = kind === "tax" ? "imports/tax" : "imports"; }} />
           <div hidden={importKind !== "bank"}><ImportWizard enabled={page === "imports" && importKind === "bank"} /></div>

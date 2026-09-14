@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { ProviderLogo } from "../accounts/ProviderLogo";
 import { sumPositionHistory, type PositionChart } from "./positionHistory";
+import { reportPeriod } from "../../domain/reportPeriod";
 
 interface HistoryPoint {
   date: string;
@@ -47,9 +48,9 @@ export function Assets({
   const [error, setError] = useState<string | null>(null);
   const [period, setPeriod] = useState<
     "all" | "currentYear" | "1y" | "2y" | "3y" | "5y" | "custom"
-  >("all");
-  const [customFrom, setCustomFrom] = useState("");
-  const [customTo, setCustomTo] = useState("");
+  >(() => reportPeriod() ? "custom" : "all");
+  const [customFrom, setCustomFrom] = useState(() => reportPeriod()?.from ?? "");
+  const [customTo, setCustomTo] = useState(() => reportPeriod()?.to ?? "");
   const [selectedAccountIds, setSelectedAccountIds] = useState<number[]>([]);
   const [positionData, setPositionData] = useState<{ accountId: number; positions: PositionChart[] } | null>(null);
   const [positionError, setPositionError] = useState("");
