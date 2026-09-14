@@ -3,6 +3,17 @@
 Deine Finanzen auf einen Blick: eine lokale Desktop-App für Konten, Depots,
 Vermögen und Ausgaben. Ohne Benutzerkonto oder Cloud-Synchronisierung.
 
+## Windows installieren
+
+[Windows-Installer 0.5.3 herunterladen (64 Bit)](https://github.com/leviathary/Finanzblick/raw/refs/heads/main/installers/Finanzblick_0.5.3_x64-setup.exe)
+
+Die heruntergeladene Datei ausführen. Ein Windows-Entwicklermodus ist nicht nötig.
+Der Installer ist nicht signiert; Windows kann deshalb eine Sicherheitswarnung anzeigen.
+
+Die Demo ist bereits enthalten: **Finanzprofil → Demo-Daten**, Passwort **`demo1234`**.
+Sie wird beim ersten Öffnen lokal erzeugt; es ist kein zusätzlicher Download nötig.
+Falls WebView2 fehlt, benötigt dessen Einrichtung eine Internetverbindung.
+
 ## Einblick
 
 Die Screenshots zeigen ausschliesslich fiktive Demo-Daten.
@@ -16,6 +27,7 @@ Die Screenshots zeigen ausschliesslich fiktive Demo-Daten.
 - Bankauszüge aus Excel, CSV, PDF und MT940 importieren und vor dem Speichern prüfen
 - Konten, Aktien, ETFs, Kryptowährungen und Vorsorgevermögen gemeinsam auswerten
 - Vermögensentwicklung, Geldfluss und Steuerhistorie visualisieren
+- Depotpositionen einzeln oder gemeinsam im Verlauf anzeigen; bei einer Position zwischen Wert und Kurs wechseln
 - Transaktionen kategorisieren und Kreditkartenzahlungen ohne Doppelzählung erfassen
 - Unabhängige Finanzprofile erstellen, kopieren, anonymisieren und sichern
 - Deutsch, Englisch, Französisch und Italienisch mit regionalen Zahlenformaten

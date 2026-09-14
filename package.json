@@ -1,10 +1,10 @@
 {
   "name": "finanzblick",
   "private": true,
-  "version": "0.5.2",
+  "version": "0.5.3",
   "type": "module",
   "scripts": {
-    "test": "node --test scripts/test-import-batch.mjs scripts/test-i18n.mjs",
+    "test": "node --test scripts/test-import-batch.mjs scripts/test-i18n.mjs scripts/test-position-history.mjs",
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",

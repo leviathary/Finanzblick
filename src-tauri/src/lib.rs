@@ -82,6 +82,7 @@ pub fn run() {
             storage::dashboard_data,
             storage::list_accounts,
             storage::wealth_data,
+            storage::position_history::position_chart_data,
             storage::transaction_analysis,
             storage::reconciliation::card_reconciliation,
             storage::set_transaction_category,

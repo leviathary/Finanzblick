@@ -2,6 +2,7 @@
 mod card_settlements;
 pub mod categories;
 pub mod market_data;
+pub mod position_history;
 pub mod reconciliation;
 pub mod security;
 pub mod tax_history;

@@ -191,7 +191,8 @@ a {
   line-height: 1.5;
 }
 .assets-page {
-  max-width: 1120px;
+  width: 100%;
+  min-width: 0;
   margin: 0 auto;
 }
 .transactions-page {
@@ -972,6 +973,27 @@ a {
 }
 .wealth-chart-card {
   margin-bottom: 18px;
+}
+.position-chart-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) clamp(230px, 22%, 340px);
+  gap: 20px;
+}
+.position-chart-main { min-width: 0; }
+.position-chart-list { border-left: 1px solid var(--border-subtle); padding-left: 18px; max-height: 430px; overflow-y: auto; }
+.position-chart-list h3 { margin: 0 0 12px; }
+.position-chart-modes, .position-list-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 12px 0; }
+.position-chart-modes small { color: var(--text-secondary); }
+.position-chart-modes button[aria-pressed="true"] { border-color: var(--accent-positive-strong); }
+.position-list-actions button { background: none; border: 0; color: var(--accent-positive-strong); font-size: 12px; cursor: pointer; }
+.position-chart-row { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 8px; padding: 12px 0; border-bottom: 1px solid var(--border-subtle); cursor: pointer; }
+.position-chart-row span { display: grid; gap: 4px; }
+.position-chart-row strong { font-size: 13px; overflow-wrap: anywhere; }
+.position-chart-row small { color: var(--text-secondary); font-size: 11px; }
+.position-chart-row b { grid-column: 2; font-size: 12px; }
+@media (max-width: 1100px) {
+  .position-chart-layout { grid-template-columns: minmax(0, 1fr); }
+  .position-chart-list { border-left: 0; border-top: 1px solid var(--border-subtle); padding: 16px 0 0; }
 }
 .wealth-chart-controls {
   display: flex;

@@ -2,6 +2,7 @@ import { t, tr, locale } from "../../i18n";
 import { useEffect, useRef, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { ProviderLogo } from "../accounts/ProviderLogo";
+import { sumPositionHistory, type PositionChart } from "./positionHistory";
 
 interface HistoryPoint {
   date: string;
@@ -50,14 +51,66 @@ export function Assets({
   const [customFrom, setCustomFrom] = useState("");
   const [customTo, setCustomTo] = useState("");
   const [selectedAccountIds, setSelectedAccountIds] = useState<number[]>([]);
+  const [positionData, setPositionData] = useState<{ accountId: number; positions: PositionChart[] } | null>(null);
+  const [positionError, setPositionError] = useState("");
+  const [positionIds, setPositionIds] = useState<number[] | null>(null);
+  const [chartMode, setChartMode] = useState<"value" | "price">("value");
+  const manualAccountId = selectedAccountIds.length === 1 && data?.accounts.some(account => account.id === selectedAccountIds[0] && account.accountType === "manual_asset") ? selectedAccountIds[0] : null;
   useEffect(() => {
+    let cancelled = false;
+    setPositionIds(null);
+    setChartMode("value");
+    setPositionData(null);
+    setPositionError("");
+    const load = () => {
+      if (manualAccountId === null) return;
+      void invoke<PositionChart[]>("position_chart_data", { accountId: manualAccountId })
+        .then(positions => { if (!cancelled) { setPositionData({ accountId: manualAccountId, positions }); setPositionError(""); } })
+        .catch(reason => { if (!cancelled) setPositionError(String(reason)); });
+    };
+    load();
+    window.addEventListener("market-data-refreshed", load);
+    return () => { cancelled = true; window.removeEventListener("market-data-refreshed", load); };
+  }, [manualAccountId]);
+  const positions = positionData?.accountId === manualAccountId ? positionData.positions : null;
+  const chosenPositions = positions?.filter(position => positionIds === null || positionIds.includes(position.id)) ?? [];
+  const singlePosition = chosenPositions.length === 1 ? chosenPositions[0] : null;
+  const quoteCurrency = singlePosition?.prices[0]?.currency;
+  const canShowPrice = !!quoteCurrency && !!singlePosition?.prices.every(point => point.currency === quoteCurrency);
+  const showPrice = chartMode === "price" && canShowPrice;
+  const chartCurrency = showPrice ? quoteCurrency! : data?.currency ?? "CHF";
+  const chartHistory = positions ? (showPrice ? singlePosition!.prices : sumPositionHistory(chosenPositions)) : data?.history ?? [];
+  const accountPickerRef = useRef<HTMLDetailsElement>(null);
+  useEffect(() => {
+    const closeOutside = (event: PointerEvent) => {
+      const picker = accountPickerRef.current;
+      if (picker?.open && event.target instanceof Node && !picker.contains(event.target)) {
+        picker.open = false;
+      }
+    };
+    const closeOnEscape = (event: KeyboardEvent) => {
+      const picker = accountPickerRef.current;
+      if (event.key === "Escape" && picker?.open) {
+        picker.open = false;
+        picker.querySelector("summary")?.focus();
+      }
+    };
+    document.addEventListener("pointerdown", closeOutside, true);
+    document.addEventListener("keydown", closeOnEscape);
+    return () => {
+      document.removeEventListener("pointerdown", closeOutside, true);
+      document.removeEventListener("keydown", closeOnEscape);
+    };
+  }, []);
+  useEffect(() => {
+    let cancelled = false;
     const load = () =>
       void invoke<WealthData>("wealth_data", {
         accountIds: selectedAccountIds.length ? selectedAccountIds : null,
       })
-        .then(setData)
+        .then(result => { if (!cancelled) { setData(result); setError(null); } })
         .catch((reason) =>
-          setError(
+          !cancelled && setError(
             typeof reason === "string"
               ? reason
               : t("Vermögensdaten konnten nicht geladen werden."),
@@ -65,7 +118,7 @@ export function Assets({
         );
     load();
     window.addEventListener("market-data-refreshed", load);
-    return () => window.removeEventListener("market-data-refreshed", load);
+    return () => { cancelled = true; window.removeEventListener("market-data-refreshed", load); };
   }, [selectedAccountIds]);
   if (error)
     return (
@@ -100,10 +153,10 @@ export function Assets({
       </section>
     );
 
-  const fullFrom = data.history[0]?.date ?? "";
-  const fullTo = data.history[data.history.length - 1]?.date ?? "";
+  const fullFrom = chartHistory[0]?.date ?? "";
+  const fullTo = chartHistory[chartHistory.length - 1]?.date ?? "";
   const filteredHistory = (() => {
-    if (!data.history.length) return [];
+    if (!chartHistory.length) return [];
     let from = fullFrom,
       to = fullTo;
     if (period === "custom") {
@@ -118,7 +171,7 @@ export function Assets({
       date.setFullYear(date.getFullYear() - years);
       from = date.toISOString().slice(0, 10);
     }
-    return data.history.filter(
+    return chartHistory.filter(
       (point) => point.date >= from && point.date <= to,
     );
   })();
@@ -151,13 +204,13 @@ export function Assets({
       </div>
       <div className="asset-kpis">
         <article>
-          <span>{t("Aktuelles Vermögen")}</span>
-          <strong>{money(data.currentTotalMinor, data.currency)}</strong>
+          <span>{t(showPrice ? "Letzter Kurs" : positions ? "Positionswert" : "Aktuelles Vermögen")}</span>
+          <strong>{money(positions ? chartHistory[chartHistory.length - 1]?.totalMinor ?? null : data.currentTotalMinor, chartCurrency)}</strong>
         </article>
         <article>
           <span>{t("Veränderung im gewählten Zeitraum")}</span>
           <strong className={(periodChange ?? 0) < 0 ? "negative" : "positive"}>
-            {signedMoney(periodChange, data.currency)}
+            {signedMoney(periodChange, chartCurrency)}
           </strong>
           <small>
             {changePercent === null
@@ -170,7 +223,7 @@ export function Assets({
         <div className="card-heading">
           <div>
             <p className="eyebrow">{t("Zeitverlauf")}</p>
-            <h2>{t("Gesamtvermögen")}</h2>
+            <h2>{positions ? (singlePosition?.label ?? t("Ausgewählte Positionen")) : t("Gesamtvermögen")}</h2>
             <small className="full-period">
               {t("Gesamte Datenbasis:")}{" "}
               {fullFrom ? `${shortDate(fullFrom)} – ${shortDate(fullTo)}` : "–"}
@@ -184,7 +237,7 @@ export function Assets({
             </span>
             <div className="account-picker-field">
               <span>{t("Konto / Depot")}</span>
-              <details className="account-picker">
+              <details className="account-picker" ref={accountPickerRef}>
                 <summary>
                   {selectedAccountIds.length === 0
                     ? t("Gesamtvermögen")
@@ -275,15 +328,45 @@ export function Assets({
             </div>
           )}
         </div>
-        <WealthChart
+        <div className={manualAccountId !== null ? "position-chart-layout" : undefined}>
+        <div className="position-chart-main">
+        {positions && <div className="position-chart-modes">
+          <button type="button" className="secondary-button" aria-pressed={!showPrice} onClick={() => setChartMode("value")}>{t("Positionswert")}</button>
+          <button type="button" className="secondary-button" aria-pressed={showPrice} disabled={!canShowPrice} onClick={() => setChartMode("price")}>{t("Kurs")}</button>
+          <small>{t(showPrice ? "Preis pro Anteil in Originalwährung" : "Wert der ausgewählten Positionen in CHF")}</small>
+        </div>}
+        {positions && !chosenPositions.length ? <p className="chart-empty">{t("Bitte mindestens eine Position auswählen.")}</p> : <WealthChart
           history={filteredHistory}
-          currency={data.currency}
+          currency={chartCurrency}
           onSelectRange={(from, to) => {
             setCustomFrom(from);
             setCustomTo(to);
             setPeriod("custom");
           }}
-        />
+        />}
+        </div>
+        {manualAccountId !== null && <aside className="position-chart-list" aria-label={t("Positionen")}>
+          <h3>{t("Positionen")}</h3>
+          {positionError ? <p role="alert" className="error-message">{t(positionError)}</p> : !positions ? <p role="status">{t("Positionen werden geladen …")}</p> : <>
+            <div className="position-list-actions">
+              <button type="button" onClick={() => { setPositionIds(null); setChartMode("value"); }}>{t("Alle auswählen")}</button>
+              <button type="button" onClick={() => { setPositionIds([]); setChartMode("value"); }}>{t("Auswahl aufheben")}</button>
+            </div>
+            {!positions.length && <p>{t("Keine Positionen vorhanden.")}</p>}
+            {positions.map(position => <label key={position.id} className="position-chart-row">
+              <input type="checkbox" checked={chosenPositions.some(selected => selected.id === position.id)} onChange={() => {
+                setPositionIds(current => {
+                  const selected = current ?? positions.map(item => item.id);
+                  return selected.includes(position.id) ? selected.filter(id => id !== position.id) : [...selected, position.id];
+                });
+                setChartMode("value");
+              }} />
+              <span><strong>{position.label}</strong><small>{position.holdingEndDate ? `${t("Enddatum")}: ${shortDate(position.holdingEndDate)}` : t("Positionswert")}</small></span>
+              <b>{money(position.history[position.history.length - 1]?.totalMinor ?? null, "CHF")}</b>
+            </label>)}
+          </>}
+        </aside>}
+        </div>
       </article>
       <div className="asset-breakdowns">
         <BreakdownCard
@@ -349,6 +432,20 @@ function WealthChart({
   currency: string;
   onSelectRange: (from: string, to: string) => void;
 }) {
+  const chartRef = useRef<HTMLDivElement>(null);
+  const [chartWidth, setChartWidth] = useState(900);
+  const hasHistory = history.length > 0;
+  useEffect(() => {
+    const chart = chartRef.current;
+    if (!chart) return;
+    const observer = new ResizeObserver(([entry]) => {
+      if (entry.contentRect.width > 0) {
+        setChartWidth(Math.max(300, Math.round(entry.contentRect.width)));
+      }
+    });
+    observer.observe(chart);
+    return () => observer.disconnect();
+  }, [hasHistory]);
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const [dragSelection, setDragSelection] = useState<{
     startIndex: number;
@@ -374,7 +471,7 @@ function WealthChart({
     dragStartClientX.current = null;
     activePointerId.current = null;
     dragMode.current = null;
-  }, [historySignature]);
+  }, [historySignature, chartWidth]);
   useEffect(
     () => () => {
       removeDragListeners.current?.();
@@ -388,8 +485,8 @@ function WealthChart({
       </div>
     );
   const chartHistory = history;
-  const width = 900,
-    height = 270,
+  const width = chartWidth,
+    height = Math.max(270, Math.min(420, Math.round(width * 0.3))),
     left = 92,
     right = 18,
     top = 16,
@@ -522,9 +619,10 @@ function WealthChart({
   const measurementClass =
     (measurementDifference ?? 0) < 0 ? "negative" : "positive";
   return (
-    <div className="wealth-chart">
+    <div className="wealth-chart" ref={chartRef}>
       <svg
         viewBox={`0 0 ${width} ${height}`}
+        style={{ height }}
         role="img"
         aria-label={t("Verlauf des Gesamtvermögens")}
       >
