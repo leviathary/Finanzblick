@@ -29,7 +29,8 @@ enthalten nur erfundene Daten.
 In der Auswahl **Finanzprofil → Demo-Daten** findest du Banken, Aktien und ETFs,
 kategorisierte Kreditkartenbuchungen und acht Jahre simulierter Historie.
 Die Demo funktioniert offline und wird beim nächsten Öffnen wiederverwendet.
-Ihr Passwort lautet `demo1234`.
+
+**Passwort für das Demo-Profil: `demo1234`** (alles kleingeschrieben, ohne Leerzeichen).
 
 Für persönliche Daten wählst du **Neues Finanzprofil** und ein eigenes Passwort.
 Demo-Kurse sind keine historischen Börsendaten oder Anlageempfehlungen.

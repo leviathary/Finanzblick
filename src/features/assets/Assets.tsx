@@ -153,7 +153,6 @@ export function Assets({
         <article>
           <span>{t("Aktuelles Vermögen")}</span>
           <strong>{money(data.currentTotalMinor, data.currency)}</strong>
-          <small>{t("berücksichtigte CHF-Konten")}</small>
         </article>
         <article>
           <span>{t("Veränderung im gewählten Zeitraum")}</span>
