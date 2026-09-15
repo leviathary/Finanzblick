@@ -10,7 +10,7 @@ pub mod reconciliation;
 pub mod security;
 pub mod tax_history;
 
-use crate::importers::ParsedStatement;
+use crate::importers::{ParsedStatement, TabularMapping};
 use chrono::{Duration, Local, NaiveDate, Utc};
 use rusqlite::{params, Connection, OptionalExtension};
 use serde::{Deserialize, Serialize};
@@ -112,6 +112,84 @@ pub struct SaveImportRequest {
     pub source_path: String,
     pub account_name: String,
     pub statement: ParsedStatement,
+}
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ImportMappingProfile {
+    id: i64,
+    name: String,
+    header_fingerprint: String,
+    mapping: TabularMapping,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SaveImportMappingProfile {
+    name: String,
+    header_fingerprint: String,
+    mapping: TabularMapping,
+}
+
+#[tauri::command]
+pub fn list_import_mapping_profiles(
+    storage: State<'_, Storage>,
+) -> Result<Vec<ImportMappingProfile>, String> {
+    let connection = storage.connect().map_err(db_error)?;
+    let mut query = connection.prepare("SELECT id,name,header_fingerprint,mapping_json FROM import_mapping_profiles ORDER BY name COLLATE NOCASE")
+        .map_err(db_error)?;
+    let rows = query
+        .query_map([], |row| {
+            Ok((
+                row.get::<_, i64>(0)?,
+                row.get::<_, String>(1)?,
+                row.get::<_, String>(2)?,
+                row.get::<_, String>(3)?,
+            ))
+        })
+        .map_err(db_error)?;
+    let mut profiles = Vec::new();
+    for row in rows {
+        let (id, name, header_fingerprint, json) = row.map_err(db_error)?;
+        let mapping = serde_json::from_str(&json)
+            .map_err(|_| "Ein gespeichertes Importprofil ist beschädigt.".to_string())?;
+        profiles.push(ImportMappingProfile {
+            id,
+            name,
+            header_fingerprint,
+            mapping,
+        });
+    }
+    Ok(profiles)
+}
+
+#[tauri::command]
+pub fn save_import_mapping_profile(
+    storage: State<'_, Storage>,
+    profile: SaveImportMappingProfile,
+) -> Result<i64, String> {
+    let name = profile.name.trim();
+    if name.is_empty() || name.chars().count() > 80 {
+        return Err("Bitte einen Profilnamen mit höchstens 80 Zeichen eingeben.".into());
+    }
+    if profile.header_fingerprint.trim().is_empty() || profile.header_fingerprint.len() > 4096 {
+        return Err("Die Spaltenstruktur des Profils ist ungültig.".into());
+    }
+    let mapping = serde_json::to_string(&profile.mapping)
+        .map_err(|_| "Importprofil konnte nicht gespeichert werden.".to_string())?;
+    let connection = storage.connect().map_err(db_error)?;
+    connection.execute(
+        "INSERT INTO import_mapping_profiles(name,header_fingerprint,mapping_json,updated_at) VALUES(?1,?2,?3,?4)
+         ON CONFLICT(name) DO UPDATE SET header_fingerprint=excluded.header_fingerprint,mapping_json=excluded.mapping_json,updated_at=excluded.updated_at",
+        params![name, profile.header_fingerprint, mapping, Utc::now().to_rfc3339()],
+    ).map_err(db_error)?;
+    connection
+        .query_row(
+            "SELECT id FROM import_mapping_profiles WHERE name=?1",
+            [name],
+            |row| row.get(0),
+        )
+        .map_err(db_error)
 }
 
 #[derive(Debug, Serialize)]
@@ -551,6 +629,11 @@ fn initialize_schema(connection: &Connection) -> Result<(), rusqlite::Error> {
            id INTEGER PRIMARY KEY, account_id INTEGER NOT NULL REFERENCES accounts(id),
            source_name TEXT NOT NULL, source_format TEXT NOT NULL, source_hash TEXT NOT NULL UNIQUE,
            imported_at TEXT NOT NULL, transaction_count INTEGER NOT NULL, warnings_json TEXT NOT NULL
+         );
+         CREATE TABLE IF NOT EXISTS import_mapping_profiles (
+           id INTEGER PRIMARY KEY, name TEXT NOT NULL UNIQUE,
+           header_fingerprint TEXT NOT NULL, mapping_json TEXT NOT NULL,
+           updated_at TEXT NOT NULL
          );
          CREATE TABLE IF NOT EXISTS categories (
            id INTEGER PRIMARY KEY, category_key TEXT NOT NULL UNIQUE, label TEXT NOT NULL,

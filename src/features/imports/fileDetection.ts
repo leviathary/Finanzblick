@@ -2,7 +2,10 @@ import { t } from "../../i18n";
 export const supportedExtensions = ["xlsx", "xls", "csv", "pdf", "mt940", "sta"] as const;
 
 export type SupportedExtension = (typeof supportedExtensions)[number];
-export type ProviderId = "ubs" | "swissquote" | "migros" | "raiffeisen" | "generali" | "unknown";
+// Importers may introduce additional provider keys without requiring a new
+// frontend union member. Built-ins below provide labels and filename hints.
+export type ProviderId = string;
+export const CUSTOM_EXCEL_PROVIDER = "custom-excel";
 
 export interface SelectedStatement {
   name: string;
@@ -18,6 +21,7 @@ export const providers: Array<{ id: ProviderId; label: string; type: string }> =
   { id: "migros", label: "Migros Bank", type: "Bank" },
   { id: "raiffeisen", label: "Raiffeisen", type: "Bank" },
   { id: "generali", label: "Generali", type: "Versicherung / Vorsorge" },
+  { id: CUSTOM_EXCEL_PROVIDER, label: "Eigene Excel-Datei", type: "Benutzerdefinierte Datei" },
   { id: "unknown", label: "Anderer Anbieter", type: "Manuelle Zuordnung" },
 ];
 

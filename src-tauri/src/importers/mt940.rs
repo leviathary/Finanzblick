@@ -1,5 +1,6 @@
 use super::*;
 use chrono::Datelike;
+use regex::Regex;
 
 fn date(value: &str) -> Result<NaiveDate, String> {
     if value.len() != 6 || !value.bytes().all(|c| c.is_ascii_digit()) {

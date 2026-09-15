@@ -126,22 +126,22 @@ impl ChatState {
     }
 }
 
-fn binary(app: &tauri::AppHandle) -> Result<std::path::PathBuf, String> {
+fn binary(_app: &tauri::AppHandle) -> Result<std::path::PathBuf, String> {
     let manifest: serde_json::Value =
         serde_json::from_str(include_str!("../../chat-runtime/bin/manifest.json"))
             .map_err(|_| "ChatGPT-Komponente nicht verfügbar.")?;
     let name = if cfg!(windows) { "codex.exe" } else { "codex" };
-    let path = if cfg!(debug_assertions) {
-        std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-            .join("chat-runtime/bin")
-            .join(name)
-    } else {
-        app.path()
-            .resource_dir()
-            .map_err(|_| "ChatGPT-Komponente nicht verfügbar.")?
-            .join("chat-runtime")
-            .join(name)
-    };
+    #[cfg(debug_assertions)]
+    let path = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("chat-runtime/bin")
+        .join(name);
+    #[cfg(not(debug_assertions))]
+    let path = _app
+        .path()
+        .resource_dir()
+        .map_err(|_| "ChatGPT-Komponente nicht verfügbar.")?
+        .join("chat-runtime")
+        .join(name);
     let bytes = std::fs::read(&path)
         .map_err(|_| "Die ChatGPT-Komponente fehlt. Bitte Finanzblick neu installieren.")?;
     if manifest["version"] != "0.154.0"

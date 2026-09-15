@@ -20,9 +20,19 @@ fn parse_statement(
     storage: tauri::State<'_, storage::Storage>,
     path: String,
     selected_provider: Option<String>,
+    mapping: Option<importers::TabularMapping>,
 ) -> Result<importers::ParsedStatement, String> {
     let _lease = storage.require_unlocked()?;
-    importers::parse_statement(path, selected_provider)
+    importers::parse_statement(path, selected_provider, mapping)
+}
+
+#[tauri::command]
+fn inspect_tabular_file(
+    storage: tauri::State<'_, storage::Storage>,
+    path: String,
+) -> Result<importers::TabularInspection, String> {
+    let _lease = storage.require_unlocked()?;
+    importers::inspect_tabular_file(path)
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -85,11 +95,14 @@ pub fn run() {
             storage::security::lock_vault,
             storage::security::vault_activity,
             parse_statement,
+            inspect_tabular_file,
             import_files::collect_import_files,
             storage::save_import,
             storage::check_import_duplicates,
             storage::is_file_imported,
             storage::list_imports,
+            storage::list_import_mapping_profiles,
+            storage::save_import_mapping_profile,
             storage::delete_imports,
             storage::database_status,
             storage::dashboard_data,

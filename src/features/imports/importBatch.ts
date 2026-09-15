@@ -1,4 +1,4 @@
-import type { ImportAccount, ParsedStatement, SaveImportResult } from "./importTypes";
+import type { ImportAccount, ParsedStatement, SaveImportResult, TabularMapping } from "./importTypes";
 import type { SelectedStatement } from "./fileDetection";
 
 export interface BatchItem {
@@ -10,6 +10,7 @@ export interface BatchItem {
   error?: string;
   duplicateNotice?: string;
   alreadyImported?: boolean;
+  mapping?: TabularMapping;
 }
 
 export function currencies(statement: ParsedStatement): string[] {
