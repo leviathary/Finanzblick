@@ -70,6 +70,8 @@ impl Runtime {
                     key.to_string_lossy().to_ascii_uppercase().as_str(),
                     "SYSTEMROOT"
                         | "WINDIR"
+                        | "HOME"
+                        | "USERPROFILE"
                         | "PATH"
                         | "PATHEXT"
                         | "TEMP"
@@ -83,9 +85,10 @@ impl Runtime {
         command
             .env_clear()
             .envs(essentials)
-            .env("CODEX_HOME", codex_home)
-            .env("HOME", home.path())
-            .env("USERPROFILE", home.path());
+            // The OS credential store needs the real user home (macOS otherwise
+            // cannot find its default keychain). CODEX_HOME and the working
+            // directory remain app-owned; host skill discovery is disabled.
+            .env("CODEX_HOME", codex_home);
         #[cfg(windows)]
         {
             use std::os::windows::process::CommandExt;

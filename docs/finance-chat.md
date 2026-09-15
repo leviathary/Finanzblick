@@ -124,7 +124,12 @@ Node.js und keine eigene Codex-Installation. Apache-Lizenz und Upstream-NOTICE w
 mitgeliefert und in die Lizenzinventur aufgenommen.
 
 Windows und macOS haben plattformübergreifende Pfade und native npm-Pakete.
-Ein tatsächlicher macOS-Build und Laufzeittest steht weiterhin aus.
+Auf macOS bestehen seit dem 15.09.2026 die Tests der nativen Apple-Silicon-Runtime,
+einschliesslich Schlüsselbund-Speicherung, Profiltrennung und Abmeldung mit
+synthetischen Zugangsdaten. Dafür bleibt das Betriebssystem-Benutzerverzeichnis
+erhalten: Ein temporäres `HOME` verhindert auf macOS das Finden des Standardschlüsselbunds.
+`CODEX_HOME` und Arbeitsverzeichnis bleiben Finanzblick-eigen, die Suche nach
+Host-Skills bleibt deaktiviert.
 
 ## Validierung und Grenzen
 
@@ -166,7 +171,8 @@ Das Modell ist deutschsprachig; Dialekt kann Korrekturen am erkannten Text erfor
 Mikrofonberechtigung wird erst beim Klick angefragt. Stop, Ansichtswechsel,
 Profilwechsel und Sperren beenden den Audiostream; maximal zwei Minuten pro Aufnahme.
 Während der Aufnahme ist Absenden gesperrt. macOS enthält den Mikrofon-Nutzungstext
-in Info.plist; ein tatsächlicher macOS-Build und Mikrofontest stehen weiterhin aus.
+in Info.plist. Das Sprachmodell wird auch im macOS-DMG mitgeliefert;
+ein praktischer Mikrofon-/Diktiertest auf macOS steht weiterhin aus.
 
 Die Detailabfrage nutzt eine explizite Feldfreigabe; Beschreibung, Kontoname und
 Kontoreferenz werden nicht selektiert. Ein Regressionstest prüft den vollständigen

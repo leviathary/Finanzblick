@@ -48,3 +48,6 @@ src-tauri/chat-runtime/bin/
 
 # Verified speech model staged at build time
 /public/speech/*.tar.gz
+
+# Large macOS installers are published as GitHub Release assets.
+/installers/*.dmg

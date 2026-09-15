@@ -17,7 +17,7 @@ Falls WebView2 fehlt, benötigt dessen Einrichtung eine Internetverbindung.
 
 ## macOS installieren
 
-[macOS-DMG 0.5.3 herunterladen (Apple Silicon)](https://github.com/leviathary/Finanzblick/raw/refs/heads/main/installers/Finanzblick_0.5.3_aarch64.dmg)
+[macOS-DMG 0.5.7 herunterladen (Apple Silicon)](https://github.com/leviathary/Finanzblick/releases/download/v0.5.7/Finanzblick_0.5.7_aarch64.dmg)
 
 Für Macs mit Apple Silicon (M-Chips). DMG öffnen und **Finanzblick** auf **Applications**
 ziehen, danach die App aus dem Programme-Ordner starten.
@@ -27,9 +27,13 @@ Bei einer Sperre nach dem Download lässt sich der Start unter
 **Systemeinstellungen → Datenschutz & Sicherheit → Dennoch öffnen** freigeben.
 Eine Intel-Version ist in diesem DMG nicht enthalten.
 
-Build und Start mit sichtbaren Demo-Daten wurden am 14.09.2026 auf macOS 26.6.2
-(Apple Silicon) geprüft. Die 13 Frontend- und 62 aktiven Rust-Tests bestehen.
-Installation und Funktion wurden zusätzlich vom Anwender bestätigt.
+Version 0.5.7 enthält Finanzchat und das lokale deutsche Sprachmodell.
+Build, DMG-Prüfung und Start mit Demo-Übersicht wurden am 15.09.2026 auf
+macOS 26.6.2 (Apple Silicon) erfolgreich geprüft.
+Die 13 Frontend- und 81 aktiven Rust-Tests sowie der zusätzliche lokale
+Chat-Runtime-Test bestehen auf macOS. Die Schlüsselbund-Anmeldung wurde mit
+synthetischen Testdaten auf Speicherung, Profiltrennung und Abmeldung geprüft.
+Installation und Funktion der vorherigen Version 0.5.3 wurden vom Anwender bestätigt.
 Andere macOS-Versionen und eine frische Installation nach einem GitHub-Download
 sind noch nicht getestet.
 
@@ -150,6 +154,8 @@ Das DMG liegt danach unter `/tmp/finanzblick-build/release/bundle/dmg/`.
 Die Architektur entspricht dem Build-Mac: Apple Silicon erzeugt `aarch64`,
 Intel erzeugt `x64`. Das DMG kann als Asset eines GitHub-Releases hochgeladen
 werden. Der Build veröffentlicht nichts automatisch.
+Seit 0.5.7 wird das grössere DMG mit Chat-Runtime und Sprachmodell als Release-Asset
+bereitgestellt; die Prüfsumme liegt auch im Repository unter `installers`.
 
 Das plattformneutrale Build-Skript sammelt Lizenzhinweise, neutralisiert lokale
 Rust-Build-Pfade und prüft die ausführbare Datei vor der Weitergabe.
