@@ -33,6 +33,10 @@ Sicherheit → Dennoch öffnen** freigeben.
   Chat-Runtime erfolgreich. Version 0.5.7 und Mikrofon-Nutzungstext im Bundle geprüft.
 - App aus dem DMG kopiert und gestartet; Demo-Übersicht mit Konten und Vermögen
   sichtbar. Die installierte Vorgängerversion wurde nicht ersetzt.
+- Finanzchat in der gebündelten App geöffnet: Die Komponentenprüfung funktioniert
+  und zeigt „Mit ChatGPT anmelden“. Test-Apps über ihren tatsächlichen Pfad starten:
+  Tauri verweigert auf macOS die Ressourcenauflösung bei einem Start über Symlinks
+  (etwa `/tmp` statt `/private/tmp`). Regulär die App nach Programme kopieren.
 - 13 Frontend-Tests und 81 Rust-Tests erfolgreich; ein Demo-Export-Hilfstest
   ist absichtlich ignoriert.
 - Schlüsselbund-Speicherung, Neustart, Profiltrennung und Abmeldung mit
