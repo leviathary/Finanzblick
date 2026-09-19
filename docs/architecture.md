@@ -19,6 +19,7 @@ Verbindliche UI-Vorgaben: [Design-Leitfaden](design-system.md).
 src-tauri/src/
   commands/                Dünne Tauri-Eingänge, stabile Command-Namen
     accounts.rs            Kontenverwaltung
+    appearance.rs          Gerätebezogenes Farbschema und native Fensterdarstellung
     imports.rs             Importhistorie, Freigabe, Mappingprofile
     transactions.rs        Buchungen und manuelle Auswertungsmarkierungen
     positions.rs           Manuelle Positionen
@@ -36,6 +37,7 @@ src-tauri/src/
     imports.rs             Freigabe normalisierter Importe
     taxes.rs               Steuerimport und manuelle Jahreswerte
     market_data.rs         Kursaktualisierung und Caches
+    benchmarks.rs          Expliziter Indexabruf ohne Bewertungs- oder Kontenschreibzugriffe
     assistant/             Anmeldung, Freigabe und Chat-Workflow
   domain/
     banking/               Kontenregeln, Kartenklassifizierung, Transfertypen
@@ -58,6 +60,7 @@ src-tauri/src/
     taxes/zurich.rs        Parser für Zürcher Steuererklärungen
     pipeline.rs            Datei lesen und normalisieren, ohne DB-Zugriff
   infrastructure/
+    appearance.rs          Lokale Darstellung, unabhängig von Finanzprofilen
     chat_runtime.rs        Plattformneutraler Prozess- und Protokolladapter
     market_data.rs         Externe Kursanbieter und Wechselkurse
 ```

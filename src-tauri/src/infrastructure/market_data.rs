@@ -154,7 +154,7 @@ fn yahoo_symbol_hint(identifier: &str) -> String {
     }
 }
 
-async fn fetch_yahoo_chart(
+pub(crate) async fn fetch_yahoo_chart(
     client: &reqwest::Client,
     symbol: &str,
     start_date: Option<&str>,

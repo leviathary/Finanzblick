@@ -131,8 +131,8 @@ export function TimelineChart({
       <svg viewBox={`0 0 ${width} ${height}`} role="img" aria-label={ariaLabel}>
         <defs>
           <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0" stopColor="#47a88b" stopOpacity=".28" />
-            <stop offset="1" stopColor="#47a88b" stopOpacity=".02" />
+            <stop offset="0" stopColor="var(--accent-positive)" stopOpacity=".28" />
+            <stop offset="1" stopColor="var(--accent-positive)" stopOpacity=".02" />
           </linearGradient>
         </defs>
         {ticks.map((tick) => {

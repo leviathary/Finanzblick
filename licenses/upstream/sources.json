@@ -1,4 +1,16 @@
 {
+  "fancy-canvas@2.1.0": [
+    {
+      "file": "licenses/upstream/fancy-canvas-2.1.0/LICENSE",
+      "source": "https://raw.githubusercontent.com/tradingview/fancy-canvas/7ece7601f05b624496f485cee65789ad691427df/LICENSE"
+    }
+  ],
+  "lightweight-charts@5.2.1": [
+    {
+      "file": "licenses/upstream/lightweight-charts-5.2.1/NOTICE",
+      "source": "https://raw.githubusercontent.com/tradingview/lightweight-charts/v5.2.1/NOTICE"
+    }
+  ],
   "alloc-stdlib@0.2.4": [
     {
       "file": "licenses/upstream/alloc-stdlib-0.2.4/LICENSE",

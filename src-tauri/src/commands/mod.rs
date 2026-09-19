@@ -1,5 +1,6 @@
 //! Dünne Tauri-Schnittstellen; Command-Namen bleiben unabhängig von Modulpfaden stabil.
 pub(crate) mod accounts;
+pub(crate) mod appearance;
 pub(crate) mod assistant;
 pub(crate) mod cards;
 pub(crate) mod categories;

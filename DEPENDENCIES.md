@@ -410,6 +410,7 @@ Regenerate for each release target after dependency changes.
 | npm | escape-string-regexp | 5.0.0 | MIT | [Source](https://registry.npmjs.org/escape-string-regexp/-/escape-string-regexp-5.0.0.tgz) |
 | npm | estree-util-is-identifier-name | 3.0.0 | MIT | [Source](https://registry.npmjs.org/estree-util-is-identifier-name/-/estree-util-is-identifier-name-3.0.0.tgz) |
 | npm | extend | 3.0.2 | MIT | [Source](https://registry.npmjs.org/extend/-/extend-3.0.2.tgz) |
+| npm | fancy-canvas | 2.1.0 | MIT | [Source](https://registry.npmjs.org/fancy-canvas/-/fancy-canvas-2.1.0.tgz) |
 | npm | hast-util-to-jsx-runtime | 2.3.6 | MIT | [Source](https://registry.npmjs.org/hast-util-to-jsx-runtime/-/hast-util-to-jsx-runtime-2.3.6.tgz) |
 | npm | hast-util-whitespace | 3.0.0 | MIT | [Source](https://registry.npmjs.org/hast-util-whitespace/-/hast-util-whitespace-3.0.0.tgz) |
 | npm | html-url-attributes | 3.0.1 | MIT | [Source](https://registry.npmjs.org/html-url-attributes/-/html-url-attributes-3.0.1.tgz) |
@@ -419,6 +420,7 @@ Regenerate for each release target after dependency changes.
 | npm | is-decimal | 2.0.1 | MIT | [Source](https://registry.npmjs.org/is-decimal/-/is-decimal-2.0.1.tgz) |
 | npm | is-hexadecimal | 2.0.1 | MIT | [Source](https://registry.npmjs.org/is-hexadecimal/-/is-hexadecimal-2.0.1.tgz) |
 | npm | is-plain-obj | 4.1.0 | MIT | [Source](https://registry.npmjs.org/is-plain-obj/-/is-plain-obj-4.1.0.tgz) |
+| npm | lightweight-charts | 5.2.1 | Apache-2.0 | [Source](https://registry.npmjs.org/lightweight-charts/-/lightweight-charts-5.2.1.tgz) |
 | npm | longest-streak | 3.1.0 | MIT | [Source](https://registry.npmjs.org/longest-streak/-/longest-streak-3.1.0.tgz) |
 | npm | markdown-table | 3.0.4 | MIT | [Source](https://registry.npmjs.org/markdown-table/-/markdown-table-3.0.4.tgz) |
 | npm | mdast-util-find-and-replace | 3.0.2 | MIT | [Source](https://registry.npmjs.org/mdast-util-find-and-replace/-/mdast-util-find-and-replace-3.0.2.tgz) |

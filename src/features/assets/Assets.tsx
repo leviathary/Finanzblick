@@ -9,6 +9,10 @@ import { reportPeriod } from "../../domain/reportPeriod";
 
 import type { WealthData } from "./types";
 import { WealthChart } from "./WealthChart";
+import { BenchmarkPicker } from "./BenchmarkPicker";
+import { ChartHelp } from "./ChartHelp";
+import type { BenchmarkData } from "./benchmarkModel";
+import { monthsBefore } from "../../shared/charts/timelineModel";
 import { BreakdownCard } from "./BreakdownCard";
 import { accountLabel, money, signedMoney, shortDate, typeLabel } from "./presentation";
 
@@ -22,11 +26,14 @@ export function Assets({
   const [data, setData] = useState<WealthData | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [period, setPeriod] = useState<
-    "all" | "currentYear" | "1y" | "2y" | "3y" | "5y" | "custom"
+    "all" | "currentYear" | "1m" | "6m" | "1y" | "3y" | "5y" | "custom"
   >(() => reportPeriod() ? "custom" : "all");
   const [customFrom, setCustomFrom] = useState(() => reportPeriod()?.from ?? "");
+  const [chartControls, setChartControls] = useState<HTMLDivElement | null>(null);
+  const [benchmark, setBenchmark] = useState<BenchmarkData | null>(null);
   const [customTo, setCustomTo] = useState(() => reportPeriod()?.to ?? "");
   const [selectedAccountIds, setSelectedAccountIds] = useState<number[]>([]);
+  const [accountSearch, setAccountSearch] = useState("");
   const [positionData, setPositionData] = useState<{ accountId: number; positions: PositionChart[] } | null>(null);
   const [positionError, setPositionError] = useState("");
   const [positionIds, setPositionIds] = useState<number[] | null>(null);
@@ -140,9 +147,11 @@ export function Assets({
       to = customTo || fullTo;
     } else if (period === "currentYear") {
       from = `${new Date().getFullYear()}-01-01`;
+    } else if (period === "1m" || period === "6m") {
+      from = monthsBefore(fullTo, period === "1m" ? 1 : 6);
     } else if (period !== "all") {
       const years =
-        period === "1y" ? 1 : period === "2y" ? 2 : period === "3y" ? 3 : 5;
+        period === "1y" ? 1 : period === "3y" ? 3 : 5;
       const date = new Date(`${fullTo}T12:00:00`);
       date.setFullYear(date.getFullYear() - years);
       from = date.toISOString().slice(0, 10);
@@ -196,32 +205,23 @@ export function Assets({
         </article>
       </div>
       <article className="dashboard-card wealth-chart-card">
-        <div className="card-heading">
-          <div>
-            <p className="eyebrow">{t("Zeitverlauf")}</p>
-            <h2>{positions ? (singlePosition?.label ?? t("Ausgewählte Positionen")) : t("Gesamtvermögen")}</h2>
-            <small className="full-period">
-              {t("Gesamte Datenbasis:")}{" "}
-              {fullFrom ? `${shortDate(fullFrom)} – ${shortDate(fullTo)}` : "–"}
-            </small>
-          </div>
-          <div className="wealth-chart-controls">
-            <span>
-              {filteredHistory.length > 1
-                ? `${shortDate(filteredHistory[0].date)} – ${shortDate(filteredHistory[filteredHistory.length - 1].date)}`
-                : t("Kein Vergleichszeitraum")}
-            </span>
-            <div className="account-picker-field">
-              <span>{t("Konto / Depot")}</span>
+        <div className="period-controls wealth-period-controls">
+          <div className="wealth-timeframe-bar" role="group" aria-label={t("Chart-Steuerung")}>
+            <div className="wealth-instrument-controls">
               <details className="account-picker" ref={accountPickerRef}>
-                <summary>
+                <summary aria-label={t("Konto / Depot")}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg>
+                  <span>
                   {selectedAccountIds.length === 0
                     ? t("Gesamtvermögen")
                     : selectedAccountIds.length === 1
                       ? accountLabel(data.accounts.find((account) => account.id === selectedAccountIds[0]))
                       : `${selectedAccountIds.length} ${t("ausgewählt")}`}
+                  </span>
                 </summary>
                 <div className="account-picker-menu">
+                  <input type="search" aria-label={t("Konten durchsuchen")} placeholder={t("Konten durchsuchen")} value={accountSearch} onChange={event => setAccountSearch(event.target.value)} />
+                  {accountSearch.trim() && !data.accounts.some(account => accountLabel(account).toLocaleLowerCase().includes(accountSearch.trim().toLocaleLowerCase())) && <p className="benchmark-notice" role="status">{t("Keine passenden Konten gefunden.")}</p>}
                   <label>
                     <input
                       type="checkbox"
@@ -230,7 +230,7 @@ export function Assets({
                     />
                     {t("Gesamtvermögen")}
                   </label>
-                  {data.accounts.map((account) => (
+                  {data.accounts.filter(account => accountLabel(account).toLocaleLowerCase().includes(accountSearch.trim().toLocaleLowerCase())).map((account) => (
                     <label key={account.id}>
                       <input
                         type="checkbox"
@@ -248,21 +248,21 @@ export function Assets({
                   ))}
                 </div>
               </details>
+              <BenchmarkPicker from={fullFrom} onChange={setBenchmark} />
             </div>
-          </div>
-        </div>
-        <div className="period-controls">
-          <div className="period-presets">
+          <div className="wealth-timeframes" role="group" aria-label={t("Zeitraum")}>
             {[
-              ["all", t("Gesamt")],
-              ["currentYear", t("Aktuelles Jahr")],
-              ["1y", t("1 Jahr")],
-              ["2y", t("2 Jahre")],
-              ["3y", t("3 Jahre")],
-              ["5y", t("5 Jahre")],
-              ["custom", t("Eigener Zeitraum")],
-            ].map(([value, label]) => (
+              ["1m", "1M", t("1 Monat")],
+              ["6m", "6M", t("6 Monate")],
+              ["currentYear", "YTD", t("Aktuelles Jahr")],
+              ["1y", t("1J"), t("1 Jahr")],
+              ["3y", t("3J"), t("3 Jahre")],
+              ["5y", t("5J"), t("5 Jahre")],
+              ["all", "Max", t("Gesamt")],
+              ["custom", "…", t("Eigener Zeitraum")],
+            ].map(([value, label, description]) => (
               <button
+                type="button" title={description} aria-label={description} aria-pressed={period === value}
                 className={period === value ? "active" : ""}
                 key={value}
                 onClick={() => {
@@ -276,6 +276,8 @@ export function Assets({
                 {label}
               </button>
             ))}
+          </div>
+          <div className="wealth-chart-tools"><div className="wealth-chart-tool-icons" ref={setChartControls} /><ChartHelp /></div>
           </div>
           {period === "custom" && (
             <div className="custom-period">
@@ -314,11 +316,8 @@ export function Assets({
         {positions && !chosenPositions.length ? <p className="chart-empty">{t("Bitte mindestens eine Position auswählen.")}</p> : <WealthChart
           history={filteredHistory}
           currency={chartCurrency}
-          onSelectRange={(from, to) => {
-            setCustomFrom(from);
-            setCustomTo(to);
-            setPeriod("custom");
-          }}
+          controlsContainer={chartControls}
+          benchmark={benchmark}
         />}
         </div>
         {manualAccountId !== null && <aside className="position-chart-list" aria-label={t("Positionen")}>

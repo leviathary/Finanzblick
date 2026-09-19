@@ -78,6 +78,9 @@ pub fn run() {
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
+            commands::appearance::load_appearance,
+            commands::appearance::save_appearance,
+            commands::appearance::show_themed_window,
             commands::database::vault_status,
             commands::assistant::prepare_finance_chat,
             commands::assistant::chatgpt_status,
@@ -143,6 +146,7 @@ pub fn run() {
             commands::positions::list_manual_positions,
             commands::positions::delete_manual_position,
             commands::market_data::refresh_market_data,
+            commands::market_data::benchmark_data,
             commands::accounts::set_institution_logo,
             commands::taxes::preview_tax_statement,
             commands::taxes::save_tax_statement,

@@ -5,6 +5,7 @@ import { useState, type FormEvent } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { useSettings, type Language, type Region } from "../../settings";
 import packageInfo from "../../../package.json";
+import { AppearanceSettings } from "../../shared/theme/AppearanceSettings";
 
 export function Settings() {
   const { settings, saveSettings } = useSettings();
@@ -71,9 +72,11 @@ export function Settings() {
         </div>
       </div>
       <nav className="settings-nav" aria-label={t("Einstellungsbereiche")}>
+        <button type="button" onClick={() => scrollToSection("settings-appearance")}>{t("Darstellung")}</button>
         <button type="button" onClick={() => scrollToSection("settings-general")}>{t("Allgemein")}</button>
         <button type="button" onClick={() => scrollToSection("settings-market")}>{t("Automatische Marktpreise")}</button>
       </nav>
+      <AppearanceSettings />
       <form
         id="settings-general"
         className="dashboard-card settings-card"

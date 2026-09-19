@@ -1,0 +1,73 @@
+/* Gemeinsame semantische Farbrollen; Komponenten teilen dieselbe helle und dunkle Palette. */
+:root {
+  color-scheme: light;
+  --bg-page: #f8fafc;
+  --bg-surface: #ffffff;
+  --bg-muted: #f1f5f9;
+  --bg-hover: #e2e8f0;
+  --border-subtle: #d8e1eb;
+  --text-primary: #0f172a;
+  --text-secondary: #586b82;
+  --text-muted: var(--text-secondary);
+  --color-primary: #0f172a;
+  --bg-action-hover: #1e293b;
+  --interactive: #0f172a;
+  --text-on-action: #ffffff;
+  --bg-logo: #ffffff;
+  --text-logo: #0f172a;
+  --focus-halo: #0f172a1a;
+  --accent-positive: #10b981;
+  --accent-positive-strong: #047857;
+  --accent-negative: #dc2626;
+  --chart-blue: #315c8a;
+  --chart-amber: #b7791f;
+  --chart-purple: #7c3aed;
+  --text-positive: #047857;
+  --bg-positive: #ecfdf5;
+  --border-positive: #a7dcca;
+  --text-warning: #92400e;
+  --bg-warning: #fffbeb;
+  --border-warning: #e9cc83;
+  --text-negative: #b91c1c;
+  --bg-negative: #fff1f2;
+  --border-negative: #f1b8bf;
+  --bg-overlay: #0f172a66;
+  --shadow-card: 0 1px 3px #0000000a, 0 1px 2px #0000000a;
+  --shadow-login: 0 20px 40px #cbd5e140, 0 4px 10px #cbd5e126;
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg-page: #0b1220;
+  --bg-surface: #141e2e;
+  --bg-muted: #1c293c;
+  --bg-hover: #2b3b52;
+  --border-subtle: #394960;
+  --text-primary: #f1f5f9;
+  --text-secondary: #afbdd0;
+  --color-primary: #334155;
+  --bg-action-hover: #475569;
+  --interactive: #dbeafe;
+  --focus-halo: #dbeafe33;
+  --accent-positive: #34d399;
+  --accent-positive-strong: #6ee7b7;
+  --accent-negative: #fca5a5;
+  --chart-blue: #93c5fd;
+  --chart-amber: #fbbf24;
+  --chart-purple: #c4b5fd;
+  --text-positive: #6ee7b7;
+  --bg-positive: #112f2b;
+  --border-positive: #286453;
+  --text-warning: #fcd38b;
+  --bg-warning: #342a19;
+  --border-warning: #80613c;
+  --text-negative: #fca5a5;
+  --bg-negative: #3b202c;
+  --border-negative: #824456;
+  --bg-overlay: #00000099;
+  --shadow-card: 0 2px 8px #00000030;
+  --shadow-login: 0 20px 40px #00000040, 0 4px 10px #00000030;
+}
+html { background: var(--bg-page); }
+input, select, textarea { color: var(--text-primary); }
+input::placeholder, textarea::placeholder { color: var(--text-secondary); opacity: 1; }
+::selection { background: var(--bg-hover); color: var(--text-primary); }

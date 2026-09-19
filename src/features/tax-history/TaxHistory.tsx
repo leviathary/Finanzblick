@@ -66,12 +66,12 @@ type TaxSeriesKey =
   | "taxableWealthMinor";
 
 const TAX_CHART_SERIES: { key: TaxSeriesKey; label: string; color: string }[] = [
-  { key: "securitiesAndCashMinor", label: "Wertschriften & Guthaben", color: "#059669" },
-  { key: "realEstateMinor", label: "Liegenschaften", color: "#315c8a" },
-  { key: "otherAssetsMinor", label: "Übrige / Korrekturen", color: "#b7791f" },
-  { key: "grossAssetsMinor", label: "Total Vermögenswerte", color: "#64748b" },
-  { key: "liabilitiesMinor", label: "Schulden", color: "#c2413b" },
-  { key: "taxableWealthMinor", label: "Steuerbares Vermögen gesamt", color: "#7c3aed" },
+  { key: "securitiesAndCashMinor", label: "Wertschriften & Guthaben", color: "var(--accent-positive-strong)" },
+  { key: "realEstateMinor", label: "Liegenschaften", color: "var(--chart-blue)" },
+  { key: "otherAssetsMinor", label: "Übrige / Korrekturen", color: "var(--chart-amber)" },
+  { key: "grossAssetsMinor", label: "Total Vermögenswerte", color: "var(--text-secondary)" },
+  { key: "liabilitiesMinor", label: "Schulden", color: "var(--accent-negative)" },
+  { key: "taxableWealthMinor", label: "Steuerbares Vermögen gesamt", color: "var(--chart-purple)" },
 ];
 
 type TaxHistoryView = "history" | "import" | "management";

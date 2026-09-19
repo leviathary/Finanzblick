@@ -17,12 +17,38 @@ darf keine Buchungsregeln, Salden oder gespeicherten Entscheidungen verändern.
 
 ## 1. Farben und ihre Bedeutung
 
-Die bestehenden Variablen stehen in `src/styles/application.css` unter `:root`.
+Die gemeinsamen Farbvariablen stehen in `src/styles/theme.css`. Layouts stehen
+in `src/styles/application.css`; Feature-Styles verwenden dieselben Farbrollen.
+
+### Helle und dunkle Darstellung
+
+- Unter Einstellungen → Darstellung stehen Hell, Dunkel und Systemeinstellung zur
+  Verfügung. Standard ist Systemeinstellung; Systemwechsel wirken sofort.
+- Die Auswahl wird gerätebezogen außerhalb der verschlüsselten Finanzprofile
+  gespeichert und gilt bereits für Anmeldung und Wiederherstellung. Die native
+  App zeigt ihr Fenster erst nach dem Anwenden der Palette; der private WebView
+  bleibt erhalten. Keine Finanzdaten in Darstellungseinstellungen speichern.
+- Dunkle Palette: Seite `#0b1220`, Cards `#141e2e`, abgesetzte Flächen `#1c293c`,
+  Haupttext `#f1f5f9`, Sekundärtext `#afbdd0`, Konturen `#394960`.
+- Hauptaktionen bleiben Slate: `--color-primary` als Fläche mit
+  `--text-on-action`, Hover `--bg-action-hover`. Im dunklen Modus Slate 700/600.
+  Links, aktive Unterstriche und Fokus nutzen getrennt `--interactive`, im
+  dunklen Modus helles Slate/Blaugrau. Keine weiße Buttonbeschriftung auf hellen Flächen.
+- Flächen verwenden `--bg-surface`, `--bg-muted`, `--bg-hover`; Hinweise je
+  `--bg-positive/warning/negative`, `--text-positive/warning/negative` und
+  `--border-positive/warning/negative`. Finanzfarben behalten ihre Bedeutung.
+- Kein Invertieren der Oberfläche oder Logos. Kategorie- und Markenfarben bleiben
+  Datenkennzeichnungen. Native Formularcontrols erhalten das passende `color-scheme`.
+- Canvas-Charts aktualisieren ihre Palette ohne Neuanlage, Zoom-Reset oder Verlust
+  einer Messung. SVG-Charts verwenden dieselben Variablen.
+- Neue Oberflächen immer in beiden Paletten prüfen, inklusive Fokus, Hover,
+  Fehlern, Auswahl und Dialogen. Normaler Text mindestens 4,5:1 Kontrast.
 
 | Rolle | Variable / Wert | Verwendung |
 | --- | --- | --- |
-| Primärfarbe | `--color-primary`: `#0f172a` | Hauptaktionen, aktive Tabs, aktueller Wizard-Schritt, Fokus |
-| Primär-Hover | `#1e293b` | Hover auf dunkelblauen Hauptaktionen |
+| Primärfarbe | `--color-primary`: `#0f172a` (hell), `#334155` (dunkel) | Flächen von Hauptaktionen, aktiven Pills und Wizard-Schritten |
+| Interaktion | `--interactive`: `#0f172a` (hell), `#dbeafe` (dunkel) | Links, aktive Unterstriche und Fokus |
+| Primär-Hover | `--bg-action-hover` | Hover auf Slate-Hauptaktionen |
 | Seitenfläche | `--bg-page`: `#f8fafc` | Regulärer Seitenhintergrund |
 | Kartenfläche | `--bg-surface`: `#ffffff` | Cards, Tabellen, Formularfelder |
 | Kontur | `--border-subtle`: `#e2e8f0` | Dezente Rahmen und Trennlinien |
@@ -100,7 +126,7 @@ Die bestehenden Variablen stehen in `src/styles/application.css` unter `:root`.
 - Navigation ist ein `<a href>`, eine Zustandsänderung ein `<button type="button">`.
 - Links in Hinweisen sind deutlich erkennbar: unterstrichen oder als Button.
   Kein unauffälliger Link im identischen Stil wie der umgebende Fließtext.
-- Fokus sichtbar: 2 px Dunkelblau, 2–3 px Abstand. Nicht nur Farbe beim Hover ändern.
+- Fokus sichtbar: 2 px `--interactive`, 2–3 px Abstand. Nicht nur Farbe beim Hover ändern.
 - Während des Speicherns Aktionen sperren und Fortschritt verständlich anzeigen.
   `aria-disabled` allein sperrt einen Link nicht; Navigation zusätzlich verhindern.
 
@@ -155,6 +181,38 @@ Die bestehenden Variablen stehen in `src/styles/application.css` unter `:root`.
 
 ## 6. Navigation und Einrichtungsassistenten
 
+- Vermögensverlauf: lokal gebündelte Lightweight Charts, Emerald-Kurve und
+  eine integrierte Toolbar direkt über dem Canvas (48 px Mindesthöhe). Links
+  die durchsuchbare Konto-/Depotauswahl und „Vergleichen“, mittig Zeiträume,
+  rechts Lineal-, Reset- und Hilfe-Icons mit zugänglichen Namen. Bei schmalen Fenstern
+  kontrolliert umbrechen; keine horizontale Seitenüberbreite. Keine zusätzliche
+  Chart-Überschrift oder wiederholte Zeitraum-Metadaten über dieser Leiste.
+  Benchmarks SMI / S&P 500 werden erst nach Auswahl aus der vorhandenen Yahoo-
+  Anbindung geladen. Beide Kurven starten am ersten gemeinsamen Datum bei 100,
+  nur bei positivem Vermögensstart. Kein FX-/Dividenden- oder Cashflow-bereinigter
+  Renditevergleich; dies in der Chart-Kontexthilfe erklären. Legende und Achsen verwenden
+  Indexpunkte, die Kennzahlen darüber bleiben unverändert. Ohne gemeinsame Daten
+  bleibt der normale Vermögenschart sichtbar, mit verständlichem Hinweis.
+  Kein Finanzdatenversand an die Kursquelle, keine Konten-/Bewertungsänderung.
+  Vergleichsfehler und Wiederholen im Auswahlmenü anbieten.
+  Das Vergleichsmenü enthält keine dauerhaften Erklärtextblöcke. Das Fragezeichen
+  rechts öffnet einen Dialog zu Auswahl, Zeiträumen, Navigation, Messen/Tastatur,
+  Benchmark-Grenzen und Datenquelle/Datenschutz. Escape und Schließen führen den
+  Fokus zum Hilfe-Button zurück; die Chart-Auswahl und Messung bleiben erhalten.
+  Der Chart verwendet weiterhin
+  Slate-Controls. Mausrad/Pinch zoomt; Ziehen verschiebt nur den Ausschnitt.
+  Kennzahlen und Auswertungszeitraum bleiben dabei unverändert. Explizite
+  Zeitraumknöpfe steuern weiterhin die Auswertung. Kompakte 32-px-Pills mit
+  1M, 6M, YTD, 1J, 3J, 5J und Max; eigener Zeitraum unter „…“. Keine Zoom-/Pfeil-
+  Buttons und keine statischen Datenzähler oder Hilfetextblöcke. Reset als 16-px-
+  Icon rechts, Mess-Toggle mit Lineal daneben (bewusste Ausnahme: aktiv hellgrün).
+  Messung per Shift-Ziehen oder zwei Punkten (Pfeile/Enter), Ergebnis als dunkles,
+  am Endpunkt begrenztes Floating-Tooltip mit Betrag, Prozent und Kalendertagen.
+  Tastatur-Zoom mit +/− erhalten; Bedienhinweise für Screenreader verfügbar halten.
+  AreaSeries mit geraden Verbindungen, Emerald-500-Linie und Verlauf 28% bis 0%;
+  CrosshairMode.Normal bedeutet frei bewegliches Fadenkreuz, nicht Magnetmodus.
+  Kompakte rechtsbündige Attribution mit TradingView-Link, Copyright im aufklappbaren
+  Lizenzhinweis und in den ausgelieferten Lizenzen; keine externen Datenfeeds.
 - Import und Importverwaltung bilden einen Seitenleistenpunkt „Import“ mit den
   Reitern „Dateien importieren“ und „Importierte Dateien“. Darunter bleibt die
   Auswahl Bankauszüge/Steuererklärungen beim Reiterwechsel erhalten. Bestehende

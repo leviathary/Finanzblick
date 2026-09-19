@@ -1,8 +1,8 @@
 /* Hebt die nächsten Schritte bei ungeklärten Kartengutschriften in der Transaktionsübersicht hervor. */
-.card-credit-notice { margin: 16px 0; padding: 16px; border-radius: 10px; background: #e5f5ef; color: #087a5b; }
+.card-credit-notice { margin: 16px 0; padding: 16px; border-radius: 10px; background: var(--bg-positive); color: var(--text-positive); }
 .card-credit-notice > p { line-height: 1.6; }
 .card-credit-notice-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 12px 20px; margin-top: 14px; }
 .card-credit-notice-actions > a { display: inline-flex; align-items: center; justify-content: center; gap: 12px; min-height: 44px; font-size: 14px; font-weight: 600; }
 .card-credit-review-link { color: var(--text-primary); text-decoration: underline; text-underline-offset: 4px; }
 .card-credit-review-link:hover { text-decoration-thickness: 2px; }
-.card-credit-notice-actions > a:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 4px; border-radius: 6px; }
+.card-credit-notice-actions > a:focus-visible { outline: 2px solid var(--interactive); outline-offset: 4px; border-radius: 6px; }
