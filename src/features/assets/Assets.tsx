@@ -27,7 +27,7 @@ export function Assets({
   const [error, setError] = useState<string | null>(null);
   const [period, setPeriod] = useState<
     "all" | "currentYear" | "1m" | "6m" | "1y" | "3y" | "5y" | "custom"
-  >(() => reportPeriod() ? "custom" : "all");
+  >(() => reportPeriod() ? "custom" : "currentYear");
   const [customFrom, setCustomFrom] = useState(() => reportPeriod()?.from ?? "");
   const [chartControls, setChartControls] = useState<HTMLDivElement | null>(null);
   const [benchmark, setBenchmark] = useState<BenchmarkData | null>(null);

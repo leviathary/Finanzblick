@@ -1,10 +1,18 @@
 // Zeigt und analysiert Buchungen mit Zeitfiltern, Kategorien und Einnahmen-/Ausgabenauswertungen.
+import { TransactionTabs } from "./TransactionTabs";
+import { MultiSelect } from "../../shared/MultiSelect";
+import { CategoryDonut } from "./CategoryDonut";
+import { InlineCategoryEditor } from "./InlineCategoryEditor";
+import "./analysis.css";
 
 import { t, tr, locale, categoryName } from "../../i18n";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 
-import { TimelineChart, type TimelinePoint } from "../../shared/charts/TimelineChart";
+import type { TimelinePoint } from "../../shared/charts/TimelineChart";
+import { InteractiveTimelineChart } from "../../shared/charts/InteractiveTimelineChart";
+import { monthsBefore } from "../../shared/charts/timelineModel";
+import { BalanceChartHelp } from "./BalanceChartHelp";
 import { selectAmountRange } from "./amountSelection";
 import { TransactionActions, type TransferType } from "./TransactionActions";
 import { SettlementRuleDialog } from "./SettlementRuleDialog";
@@ -14,7 +22,7 @@ interface Category { key: string; label: string; color: string; amountMinor: num
 interface Month { month: string; amountMinor: number }
 interface Transaction { id: number; bookingDate: string; description: string; industry: string | null; amountMinor: number; currency: string; categoryKey: string; categoryLabel: string; categoryColor: string; categorySource: "manual" | "merchant" | "industry" | "description"; provider: string; providerKey: string; accountName: string; excludedFromTotals: boolean; isCardSettlement: boolean; isCard: boolean; isManuallyOverridden: boolean; expenseMinor: number; incomeMinor: number }
 interface Provider { provider: string; providerKey: string }
-interface Account { id: number; name: string; providerKey: string; currency: string; isActive: boolean }
+interface Account { id: number; name: string; providerKey: string; provider: string; currency: string; isActive: boolean; accountType: string }
 interface Analysis { incomeTransactions: Transaction[]; totalIncomeMinor: number; incomeCount: number; totalSpendMinor: number; transactionCount: number; firstDate: string | null; lastDate: string | null; categories: Category[]; months: Month[]; history: TimelinePoint[]; transactions: Transaction[]; providers: Provider[] }
 
 
@@ -32,24 +40,49 @@ export function Transactions() {
   const suppressCategoryClick = useRef(false);
   const categoryAnchor = useRef<string | null>(null);
   const [category, setCategory] = useState<string[]>([]);
-  const [provider, setProvider] = useState("");
+  const [provider, setProvider] = useState<string[]>([]);
   const [categoryOptions, setCategoryOptions] = useState<{ key: string; label: string }[]>([]);
   useEffect(() => { invoke<{ key: string; label: string }[]>("list_categories").then(setCategoryOptions).catch(() => setError(t("Kategorien konnten nicht geladen werden."))); }, []);
   const [accounts, setAccounts] = useState<Account[]>([]);
-  const [account, setAccount] = useState("");
+  const [account, setAccount] = useState<string[]>([]);
+  const [balanceProvider, setBalanceProvider] = useState("");
+  const [balanceAccount, setBalanceAccount] = useState("");
+  const [balanceHistory, setBalanceHistory] = useState<TimelinePoint[]>([]);
+  const [balanceError, setBalanceError] = useState("");
+  const [balanceLoading, setBalanceLoading] = useState(true);
+  const bankAccounts = accounts.filter(item => item.isActive && (item.accountType === "cash" || item.accountType === "savings"));
+  const bankProviders = [...new Map(bankAccounts.map(item => [item.providerKey, { providerKey: item.providerKey, provider: item.provider }])).values()];
+  useEffect(() => {
+    let cancelled = false;
+    setBalanceLoading(true); setBalanceError(""); setBalanceHistory([]);
+    void invoke<TimelinePoint[]>("bank_balance_history", { providerKey: balanceProvider || null, accountId: balanceAccount ? Number(balanceAccount) : null })
+      .then(history => { if (!cancelled) setBalanceHistory(history); })
+      .catch(reason => { if (!cancelled) setBalanceError(String(reason)); })
+      .finally(() => { if (!cancelled) setBalanceLoading(false); });
+    return () => { cancelled = true; };
+  }, [balanceProvider, balanceAccount]);
   const [from, setFrom] = useState(() => reportPeriod()?.from ?? `${new Date().getFullYear()}-01-01`);
   const [to, setTo] = useState(() => reportPeriod()?.to ?? "");
-  const [selectedPeriod, setSelectedPeriod] = useState<"all" | "currentYear" | "1y" | "2y" | "3y" | "5y" | "custom">(() => reportPeriod() ? "custom" : "currentYear");
+  const [selectedPeriod, setSelectedPeriod] = useState<"all" | "currentYear" | "1m" | "6m" | "1y" | "3y" | "5y" | "custom">(() => reportPeriod() ? "custom" : "currentYear");
+  const [chartControls, setChartControls] = useState<HTMLDivElement | null>(null);
   const [comparisonYear, setComparisonYear] = useState(() => String(new Date().getFullYear()));
   const [monthlyDrilldown, setMonthlyDrilldown] = useState<{ categoryKey: string | null; year: string; month: number } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [categoryMessage, setCategoryMessage] = useState<string | null>(null);
+  const [editingCategory, setEditingCategory] = useState<number | null>(null);
+  function closeCategoryEditor(id: number) {
+    setEditingCategory(null);
+    requestAnimationFrame(() => {
+      const trigger = document.querySelector<HTMLButtonElement>(`[data-amount-row="${id}"] .transaction-more`);
+      (trigger ?? document.querySelector<HTMLElement>("#transaction-details"))?.focus();
+    });
+  }
   const loadRevision = useRef(0);
   const load = useCallback(async () => {
     const revision = ++loadRevision.current;
     setLoading(true);
-    try { const result = await invoke<Analysis>("transaction_analysis", { from: from || null, to: to || null, providerKey: provider || null, accountId: account ? Number(account) : null }); if (revision === loadRevision.current) { setData(result); setError(null); } }
+    try { const result = await invoke<Analysis>("transaction_analysis", { from: from || null, to: to || null, providerKeys: provider, accountIds: account.map(Number) }); if (revision === loadRevision.current) { setData(result); setError(null); } }
     catch (reason) { if (revision === loadRevision.current) setError(typeof reason === "string" ? reason : t("Transaktionen konnten nicht geladen werden.")); }
     finally { if (revision === loadRevision.current) setLoading(false); }
   }, [from, provider, to, account]);
@@ -200,11 +233,11 @@ export function Transactions() {
   const selectionLabel = category.length > 1 ? tr`${category.length} Kategorien ausgewählt` : selectedCategory ? categoryName(selectedCategory.key, selectedCategory.label) : undefined;
   const selectedTotal = category.length ? selectedCategories.reduce((sum, item) => sum + item.amountMinor, 0) : breakdownTotal;
   const averageMonthly = displayedMonths.length ? selectedTotal / displayedMonths.length : 0;
-  const fullFrom = data?.history[0]?.date ?? "";
-  const fullTo = data?.history[data.history.length - 1]?.date ?? "";
+  const fullFrom = [balanceHistory[0]?.date, data?.history[0]?.date, data?.firstDate].filter(Boolean).sort()[0] ?? "";
+  const fullTo = [balanceHistory[balanceHistory.length - 1]?.date, data?.history[(data?.history.length ?? 0) - 1]?.date, data?.lastDate].filter(Boolean).sort().reverse()[0] ?? new Date().toLocaleDateString("sv-SE");
   const timelineHistory = useMemo(
-    () => data?.history.filter(item => (!from || item.date >= from) && (!to || item.date <= to)) ?? [],
-    [data, from, to],
+    () => balanceHistory.filter(item => (!from || item.date >= from) && (!to || item.date <= to)),
+    [balanceHistory, from, to],
   );
 
   useEffect(() => { categoryAnchor.current = null; }, [detailMode, provider, account, from, to]);
@@ -253,7 +286,7 @@ export function Transactions() {
     setSearch(""); setMinimum(""); setRowLimit(200);
     requestAnimationFrame(() => document.getElementById("transaction-details")?.scrollIntoView({ behavior: "smooth", block: "start" }));
   }
-  function choosePeriod(period: "all" | "currentYear" | "1y" | "2y" | "3y" | "5y" | "custom") {
+  function choosePeriod(period: typeof selectedPeriod) {
     setSelectedPeriod(period);
     if (period === "all") { setFrom(""); setTo(""); return; }
     if (period === "custom") {
@@ -267,7 +300,10 @@ export function Transactions() {
       setTo(fullTo);
       return;
     }
-    const years = period === "1y" ? 1 : period === "2y" ? 2 : period === "3y" ? 3 : 5;
+    if (period === "1m" || period === "6m") {
+      setFrom(monthsBefore(fullTo, period === "1m" ? 1 : 6)); setTo(fullTo); return;
+    }
+    const years = period === "1y" ? 1 : period === "3y" ? 3 : 5;
     const end = new Date(`${fullTo}T12:00:00`);
     const start = new Date(end);
     start.setFullYear(start.getFullYear() - years);
@@ -286,14 +322,16 @@ export function Transactions() {
   }
 
   async function changeCategory(transactionId: number, categoryKey: string) {
-    try { const count = await invoke<number>("set_transaction_category", { transactionId, categoryKey }); setCategoryMessage(tr`Kategorie für ${count} passende Buchungen übernommen. Die Zuordnung gilt auch für zukünftige Importe.`); await load(); }
-    catch (reason) { setError(typeof reason === "string" ? reason : t("Kategorie konnte nicht geändert werden.")); }
+    const count = await invoke<number>("set_transaction_category", { transactionId, categoryKey });
+    setCategoryMessage(tr`Kategorie für ${count} passende Buchungen übernommen. Die Zuordnung gilt auch für zukünftige Importe.`);
+    await load();
   }
 
-  if (!data && loading) return <section className="transactions-page transaction-analysis-page"><p className="intro">{t("Transaktionen werden ausgewertet…")}</p></section>;
+  if (!data && loading) return <section className="transactions-page transaction-analysis-page"><h1>{t("Deine Einnahmen und Ausgaben")}</h1><TransactionTabs active="all" /><p className="intro">{t("Transaktionen werden ausgewertet…")}</p></section>;
   return <section className="transactions-page transaction-analysis-page">
     {ruleTransaction && <SettlementRuleDialog transaction={ruleTransaction} onClose={() => setRuleTransaction(null)} onSaved={load} />}
-    <div className="overview-heading"><div><p className="eyebrow">{t("Transaktionen")}</p><h1>{t("Deine Einnahmen und Ausgaben")}</h1><p className="intro">{t("Klicke auf eine Kategorie, um die einzelnen Buchungen zu sehen.")}</p></div></div>
+    <div className="overview-heading"><div><p className="eyebrow">{t("Transaktionen")}</p><h1>{t("Deine Einnahmen und Ausgaben")}</h1></div></div>
+    <TransactionTabs active="all" />
     {error && <p className="error-message">{t(error)}</p>}{categoryMessage && <p className="import-result" role="status">{categoryMessage}</p>}
     {data && <>
       {data.transactions.some(row => row.isCard && row.amountMinor > 0 && !row.excludedFromTotals && row.expenseMinor === 0) && <aside className="card-credit-notice">
@@ -303,37 +341,43 @@ export function Transactions() {
           <a className="card-credit-review-link" href="#transactions/cards">{t("Kartentransaktionen prüfen")}</a>
         </div>
       </aside>}
-      {[...data.transactions, ...data.incomeTransactions].some(item => item.isCardSettlement) && <p className="import-result" role="status">{t("Rechnungsausgleiche sind neutralisiert. Bitte die zugehörigen Kartenkäufe separat importieren; ihre Vollständigkeit wird nicht geprüft.")}</p>}
       <article className="dashboard-card wealth-chart-card transaction-timeline">
         <div className="card-heading">
-          <div><p className="eyebrow">{t("Zeitverlauf")}</p><h2>{t("Saldoverlauf")}</h2><small className="full-period">{t("Gesamte Datenbasis:")} {fullFrom ? `${shortDate(fullFrom)} – ${shortDate(fullTo)}` : "–"}</small></div>
+          <h2>{t("Saldoverlauf")}</h2>
           <div className="wealth-chart-controls">
-            <span>{timelineHistory.length > 1 ? `${shortDate(timelineHistory[0].date)} – ${shortDate(timelineHistory[timelineHistory.length - 1].date)}` : t("Kein Vergleichszeitraum")}</span>
             <div className="transaction-timeline-filters">
-              <label>{t("Bank")}<select aria-label={t("Bank")} value={provider} onChange={event => { setProvider(event.target.value); setAccount(""); setCategory([]); }}><option value="">{t("Alle Anbieter")}</option>{data.providers.map(item => <option value={item.providerKey} key={item.providerKey}>{item.provider}</option>)}</select></label>
-              <label>{t("Konto")}<select aria-label={t("Konto")} value={account} onChange={event => { setAccount(event.target.value); setCategory([]); }}><option value="">{t("Alle Konten")}</option>{accounts.filter(item => item.isActive && (!provider || item.providerKey === provider)).map(item => <option key={item.id} value={item.id}>{item.name} ({item.currency})</option>)}</select></label>
+              <label>{t("Bank")}<select aria-label={t("Bank")} value={balanceProvider} onChange={event => { setBalanceProvider(event.target.value); setBalanceAccount(""); }}><option value="">{t("Alle Anbieter")}</option>{bankProviders.map(item => <option value={item.providerKey} key={item.providerKey}>{item.provider}</option>)}</select></label>
+              <label>{t("Konto")}<select aria-label={t("Konto")} value={balanceAccount} onChange={event => setBalanceAccount(event.target.value)}><option value="">{t("Alle Bankkonten")}</option>{bankAccounts.filter(item => !balanceProvider || item.providerKey === balanceProvider).map(item => <option key={item.id} value={item.id}>{item.name} ({item.currency})</option>)}</select></label>
             </div>
           </div>
         </div>
-        <div className="period-controls">
-          <div className="period-presets" role="group" aria-label={t("Zeitraum auswählen")}>
-            {([['all', t('Gesamt')], ['currentYear', t('Aktuelles Jahr')], ['1y', t('1 Jahr')], ['2y', t('2 Jahre')], ['3y', t('3 Jahre')], ['5y', t('5 Jahre')], ['custom', t('Eigener Zeitraum')]] as const).map(([value, label]) => <button className={selectedPeriod === value ? "active" : ""} key={value} onClick={() => choosePeriod(value)}>{label}</button>)}
+        <div className="period-controls wealth-period-controls">
+          <div className="wealth-timeframe-bar" role="group" aria-label={t("Chart-Steuerung")}>
+          <div className="wealth-timeframes" role="group" aria-label={t("Zeitraum auswählen")}>
+            {([['1m', '1M', t('1 Monat')], ['6m', '6M', t('6 Monate')], ['currentYear', 'YTD', t('Aktuelles Jahr')], ['1y', t('1J'), t('1 Jahr')], ['3y', t('3J'), t('3 Jahre')], ['5y', t('5J'), t('5 Jahre')], ['all', 'Max', t('Gesamt')], ['custom', '…', t('Eigener Zeitraum')]] as const).map(([value, label, description]) => <button type="button" title={description} aria-label={description} aria-pressed={selectedPeriod === value} className={selectedPeriod === value ? "active" : ""} key={value} onClick={() => choosePeriod(value)}>{label}</button>)}
+          </div>
+          <div className="wealth-chart-tools"><div className="wealth-chart-tool-icons" ref={setChartControls} /><BalanceChartHelp /></div>
           </div>
           {selectedPeriod === "custom" && <div className="custom-period">
             <label>{t("Von")}<input type="date" lang={locale()} min={fullFrom} max={to || fullTo} value={from} onChange={event => { setFrom(event.target.value); setSelectedPeriod("custom"); }} /></label>
             <label>{t("Bis")}<input type="date" lang={locale()} min={from || fullFrom} max={fullTo} value={to} onChange={event => { setTo(event.target.value); setSelectedPeriod("custom"); }} /></label>
           </div>}
         </div>
-        <TimelineChart history={timelineHistory} currency="CHF" ariaLabel={t("Verlauf der Kontosalden")} emptyLabel={t("Keine Salden für diesen Zeitverlauf vorhanden.")} onSelectRange={(rangeFrom, rangeTo) => { setFrom(rangeFrom); setTo(rangeTo); setSelectedPeriod("custom"); }} />
+        {balanceLoading ? <p role="status">{t("Bitte warten …")}</p> : balanceError ? <p role="alert" className="error-message">{t(balanceError)}</p> : <InteractiveTimelineChart history={timelineHistory} currency="CHF" controlsContainer={chartControls} ariaLabel={t("Verlauf der Kontosalden")} />}
       </article>
+      <section className="dashboard-card cashflow-analysis" aria-labelledby="cashflow-analysis-title">
+        <h2 id="cashflow-analysis-title">{t("Einnahmen und Ausgaben")}</h2>
+        <div className="transaction-timeline-filters">
+          <MultiSelect label={t("Bank der Auswertung")} allLabel={t("Alle Anbieter")} value={provider} options={data.providers.map(item=>({value:item.providerKey,label:item.provider}))} onChange={next=>{setProvider(next);setAccount(current=>current.filter(id=>accounts.some(item=>String(item.id)===id && (!next.length || next.includes(item.providerKey)))));setCategory([]);}}/>
+          <MultiSelect label={t("Konto der Auswertung")} allLabel={t("Alle Konten")} value={account} options={accounts.filter(item=>item.isActive && (!provider.length || provider.includes(item.providerKey))).map(item=>({value:String(item.id),label:`${item.name} · ${item.provider} (${item.currency})`}))} onChange={next=>{setAccount(next);setCategory([]);}}/>
+        </div>
       <div className="transaction-kpis cashflow-summary">
         <article><button className="cashflow-link" onClick={() => showDetails("income")} aria-pressed={detailMode === "income"}><span>{t("Einnahmen im Zeitraum")}</span><strong className="income-value">{money(data.totalIncomeMinor)}</strong><small>{data.incomeCount}  {t("Gutschriften anzeigen →")}</small></button></article>
         <article><button className="cashflow-link" onClick={() => showDetails("expense")} aria-pressed={detailMode === "expense"}><span>{t("Ausgaben im Zeitraum")}</span><strong>{money(data.totalSpendMinor)}</strong><small>{data.transactionCount}  {t("Belastungen anzeigen →")}</small></button></article>
         <article><span>{t("Differenz")}</span><strong className={data.totalIncomeMinor >= data.totalSpendMinor ? "income-value" : "deficit-value"}>{money(data.totalIncomeMinor - data.totalSpendMinor)}</strong><small>{t("Einnahmen minus Ausgaben")}</small></article>
       </div>
-      <div className="transaction-kpis"><article><span>{selectionLabel ? selectionLabel : detailMode === "income" ? t("Einnahmen gesamt") : t("Ausgaben gesamt")}</span><strong>{money(selectedTotal)}</strong><small>{visibleTransactions.length}  {t("Buchungen im gewählten Zeitraum")}</small></article><article><span>{t("Durchschnitt pro Monat")}</span><strong>{money(averageMonthly)}</strong><small>{displayedMonths.length}  {t("Kalendermonate mit Buchungen")}</small></article><article><span>{t("Zeitraum")}</span><strong>{data.firstDate && data.lastDate ? `${shortDate(data.firstDate)} – ${shortDate(data.lastDate)}` : "–"}</strong><small>{provider ? data.providers.find(item => item.providerKey === provider)?.provider : t("Alle Anbieter")}</small></article></div>
-      <div className="transaction-analysis-grid categories-full-width">
-        <article className={`dashboard-card category-analysis ${analysisView === "month" ? "monthly-comparison" : ""}`}>
+        <div className="cashflow-period"><span>{t("Zeitraum")}: </span><strong>{data.firstDate && data.lastDate ? `${shortDate(data.firstDate)} – ${shortDate(data.lastDate)}` : "–"}</strong></div>
+        <div className={`category-analysis cashflow-breakdown ${analysisView === "month" ? "monthly-comparison" : ""}`}>
           <div className="card-heading">
             <div>
               <p className="eyebrow">{t("Aufteilung")}</p>
@@ -347,14 +391,18 @@ export function Transactions() {
           <div className="category-controls">
             <div className="quick-periods category-mode" role="group" aria-label={t("Aufteilung auswählen")}>{(["expense", "income"] as const).map(mode => <button key={mode} aria-pressed={detailMode === mode} onClick={() => { setDetailMode(mode); setCategory([]); setSearch(""); setMinimum(""); setRowLimit(200); }}>{mode === "income" ? t("Einnahmen") : t("Ausgaben")}</button>)}</div>
           </div>
+          <p className="cashflow-average">{t("Durchschnitt pro Monat")}: <strong>{money(averageMonthly)}</strong> · {displayedMonths.length} {t("Kalendermonate mit Buchungen")}{selectionLabel && <> · {selectionLabel}</>}</p>
           {analysisView === "category" ? <>
             {!breakdown.length && <p className="intro">{t("Keine")} {detailMode === "income" ? t("Einnahmen") : t("Ausgaben")}  {t("für diese Auswahl.")}</p>}
             <div className="category-selection-summary" role="status"><span>{category.length ? selectionLabel : t("Alle Kategorien")} · {visibleTransactions.length}  {t("Buchungen")}</span><strong>{money(selectedTotal)}</strong></div>
             <p className="intro">{t("Klicken, mit gedrückter linker Maustaste ziehen oder mit Shift-Klick einen Bereich auswählen.")}</p>
+            <div className={breakdown.some(item=>item.amountMinor>0) ? "category-breakdown-layout" : "category-breakdown-empty"}>
+            <CategoryDonut categories={breakdown} selected={category} total={breakdownTotal} label={detailMode === "income" ? t("Einnahmen gesamt") : t("Ausgaben gesamt")} onSelect={keys=>setCategory(current=>keys.every(key=>current.includes(key)) ? current.filter(key=>!keys.includes(key)) : [...new Set([...current,...keys])])}/>
             <div className="category-drilldown category-multiselect">{breakdown.map(item => <button aria-pressed={category.includes(item.key)} className={category.includes(item.key) ? "selected" : ""} key={item.key} data-category-key={item.key} onMouseDown={event => {
               suppressCategoryClick.current = false;
               if (event.button === 0 && !event.shiftKey) dragSelection.current = { key: item.key, base: category, selecting: !category.includes(item.key) };
-            }} onClick={event => { if (suppressCategoryClick.current && event.detail > 0) { suppressCategoryClick.current = false; return; } selectCategory(item.key, event.shiftKey); }}><span className="category-check" aria-hidden="true">{category.includes(item.key) ? "☑" : "☐"}</span><span className="category-color" style={{ background: item.color }}/><div><strong>{categoryName(item.key, item.label)}</strong><small>{item.transactionCount}  {t("Buchungen")}</small></div><b>{money(item.amountMinor)}</b><span className="category-share">{breakdownTotal ? `${(item.amountMinor / breakdownTotal * 100).toFixed(1)} %` : "–"}</span></button>)}</div>
+            }} onClick={event => { if (suppressCategoryClick.current && event.detail > 0) { suppressCategoryClick.current = false; return; } selectCategory(item.key, event.shiftKey); }}><span className="category-check" aria-hidden="true">{category.includes(item.key) ? "✓" : ""}</span><span className="category-color" style={{ background: item.color }}/><div><strong>{categoryName(item.key, item.label)}</strong><small>{item.transactionCount}  {t("Buchungen")}</small></div><b>{money(item.amountMinor)}</b><span className="category-share">{breakdownTotal ? `${(item.amountMinor / breakdownTotal * 100).toFixed(1)} %` : "–"}</span></button>)}</div>
+            </div>
           </> : <>
             <div className="monthly-comparison-toolbar">
               <p className="intro">{t("Kategorien im gewählten Jahr vergleichen.")}</p>
@@ -405,26 +453,25 @@ export function Transactions() {
               </table>
             </div> : <p className="intro monthly-comparison-empty">{t("Keine Buchungen für dieses Jahr vorhanden.")}</p>}
           </>}
-        </article>
-      </div>
-      <article id="transaction-details" className="dashboard-card drilldown-table">
+        </div>
+      </section>
+      <article id="transaction-details" className="dashboard-card drilldown-table" tabIndex={-1}>
         <div className="card-heading"><div><p className="eyebrow">Drilldown</p><h2>{monthlyDrilldownLabel ?? (selectionLabel ? selectionLabel : detailMode === "income" ? t("Alle Einnahmen") : t("Alle Ausgaben"))} <span className="drilldown-total">{money(monthlyDrilldown ? drilldownTotal : selectedTotal)}</span></h2></div><div className="drilldown-heading-actions"><span>{drilldownTransactions.length}  {t("Buchungen")}</span>{monthlyDrilldown && <button className="secondary-button" onClick={() => setMonthlyDrilldown(null)}>{t("Monatsauswahl aufheben")}</button>}</div></div>
-        <p className="intro">{t("Kategorieänderungen gelten auch für passende Buchungen desselben Händlers und zukünftige Importe.")}</p>
         <div className="drilldown-filters">
           <label>{t("Buchungen durchsuchen")}<input type="search" placeholder={t("Beschreibung, Konto oder Bank")} value={search} onChange={event => setSearch(event.target.value)} /></label>
           <label>{t("Mindestbetrag (CHF)")}<input type="number" min="0" step="0.01" placeholder="0.00" value={minimum} onChange={event => setMinimum(event.target.value)} /></label>
-          <button className="secondary-button" onClick={() => setSort({ key: "amountMinor", descending: true })}>{t("Grösste Beträge zuerst")}</button>
           {hasDetailFilter && <button className="text-button" onClick={() => { setSearch(""); setMinimum(""); }}>{t("Filter zurücksetzen")}</button>}
         </div>
-        <p className="drilldown-result" role="status">{hasDetailFilter ? tr`${filteredTransactions.length} von ${drilldownTransactions.length} Buchungen · Gefilterte Summe: ${money(filteredTotal)}` : t("Spaltenüberschrift anklicken, um die Sortierung zu ändern.")}</p>
+        {hasDetailFilter && <p className="drilldown-result" role="status">{tr`${filteredTransactions.length} von ${drilldownTransactions.length} Buchungen · Gefilterte Summe: ${money(filteredTotal)}`}</p>}
         <div className="expense-table"><div className="expense-row header"><span>{sortHeader("bookingDate", t("Datum"))}</span><span>{sortHeader("description", t("Beschreibung"))}</span><span>{t("Kategorie")}</span><span>{sortHeader("accountName", t("Konto"))}</span><span>{sortHeader("amountMinor", t("Betrag"))}</span><span aria-label={t("Aktionen")} /></div>
-          {filteredTransactions.slice(0, rowLimit).map(item => <div className={`expense-row ${item.excludedFromTotals ? "card-detail-row" : ""}`} data-amount-row={item.id} key={item.id}><span>{shortDate(item.bookingDate)}</span><div><strong title={item.description}>{item.description}</strong><small>{item.provider}{item.industry ? ` · ${item.industry}` : ""}{item.excludedFromTotals && <> · <span className="transfer-badge">{t(item.isCardSettlement ? "Kartenausgleich" : "Umbuchung")}</span></>}</small></div><div><select aria-label={tr`Kategorie für ${item.description}`} value={item.categoryKey} style={{ borderLeftColor: item.categoryColor }} onChange={event => void changeCategory(item.id, event.target.value)}>{categoryOptions.map(({key, label}) => <option value={key} key={key}>{categoryName(key, label)}</option>)}</select><small>{item.excludedFromTotals ? t("Nicht in Auswertungen enthalten") : item.categorySource === "manual" ? t("Manuell gewählt") : item.categorySource === "merchant" ? t("Anhand Händlerregel") : item.categorySource === "industry" ? t("Anhand Branche") : t("Anhand Buchungstext")}</small></div><span>{item.accountName}</span><button type="button" className={`amount-select ${item.amountMinor > 0 ? "income-amount" : ""}`} aria-pressed={selectedAmounts.includes(item.id)} aria-label={tr`Betrag auswählen: ${money(Math.abs(item.amountMinor))} · ${item.description}`} onMouseDown={event => {
+          {filteredTransactions.slice(0, rowLimit).map(item => <div className={`expense-row ${item.excludedFromTotals ? "card-detail-row" : ""}`} data-amount-row={item.id} key={item.id}><span>{shortDate(item.bookingDate)}</span><div><strong title={item.description}>{item.description}</strong><small>{item.provider}{item.industry ? ` · ${item.industry}` : ""}{item.excludedFromTotals && <> · <span className="transfer-badge">{t(item.isCardSettlement ? "Kartenausgleich" : "Umbuchung")}</span></>}</small></div><span className="transaction-category-label" tabIndex={0} title={item.excludedFromTotals ? t("Nicht in Auswertungen enthalten") : item.categorySource === "manual" ? t("Manuell gewählt") : item.categorySource === "merchant" ? t("Anhand Händlerregel") : item.categorySource === "industry" ? t("Anhand Branche") : t("Anhand Buchungstext")}><span className="transaction-category-dot" style={{background:item.categoryColor}} aria-hidden="true"/>{categoryName(item.categoryKey,item.categoryLabel)}</span><span>{item.accountName}</span><button type="button" className={`amount-select ${item.amountMinor > 0 ? "income-amount" : ""}`} aria-pressed={selectedAmounts.includes(item.id)} aria-label={tr`Betrag auswählen: ${money(Math.abs(item.amountMinor))} · ${item.description}`} onMouseDown={event => {
             if (event.button !== 0) return;
             event.preventDefault(); event.currentTarget.focus();
             const selecting = !selectedAmounts.includes(item.id);
             amountDrag.current = { start: item.id, base: selectedAmounts, selecting };
             setSelectedAmounts(selectAmountRange(selectedAmounts, amountRows.map(row => row.id), item.id, item.id, selecting));
-          }} onClick={event => { if (event.detail === 0) setSelectedAmounts(current => current.includes(item.id) ? current.filter(id => id !== item.id) : [...current, item.id]); }}>{money(item.excludedFromTotals ? item.amountMinor : contribution(item))}</button><TransactionActions neutral={item.excludedFromTotals} description={item.description} disabled={savingSettlement} onChange={kind => changeSettlement(item, kind)} /></div>)}
+          }} onClick={event => { if (event.detail === 0) setSelectedAmounts(current => current.includes(item.id) ? current.filter(id => id !== item.id) : [...current, item.id]); }}>{money(item.excludedFromTotals ? item.amountMinor : contribution(item))}</button><TransactionActions neutral={item.excludedFromTotals} description={item.description} disabled={savingSettlement} onChange={kind => changeSettlement(item, kind)} onEditCategory={() => { setCategoryMessage(null); setEditingCategory(item.id); }} />
+            {editingCategory === item.id && <InlineCategoryEditor description={item.description} initialKey={item.categoryKey} options={categoryOptions} onSave={key => changeCategory(item.id,key)} onClose={() => closeCategoryEditor(item.id)}/>}</div>)}
           {!filteredTransactions.length && <p className="intro">{t("Keine Buchungen für diese Auswahl gefunden.")}</p>}
           {filteredTransactions.length > rowLimit && <button className="secondary-button" onClick={() => setRowLimit(limit => limit + 200)}>{t("Weitere Buchungen anzeigen (")}{rowLimit}  {t("von")} {filteredTransactions.length})</button>}
         </div>

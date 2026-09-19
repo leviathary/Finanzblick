@@ -5,6 +5,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 
 import { useSettings } from "../../settings";
+import { ActionMenu } from "../../shared/ActionMenu";
 import { ProviderLogo } from "./ProviderLogo";
 
 import type { Account } from "./types";
@@ -133,6 +134,7 @@ export function Accounts() {
     account: Account,
     field: "isActive" | "includeInNetWorth",
   ) {
+    if (field === "isActive" && account.isActive && !window.confirm(t("Dieses Konto archivieren? Die Historie bleibt erhalten."))) return;
     await saveAccount({ ...account, [field]: !account[field] });
   }
 
@@ -440,39 +442,13 @@ export function Accounts() {
                     </span>
                   </div>
                   <b>{money(account.balanceMinor, account.currency)}</b>
-                  <div className="account-actions">
-                    <button
-                      className="text-button"
-                      onClick={() => setEditing({ ...account })}
-                    >
-                      {t("Bearbeiten")}
-                    </button>
-                    <button
-                      className="text-button"
-                      onClick={() => void toggle(account, "includeInNetWorth")}
-                    >
-                      {account.includeInNetWorth
-                        ? t("Aus Vermögen")
-                        : t("Zum Vermögen")}
-                    </button>
-                    {account.importCount === 0 &&
-                    account.manualValuationCount === 0 ? (
-                      <button
-                        className="text-button danger"
-                        disabled={saving}
-                        onClick={() => void deleteAccount(account)}
-                      >
-                        {t("Löschen")}
-                      </button>
-                    ) : (
-                      <button
-                        className="text-button danger"
-                        onClick={() => void toggle(account, "isActive")}
-                      >
-                        {account.isActive ? t("Archivieren") : t("Aktivieren")}
-                      </button>
-                    )}
-                  </div>
+                  <ActionMenu label={t("Aktionen") + ": " + account.name} disabled={saving} actions={[
+                    { label: t("Bearbeiten"), onClick: () => setEditing({ ...account }) },
+                    { label: account.includeInNetWorth ? t("Vom Gesamtvermögen ausschließen") : t("Zum Gesamtvermögen zählen"), onClick: () => void toggle(account, "includeInNetWorth") },
+                    account.importCount === 0 && account.manualValuationCount === 0
+                      ? { label: t("Löschen"), onClick: () => void deleteAccount(account), separated: true, danger: true }
+                      : { label: account.isActive ? t("Archivieren") : t("Aktivieren"), onClick: () => void toggle(account, "isActive"), separated: true, danger: account.isActive },
+                  ]} />
                 </div>
               ))}
             </article>

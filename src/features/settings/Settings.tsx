@@ -1,4 +1,4 @@
-// Zeigt allgemeine Einstellungen für Sprache, Region und automatische Sperre.
+// Bündelt Darstellung, allgemeine Einstellungen und Marktpreise in Reitern mit erhaltenen Formularentwürfen.
 
 import { t } from "../../i18n";
 import { useState, type FormEvent } from "react";
@@ -6,8 +6,10 @@ import { invoke } from "@tauri-apps/api/core";
 import { useSettings, type Language, type Region } from "../../settings";
 import packageInfo from "../../../package.json";
 import { AppearanceSettings } from "../../shared/theme/AppearanceSettings";
+import { SectionTabs, SectionPanel } from "../../shared/navigation/SectionTabs";
 
 export function Settings() {
+  const [tab, setTab] = useState("appearance");
   const { settings, saveSettings } = useSettings();
   const [draft, setDraft] = useState(settings);
   const [saving, setSaving] = useState(false);
@@ -18,9 +20,6 @@ export function Settings() {
   const [marketNotice, setMarketNotice] = useState("");
   const [marketError, setMarketError] = useState("");
 
-  function scrollToSection(id: string) {
-    document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
-  }
 
   async function refreshPrices() {
     setSaveArea("market");
@@ -71,12 +70,11 @@ export function Settings() {
           <h1>{t("Einstellungen")}</h1>
         </div>
       </div>
-      <nav className="settings-nav" aria-label={t("Einstellungsbereiche")}>
-        <button type="button" onClick={() => scrollToSection("settings-appearance")}>{t("Darstellung")}</button>
-        <button type="button" onClick={() => scrollToSection("settings-general")}>{t("Allgemein")}</button>
-        <button type="button" onClick={() => scrollToSection("settings-market")}>{t("Automatische Marktpreise")}</button>
-      </nav>
-      <AppearanceSettings />
+      <SectionTabs id="settings" label={t("Einstellungsbereiche")} value={tab} onChange={setTab} tabs={[
+        { value: "appearance", label: t("Darstellung") }, { value: "general", label: t("Allgemein") }, { value: "market", label: t("Marktpreise") },
+      ]} />
+      <SectionPanel id="settings" value="appearance" active={tab}><AppearanceSettings /></SectionPanel>
+      <SectionPanel id="settings" value="general" active={tab}>
       <form
         id="settings-general"
         className="dashboard-card settings-card"
@@ -173,6 +171,8 @@ export function Settings() {
           {saving ? t("Wird gespeichert…") : t("Einstellungen speichern")}
         </button>
       </form>
+      </SectionPanel>
+      <SectionPanel id="settings" value="market" active={tab}>
       <form
         id="settings-market"
         className="dashboard-card settings-card"
@@ -251,6 +251,7 @@ export function Settings() {
           </p>
         )}
       </form>
+      </SectionPanel>
       <p className="settings-version">Finanzblick · Version {packageInfo.version}</p>
     </section>
   );

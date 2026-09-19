@@ -1,7 +1,7 @@
 // Führt durch Dateiauswahl, Importvorschau, Kontozuordnung und Stapelimport.
 
 import { t, tr, locale } from "../../i18n";
-import { useEffect, useRef, useState } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
 import { invoke, isTauri } from "@tauri-apps/api/core";
 import { getCurrentWebview } from "@tauri-apps/api/webview";
 import { open } from "@tauri-apps/plugin-dialog";
@@ -245,11 +245,8 @@ export function ImportWizard({ enabled = true }: { enabled?: boolean }) {
   const pending = items.filter(item => !item.parsed && !item.result && !item.alreadyImported && item.file.provider !== CUSTOM_EXCEL_PROVIDER);
   const ready = items.filter(item => readyToSave(item, accounts));
   const noAccounts = accountsLoaded && accounts.length === 0;
-  const releaseWarnings = new Map<string, number>();
   const releaseAccounts = new Map<string, number>();
   for (const item of ready) {
-    for (const warning of new Set(item.parsed?.warnings ?? [])) releaseWarnings.set(warning, (releaseWarnings.get(warning) ?? 0) + 1);
-    if (item.duplicateNotice) releaseWarnings.set(item.duplicateNotice, (releaseWarnings.get(item.duplicateNotice) ?? 0) + 1);
     const names = [...new Set(Object.values(item.accountIds))].map(id => {
       const account = accounts.find(account => account.id === id)!;
       return `${account.provider} · ${account.name} (${account.currency})`;
@@ -280,16 +277,13 @@ export function ImportWizard({ enabled = true }: { enabled?: boolean }) {
     {completed && <div className="batch-complete" role="status" ref={completedRef}><span className="batch-complete-icon" aria-hidden="true">✓</span><div><h2>{t("Import erfolgreich abgeschlossen")}</h2><p>{completed.imported}  {t("Dateien importiert")}{completed.duplicates > 0 ? tr` · ${completed.duplicates} bereits vorhanden` : ""}.</p><p>{items.length ? t("Offene oder fehlgeschlagene Dateien stehen weiterhin unten in der Liste.") : t("Die importierten Dateien findest du im Reiter „Importierte Dateien“.")}</p></div><a className="secondary-button" href={`#import-history?ids=${completed.ids.join(",")}`}>{t("Importierte Dateien ansehen")}</a></div>}
     {warnings.length > 0 && <details className="warning-message"><summary>{warnings.length}  {t("Hinweise zur Dateiauswahl")}</summary><ul>{warnings.map((warning, index) => <li key={index}>{warning}</li>)}</ul></details>}
     {busy && <div className="info-panel" role="status"><p>{progress || t("Dateiauswahl geöffnet…")}</p>{(progress.startsWith("Analyse ") || progress.startsWith("Import ")) && <button className="secondary-button" disabled={stopRef.current} onClick={() => { stopRef.current = true; setProgress(value => tr`${value} · Stopp angefordert`); }}>{t("Nach aktueller Datei stoppen")}</button>}</div>}
-    {items.length > 0 && <>
+    {items.length > 0 && <section className="dashboard-card import-batch-card" aria-label={t("Deine Importliste")}>
       <div className="batch-toolbar"><div><h2>{t("Deine Importliste")}</h2><p role="status">{items.length}  {t("Dateien")}{failed > 0 ? tr` · ${failed} Fehler` : ""}{ready.length > 0 ? tr` · ${ready.length} bereit zum Import` : ""}</p></div><div className="batch-buttons">{pending.length > 0 && <button className="secondary-button" disabled={busy} onClick={() => void analyze(pending)}>{t("Offene Dateien analysieren (")}{pending.length})</button>}<button className="text-button" disabled={busy} onClick={() => { setItems([]); setActive(null); setWarnings([]); setError(null); }}>{t("Liste leeren")}</button></div></div>
-      {ready.length > 0 && <div className="batch-step-card" aria-label={t("Importübersicht")}>
-        <p className="eyebrow">{t("Importübersicht")}</p><h2>{ready.length === 1 ? t("1 Datei ist bereit zum Import") : tr`${ready.length} Dateien sind bereit zum Import`}</h2>
-        <p>{ready.reduce((sum, item) => sum + (item.parsed?.transactions.length ?? 0), 0)}  {t("Buchungen · Kontozuordnung:")}</p>
-        <ul>{[...releaseAccounts].map(([name, count]) => <li key={name}>{name} · {count}  {t("Dateien")}</li>)}</ul>
-        {releaseWarnings.size > 0 && <details className="batch-notices"><summary>{releaseWarnings.size}  {t("Hinweise zu diesen Dateien ansehen")}</summary><ul>{[...releaseWarnings].map(([warning, count]) => <li key={warning}>{warning} ({count}  {t("Dateien)")}</li>)}</ul></details>}
-        <p>{t("Mit einem Klick werden die Dateien mit diesen Kontozuordnungen importiert. Einzelvorschauen findest du unten.")}</p>
+      {ready.length > 0 && <div className="batch-summary" aria-label={t("Importübersicht")}>
+        <p>{ready.reduce((sum, item) => sum + (item.parsed?.transactions.length ?? 0), 0)} {t("Buchungen · Kontozuordnung:")}</p>
+        <ul>{[...releaseAccounts].map(([name, count]) => <li key={name}>{name} · {count} {t("Dateien")}</li>)}</ul>
       </div>}
-      <div className="history-table batch-table"><table><thead><tr><th>{t("Datei")}</th><th>{t("Anbieter")}</th><th>Status</th><th>{t("Aktion")}</th></tr></thead><tbody>{items.map(item => <tr key={item.file.path} className={active === item.file.path ? "batch-active" : ""}>
+      <div className="history-table batch-table"><table><thead><tr><th>{t("Datei")}</th><th>{t("Anbieter")}</th><th>Status</th><th>{t("Aktion")}</th></tr></thead><tbody>{items.map(item => <Fragment key={item.file.path}><tr className={active === item.file.path ? "batch-active" : ""}>
         <td><strong>{item.file.name}</strong><small className="batch-path">{item.file.path}</small><small>{formatFileSize(item.file.size)}{item.parsed ? tr` · ${item.parsed.transactions.length} Buchungen` : ""}</small></td>
         <td><label><span className="visually-hidden">{t("Anbieter für")} {item.file.name}</span><select disabled={busy || Boolean(item.result)} value={displayedProvider(item, accounts)} onChange={event => {
           const next = { ...item, file: { ...item.file, provider: event.target.value as ProviderId }, parsed: undefined, mapping: undefined, accountIds: {}, reviewed: false, error: undefined };
@@ -299,22 +293,8 @@ export function ImportWizard({ enabled = true }: { enabled?: boolean }) {
         }}>{providers.filter(provider => provider.id !== CUSTOM_EXCEL_PROVIDER || item.file.extension === "xlsx" || item.file.extension === "xls").map(provider => <option key={provider.id} value={provider.id}>{provider.id === "unknown" ? t("Automatisch erkennen") : provider.id === CUSTOM_EXCEL_PROVIDER ? t("Eigene Excel-Datei") : provider.label}</option>)}{!providers.some(provider => provider.id === displayedProvider(item, accounts)) && <option value={displayedProvider(item, accounts)}>{accounts.find(account => account.providerKey === displayedProvider(item, accounts))?.provider}</option>}</select></label>{item.file.provider === "unknown" && hasAccounts(item, accounts) && <small>{t("Aus Kontozuordnung übernommen")}</small>}<small>{[...new Set(Object.values(item.accountIds))].map(id => accounts.find(account => account.id === id)?.name).filter(Boolean).join(", ")}</small></td>
         <td><strong>{status(item)}</strong>{item.duplicateNotice && <small className="batch-duplicate" role="status">{item.duplicateNotice}</small>}{item.error && <small className="batch-error" role="alert">{item.error}</small>}{item.parsed && item.parsed.warnings.length > 0 && <small>{item.parsed.warnings.length}  {t("Warnungen in der Vorschau")}</small>}</td>
         <td><div className="batch-row-actions">{item.alreadyImported && !item.parsed ? <a href="#import-history">{t("Importe ansehen")}</a> : item.parsed ? <button className="secondary-button" disabled={busy} aria-expanded={active === item.file.path} onClick={() => setActive(active === item.file.path ? null : item.file.path)}>{hasAccounts(item, accounts) ? t("Vorschau") : t("Konto auswählen")}</button> : item.file.provider === CUSTOM_EXCEL_PROVIDER ? <button className="secondary-button" disabled={busy} onClick={() => void openMapping(item)}>{t("Spalten zuordnen")}</button> : <button className="secondary-button" disabled={busy} onClick={() => void analyze([item])}>{t("Analysieren")}</button>}{(item.file.extension === "xlsx" || item.file.extension === "xls") && !item.alreadyImported && (item.file.provider !== CUSTOM_EXCEL_PROVIDER || Boolean(item.parsed)) && <button className="text-button" disabled={busy} onClick={() => void openMapping(item)}>{item.mapping ? t("Mapping ändern") : t("Spalten zuordnen")}</button>}<button className="text-button" disabled={busy} onClick={() => { setItems(value => value.filter(row => row.file.path !== item.file.path)); if (active === item.file.path) setActive(null); }} aria-label={tr`${item.file.name} aus der Liste entfernen`}>{t("Entfernen")}</button></div></td>
-      </tr>)}</tbody></table></div>
-      <div className="batch-import-action">
-        <div>
-          <strong>{noAccounts ? t("Noch kein Konto vorhanden.") : ready.length === 1 ? t("1 Datei ist bereit zum Import") : tr`${ready.length} Dateien sind bereit zum Import`}</strong>
-          {noAccounts
-            ? <small>{t("Lege zuerst unter Banken & Konten ein Konto an. Deine Importliste bleibt dabei erhalten.")}</small>
-            : ready.length === 0 && <small>{t("Ordne zuerst für jede Datei alle benötigten Konten zu.")}</small>}
-        </div>
-        <div className="batch-buttons">
-          {noAccounts && <a className="secondary-button" href="#banks">{t("Konto anlegen")}</a>}
-          <button className="primary-button" disabled={busy || ready.length === 0} onClick={() => void save()}>
-            {t("Importieren")} ({ready.length})
-          </button>
-        </div>
-      </div>
-      {current?.parsed && <div className="wizard-card batch-preview" key={current.file.path} ref={previewRef}>
+      </tr>
+      {active === item.file.path && current?.parsed && <tr className="batch-preview-row"><td colSpan={4}><div className="batch-preview" key={current.file.path} ref={previewRef}>
         <div className="review-header"><div><p className="eyebrow">{hasAccounts(current, accounts) ? t("Importvorschau") : t("Nächster Schritt")}</p><h2>{hasAccounts(current, accounts) ? current.file.name : t("Zielkonto auswählen")}</h2></div><span className="success-chip">{current.parsed.transactions.length}  {t("Buchungen")}</span></div>
         {!hasAccounts(current, accounts) && <div className="mapping-applied-notice" role="status"><strong>{t("Spaltenzuordnung übernommen – noch nicht importiert")}</strong><p>{t("Wähle jetzt das Zielkonto. Erst danach kann die Datei importiert werden.")}</p></div>}
         <p className="intro">{current.parsed.provider === "unknown" ? t("Anbieter aus dem ausgewählten Konto") : providers.find(provider => provider.id === current.parsed?.provider)?.label} · {current.file.extension.toUpperCase()}</p>
@@ -329,9 +309,23 @@ export function ImportWizard({ enabled = true }: { enabled?: boolean }) {
         {!current.result && !hasAccounts(current, accounts) && <p className="warning-message">{t("Bitte für jede Währung ein passendes aktives Konto auswählen.")}</p>}
         {!current.result && hasAccounts(current, accounts) && <p className="mapping-ready-notice">{t("Kontozuordnung vollständig. Die Datei ist jetzt bereit zum Import.")}</p>}
         {nextOpenPreview && <div className="batch-buttons"><button className="secondary-button" disabled={busy} onClick={() => setActive(nextOpenPreview.file.path)}>{t("Nächste offene Vorschau")}</button></div>}
-      </div>}
-      <div className="wizard-actions"><a href="#import-history">{t("Importe verwalten")}</a></div>
-    </>}
+      </div></td></tr>}
+      </Fragment>)}</tbody></table></div>
+      <div className="batch-import-action">
+        <div>
+          {noAccounts && <strong>{t("Noch kein Konto vorhanden.")}</strong>}
+          {noAccounts
+            ? <small>{t("Lege zuerst unter Banken & Konten ein Konto an. Deine Importliste bleibt dabei erhalten.")}</small>
+            : ready.length === 0 && <small>{t("Ordne zuerst für jede Datei alle benötigten Konten zu.")}</small>}
+        </div>
+        <div className="batch-buttons">
+          {noAccounts && <a className="secondary-button" href="#banks">{t("Konto anlegen")}</a>}
+          <button className="primary-button" disabled={busy || ready.length === 0} onClick={() => void save()}>
+            {t("Importieren")} ({ready.length})
+          </button>
+        </div>
+      </div>
+    </section>}
     {mappingEditor && <ExcelMappingDialog inspection={mappingEditor.inspection} profiles={mappingEditor.profiles} initial={mappingEditor.item.mapping} onClose={() => setMappingEditor(null)} onApply={applyMapping} />}
   </section>;
 }

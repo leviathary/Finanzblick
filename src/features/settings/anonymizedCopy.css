@@ -1,0 +1,13 @@
+/* Beschränkt Formularlayout und responsive Aktionen auf den Dialog für anonymisierte Kopien. */
+.anonymized-copy-dialog { width: min(640px, calc(100vw - 32px)); }
+.anonymized-copy-trigger { margin-top: 12px; }
+.anonymized-copy-dialog h2 { margin: 0 0 8px; }
+.anonymized-copy-dialog form { display: grid; gap: 16px; margin-top: 24px; }
+.anonymized-copy-dialog label { display: grid; gap: 8px; }
+.anonymized-copy-dialog input:not([type="checkbox"]), .anonymized-copy-dialog select { min-height: 44px; border: 1px solid var(--border-subtle); border-radius: 10px; width: 100%; min-width: 0; padding: 10px; background: var(--bg-surface); color: var(--text-primary); }
+.anonymized-copy-dialog p { margin: 0; }
+.anonymized-copy-passwords { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.anonymized-copy-dialog .anonymized-copy-checkbox { display: flex; align-items: center; gap: 8px; }
+.anonymized-copy-checkbox input { width: 16px; height: 16px; flex-shrink: 0; }
+.anonymized-copy-footer { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 12px; margin-top: 8px; }
+@media (max-width: 600px) { .anonymized-copy-passwords { grid-template-columns: 1fr; } }

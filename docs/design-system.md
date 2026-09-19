@@ -139,6 +139,19 @@ in `src/styles/application.css`; Feature-Styles verwenden dieselben Farbrollen.
 - Tabellen standardmäßig kompakt halten. Keine großen Aktionsblöcke in jeder
   Zeile der Haupt-Transaktionsübersicht; dort das Drei-Punkte-Menü verwenden.
 - Dedizierte Einrichtungsansichten dürfen direkte Zeilenaktionen haben.
+- Buchungs-Drilldown zeigt Kategorien als Text mit Farbpunkt, Herkunft als Tooltip.
+  „Kategorie ändern …“ im Drei-Punkte-Menü öffnet die Inline-Auswahl mit Speichern
+  und Abbrechen. Erst dort auf die Wirkung für passende Händlerbuchungen und
+  zukünftige Importe hinweisen. Auswahl allein speichert nicht; Fehler im Editor
+  anzeigen, Escape bricht ab und gibt den Fokus an die Zeilenaktion zurück.
+  Kein permanenter Sortierhilfetext über der Drilldown-Tabelle; Richtungspfeile
+  bleiben sichtbar. Trefferzahl und gefilterte Summe nur bei aktiven Detailfiltern.
+  Kein zusätzlicher „Grösste Beträge zuerst“-Button; Betragssortierung ausschließlich
+  über den Spaltenkopf.
+  Im Buchungsmenü keine Zwischenüberschrift für Umbuchungen: Aktionen direkt als
+  „Als Kartenausgleich markieren“ und „Als Übertrag zwischen eigenen Konten markieren“
+  benennen. Das Drei-Punkte-Menü enthält nur Aktionen für die jeweilige Buchung;
+  kein Navigationslink zu „Umbuchungen & Ausgleiche“ (über den Reiter erreichbar).
 - Tabellensortierung direkt an den Spaltenüberschriften mit `expense-sort`,
   Richtungspfeilen und Tastaturbedienung anbieten, nicht als separates Dropdown.
   Dies ist der Standard für datenreiche Tabellen, insbesondere mit Geldbeträgen:
@@ -181,7 +194,80 @@ in `src/styles/application.css`; Feature-Styles verwenden dieselben Farbrollen.
 
 ## 6. Navigation und Einrichtungsassistenten
 
+- Banken & Konten: Zeilenaktionen im Drei-Punkte-Menü (Bearbeiten, Einbezug ins
+  Gesamtvermögen, Archivieren/Aktivieren bzw. Löschen bei leeren Konten).
+  Archivieren/Löschen absetzen und bestätigen lassen. Ausschluss vom Vermögen
+  und Archivstatus bleiben direkt in der Zeile sichtbar. „Konto hinzufügen“
+  bleibt die sichtbare Hauptaktion. Menü mit Tastatur, Escape/Fokusrückkehr
+  und Schließen bei Außenklick bedienen können.
+
+- „Vermögen nach Anbieter“: gemeinsamer Donut links, Liste mit Logos, Farbpunkt,
+  Betrag und Anteil rechts; auf schmalen Fenstern untereinander. Keine zusätzlichen
+  Balken. Alle Anbieter einzeln zeigen, Details bei Hover und Tastaturfokus.
+  Ring und Prozente basieren auf positiven Anbietersalden; negative Salden in der
+  Liste benennen und im Gesamtvermögen der Ringmitte weiterhin berücksichtigen.
+  Bei fehlenden positiven Salden neutralen leeren Ring mit Hinweis zeigen.
+
+- Kategorien: Drei-Punkte-Aktionen pro Zeile; Name und Farbe direkt inline
+  bearbeiten, jeweils nur eine Kategorie. Speichern/Abbrechen bleiben in der
+  betroffenen Zeile. Oben nur „Neue Kategorie“. Zusammenführen und Löschen
+  öffnen einen Bestätigungsdialog mit Zielkategorie, Buchungs-/Regelanzahlen
+  und Erklärung der Wirkung auf zukünftige Importe. Keine stillen Datenverluste.
+  Branchenzuordnungen als kompakte Zweispaltenliste: Branche mit Buchungsanzahl
+  links, Kategorieauswahl rechts; 8 px vertikaler Zeilenabstand und weiterhin
+  mindestens 44 px hohe Auswahlfelder.
+
+- Kategorie-Mehrfachauswahl ohne Checkbox-Kästchen: Nur ausgewählte Zeilen zeigen
+  ein Häkchen zusätzlich zum farbigen Hintergrund. Zeilen bleiben ausgerichtet
+  und als Buttons mit aria-pressed per Tastatur bedienbar.
+  Daneben ein Donut mit den acht größten positiven Kategoriesummen; Rest als
+  „Weitere Kategorien“. Farben und Mehrfachauswahl mit der Liste synchronisieren.
+  Negative Nettokategorien nicht als positive Segmente darstellen, sondern erläutern.
+  Auf schmalen Fenstern Diagramm über der Liste. Bank und Konto der Auswertung
+  sind Mehrfachauswahlen (leere Auswahl = alle); Banken und Konten werden kombiniert.
+  Der Saldochart behält seine unabhängigen Einfachfilter.
+  „Einnahmen und Ausgaben“ fasst Auswertungsfilter, die drei rahmenlosen Kennzahlen
+  und die Kategorie-/Monatsaufteilung in einer gemeinsamen Card zusammen.
+  Aufteilung mit dezenter Trennlinie absetzen. Zeitraum und Monatsdurchschnitt
+  sind kompakte Zusatzinformationen statt weiterer Cards; keine doppelte Gesamtsumme.
+  Der auswahlabhängige Durchschnitt steht bei der Aufteilung, die Auswahlsumme
+  bleibt in deren Statusleiste. Saldochart und Buchungsdetails bleiben separat.
+
+- Unter „Alle Transaktionen“ keinen allgemeinen Banner zu neutralisierten
+  Kartenabrechnungen anzeigen; konkrete Hinweise auf ungeklärte Gutschriften bleiben.
+  Den Kategorie-Klickhinweis nur an der Kategorieübersicht zeigen, nicht im Seitenkopf.
+  Saldoverlauf mit derselben interaktiven TradingView-Komponente wie Vermögen,
+  kompakten Zeiträumen (Standard YTD), Lineal, Reset und eigener Kontexthilfe.
+  Bank-/Kontofilter erhalten, keine Benchmarks, Datenbasis- oder Tageswertezähler.
+  Zeitraumwahl filtert die Auswertung; Canvas-Zoom und Verschieben ändern sie nicht.
+  Saldochart ausschließlich für aktive Privat-/Sparkonten nach gespeichertem
+  Kontotyp (cash/savings), auch bei expliziter Einzelauswahl. Eigene Bank-/Kontofilter
+  für den Chart und die Auswertung darunter; Kreditkarten bleiben in der Auswertung.
+  Keine namensbasierte Erkennung oder automatische Umklassifizierung bestehender Konten.
+
+- Daten & Sicherheit, Einstellungen und Transaktionen verwenden dieselbe
+  Unterstrich-Navigation unter dem Seitentitel. Der aktive Reiter bleibt dauerhaft
+  markiert; keine Sprungknöpfe zu gleichzeitig sichtbaren Abschnitten.
+  Lokale Reiter verwenden `SectionTabs`/`SectionPanel` mit `aria-selected`,
+  zugeordneten Panels und Pfeiltasten/Home/End. Inaktive Panels bleiben verborgen
+  montiert, damit Entwürfe beim Reiterwechsel erhalten bleiben. Routennavigation
+  bleibt ein Link mit `aria-current="page"` und erhält bestehende Direktlinks.
+- Profilverwaltung: Keine zweite Reiterleiste für Aktionen. Unter der Profilauswahl
+  stehen „Neues Profil“ und „Kopie erstellen …“ als sekundäre Buttons. Der
+  Kopierdialog bietet unveränderte und anonymisierte Kopien an. Löschen steht
+  räumlich getrennt darunter; beim Hauptprofil nur den Hinweis statt eines
+  deaktivierten Löschen-Buttons anzeigen.
+  Bei anonymisierten Kopien Methode, Faktor, Buchungstexte, Name und eigenes Passwort erst im
+  Dialog zeigen. Original und aktive Auswahl bleiben unverändert. Die Kopie erst
+  nach erfolgreicher Bearbeitung und Integritätsprüfung verfügbar machen; bei
+  Fehlern keine halbfertige Kopie anbieten. Keine permanente Warnung im normalen
+  Verwaltungsbereich. Im Dialog die Grenzen der Anonymisierung erklären, besonders
+  erkennbare Verhältnisse bei festem Faktor und verbleibende persönliche Angaben.
+  Escape/Abbrechen mit Fokus-Rückkehr; während der Erstellung schließen sperren.
 - Vermögensverlauf: lokal gebündelte Lightweight Charts, Emerald-Kurve und
+  standardmäßig YTD (laufendes Kalenderjahr). Ein expliziter Berichtszeitraum
+  hat weiterhin Vorrang. Die übrigen Zeiträume bleiben auswählbar.
+  Der Chart verwendet
   eine integrierte Toolbar direkt über dem Canvas (48 px Mindesthöhe). Links
   die durchsuchbare Konto-/Depotauswahl und „Vergleichen“, mittig Zeiträume,
   rechts Lineal-, Reset- und Hilfe-Icons mit zugänglichen Namen. Bei schmalen Fenstern
@@ -276,5 +362,12 @@ am jeweiligen Bereich die Abweichung kontrolliert beheben und Regressionen prüf
 - [ ] Screenshot/visuelle Prüfung der betroffenen Ansicht, einschließlich Fokuszustand.
       Falls nicht möglich: ausdrücklich als ungeprüft nennen; ein Build ersetzt diese Prüfung nicht.
 - [ ] Plattformkompatibilität nur dann als verifiziert bezeichnet, wenn tatsächlich getestet.
+
+### Importliste als gemeinsamer Arbeitsbereich
+
+- Importübersicht, Dateiliste, Inline-Vorschau und Importaktion bilden eine gemeinsame Card.
+- Im Kopf stehen Dateistatus, Buchungsanzahl und Kontozuordnungen kompakt; keine wiederholte Bereitschaftsmeldung oder allgemeine Bedienerklärung.
+- Die Vorschau öffnet direkt unter der zugehörigen Datei. Warnungen und Duplikathinweise bleiben der Datei zugeordnet.
+- Der gemeinsame Footer ist nur durch eine Linie getrennt; „Importieren“ bleibt die dunkelblaue Hauptaktion. Kontoprüfungen und deaktivierte Zustände bleiben erhalten.
 
 Architektur und Modulverantwortlichkeiten: [architecture.md](architecture.md).

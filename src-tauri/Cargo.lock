@@ -1181,7 +1181,7 @@ dependencies = [
 
 [[package]]
 name = "finanzblick"
-version = "0.5.10"
+version = "0.6.0"
 dependencies = [
  "calamine",
  "chrono",

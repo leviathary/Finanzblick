@@ -1,4 +1,5 @@
 // Verwaltet neutrale Buchungen mit Konto-, Datums- und Textfiltern sowie atomarer Sammelwiederherstellung.
+import { TransactionTabs } from "./TransactionTabs";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { locale, t, tr } from "../../i18n";
@@ -50,6 +51,7 @@ export function TransferManagement() {
   const columns: [TransferSortKey, string][] = [["bookingDate", "Datum"], ["accountName", "Konto"], ["description", "Beschreibung"], ["amountMinor", "Betrag"], ["transferType", "Typ"]];
   return <section className="transactions-page">
     <h1>{t("Umbuchungen & Ausgleiche")}</h1>
+    <TransactionTabs active="transfers" />
     <aside className="transfer-help">
       <h2>{t("Neutrale Geldbewegungen")}</h2>
       <p>{t("Überträge zwischen eigenen Konten sowie Kreditkartenabrechnungen sind weder Einnahmen noch Konsumausgaben. Sie verändern deine Kontensaldi, werden aber in Einnahmen-, Ausgaben- und Budgetauswertungen nicht berücksichtigt.")}</p>

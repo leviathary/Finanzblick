@@ -1,4 +1,5 @@
 // Zeigt Kartenbuchungen und persistiert explizite Einordnungen; enthält keinen Setup-Zustand.
+import { TransactionTabs } from "../transactions/TransactionTabs";
 import { useEffect, useState } from "react";
 import { categoryName, locale, t, tr } from "../../i18n";
 import { cardsApi } from "./api";
@@ -74,6 +75,7 @@ export function CreditCards() {
 
   return <section className="transactions-page cards-page">
     <h1>{t("Kartentransaktionen")}</h1>
+    <TransactionTabs active="cards" />
     {error && <p className="error-message" role="alert">{t(error)}</p>}
     {dialog && <SettlementRuleDialog transaction={dialog} onClose={()=>setDialog(null)} onSaved={async()=>{setReload(v=>v+1);}} />}
     {loading&&<p role="status">{t("Buchungen werden geladen…")}</p>}

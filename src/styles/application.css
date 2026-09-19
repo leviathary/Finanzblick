@@ -699,8 +699,10 @@ a {
 .transactions-page > .dashboard-card > label { display: block; margin: 12px 0; }
 .transactions-page > .dashboard-card > select, .transactions-page > .dashboard-card > label > select,
 .transactions-page > .dashboard-card > label > input:not([type="checkbox"]) { max-width: 100%; padding: 9px; border: 1px solid var(--border-subtle); border-radius: 6px; }
-.transaction-tabs a { padding: 12px 16px; color: var(--text-secondary); text-decoration: none; border-bottom: 3px solid transparent; }
-.transaction-tabs a[aria-current="page"] { color: var(--interactive); border-color: var(--interactive); font-weight: 600; }
+.transaction-tabs a, .transaction-tabs button { padding: 12px 16px; min-height: 44px; color: var(--text-secondary); text-decoration: none; border: 0; border-bottom: 3px solid transparent; border-radius: 0; background: transparent; font: inherit; cursor: pointer; }
+.transaction-tabs a[aria-current="page"], .transaction-tabs button[aria-selected="true"] { color: var(--interactive); border-color: var(--interactive); font-weight: 600; }
+.transaction-tabs a:hover, .transaction-tabs button:hover { color: var(--interactive); }
+.section-tab-panel[hidden] { display: none; }
 .transaction-more { border: 0; background: transparent; color: var(--text-secondary); font-size: 22px; cursor: pointer; padding: 2px; border-radius: 5px; }
 .transaction-more:hover, .transaction-more[aria-expanded="true"] { background: var(--bg-muted); color: var(--interactive); }
 .transaction-action-menu { position: fixed; z-index: 100; width: min(300px, calc(100vw - 16px)); display: grid; gap: 5px; padding: 12px; background: var(--bg-surface); color: var(--text-primary); border: 1px solid var(--border-subtle); border-radius: 10px; box-shadow: 0 8px 28px #10223f24; }
@@ -973,6 +975,8 @@ a {
 .managed-account > div:first-child {
   display: grid;
   gap: 4px;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 .managed-account small,
 .managed-account span {
@@ -986,6 +990,18 @@ a {
   display: flex;
   align-items: center;
 }
+.row-action-trigger {
+  min-width: 44px;
+  min-height: 44px;
+}
+.row-action-menu button { min-height: 44px; }
+.row-action-menu button:hover { background: var(--bg-hover); }
+.row-action-menu .row-action-separated {
+  border-top: 1px solid var(--border-subtle);
+  border-radius: 0;
+  margin-top: 4px;
+}
+.row-action-menu .row-action-danger { color: var(--text-negative); }
 .account-actions .text-button {
   margin: 0;
   padding: 8px 9px;
@@ -2276,20 +2292,20 @@ p {
 .batch-import-action .primary-button {
   min-width: 150px;
 }
-.batch-table th {
+.batch-table > table > thead > tr > th {
   position: sticky;
   top: 0;
   z-index: 1;
 }
-.batch-table td:first-child {
+.batch-table > table > tbody > tr:not(.batch-preview-row) > td:first-child {
   min-width: 180px;
   max-width: 330px;
   overflow-wrap: anywhere;
 }
-.batch-table td:nth-child(3) {
+.batch-table > table > tbody > tr:not(.batch-preview-row) > td:nth-child(3) {
   min-width: 260px;
 }
-.batch-table select {
+.batch-table > table > tbody > tr:not(.batch-preview-row) > td select {
   max-width: 180px;
   padding: 9px;
   border: 1px solid var(--border-subtle);
@@ -2313,6 +2329,74 @@ p {
 }
 .batch-preview h2 {
   overflow-wrap: anywhere;
+}
+.import-batch-card {
+  margin-top: 24px;
+  padding: 0;
+  overflow: hidden;
+}
+.import-batch-card .batch-toolbar {
+  margin: 0;
+  padding: 24px 24px 16px;
+}
+.batch-summary {
+  padding: 0 24px 20px;
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+.batch-summary p { margin: 0 0 6px; }
+.batch-summary ul { margin: 0; padding-left: 18px; }
+.import-batch-card .batch-table {
+  margin: 0;
+  max-height: none;
+  border: 0;
+  border-radius: 0;
+}
+.batch-preview-row > td {
+  padding: 0;
+  white-space: normal;
+}
+.import-batch-card .batch-preview {
+  margin: 0;
+  padding: 24px;
+  background: var(--bg-surface);
+  border-bottom: 1px solid var(--border-subtle);
+}
+.import-batch-card .batch-import-action {
+  margin: 0;
+  padding: 16px 24px;
+  border: 0;
+  border-top: 1px solid var(--border-subtle);
+  border-radius: 0;
+  flex-wrap: wrap;
+}
+.import-batch-card .batch-import-action .batch-buttons {
+  display: flex;
+  margin-left: auto;
+}
+@media (max-width: 1100px) {
+  .import-batch-card .batch-table > table,
+  .import-batch-card .batch-table > table > tbody {
+    display: block;
+    min-width: 0;
+  }
+  .import-batch-card .batch-table > table > thead { display: none; }
+  .import-batch-card .batch-table > table > tbody > tr {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    border-top: 1px solid var(--border-subtle);
+  }
+  .import-batch-card .batch-table > table > tbody > tr > td {
+    display: block;
+    min-width: 0;
+    max-width: none;
+    border: 0;
+    white-space: normal;
+  }
+  .import-batch-card .batch-table > table > tbody > .batch-preview-row {
+    display: block;
+  }
+  .batch-preview .transaction-preview { max-width: 100%; }
 }
 .batch-account-fields {
   border: 0;
@@ -2579,7 +2663,8 @@ p {
     grid-template-columns: 1fr 1fr;
   }
   .managed-account {
-    grid-template-columns: 1fr auto;
+    grid-template-columns: minmax(0, 1fr) auto 44px;
+    gap: 12px;
   }
   .account-actions {
     grid-column: 1 / -1;
@@ -2715,24 +2800,35 @@ p {
 .industry-rules > h2 {
   margin-bottom: 0;
 }
-.industry-rules > label {
-  display: flex;
-  justify-content: space-between;
+.industry-rules > .settings-hint {
+  margin: 8px 0 12px;
+}
+.transactions-page > .industry-rules > label {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(200px, 280px);
   align-items: center;
-  gap: 20px;
-  padding: 13px 0;
+  gap: 16px;
+  margin: 0;
+  padding: 8px 0;
   border-top: 1px solid var(--border-subtle);
 }
 .industry-rules > label > span {
   display: grid;
-  gap: 4px;
+  gap: 2px;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 .industry-rules small {
   color: var(--text-secondary);
   font-weight: 400;
 }
-.industry-rules select {
-  min-width: 240px;
+.transactions-page > .industry-rules > label > select {
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  border-radius: 10px;
 }
 .sr-only {
   position: absolute;

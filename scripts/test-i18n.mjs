@@ -72,6 +72,29 @@ test('chat description-sharing notices are translated and visible in the preview
   }
 });
 
+test('anonymized-copy dialog strings are translated and profile actions do not mutate the original', () => {
+  const dialog = fs.readFileSync(new URL('../src/features/settings/AnonymizedCopyDialog.tsx', import.meta.url), 'utf8');
+  const picker = fs.readFileSync(new URL('../src/features/settings/DatabasePicker.tsx', import.meta.url), 'utf8');
+  for (const match of (dialog + picker).matchAll(/\bt\("([^"]+)"\)/g)) {
+    assert.ok(messages[match[1]], match[1]);
+    assert.equal(messages[match[1]].length, 3);
+  }
+  assert.match(dialog, /invoke\("create_anonymized_copy"/);
+  assert.match(dialog, /invoke\("copy_database"/);
+  assert.doesNotMatch(picker, /role="tablist"|Aktuelles Finanzprofil verwalten/);
+  assert.doesNotMatch(picker, /invoke\("anonymize_database/);
+});
+
+test('category inline actions are translated and do not scroll to a distant editor', () => {
+  const code = fs.readFileSync(new URL('../src/features/categories/Categories.tsx', import.meta.url), 'utf8');
+  for (const match of code.matchAll(/\bt\("([^"]+)"\)/g)) {
+    assert.ok(messages[match[1]], match[1]);
+  }
+  assert.doesNotMatch(code, /window.scrollTo/);
+  assert.match(code, /edit===item.key && editor/);
+  assert.match(code, /targetKey:target/);
+});
+
 test('financial profile labels are localized consistently', () => {
   for (const [language, singular, plural, create] of [
     ['de', 'Finanzprofil', 'Finanzprofile', 'Neues Finanzprofil'],

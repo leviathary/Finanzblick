@@ -6,12 +6,23 @@ use crate::storage::reporting::models::TransactionAnalysis;
 use tauri::State;
 
 #[tauri::command]
+pub fn bank_balance_history(
+    storage: State<'_, Storage>,
+    provider_key: Option<String>,
+    account_id: Option<i64>,
+) -> Result<Vec<storage::reporting::models::TransactionHistoryPoint>, String> {
+    storage::banking::transactions::bank_balance_history(&storage, provider_key, account_id)
+}
+
+#[tauri::command]
 pub fn transaction_analysis(
     storage: State<'_, Storage>,
     from: Option<String>,
     to: Option<String>,
     provider_key: Option<String>,
     account_id: Option<i64>,
+    provider_keys: Option<Vec<String>>,
+    account_ids: Option<Vec<i64>>,
 ) -> Result<TransactionAnalysis, String> {
     storage::banking::transactions::transaction_analysis(
         &storage,
@@ -19,6 +30,8 @@ pub fn transaction_analysis(
         to,
         provider_key,
         account_id,
+        provider_keys.unwrap_or_default(),
+        account_ids.unwrap_or_default(),
     )
 }
 

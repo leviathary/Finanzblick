@@ -5,6 +5,7 @@ import { t, tr, locale } from "../../i18n";
 import { useEffect, useState } from "react";
 import { invoke, isTauri } from "@tauri-apps/api/core";
 import { ProviderLogo } from "../accounts/ProviderLogo";
+import { ProviderDistribution } from "./ProviderDistribution";
 
 interface AccountSummary {
   id: number;
@@ -95,7 +96,6 @@ export function Overview({ onImport }: { onImport: () => void }) {
   const valuedAccounts = includedAccounts.filter(
     (account) => account.balanceMinor !== null,
   ).length;
-  const totalProviderScale = Math.max(Math.abs(data.totalBalanceMinor), 1);
   return (
     <section className="overview">
       <div className="overview-heading">
@@ -137,34 +137,7 @@ export function Overview({ onImport }: { onImport: () => void }) {
             <h2>{t("Vermögen nach Anbieter")}</h2>
           </div>
         </div>
-        <div className="provider-list">
-          {data.providers.map((provider) => (
-            <div className="provider-row" key={provider.providerKey}>
-              <div className="provider-label">
-                <ProviderLogo
-                  name={provider.provider}
-                  providerKey={provider.providerKey}
-                  customLogo={provider.logoDataUrl}
-                />
-                <div>
-                  <strong>{provider.provider}</strong>
-                  <small>
-                    {provider.accountCount}{" "}
-                    {provider.accountCount === 1 ? t("Konto") : t("Konten")}
-                  </small>
-                </div>
-                <b>{formatMoney(provider.balanceMinor, data.currency)}</b>
-              </div>
-              <div className="provider-bar">
-                <span
-                  style={{
-                    width: `${Math.min(100, (Math.abs(provider.balanceMinor) / totalProviderScale) * 100)}%`,
-                  }}
-                />
-              </div>
-            </div>
-          ))}
-        </div>
+        <ProviderDistribution providers={data.providers} total={data.totalBalanceMinor} currency={data.currency}/>
       </article>
 
       <article className="dashboard-card accounts-card overview-section-card">

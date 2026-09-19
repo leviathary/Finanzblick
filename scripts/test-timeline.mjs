@@ -60,6 +60,23 @@ test("benchmark comparison uses a common positive base and never changes report 
   assert.equal(compareBenchmark(history, { ...benchmark, points: [{ date: "2025-01-01", close: 5 }] }), null);
 });
 
+test("transaction balance chart shares interactive controls without changing report dates on zoom", async () => {
+  const code = await readFile(new URL("../src/features/transactions/Transactions.tsx", import.meta.url), "utf8");
+  assert.ok(code.includes("<InteractiveTimelineChart"));
+  assert.ok(!code.includes("onSelectRange="));
+  assert.ok(!code.includes('t("Gesamte Datenbasis:")'));
+  assert.ok(!code.includes('t("Klicke auf eine Kategorie, um die einzelnen Buchungen zu sehen.")'));
+  assert.ok(code.includes("monthsBefore(fullTo"));
+  assert.ok(code.includes('invoke<TimelinePoint[]>("bank_balance_history"'));
+  assert.ok(code.includes('item.accountType === "cash" || item.accountType === "savings"'));
+  assert.ok(code.includes('label={t("Konto der Auswertung")}'));
+  assert.ok(code.includes('providerKeys: provider, accountIds: account.map(Number)'));
+  assert.ok(code.includes("accountId: balanceAccount ? Number(balanceAccount) : null"));
+  const help = await readFile(new URL("../src/features/transactions/BalanceChartHelp.tsx", import.meta.url), "utf8");
+  const messages = JSON.parse(await readFile(new URL("../src/translations.json", import.meta.url), "utf8"));
+  for (const [, key] of help.matchAll(/\bt\("([^"]+)"\)/g)) assert.equal(messages[key]?.length, 3, key);
+});
+
 test("toolbar and benchmark labels are translated and obsolete chart heading is absent", async () => {
   const messages = JSON.parse(await readFile(new URL("../src/translations.json", import.meta.url), "utf8"));
   for (const name of ["BenchmarkPicker", "WealthChart", "ChartHelp"]) {
@@ -70,7 +87,51 @@ test("toolbar and benchmark labels are translated and obsolete chart heading is 
   assert.ok(assets.includes('aria-label={t("Chart-Steuerung")}'));
   assert.ok(!assets.includes('t("Kein Vergleichszeitraum")'));
   assert.ok(assets.includes("<ChartHelp />"));
+  assert.ok(assets.includes('reportPeriod() ? "custom" : "currentYear"'), "Wealth defaults to YTD unless a report period is provided");
   const picker = await readFile(new URL("../src/features/assets/BenchmarkPicker.tsx", import.meta.url), "utf8");
   assert.ok(!picker.includes("Basis 100 am ersten gemeinsamen Datum"));
   assert.ok(!picker.includes("Quelle: Yahoo Finance"));
+});
+
+test("category donut and multi-select expose translated keyboard-accessible controls", async () => {
+  const donut = await readFile(new URL("../src/features/transactions/CategoryDonut.tsx", import.meta.url), "utf8");
+  const multi = await readFile(new URL("../src/shared/MultiSelect.tsx", import.meta.url), "utf8");
+  const messages = JSON.parse(await readFile(new URL("../src/translations.json", import.meta.url), "utf8"));
+  for (const code of [donut, multi]) {
+    for (const [, key] of code.matchAll(/\bt\("([^"]+)"\)/g)) assert.equal(messages[key]?.length, 3, key);
+  }
+  assert.ok(donut.includes("positive.slice(0,8)"));
+  assert.ok(donut.includes("positive.slice(8)"));
+  assert.ok(donut.includes("item.amountMinor > 0"));
+  const shared = await readFile(new URL("../src/shared/charts/DistributionDonut.tsx", import.meta.url), "utf8");
+  assert.ok(shared.includes('role={onSelect ? "button" : "img"} tabIndex={0}'));
+  assert.ok(multi.includes('type="checkbox"'));
+  assert.ok(multi.includes('event.key === "Escape"'));
+});
+
+test("drilldown category changes require explicit inline save", async () => {
+  const code = await readFile(new URL("../src/features/transactions/Transactions.tsx", import.meta.url), "utf8");
+  const editor = await readFile(new URL("../src/features/transactions/InlineCategoryEditor.tsx", import.meta.url), "utf8");
+  const actions = await readFile(new URL("../src/features/transactions/TransactionActions.tsx", import.meta.url), "utf8");
+  const messages = JSON.parse(await readFile(new URL("../src/translations.json", import.meta.url), "utf8"));
+  assert.ok(code.includes('<InlineCategoryEditor'));
+  assert.ok(!code.includes('onChange={event => void changeCategory'));
+  assert.ok(editor.includes('await onSave(key)'));
+  assert.ok(editor.includes('event.key === "Escape"'));
+  assert.ok(editor.includes('role="alert"'));
+  assert.ok(actions.includes('onEditCategory'));
+  for (const source of [editor, actions]) {
+    for (const [, key] of source.matchAll(/\bt\("([^"]+)"\)/g)) assert.equal(messages[key]?.length, 3, key);
+  }
+});
+
+test("provider allocation shares donut, excludes negative slices and translates states", async () => {
+  const code = await readFile(new URL("../src/features/overview/ProviderDistribution.tsx", import.meta.url), "utf8");
+  const overview = await readFile(new URL("../src/features/overview/Overview.tsx", import.meta.url), "utf8");
+  const messages = JSON.parse(await readFile(new URL("../src/translations.json", import.meta.url), "utf8"));
+  assert.ok(code.includes("<DistributionDonut"));
+  assert.ok(code.includes("Math.max(0,item.balanceMinor)"));
+  assert.ok(code.includes("total={total}"));
+  assert.ok(!overview.includes('className="provider-bar"'));
+  for (const [, key] of code.matchAll(/\bt\("([^"]+)"\)/g)) assert.equal(messages[key]?.length, 3, key);
 });

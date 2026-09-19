@@ -1,0 +1,21 @@
+/* Hält Kategorieaktionen kompakt und die Bearbeitung direkt in der betroffenen Zeile. */
+.category-create-action { margin: 24px 0; }
+.category-inline-editor { flex-basis: 100%; display: flex; align-items: end; flex-wrap: wrap; gap: 12px; padding: 16px 0; }
+.category-inline-editor label { display: grid; gap: 8px; }
+.category-inline-editor label:first-child { flex: 1; min-width: 180px; }
+.category-inline-editor input, .category-removal-dialog select { min-height: 44px; padding: 10px; border: 1px solid var(--border-subtle); border-radius: 10px; background: var(--bg-surface); color: var(--text-primary); width: 100%; }
+.category-inline-editor input[type="color"] { width: 72px; padding: 4px; }
+.category-inline-editor .error-message { flex-basis: 100%; }
+.category-menu { position: relative; margin-left: auto; }
+.category-menu summary { list-style: none; cursor: pointer; display: grid; place-items: center; min-width: 44px; min-height: 44px; border-radius: 9px; color: var(--interactive); font-size: 22px; }
+.category-menu summary::-webkit-details-marker { display: none; }
+.category-menu summary:hover { background: var(--bg-hover); }
+.category-menu summary:focus-visible { outline: 2px solid var(--interactive); outline-offset: 2px; }
+.category-menu-options { position: absolute; z-index: 5; right: 0; top: 100%; min-width: 200px; padding: 8px; border: 1px solid var(--border-subtle); border-radius: 10px; background: var(--bg-surface); box-shadow: var(--shadow-card); }
+.category-menu-options button { display: block; width: 100%; min-height: 44px; text-align: left; border: 0; background: transparent; color: var(--text-primary); border-radius: 6px; padding: 8px 12px; font: inherit; cursor: pointer; }
+.category-menu-options button:hover { background: var(--bg-hover); }
+.category-menu-options .category-delete-option { color: var(--text-negative); }
+.category-menu-options button:disabled { opacity: .5; cursor: default; }
+.category-removal-dialog { width: min(640px, calc(100vw - 32px)); }
+.category-removal-dialog label { display: grid; gap: 8px; margin: 24px 0; }
+.category-dialog-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 12px; margin-top: 24px; }

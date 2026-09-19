@@ -85,6 +85,26 @@ pub async fn switch_database(app: tauri::AppHandle, id: String) -> Result<(), St
 }
 
 #[tauri::command]
+pub async fn create_anonymized_copy(
+    app: tauri::AppHandle,
+    name: String,
+    password: String,
+    factor: Option<f64>,
+    anonymize_descriptions: bool,
+) -> Result<(), String> {
+    tauri::async_runtime::spawn_blocking(move || {
+        app.state::<Storage>().create_anonymized_copy(
+            &name,
+            password,
+            factor,
+            anonymize_descriptions,
+        )
+    })
+    .await
+    .map_err(|_| "Anonymisierte Kopie konnte nicht erstellt werden.".to_string())?
+}
+
+#[tauri::command]
 pub async fn anonymize_database(
     app: tauri::AppHandle,
     anonymize_descriptions: bool,

@@ -1,4 +1,5 @@
 // Verwaltet ausschließlich den vierstufigen Karten-Setup-Workflow und seine Entwürfe.
+import { TransactionTabs } from "../../transactions/TransactionTabs";
 import { useEffect, useState } from "react";
 import { t, tr } from "../../../i18n";
 import { cardsApi } from "../api";
@@ -97,6 +98,7 @@ export function CardSetupWizard() {
   }
   return <section className="transactions-page cards-wizard">
     <h1>{t("Karte einrichten")}</h1>
+    <TransactionTabs active="cards" />
     {error&&<p className="error-message" role="alert">{t(error)}</p>}
     <aside className="wizard-logic-note">
       <strong>{t("Hinweis zur Buchungslogik:")}</strong>

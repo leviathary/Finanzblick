@@ -5,17 +5,18 @@ import { t } from "../../i18n";
 import { DatabasePicker } from "./DatabasePicker";
 import { BackupPanel } from "./BackupPanel";
 import { PasswordSettings } from "./PasswordSettings";
+import { SectionTabs, SectionPanel } from "../../shared/navigation/SectionTabs";
 
 export function DataSecurity() {
   const [revision, setRevision] = useState(0);
+  const [tab, setTab] = useState("profiles");
   return <section className="settings-page">
     <div className="overview-heading"><div><p className="eyebrow">Finanzblick</p><h1>{t("Daten & Sicherheit")}</h1></div></div>
-    <nav className="settings-nav" aria-label={t("Daten & Sicherheit")}>
-      {[["data-databases", "Finanzprofil"], ["data-backup", "Backup"], ["settings-security", "Passwort ändern"]].map(([id, label]) =>
-        <button key={id} type="button" onClick={() => document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" })}>{t(label)}</button>)}
-    </nav>
-    <section id="data-databases" className="dashboard-card settings-card"><DatabasePicker key={revision} allowCreate /></section>
-    <BackupPanel onRestored={() => setRevision(current => current + 1)} />
-    <PasswordSettings />
+    <SectionTabs id="security" label={t("Daten & Sicherheit")} value={tab} onChange={setTab} tabs={[
+      { value: "profiles", label: t("Finanzprofile") }, { value: "backup", label: t("Backup") }, { value: "password", label: t("Passwort ändern") },
+    ]} />
+    <SectionPanel id="security" value="profiles" active={tab}><section id="data-databases" className="dashboard-card settings-card"><DatabasePicker key={revision} allowCreate /></section></SectionPanel>
+    <SectionPanel id="security" value="backup" active={tab}><BackupPanel onRestored={() => setRevision(current => current + 1)} /></SectionPanel>
+    <SectionPanel id="security" value="password" active={tab}><PasswordSettings /></SectionPanel>
   </section>;
 }

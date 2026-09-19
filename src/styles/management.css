@@ -2,32 +2,6 @@
 .settings-page {
   max-width: 880px;
 }
-.settings-nav {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin: 0 0 24px;
-  padding: 8px;
-  border: 1px solid var(--border-subtle);
-  border-radius: 12px;
-  background: var(--bg-muted);
-}
-.settings-nav button {
-  padding: 9px 13px;
-  border: 0;
-  border-radius: 8px;
-  background: transparent;
-  color: var(--text-primary);
-  cursor: pointer;
-  font-size: 13px;
-  font-weight: 700;
-}
-.settings-nav button:hover,
-.settings-nav button:focus-visible {
-  background: var(--bg-surface);
-  color: var(--interactive);
-  box-shadow: 0 1px 5px rgba(20, 50, 78, 0.12);
-}
 .settings-card {
   display: grid;
   gap: 18px;
@@ -87,15 +61,6 @@
   text-align: center;
 }
 
-@media (max-width: 620px) {
-  .settings-nav {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-  .settings-nav button {
-    text-align: center;
-  }
-}
 
 .category-controls {
   display: flex;
@@ -491,7 +456,8 @@
   padding-top: 18px;
 }
 .database-delete-actions {
-  padding-top: 18px;
+  margin-top: 24px;
+  padding-top: 24px;
   border-top: 1px solid var(--border-subtle);
 }
 .database-delete-hint {

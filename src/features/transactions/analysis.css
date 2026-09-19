@@ -1,0 +1,28 @@
+/* Compact analysis filters and category visualization share the application palette. */
+.transaction-category-label { display: flex; align-items: center; gap: 8px; min-width: 0; overflow-wrap: anywhere; }
+.transaction-category-dot { width: 8px; height: 8px; border-radius: 50%; flex: 0 0 8px; }
+.transaction-category-editor { grid-column: 1 / -1; display: flex; align-items: end; flex-wrap: wrap; gap: 12px; padding: 16px; background: var(--bg-muted); border-radius: 9px; }
+.transaction-category-editor label { display: grid; gap: 8px; font-size: 13px; min-width: 200px; }
+.drilldown-table .transaction-category-editor select { min-height: 44px; font-size: 14px; border: 1px solid var(--border-subtle); }
+.transaction-category-editor p { flex-basis: 100%; margin: 0; font-size: 13px; color: var(--text-secondary); }
+.transaction-category-editor .error-message { color: var(--text-negative); }
+.cashflow-analysis > h2 { margin-bottom: 16px; }
+.cashflow-analysis .cashflow-summary { margin: 24px 0 16px; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; }
+.cashflow-analysis .cashflow-summary > article { min-height: 0; padding: 0; border: 0; border-radius: 0; background: transparent; box-shadow: none; align-content: start; }
+.cashflow-analysis .cashflow-summary strong { overflow-wrap: anywhere; }
+.cashflow-period, .cashflow-average { font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
+.cashflow-period strong, .cashflow-average strong { color: var(--text-primary); font-weight: 500; }
+.cashflow-breakdown { border-top: 1px solid var(--border-subtle); margin-top: 24px; padding-top: 24px; min-width: 0; }
+.cashflow-average { margin: 12px 0; }
+@media (max-width: 1100px) { .cashflow-analysis .cashflow-summary { grid-template-columns: 1fr; gap: 20px; } }
+.analysis-multiselect { min-width: 180px; max-width: 320px; position: relative; }
+.analysis-multiselect > span { display: block; font-size: 12px; color: var(--text-secondary); margin-bottom: 4px; }
+.analysis-multiselect summary { min-height: 44px; padding: 10px 14px; border: 1px solid var(--border-subtle); border-radius: 10px; background: var(--bg-surface); cursor: pointer; font-size: 14px; overflow-wrap: anywhere; }
+.analysis-multiselect-options { position: absolute; top: 100%; left: 0; width: max-content; min-width: 100%; max-width: min(360px,80vw); max-height: 320px; overflow: auto; padding: 8px; background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: 10px; box-shadow: var(--shadow-card); z-index: 15; }
+.analysis-multiselect .analysis-multiselect-options label { display: flex; align-items: center; gap: 10px; min-height: 44px; padding: 8px; cursor: pointer; color: var(--text-primary); font-size: 14px; font-weight: 400; }
+.analysis-multiselect-options label:hover { background: var(--bg-muted); }
+.analysis-multiselect-options input[type="checkbox"] { width: 16px; height: 16px; min-height: 0; accent-color: var(--interactive); }
+.category-breakdown-layout { display: grid; grid-template-columns: minmax(240px, 320px) minmax(0,1fr); gap: 24px; align-items: start; }
+.category-donut { position: sticky; top: 24px; }
+.category-donut p { font-size: 12px; color: var(--text-secondary); }
+@media (max-width: 1100px) { .category-breakdown-layout { grid-template-columns: 1fr; } .category-donut { position: static; } }

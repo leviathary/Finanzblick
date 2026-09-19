@@ -142,6 +142,31 @@ mod tests {
         assert!(serde_json::from_str::<TransferType>("\"UNKNOWN\"").is_err());
     }
 
+    #[test]
+    fn analysis_multiselect_combines_accounts_and_intersects_providers() {
+        use crate::storage::banking::transactions::analyze_transactions_filtered;
+        let db = fixture();
+        set_settlement(&db, 3, true).unwrap();
+        set_settlement(&db, 4, true).unwrap();
+        let analyze = |providers, accounts| analyze_transactions_filtered(&db, None, None, None, None, providers, accounts).unwrap();
+        let all = analyze(vec![], vec![]);
+        let combined = analyze(vec!["bank".into(), "other".into()], vec![1, 2, 2]);
+        assert_eq!(combined.total_spend_minor, all.total_spend_minor);
+        assert_eq!(combined.total_income_minor, all.total_income_minor);
+        assert_eq!(combined.total_spend_minor, 8000);
+        let card = analyze(vec!["bank".into()], vec![2]);
+        assert_eq!(card.total_income_minor, 0);
+        assert_eq!(card.total_spend_minor, 8000);
+        let bank = analyze(vec![], vec![1]);
+        assert_eq!(bank.total_income_minor, 50000);
+        assert_eq!(bank.total_spend_minor, 0);
+        let mismatch = analyze(vec!["unknown".into()], vec![1,2]);
+        assert_eq!(mismatch.transaction_count, 0);
+        assert_eq!(mismatch.income_count, 0);
+        let unknown = analyze(vec![], vec![999]);
+        assert_eq!(unknown.total_income_minor, 0);
+    }
+
     fn fixture() -> Connection {
         let db = Connection::open_in_memory().unwrap();
         crate::storage::initialize_schema(&db).unwrap();

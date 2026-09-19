@@ -11,7 +11,7 @@ import "./interactiveTimeline.css";
 function timeDate(time: Time) {
   return typeof time === "string" ? time : typeof time === "number" ? new Date(time * 1000).toISOString().slice(0, 10) : `${time.year}-${String(time.month).padStart(2, "0")}-${String(time.day).padStart(2, "0")}`;
 }
-export function InteractiveTimelineChart({ history, currency, controlsContainer, indexed = false, comparison }: { history: DailyValue[]; currency: string; controlsContainer: HTMLElement | null; indexed?: boolean; comparison?: DailyValue[] }) {
+export function InteractiveTimelineChart({ history, currency, controlsContainer, indexed = false, comparison, ariaLabel }: { history: DailyValue[]; currency: string; controlsContainer: HTMLElement | null; indexed?: boolean; comparison?: DailyValue[]; ariaLabel?: string }) {
   const comparisonSignature = JSON.stringify(comparison ?? []);
   const signature = JSON.stringify(history);
   const model = useMemo(() => {
@@ -154,7 +154,7 @@ export function InteractiveTimelineChart({ history, currency, controlsContainer,
       </button>
     </>, controlsContainer)}
     <div className="interactive-timeline-stage">
-      <div className="interactive-timeline-canvas" ref={hostRef} tabIndex={0} role="group" aria-label={t("Interaktiver Vermögensverlauf")} aria-describedby={helpId} onKeyDown={event => {
+      <div className="interactive-timeline-canvas" ref={hostRef} tabIndex={0} role="group" aria-label={ariaLabel ?? t("Interaktiver Vermögensverlauf")} aria-describedby={helpId} onKeyDown={event => {
         if (["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) {
           event.preventDefault();
           const index = event.key === "Home" ? 0 : event.key === "End" ? model.points.length - 1 : Math.max(0, Math.min(model.points.length - 1, indexRef.current + (event.key === "ArrowLeft" ? -1 : 1)));

@@ -7,10 +7,10 @@ portfolios, net worth and spending. No app account or cloud sync required.
 
 ## Install on Windows
 
-[Download the Windows installer 0.5.10 (64-bit)](https://github.com/leviathary/Finanzblick/releases/download/v0.5.10/Finanzblick_0.5.10_x64-setup.exe)
+[Download the Windows installer 0.6.0 (64-bit)](https://github.com/leviathary/Finanzblick/releases/download/v0.6.0/Finanzblick_0.6.0_x64-setup.exe)
 
-[Release notes](https://github.com/leviathary/Finanzblick/releases/tag/v0.5.10)
-· [SHA-256 checksum](https://github.com/leviathary/Finanzblick/releases/download/v0.5.10/Finanzblick_0.5.10_x64-setup.exe.sha256)
+[Release notes](https://github.com/leviathary/Finanzblick/releases/tag/v0.6.0)
+· [SHA-256 checksum](https://github.com/leviathary/Finanzblick/releases/download/v0.6.0/Finanzblick_0.6.0_x64-setup.exe.sha256)
 
 Run the downloaded file. Windows Developer Mode is not required.
 The installer is unsigned, so Windows may display a security warning.

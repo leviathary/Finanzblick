@@ -772,6 +772,26 @@ fn stores_the_dated_opening_balance_for_the_real_balance_history() {
 }
 
 #[test]
+fn balance_history_only_includes_bank_accounts_even_when_explicitly_selected() {
+    let db = rusqlite::Connection::open_in_memory().unwrap();
+    db.execute_batch("CREATE TABLE institutions(id INTEGER,provider_key TEXT);
+      INSERT INTO institutions VALUES(1,'bank'),(2,'broker');
+      CREATE TABLE accounts(id INTEGER,institution_id INTEGER,account_type TEXT,is_active INTEGER);
+      INSERT INTO accounts VALUES(1,1,'cash',1),(2,1,'savings',1),(3,1,'credit_card',1),
+        (4,2,'portfolio',1),(5,2,'manual_asset',1),(6,2,'pillar3a',1),(7,1,'mortgage',1),(8,1,'cash',0);
+      CREATE TABLE balance_snapshots(id INTEGER,account_id INTEGER,balance_date TEXT,amount_minor INTEGER,currency TEXT);
+      INSERT INTO balance_snapshots SELECT id,id,'2020-01-01',id*100,'CHF' FROM accounts;").unwrap();
+    let all = transaction_history(&db, &None, None).unwrap();
+    assert_eq!(all[0].total_minor, 300);
+    assert_eq!(transaction_history(&db, &None, Some(2)).unwrap()[0].total_minor, 200);
+    for id in 3..=8 {
+        assert!(transaction_history(&db, &None, Some(id)).unwrap().is_empty());
+    }
+    assert!(transaction_history(&db, &Some("broker".into()), None).unwrap().is_empty());
+    assert_eq!(db.query_row("SELECT account_type FROM accounts WHERE id=3", [], |r| r.get::<_, String>(0)).unwrap(), "credit_card");
+}
+
+#[test]
 fn overlapping_import_inserts_only_new_transaction_occurrences() {
     let directory =
         std::env::temp_dir().join(format!("finanzblick-overlap-test-{}", std::process::id()));

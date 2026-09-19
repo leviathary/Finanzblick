@@ -17,9 +17,11 @@ pub(crate) fn transaction_analysis(
     to: Option<String>,
     provider_key: Option<String>,
     account_id: Option<i64>,
+    provider_keys: Vec<String>,
+    account_ids: Vec<i64>,
 ) -> Result<TransactionAnalysis, String> {
     let connection = storage.connect().map_err(db_error)?;
-    analyze_transactions(&connection, from, to, provider_key, account_id)
+    analyze_transactions_filtered(&connection, from, to, provider_key, account_id, provider_keys, account_ids)
 }
 
 pub(crate) fn analyze_transactions(
@@ -29,8 +31,25 @@ pub(crate) fn analyze_transactions(
     provider_key: Option<String>,
     account_id: Option<i64>,
 ) -> Result<TransactionAnalysis, String> {
+    analyze_transactions_filtered(connection, from, to, provider_key, account_id, vec![], vec![])
+}
+
+pub(crate) fn analyze_transactions_filtered(
+    connection: &Connection,
+    from: Option<String>,
+    to: Option<String>,
+    provider_key: Option<String>,
+    account_id: Option<i64>,
+    provider_keys: Vec<String>,
+    account_ids: Vec<i64>,
+) -> Result<TransactionAnalysis, String> {
     consumption::prepare(connection).map_err(db_error)?;
-    let history = transaction_history(connection, &provider_key, account_id).map_err(db_error)?;
+    // Multi-select analysis has its own filters; bank balances use their dedicated command.
+    let history = if provider_keys.is_empty() && account_ids.is_empty() {
+        transaction_history(connection, &provider_key, account_id).map_err(db_error)?
+    } else { vec![] };
+    let providers_json = serde_json::to_string(&provider_keys).map_err(|e| e.to_string())?;
+    let accounts_json = serde_json::to_string(&account_ids).map_err(|e| e.to_string())?;
     let mut query = connection
         .prepare(
             "SELECT t.id,t.booking_date,t.description,t.industry,t.amount_minor,t.currency,
@@ -43,11 +62,13 @@ pub(crate) fn analyze_transactions(
          WHERE a.is_active=1 AND t.currency='CHF' AND t.amount_minor<>0
          AND (?1 IS NULL OR t.booking_date>=?1) AND (?2 IS NULL OR t.booking_date<=?2)
          AND (?3 IS NULL OR i.provider_key=?3) AND (?4 IS NULL OR a.id=?4)
+         AND (json_array_length(?5)=0 OR i.provider_key IN (SELECT value FROM json_each(?5)))
+         AND (json_array_length(?6)=0 OR a.id IN (SELECT value FROM json_each(?6)))
          ORDER BY t.booking_date DESC,t.id DESC",
         )
         .map_err(db_error)?;
     let rows = query
-        .query_map(params![from, to, provider_key, account_id], |r| {
+        .query_map(params![from, to, provider_key, account_id, providers_json, accounts_json], |r| {
             Ok(AnalyzedTransaction {
                 id: r.get(0)?,
                 booking_date: r.get(1)?,
@@ -145,6 +166,15 @@ pub(crate) fn analyze_transactions(
     })
 }
 
+pub(crate) fn bank_balance_history(
+    storage: &Storage,
+    provider: Option<String>,
+    account: Option<i64>,
+) -> Result<Vec<TransactionHistoryPoint>, String> {
+    let db = storage.connect().map_err(db_error)?;
+    transaction_history(&db, &provider, account).map_err(db_error)
+}
+
 pub(crate) fn transaction_history(
     db: &Connection,
     provider: &Option<String>,
@@ -159,7 +189,7 @@ pub(crate) fn transaction_history(
            AND date(bs.balance_date)<=date('now','localtime')
            AND (?1 IS NULL OR i.provider_key=?1)
            AND (?2 IS NULL OR a.id=?2)
-           AND (?2 IS NOT NULL OR a.account_type<>'credit_card')
+           AND a.account_type IN ('cash','savings')
            AND bs.id=(SELECT latest.id FROM balance_snapshots latest
              WHERE latest.account_id=bs.account_id AND latest.balance_date=bs.balance_date
              ORDER BY latest.id DESC LIMIT 1)
