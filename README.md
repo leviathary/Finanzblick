@@ -1,158 +1,162 @@
 # Finanzblick
 
-Deine Finanzen auf einen Blick: eine lokale Desktop-App für Konten, Depots,
-Vermögen und Ausgaben. Ohne Benutzerkonto oder Cloud-Synchronisierung.
+**English** | [Deutsch](README.de.md)
 
-## Windows installieren
+Your finances at a glance: a local desktop app for bank accounts, investment
+portfolios, net worth and spending. No app account or cloud sync required.
 
-[Windows-Installer 0.5.10 herunterladen (64 Bit)](https://github.com/leviathary/Finanzblick/releases/download/v0.5.10/Finanzblick_0.5.10_x64-setup.exe)
+## Install on Windows
 
-[Release-Notizen](https://github.com/leviathary/Finanzblick/releases/tag/v0.5.10)
-· [SHA-256-Prüfsumme](https://github.com/leviathary/Finanzblick/releases/download/v0.5.10/Finanzblick_0.5.10_x64-setup.exe.sha256)
+[Download the Windows installer 0.5.10 (64-bit)](https://github.com/leviathary/Finanzblick/releases/download/v0.5.10/Finanzblick_0.5.10_x64-setup.exe)
 
-Die heruntergeladene Datei ausführen. Ein Windows-Entwicklermodus ist nicht nötig.
-Der Installer ist nicht signiert; Windows kann deshalb eine Sicherheitswarnung anzeigen.
-Frühe Testversion: vor der Nutzung mit echten Daten ein Backup erstellen.
+[Release notes](https://github.com/leviathary/Finanzblick/releases/tag/v0.5.10)
+· [SHA-256 checksum](https://github.com/leviathary/Finanzblick/releases/download/v0.5.10/Finanzblick_0.5.10_x64-setup.exe.sha256)
 
-Die Demo ist bereits enthalten: **Finanzprofil → Demo-Daten**, Passwort **`demo1234`**.
-Sie wird beim ersten Öffnen lokal erzeugt; es ist kein zusätzlicher Download nötig.
-Falls WebView2 fehlt, benötigt dessen Einrichtung eine Internetverbindung.
+Run the downloaded file. Windows Developer Mode is not required.
+The installer is unsigned, so Windows may display a security warning.
+This is an early test version: create a backup before using it with real data.
 
-## macOS installieren
+The demo is included: **Financial profile → Demo data**, password **`demo1234`**.
+It is created locally on first use; no additional download is needed.
+If WebView2 is missing, its installation requires an internet connection.
 
-[macOS-DMG 0.5.7 herunterladen (Apple Silicon)](https://github.com/leviathary/Finanzblick/releases/download/v0.5.7/Finanzblick_0.5.7_aarch64.dmg)
+## Install on macOS
 
-Für Macs mit Apple Silicon (M-Chips). DMG öffnen und **Finanzblick** auf **Applications**
-ziehen, danach die App aus dem Programme-Ordner starten.
+[Download the macOS DMG 0.5.7 (Apple Silicon)](https://github.com/leviathary/Finanzblick/releases/download/v0.5.7/Finanzblick_0.5.7_aarch64.dmg)
 
-Diese Testversion ist ad-hoc signiert, aber nicht von Apple notarisiert.
-Bei einer Sperre nach dem Download lässt sich der Start unter
-**Systemeinstellungen → Datenschutz & Sicherheit → Dennoch öffnen** freigeben.
-Eine Intel-Version ist in diesem DMG nicht enthalten.
+For Macs with Apple Silicon (M-series chips). Open the DMG, drag **Finanzblick**
+to **Applications**, then launch the app from Applications.
 
-Version 0.5.7 enthält Finanzchat und das lokale deutsche Sprachmodell.
-Build, DMG-Prüfung und Start mit Demo-Übersicht wurden am 15.09.2026 auf
-macOS 26.6.2 (Apple Silicon) erfolgreich geprüft.
-Die 13 Frontend- und 81 aktiven Rust-Tests sowie der zusätzliche lokale
-Chat-Runtime-Test bestehen auf macOS. Die Schlüsselbund-Anmeldung wurde mit
-synthetischen Testdaten auf Speicherung, Profiltrennung und Abmeldung geprüft.
-Installation und Funktion der vorherigen Version 0.5.3 wurden vom Anwender bestätigt.
-Andere macOS-Versionen und eine frische Installation nach einem GitHub-Download
-sind noch nicht getestet.
+This test version is ad-hoc signed, but not notarized by Apple.
+If macOS blocks it after downloading, allow it under
+**System Settings → Privacy & Security → Open Anyway**.
+The DMG does not include an Intel build.
 
-## Einblick
+Version 0.5.7 includes Finance chat and the local German speech model.
+The build, DMG verification and launch with the demo overview were successfully
+tested on macOS 26.6.2 (Apple Silicon) on September 15, 2026.
+The 13 frontend tests, 81 active Rust tests and an additional local chat-runtime
+test passed on macOS. Keychain sign-in was tested with synthetic data for
+persistence, profile isolation and sign-out. Installation and operation of the
+earlier version 0.5.3 were confirmed by the user. Other macOS versions and a
+fresh installation after downloading from GitHub have not yet been tested.
 
-Die Screenshots zeigen die Oberfläche von Version 0.5.10 mit ausschliesslich
-fiktiven Beispieldaten. Konten, Anbieter und Kursverläufe sind erfunden.
+## Screenshots
 
-### Vermögensübersicht
+These screenshots show version 0.5.10 with fictional sample data.
+Accounts, providers and price histories are invented. The screenshots use the
+German interface; English, French and Italian are also available in the app.
 
-![Vermögensübersicht mit Konten und Anbietern](docs/screenshots/uebersicht-light-0.5.10.png)
+### Net worth overview
 
-### Interaktive Vermögensentwicklung
+![Net worth overview with accounts and providers](docs/screenshots/uebersicht-light-0.5.10.png)
 
-Zeitraum wählen, mit dem Mausrad zoomen, den Verlauf verschieben oder mit dem
-Messwerkzeug Veränderungen untersuchen. Die Kontexthilfe erklärt die Bedienung.
+### Interactive net worth history
 
-![Vermögensentwicklung mit interaktivem Chart und kompakter Werkzeugleiste](docs/screenshots/vermoegensentwicklung-light-0.5.10.png)
+Choose a date range, zoom with the mouse wheel, pan through the chart or use the
+measurement tool to explore changes. Contextual help explains the controls.
 
-### Dark Mode
+![Net worth history with an interactive chart and compact toolbar](docs/screenshots/vermoegensentwicklung-light-0.5.10.png)
 
-Unter Einstellungen zwischen heller, dunkler und systemabhängiger Darstellung wechseln.
+### Dark mode
 
-![Vermögensentwicklung im Dark Mode](docs/screenshots/dark-mode.png)
+Choose a light, dark or system appearance in Settings.
 
-## Funktionen
+![Net worth history in dark mode](docs/screenshots/dark-mode.png)
 
-- Bankauszüge aus Excel, CSV, PDF und MT940 importieren und vor dem Speichern prüfen
-- Konten, Aktien, ETFs, Kryptowährungen und Vorsorgevermögen gemeinsam auswerten
-- Vermögensentwicklung, Geldfluss und Steuerhistorie visualisieren
-- Interaktive Vermögenscharts mit Zoom, Messwerkzeug und optionalem Indexvergleich (SMI, S&P 500)
-- Helle, dunkle oder systemabhängige Darstellung wählen
-- Depotpositionen einzeln oder gemeinsam im Verlauf anzeigen; bei einer Position zwischen Wert und Kurs wechseln
-- Transaktionen kategorisieren und Kreditkartenzahlungen ohne Doppelzählung erfassen
-- Unabhängige Finanzprofile erstellen, kopieren, anonymisieren und sichern
-- Deutsch, Englisch, Französisch und Italienisch mit regionalen Zahlenformaten
+## Features
 
-Importvorlagen gibt es unter anderem für UBS inklusive Mastercard, Swissquote,
-Migros Bank, Raiffeisen und Generali. [Testauszüge](fixtures/bank-statements)
-enthalten nur erfundene Daten.
+- Import bank statements from Excel, CSV, PDF and MT940, and review them before saving
+- View bank accounts, stocks, ETFs, cryptocurrencies and retirement assets together
+- Visualize net worth, cash flow and tax history
+- Explore interactive net worth charts with zoom, measurement tools and optional index comparisons (SMI, S&P 500)
+- Choose a light, dark or system appearance
+- View portfolio positions individually or together over time; switch between position value and price for a single position
+- Categorize transactions and account for credit card payments without double-counting
+- Create, copy, anonymize and back up independent financial profiles
+- Use German, English, French or Italian with regional number formats
 
-## Einfach ausprobieren
+Import templates include UBS (including Mastercard), Swissquote, Migros Bank,
+Raiffeisen and Generali. [Sample statements](fixtures/bank-statements) contain
+fictional data only.
 
-In der Auswahl **Finanzprofil → Demo-Daten** findest du Banken, Aktien und ETFs,
-kategorisierte Kreditkartenbuchungen und acht Jahre simulierter Historie.
-Die Demo funktioniert offline und wird beim nächsten Öffnen wiederverwendet.
+## Try the demo
 
-**Passwort für das Demo-Profil: `demo1234`** (alles kleingeschrieben, ohne Leerzeichen).
+Select **Financial profile → Demo data** to explore banks, stocks and ETFs,
+categorized credit card transactions and eight years of simulated history.
+The demo works offline and is reused the next time you open it.
 
-Für persönliche Daten wählst du **Neues Finanzprofil** und ein eigenes Passwort.
-Demo-Kurse sind keine historischen Börsendaten oder Anlageempfehlungen.
+**Demo profile password: `demo1234`** (lowercase, no spaces).
 
-## Optionaler Finanzchat
+For personal data, choose **New financial profile** and set your own password.
+Demo prices are not historical market data or investment advice.
 
-Unter **Finanzchat → Mit ChatGPT anmelden** verbindet sich Finanzblick über die
-mitgelieferte Codex-Laufzeit mit einem unterstützten ChatGPT-Konto. Kein API-Schlüssel
-und kein separates API-Guthaben erforderlich. Die Anmeldung wird pro Finanzprofil im geschützten Anmeldespeicher des Geräts
-behalten und lässt sich im Finanzchat entfernen. Der Mikrofonknopf erkennt deutsche
-Fragen lokal, ohne Audio hochzuladen. Standardmässig werden neue Datenpakete vor der Übermittlung
-zur Prüfung angezeigt. Folgefragen verwenden den bestehenden Chatkontext und werden
-ohne erneute Datenfreigabe gesendet. Ändern sich Daten, Zeitraum oder Kontenauswahl,
-wird bei aktivierter Prüfung eine neue Freigabe verlangt. Unter **Datenschutz & Modell-Info** kann man freiwillig den
-Fearless-Modus mit Detailtransaktionen für einen gewählten Zeitraum aktivieren und
-unabhängig davon die Prüfung vor dem Senden ausschalten. Direktversand erfolgt dann
-mit Enter oder Sendepfeil. Fragen nach Kreditkarten werden automatisch auf aktive
-Kreditkartenkonten begrenzt; unter **Kontenauswahl** lässt sich der Umfang auch
-ausdrücklich wählen. Allgemeines Einkommen und Vermögen werden bei reinen
-Kreditkartenfragen nicht mitgegeben. Der Chatbot bleibt rein lesend.
+## Optional Finance chat
 
-Im freiwilligen Fearless-Modus werden auch Buchungsbeschreibungen übertragen,
-damit Händlerfragen möglich sind. Diese Texte können persönliche Angaben enthalten.
-Separate Konto- und Banknamen, IBAN, Kontonummern, Inhaber- und Adressfelder bleiben
-ausgeschlossen; Angaben innerhalb von Beschreibungen, Kategorienamen und Fragen
-werden jedoch mitgesendet. „Neuer Chat“, Verlassen
-oder Sperren beendet den flüchtigen Chatkontext; die Anmeldung bleibt gespeichert.
+Under **Finance chat → Sign in with ChatGPT**, Finanzblick connects to a supported
+ChatGPT account using the bundled Codex runtime. No API key or separate API
+credit is required. Sign-in is stored per financial profile in the device's
+protected credential store and can be removed in Finance chat. The microphone
+button recognizes German questions locally, without uploading audio.
 
-Details, Grenzen und Tests: [Finanzchat](docs/finance-chat.md).
+By default, new data packages are shown for review before being sent.
+Follow-up questions reuse the existing chat context and are sent without asking
+for data approval again. When data, date range or account selection changes,
+another approval is requested if review is enabled. Under **Privacy & model info**,
+you can optionally enable Fearless mode with detailed transactions for a chosen
+period, and independently disable review before sending. Direct sending then
+uses Enter or the send arrow. Credit card questions are automatically limited
+to active credit card accounts; **Account selection** also lets you choose the
+scope explicitly. General income and net worth are not included for questions
+limited to credit cards. The assistant remains read-only.
 
-## Datenschutz und Backup
+Optional Fearless mode also sends transaction descriptions to support questions
+about merchants. These texts may contain personal information. Separate account
+and bank names, IBANs, account numbers, account-holder and address fields are
+excluded; information within descriptions, category names and questions is still
+sent. **New chat**, leaving the chat or locking the app ends the temporary chat
+context; sign-in remains saved.
 
-Finanzdaten werden auf deinem Gerät mit SQLCipher verschlüsselt gespeichert.
-Für automatische Bewertungen werden Wertpapierkennungen, Zeiträume und
-Währungspaare an Marktdatenanbieter übermittelt – keine Kontostände oder Buchungen.
+Details, limitations and tests: [Finance chat](docs/finance-chat.md) (German).
 
-Unter **Daten & Sicherheit** kannst du dein Passwort ändern und verschlüsselte
-Backups per Dateidialog erstellen oder wiederherstellen. Eine Wiederherstellung
-legt ein zusätzliches Finanzprofil an; bestehende Daten bleiben erhalten.
+## Privacy and backups
 
-**Wichtig:** Es gibt keinen Passwort-Reset. Backups benötigen das Passwort vom
-Zeitpunkt der Sicherung. Bewahre sie möglichst auf einem anderen Datenträger auf.
+Financial data is stored on your device, encrypted with SQLCipher.
+For automatic valuations, security identifiers, date ranges and currency pairs
+are sent to market data providers—not account balances or transactions.
 
-## Lizenz
+Under **Data & security**, you can change your password and create or restore
+encrypted backups using a file dialog. Restoring a backup creates an additional
+financial profile; existing data is preserved.
 
-Der eigene Quellcode steht unter der [MIT-Lizenz](LICENSE).
-[Abhängigkeiten](DEPENDENCIES.md) behalten ihre eigenen Lizenzen; deren Texte und
-Hinweise stehen in [THIRD_PARTY_LICENSES.txt](THIRD_PARTY_LICENSES.txt) und werden
-im Installer mitgeliefert. Banklogos werden nicht mitgeliefert; stattdessen
-erscheinen Kürzel. Eigene Logos lassen sich lokal im Finanzprofil hochladen.
+**Important:** There is no password reset. Backups require the password that was
+active when they were created. Keep them on a separate storage device if possible.
 
-## Entwicklung
+## License
+
+The project's own source code is available under the [MIT License](LICENSE).
+[Dependencies](DEPENDENCIES.md) retain their own licenses. Their license texts
+and notices are included in [THIRD_PARTY_LICENSES.txt](THIRD_PARTY_LICENSES.txt)
+and bundled with the installer. Bank logos are not bundled; initials are shown
+instead. You can upload custom logos locally within your financial profile.
+
+## Development
 
 Tauri 2 · React · TypeScript · Rust · SQLCipher
 
-Voraussetzungen: Node.js 22+, Rust/Cargo und die Tauri-Systemabhängigkeiten.
-Unter Windows zusätzlich WebView2, Microsoft C++ Build Tools und natives Perl
-für den OpenSSL-Build. Unter macOS werden die Xcode Command Line Tools
-(`xcode-select --install`) und Perl für den OpenSSL-Build benötigt.
+Requirements: Node.js 22+, Rust/Cargo and the Tauri system dependencies.
+Windows also requires WebView2, Microsoft C++ Build Tools and native Perl for
+the OpenSSL build. macOS requires Xcode Command Line Tools
+(`xcode-select --install`) and Perl for the OpenSSL build.
 
 ```sh
 npm install
 npm run tauri dev
 ```
 
-`npm run dev` startet nur die Weboberfläche ohne native Funktionen.
+`npm run dev` starts only the web interface, without native functionality.
 
-Tests und Build:
+Tests and build:
 
 ```sh
 npm test
@@ -160,35 +164,34 @@ npm run build
 cargo test --manifest-path src-tauri/Cargo.toml --lib
 ```
 
-Alle eingecheckten Tests verwenden synthetische Daten. Echte Finanzdaten gehören
-nicht ins Repository.
+All committed tests use synthetic data. Real financial data must not be added
+to the repository.
 
-Veröffentlichungs-Build: `node scripts/release.mjs --bundles nsis` (Windows).
-`CARGO_TARGET_DIR` muss dabei auf ein neutrales Verzeichnis außerhalb des
-Repositories und Benutzerprofils zeigen. Ein frischer OpenSSL-Build benötigt
-zusätzlich Perl im Build-PATH; dies ist keine Voraussetzung für die fertige App.
-Für ein natives macOS-DMG auf einem Mac:
+Release build: `node scripts/release.mjs --bundles nsis` (Windows).
+Set `CARGO_TARGET_DIR` to a neutral directory outside the repository and user
+profile. A fresh OpenSSL build also requires Perl on the build PATH; this is
+not a requirement for the installed app.
+To build a native macOS DMG on a Mac:
 
 ```sh
 cargo fetch --manifest-path src-tauri/Cargo.toml --locked
 CARGO_TARGET_DIR=/tmp/finanzblick-build npm run release:mac
 ```
 
-Das DMG liegt danach unter `/tmp/finanzblick-build/release/bundle/dmg/`.
-Die Architektur entspricht dem Build-Mac: Apple Silicon erzeugt `aarch64`,
-Intel erzeugt `x64`. Das DMG kann als Asset eines GitHub-Releases hochgeladen
-werden. Der Build veröffentlicht nichts automatisch.
-Seit 0.5.7 wird das grössere DMG mit Chat-Runtime und Sprachmodell als Release-Asset
-bereitgestellt; die Prüfsumme liegt auch im Repository unter `installers`.
+The DMG is generated under `/tmp/finanzblick-build/release/bundle/dmg/`.
+Its architecture matches the build Mac: Apple Silicon produces `aarch64`, Intel
+produces `x64`. The DMG can be uploaded as a GitHub Release asset. The build does
+not publish anything automatically. Since 0.5.7, the larger DMG with the chat
+runtime and speech model is distributed as a release asset; its checksum is
+also stored in the repository under `installers`.
 
-Das plattformneutrale Build-Skript sammelt Lizenzhinweise, neutralisiert lokale
-Rust-Build-Pfade und prüft die ausführbare Datei vor der Weitergabe.
-Die macOS-Konfiguration verwendet eine Ad-hoc-Signatur. Für eine von Apple
-signierte und notarisierte Veröffentlichung sind ein Developer-ID-Zertifikat
-und die entsprechende Tauri-Signierungs-/Notarisierungskonfiguration nötig;
-siehe [Tauri macOS Code Signing](https://v2.tauri.app/distribute/sign/macos/).
-Für native Bibliotheken wie OpenSSL muss auch `CARGO_TARGET_DIR` auf ein neutrales
-Build-Verzeichnis ohne persönlichen Benutzernamen zeigen. Ein fehlgeschlagener
-Pfadcheck bedeutet, dass der erzeugte Installer nicht veröffentlicht werden darf.
-Hinweise zur Veröffentlichung und zum Umgang mit lokalen Daten stehen in
-[SECURITY.md](SECURITY.md).
+The cross-platform build script collects license notices, remaps local Rust
+build paths and checks the executable before distribution. The macOS
+configuration uses an ad-hoc signature. An Apple-signed, notarized release
+requires a Developer ID certificate and the corresponding Tauri signing and
+notarization configuration; see
+[Tauri macOS Code Signing](https://v2.tauri.app/distribute/sign/macos/).
+For native libraries such as OpenSSL, `CARGO_TARGET_DIR` must also point to a
+neutral build directory without a personal username. If the path check fails,
+the generated installer must not be published. Publication and local-data
+handling guidelines are available in [SECURITY.md](SECURITY.md).
