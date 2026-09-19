@@ -1,6 +1,11 @@
+//! Initialisiert die Tauri-Anwendung, registriert Schnittstellen und verwaltet den Anwendungszustand.
+
+mod application;
+mod commands;
 mod domain;
 mod import_files;
 mod importers;
+mod infrastructure;
 mod storage;
 
 use tauri::{Emitter, Manager};
@@ -38,12 +43,14 @@ fn inspect_tabular_file(
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
-        .manage(storage::chat_account::ChatState::default())
+        .manage(application::assistant::account::ChatState::default())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_opener::init())
         .on_window_event(|window, event| {
             if matches!(event, tauri::WindowEvent::Destroyed) {
-                window.state::<storage::chat_account::ChatState>().stop();
+                window
+                    .state::<application::assistant::account::ChatState>()
+                    .stop();
             }
             // Native minimize changes do not reliably produce WebView visibility events.
             // Check the actual state: ordinary focus loss must not lock the vault.
@@ -65,72 +72,81 @@ pub fn run() {
                 }
                 handle.state::<storage::Storage>().expire_session();
                 handle
-                    .state::<storage::chat_account::ChatState>()
+                    .state::<application::assistant::account::ChatState>()
                     .expire(&handle.state::<storage::Storage>());
             });
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
-            storage::security::vault_status,
-            storage::finance_chat::prepare_finance_chat,
-            storage::chat_account::chatgpt_status,
-            storage::chat_account::chatgpt_login_start,
-            storage::chat_account::chatgpt_disconnect,
-            storage::chat_account::cancel_finance_chat,
-            storage::chat_account::send_finance_chat,
-            storage::security::demo::create_demo_database,
-            storage::security::demo::demo_status,
-            storage::security::backups::create_backup,
-            storage::security::backups::restore_backup,
-            storage::security::databases::list_databases,
-            storage::security::databases::create_database,
-            storage::security::databases::copy_database,
-            storage::security::databases::switch_database,
-            storage::security::databases::anonymize_database,
-            storage::security::databases::anonymize_database_with_factor,
-            storage::security::databases::delete_database,
-            storage::security::save_app_settings,
-            storage::security::change_vault_password,
-            storage::security::unlock_vault,
-            storage::security::lock_vault,
-            storage::security::vault_activity,
+            commands::database::vault_status,
+            commands::assistant::prepare_finance_chat,
+            commands::assistant::chatgpt_status,
+            commands::assistant::chatgpt_login_start,
+            commands::assistant::chatgpt_disconnect,
+            commands::assistant::cancel_finance_chat,
+            commands::assistant::send_finance_chat,
+            commands::database::create_demo_database,
+            commands::database::demo_status,
+            commands::database::create_backup,
+            commands::database::restore_backup,
+            commands::database::list_databases,
+            commands::database::create_database,
+            commands::database::copy_database,
+            commands::database::switch_database,
+            commands::database::anonymize_database,
+            commands::database::anonymize_database_with_factor,
+            commands::database::delete_database,
+            commands::database::save_app_settings,
+            commands::database::change_vault_password,
+            commands::database::unlock_vault,
+            commands::database::lock_vault,
+            commands::database::vault_activity,
             parse_statement,
             inspect_tabular_file,
             import_files::collect_import_files,
-            storage::save_import,
-            storage::check_import_duplicates,
-            storage::is_file_imported,
-            storage::list_imports,
-            storage::list_import_mapping_profiles,
-            storage::save_import_mapping_profile,
-            storage::delete_imports,
-            storage::database_status,
-            storage::dashboard_data,
-            storage::list_accounts,
-            storage::wealth_data,
-            storage::position_history::position_chart_data,
-            storage::transaction_analysis,
-            storage::reconciliation::card_reconciliation,
-            storage::set_transaction_category,
-            storage::categories::list_categories,
-            storage::categories::save_category,
-            storage::categories::remove_category,
-            storage::categories::list_industry_rules,
-            storage::categories::save_industry_rule,
-            storage::create_account,
-            storage::update_account,
-            storage::delete_account,
-            storage::save_manual_valuation,
-            storage::list_manual_positions,
-            storage::delete_manual_position,
-            storage::market_data::refresh_market_data,
-            storage::set_institution_logo,
-            storage::tax_history::preview_tax_statement,
-            storage::tax_history::save_tax_statement,
-            storage::tax_history::save_manual_tax_snapshot,
-            storage::tax_history::list_tax_snapshots,
-            storage::tax_history::update_tax_snapshot,
-            storage::tax_history::delete_tax_snapshot
+            commands::imports::save_import,
+            commands::imports::check_import_duplicates,
+            commands::imports::is_file_imported,
+            commands::imports::list_imports,
+            commands::imports::list_import_mapping_profiles,
+            commands::imports::save_import_mapping_profile,
+            commands::imports::delete_imports,
+            commands::reporting::database_status,
+            commands::reporting::dashboard_data,
+            commands::accounts::list_accounts,
+            commands::reporting::wealth_data,
+            commands::position_history::position_chart_data,
+            commands::transactions::transaction_analysis,
+            commands::transactions::set_transaction_settlement,
+            commands::transactions::set_transaction_transfers,
+            commands::cards::list_card_setup_transactions,
+            commands::cards::set_card_credit_decision,
+            commands::cards::confirm_card_setup,
+            commands::rules::preview_settlement_rule,
+            commands::rules::confirm_settlement_rule,
+            commands::rules::list_settlement_rules,
+            commands::rules::delete_settlement_rule,
+            commands::transactions::list_transaction_transfers,
+            commands::transactions::set_transaction_category,
+            commands::categories::list_categories,
+            commands::categories::save_category,
+            commands::categories::remove_category,
+            commands::categories::list_industry_rules,
+            commands::categories::save_industry_rule,
+            commands::accounts::create_account,
+            commands::accounts::update_account,
+            commands::accounts::delete_account,
+            commands::positions::save_manual_valuation,
+            commands::positions::list_manual_positions,
+            commands::positions::delete_manual_position,
+            commands::market_data::refresh_market_data,
+            commands::accounts::set_institution_logo,
+            commands::taxes::preview_tax_statement,
+            commands::taxes::save_tax_statement,
+            commands::taxes::save_manual_tax_snapshot,
+            commands::taxes::list_tax_snapshots,
+            commands::taxes::update_tax_snapshot,
+            commands::taxes::delete_tax_snapshot
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

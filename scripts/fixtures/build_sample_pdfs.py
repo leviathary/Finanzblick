@@ -1,3 +1,5 @@
+# Erzeugt synthetische PDF-Bankbelege als Import-Testdaten.
+
 from pathlib import Path
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import A4

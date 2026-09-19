@@ -1,3 +1,5 @@
+// Bereitet die plattformspezifische Chat-Laufzeit für die Paketierung vor.
+
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";

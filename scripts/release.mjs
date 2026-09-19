@@ -1,3 +1,5 @@
+// Steuert die Build- und Paketierungsschritte für eine Release-Ausgabe.
+
 import { execFileSync, spawnSync } from "node:child_process";
 import fs from "node:fs";
 import os from "node:os";

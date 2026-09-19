@@ -1,6 +1,6 @@
 # Third-party dependencies
 
-Target: `aarch64-apple-darwin`. Generated with `npm run licenses` from the locked Cargo dependencies
+Target: `x86_64-pc-windows-msvc`. Generated with `npm run licenses` from the locked Cargo dependencies
 and installed production npm packages. Includes Cargo build dependencies; this is
 a conservative inventory, not a claim that every listed package is linked at runtime.
 
@@ -23,7 +23,6 @@ Regenerate for each release target after dependency changes.
 | Cargo | atoi_simd | 0.18.1 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/atoi_simd/0.18.1/download) |
 | Cargo | atomic-waker | 1.1.2 | Apache-2.0 OR MIT | [Source](https://crates.io/api/v1/crates/atomic-waker/1.1.2/download) |
 | Cargo | autocfg | 1.5.1 | Apache-2.0 OR MIT | [Source](https://crates.io/api/v1/crates/autocfg/1.5.1/download) |
-| Cargo | base64 | 0.21.7 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/base64/0.21.7/download) |
 | Cargo | base64 | 0.22.1 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/base64/0.22.1/download) |
 | Cargo | bit-set | 0.8.0 | Apache-2.0 OR MIT | [Source](https://crates.io/api/v1/crates/bit-set/0.8.0/download) |
 | Cargo | bit-vec | 0.8.0 | Apache-2.0 OR MIT | [Source](https://crates.io/api/v1/crates/bit-vec/0.8.0/download) |
@@ -31,7 +30,6 @@ Regenerate for each release target after dependency changes.
 | Cargo | bitflags | 2.13.1 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/bitflags/2.13.1/download) |
 | Cargo | block-buffer | 0.10.4 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/block-buffer/0.10.4/download) |
 | Cargo | block-padding | 0.3.3 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/block-padding/0.3.3/download) |
-| Cargo | block2 | 0.6.2 | MIT | [Source](https://crates.io/api/v1/crates/block2/0.6.2/download) |
 | Cargo | brotli-decompressor | 5.0.3 | BSD-3-Clause/MIT | [Source](https://crates.io/api/v1/crates/brotli-decompressor/5.0.3/download) |
 | Cargo | brotli | 8.0.4 | BSD-3-Clause AND MIT | [Source](https://crates.io/api/v1/crates/brotli/8.0.4/download) |
 | Cargo | bs58 | 0.5.1 | MIT/Apache-2.0 | [Source](https://crates.io/api/v1/crates/bs58/0.5.1/download) |
@@ -53,12 +51,8 @@ Regenerate for each release target after dependency changes.
 | Cargo | cipher | 0.4.4 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/cipher/0.4.4/download) |
 | Cargo | codepage | 0.1.2 | Apache-2.0 OR MIT | [Source](https://crates.io/api/v1/crates/codepage/0.1.2/download) |
 | Cargo | cookie | 0.18.2 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/cookie/0.18.2/download) |
-| Cargo | core-foundation-sys | 0.8.7 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/core-foundation-sys/0.8.7/download) |
-| Cargo | core-foundation | 0.10.1 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/core-foundation/0.10.1/download) |
-| Cargo | core-foundation | 0.9.4 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/core-foundation/0.9.4/download) |
-| Cargo | core-graphics-types | 0.2.0 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/core-graphics-types/0.2.0/download) |
-| Cargo | core-graphics | 0.25.0 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/core-graphics/0.25.0/download) |
 | Cargo | cpufeatures | 0.2.17 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/cpufeatures/0.2.17/download) |
+| Cargo | cpufeatures | 0.3.1 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/cpufeatures/0.3.1/download) |
 | Cargo | crc32fast | 1.5.1 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/crc32fast/1.5.1/download) |
 | Cargo | crossbeam-channel | 0.5.17 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/crossbeam-channel/0.5.17/download) |
 | Cargo | crossbeam-utils | 0.8.23 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/crossbeam-utils/0.8.23/download) |
@@ -82,7 +76,6 @@ Regenerate for each release target after dependency changes.
 | Cargo | digest | 0.10.7 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/digest/0.10.7/download) |
 | Cargo | dirs-sys | 0.5.0 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/dirs-sys/0.5.0/download) |
 | Cargo | dirs | 6.0.0 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/dirs/6.0.0/download) |
-| Cargo | dispatch2 | 0.3.1 | Zlib OR Apache-2.0 OR MIT | [Source](https://crates.io/api/v1/crates/dispatch2/0.3.1/download) |
 | Cargo | displaydoc | 0.2.7 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/displaydoc/0.2.7/download) |
 | Cargo | dom_query | 0.27.0 | MIT | [Source](https://crates.io/api/v1/crates/dom_query/0.27.0/download) |
 | Cargo | dpi | 0.1.2 | Apache-2.0 AND MIT | [Source](https://crates.io/api/v1/crates/dpi/0.1.2/download) |
@@ -93,12 +86,10 @@ Regenerate for each release target after dependency changes.
 | Cargo | dunce | 1.0.5 | CC0-1.0 OR MIT-0 OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/dunce/1.0.5/download) |
 | Cargo | dyn-clone | 1.0.20 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/dyn-clone/1.0.20/download) |
 | Cargo | ecb | 0.1.2 | MIT | [Source](https://crates.io/api/v1/crates/ecb/0.1.2/download) |
-| Cargo | embed_plist | 1.2.2 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/embed_plist/1.2.2/download) |
 | Cargo | embed-resource | 3.0.11 | MIT | [Source](https://crates.io/api/v1/crates/embed-resource/3.0.11/download) |
 | Cargo | encoding_rs | 0.8.35 | (Apache-2.0 OR MIT) AND BSD-3-Clause | [Source](https://crates.io/api/v1/crates/encoding_rs/0.8.35/download) |
 | Cargo | equivalent | 1.0.2 | Apache-2.0 OR MIT | [Source](https://crates.io/api/v1/crates/equivalent/1.0.2/download) |
 | Cargo | erased-serde | 0.4.10 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/erased-serde/0.4.10/download) |
-| Cargo | errno | 0.3.14 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/errno/0.3.14/download) |
 | Cargo | euclid | 0.20.14 | MIT / Apache-2.0 | [Source](https://crates.io/api/v1/crates/euclid/0.20.14/download) |
 | Cargo | fallible-iterator | 0.3.0 | MIT/Apache-2.0 | [Source](https://crates.io/api/v1/crates/fallible-iterator/0.3.0/download) |
 | Cargo | fallible-streaming-iterator | 0.1.9 | MIT/Apache-2.0 | [Source](https://crates.io/api/v1/crates/fallible-streaming-iterator/0.1.9/download) |
@@ -110,9 +101,6 @@ Regenerate for each release target after dependency changes.
 | Cargo | fnv | 1.0.7 | Apache-2.0 / MIT | [Source](https://crates.io/api/v1/crates/fnv/1.0.7/download) |
 | Cargo | foldhash | 0.1.5 | Zlib | [Source](https://crates.io/api/v1/crates/foldhash/0.1.5/download) |
 | Cargo | foldhash | 0.2.0 | Zlib | [Source](https://crates.io/api/v1/crates/foldhash/0.2.0/download) |
-| Cargo | foreign-types-macros | 0.2.4 | MIT/Apache-2.0 | [Source](https://crates.io/api/v1/crates/foreign-types-macros/0.2.4/download) |
-| Cargo | foreign-types-shared | 0.3.1 | MIT/Apache-2.0 | [Source](https://crates.io/api/v1/crates/foreign-types-shared/0.3.1/download) |
-| Cargo | foreign-types | 0.5.0 | MIT/Apache-2.0 | [Source](https://crates.io/api/v1/crates/foreign-types/0.5.0/download) |
 | Cargo | form_urlencoded | 1.2.2 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/form_urlencoded/1.2.2/download) |
 | Cargo | fs2 | 0.4.3 | MIT/Apache-2.0 | [Source](https://crates.io/api/v1/crates/fs2/0.4.3/download) |
 | Cargo | futures-channel | 0.3.34 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/futures-channel/0.3.34/download) |
@@ -143,7 +131,6 @@ Regenerate for each release target after dependency changes.
 | Cargo | hyper-tls | 0.6.0 | MIT/Apache-2.0 | [Source](https://crates.io/api/v1/crates/hyper-tls/0.6.0/download) |
 | Cargo | hyper-util | 0.1.20 | MIT | [Source](https://crates.io/api/v1/crates/hyper-util/0.1.20/download) |
 | Cargo | hyper | 1.11.1 | MIT | [Source](https://crates.io/api/v1/crates/hyper/1.11.1/download) |
-| Cargo | iana-time-zone | 0.1.65 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/iana-time-zone/0.1.65/download) |
 | Cargo | ico | 0.5.0 | MIT | [Source](https://crates.io/api/v1/crates/ico/0.5.0/download) |
 | Cargo | icu_collections | 2.3.0 | Unicode-3.0 | [Source](https://crates.io/api/v1/crates/icu_collections/2.3.0/download) |
 | Cargo | icu_locale_core | 2.3.0 | Unicode-3.0 | [Source](https://crates.io/api/v1/crates/icu_locale_core/2.3.0/download) |
@@ -162,6 +149,8 @@ Regenerate for each release target after dependency changes.
 | Cargo | ipnet | 2.12.2 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/ipnet/2.12.2/download) |
 | Cargo | itoa | 1.0.18 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/itoa/1.0.18/download) |
 | Cargo | jiff-core | 0.1.0 | Unlicense OR MIT | [Source](https://crates.io/api/v1/crates/jiff-core/0.1.0/download) |
+| Cargo | jiff-tzdb-platform | 0.1.3 | Unlicense OR MIT | [Source](https://crates.io/api/v1/crates/jiff-tzdb-platform/0.1.3/download) |
+| Cargo | jiff-tzdb | 0.1.8 | Unlicense OR MIT | [Source](https://crates.io/api/v1/crates/jiff-tzdb/0.1.8/download) |
 | Cargo | jiff | 0.2.35 | Unlicense OR MIT | [Source](https://crates.io/api/v1/crates/jiff/0.2.35/download) |
 | Cargo | json-patch | 3.0.1 | MIT/Apache-2.0 | [Source](https://crates.io/api/v1/crates/json-patch/3.0.1/download) |
 | Cargo | jsonptr | 0.6.3 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/jsonptr/0.6.3/download) |
@@ -185,15 +174,6 @@ Regenerate for each release target after dependency changes.
 | Cargo | nom | 8.0.0 | MIT | [Source](https://crates.io/api/v1/crates/nom/8.0.0/download) |
 | Cargo | num-conv | 0.2.2 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/num-conv/0.2.2/download) |
 | Cargo | num-traits | 0.2.19 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/num-traits/0.2.19/download) |
-| Cargo | objc2-app-kit | 0.3.2 | Zlib OR Apache-2.0 OR MIT | [Source](https://crates.io/api/v1/crates/objc2-app-kit/0.3.2/download) |
-| Cargo | objc2-core-foundation | 0.3.2 | Zlib OR Apache-2.0 OR MIT | [Source](https://crates.io/api/v1/crates/objc2-core-foundation/0.3.2/download) |
-| Cargo | objc2-core-graphics | 0.3.2 | Zlib OR Apache-2.0 OR MIT | [Source](https://crates.io/api/v1/crates/objc2-core-graphics/0.3.2/download) |
-| Cargo | objc2-encode | 4.1.0 | MIT | [Source](https://crates.io/api/v1/crates/objc2-encode/4.1.0/download) |
-| Cargo | objc2-exception-helper | 0.1.1 | Zlib OR Apache-2.0 OR MIT | [Source](https://crates.io/api/v1/crates/objc2-exception-helper/0.1.1/download) |
-| Cargo | objc2-foundation | 0.3.2 | MIT | [Source](https://crates.io/api/v1/crates/objc2-foundation/0.3.2/download) |
-| Cargo | objc2-io-surface | 0.3.2 | Zlib OR Apache-2.0 OR MIT | [Source](https://crates.io/api/v1/crates/objc2-io-surface/0.3.2/download) |
-| Cargo | objc2-web-kit | 0.3.2 | Zlib OR Apache-2.0 OR MIT | [Source](https://crates.io/api/v1/crates/objc2-web-kit/0.3.2/download) |
-| Cargo | objc2 | 0.6.4 | MIT | [Source](https://crates.io/api/v1/crates/objc2/0.6.4/download) |
 | Cargo | once_cell | 1.21.4 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/once_cell/1.21.4/download) |
 | Cargo | open | 5.4.3 | MIT | [Source](https://crates.io/api/v1/crates/open/5.4.3/download) |
 | Cargo | openssl-src | 300.6.1+3.6.3 | MIT/Apache-2.0 | [Source](https://crates.io/api/v1/crates/openssl-src/300.6.1+3.6.3/download) |
@@ -212,7 +192,6 @@ Regenerate for each release target after dependency changes.
 | Cargo | pkg-config | 0.3.34 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/pkg-config/0.3.34/download) |
 | Cargo | plist | 1.10.0 | MIT | [Source](https://crates.io/api/v1/crates/plist/1.10.0/download) |
 | Cargo | png | 0.17.16 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/png/0.17.16/download) |
-| Cargo | png | 0.18.1 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/png/0.18.1/download) |
 | Cargo | pom | 1.1.0 | MIT | [Source](https://crates.io/api/v1/crates/pom/1.1.0/download) |
 | Cargo | postscript | 0.14.1 | Apache-2.0/MIT | [Source](https://crates.io/api/v1/crates/postscript/0.14.1/download) |
 | Cargo | potential_utf | 0.1.6 | Unicode-3.0 | [Source](https://crates.io/api/v1/crates/potential_utf/0.1.6/download) |
@@ -233,23 +212,22 @@ Regenerate for each release target after dependency changes.
 | Cargo | reqwest | 0.12.28 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/reqwest/0.12.28/download) |
 | Cargo | rfd | 0.16.0 | MIT | [Source](https://crates.io/api/v1/crates/rfd/0.16.0/download) |
 | Cargo | ring | 0.17.14 | Apache-2.0 AND ISC | [Source](https://crates.io/api/v1/crates/ring/0.17.14/download) |
+| Cargo | roxmltree | 0.21.1 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/roxmltree/0.21.1/download) |
 | Cargo | rusqlite | 0.37.0 | MIT | [Source](https://crates.io/api/v1/crates/rusqlite/0.37.0/download) |
 | Cargo | rustc_version | 0.4.1 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/rustc_version/0.4.1/download) |
 | Cargo | rustc-hash | 2.1.3 | Apache-2.0 OR MIT | [Source](https://crates.io/api/v1/crates/rustc-hash/2.1.3/download) |
-| Cargo | rustix | 1.1.4 | Apache-2.0 WITH LLVM-exception OR Apache-2.0 OR MIT | [Source](https://crates.io/api/v1/crates/rustix/1.1.4/download) |
 | Cargo | rustls-pki-types | 1.15.1 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/rustls-pki-types/1.15.1/download) |
 | Cargo | rustls-webpki | 0.103.15 | ISC | [Source](https://crates.io/api/v1/crates/rustls-webpki/0.103.15/download) |
 | Cargo | rustls | 0.23.44 | Apache-2.0 OR ISC OR MIT | [Source](https://crates.io/api/v1/crates/rustls/0.23.44/download) |
 | Cargo | rustversion | 1.0.23 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/rustversion/1.0.23/download) |
 | Cargo | ryu | 1.0.23 | Apache-2.0 OR BSL-1.0 | [Source](https://crates.io/api/v1/crates/ryu/1.0.23/download) |
 | Cargo | same-file | 1.0.6 | Unlicense/MIT | [Source](https://crates.io/api/v1/crates/same-file/1.0.6/download) |
+| Cargo | schannel | 0.1.29 | MIT | [Source](https://crates.io/api/v1/crates/schannel/0.1.29/download) |
 | Cargo | schemars_derive | 0.8.22 | MIT | [Source](https://crates.io/api/v1/crates/schemars_derive/0.8.22/download) |
 | Cargo | schemars | 0.8.22 | MIT | [Source](https://crates.io/api/v1/crates/schemars/0.8.22/download) |
 | Cargo | schemars | 0.9.0 | MIT | [Source](https://crates.io/api/v1/crates/schemars/0.9.0/download) |
 | Cargo | schemars | 1.2.2 | MIT | [Source](https://crates.io/api/v1/crates/schemars/1.2.2/download) |
 | Cargo | scopeguard | 1.2.0 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/scopeguard/1.2.0/download) |
-| Cargo | security-framework-sys | 2.17.0 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/security-framework-sys/2.17.0/download) |
-| Cargo | security-framework | 3.7.0 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/security-framework/3.7.0/download) |
 | Cargo | selectors | 0.36.1 | MPL-2.0 | [Source](https://crates.io/api/v1/crates/selectors/0.36.1/download) |
 | Cargo | semver | 1.0.28 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/semver/1.0.28/download) |
 | Cargo | serde_core | 1.0.229 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/serde_core/1.0.229/download) |
@@ -273,19 +251,17 @@ Regenerate for each release target after dependency changes.
 | Cargo | slab | 0.4.12 | MIT | [Source](https://crates.io/api/v1/crates/slab/0.4.12/download) |
 | Cargo | smallvec | 1.16.0 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/smallvec/1.16.0/download) |
 | Cargo | socket2 | 0.6.5 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/socket2/0.6.5/download) |
+| Cargo | softbuffer | 0.4.8 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/softbuffer/0.4.8/download) |
 | Cargo | stable_deref_trait | 1.2.1 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/stable_deref_trait/1.2.1/download) |
 | Cargo | string_cache_codegen | 0.6.1 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/string_cache_codegen/0.6.1/download) |
 | Cargo | string_cache | 0.9.0 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/string_cache/0.9.0/download) |
 | Cargo | stringprep | 0.1.5 | MIT/Apache-2.0 | [Source](https://crates.io/api/v1/crates/stringprep/0.1.5/download) |
 | Cargo | strsim | 0.11.1 | MIT | [Source](https://crates.io/api/v1/crates/strsim/0.11.1/download) |
 | Cargo | subtle | 2.6.1 | BSD-3-Clause | [Source](https://crates.io/api/v1/crates/subtle/2.6.1/download) |
-| Cargo | swift-rs | 1.0.8 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/swift-rs/1.0.8/download) |
 | Cargo | syn | 2.0.119 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/syn/2.0.119/download) |
 | Cargo | syn | 3.0.5 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/syn/3.0.5/download) |
 | Cargo | sync_wrapper | 1.0.2 | Apache-2.0 | [Source](https://crates.io/api/v1/crates/sync_wrapper/1.0.2/download) |
 | Cargo | synstructure | 0.13.2 | MIT | [Source](https://crates.io/api/v1/crates/synstructure/0.13.2/download) |
-| Cargo | system-configuration-sys | 0.6.0 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/system-configuration-sys/0.6.0/download) |
-| Cargo | system-configuration | 0.7.0 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/system-configuration/0.7.0/download) |
 | Cargo | tao | 0.35.3 | Apache-2.0 | [Source](https://crates.io/api/v1/crates/tao/0.35.3/download) |
 | Cargo | tauri-build | 2.6.3 | Apache-2.0 OR MIT | [Source](https://crates.io/api/v1/crates/tauri-build/2.6.3/download) |
 | Cargo | tauri-codegen | 2.6.3 | Apache-2.0 OR MIT | [Source](https://crates.io/api/v1/crates/tauri-codegen/2.6.3/download) |
@@ -353,13 +329,44 @@ Regenerate for each release target after dependency changes.
 | Cargo | uuid | 1.26.0 | Apache-2.0 OR MIT | [Source](https://crates.io/api/v1/crates/uuid/1.26.0/download) |
 | Cargo | vcpkg | 0.2.15 | MIT/Apache-2.0 | [Source](https://crates.io/api/v1/crates/vcpkg/0.2.15/download) |
 | Cargo | version_check | 0.9.5 | MIT/Apache-2.0 | [Source](https://crates.io/api/v1/crates/version_check/0.9.5/download) |
+| Cargo | vswhom-sys | 0.1.3 | MIT | [Source](https://crates.io/api/v1/crates/vswhom-sys/0.1.3/download) |
+| Cargo | vswhom | 0.1.0 | MIT | [Source](https://crates.io/api/v1/crates/vswhom/0.1.0/download) |
 | Cargo | walkdir | 2.5.0 | Unlicense/MIT | [Source](https://crates.io/api/v1/crates/walkdir/2.5.0/download) |
 | Cargo | want | 0.3.1 | MIT | [Source](https://crates.io/api/v1/crates/want/0.3.1/download) |
 | Cargo | web_atoms | 0.2.6 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/web_atoms/0.2.6/download) |
+| Cargo | webview2-com-macros | 0.8.1 | MIT | [Source](https://crates.io/api/v1/crates/webview2-com-macros/0.8.1/download) |
+| Cargo | webview2-com-sys | 0.38.2 | MIT | [Source](https://crates.io/api/v1/crates/webview2-com-sys/0.38.2/download) |
+| Cargo | webview2-com | 0.38.2 | MIT | [Source](https://crates.io/api/v1/crates/webview2-com/0.38.2/download) |
 | Cargo | weezl | 0.1.12 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/weezl/0.1.12/download) |
+| Cargo | winapi-util | 0.1.11 | Unlicense OR MIT | [Source](https://crates.io/api/v1/crates/winapi-util/0.1.11/download) |
+| Cargo | winapi | 0.3.9 | MIT/Apache-2.0 | [Source](https://crates.io/api/v1/crates/winapi/0.3.9/download) |
 | Cargo | window-vibrancy | 0.6.0 | Apache-2.0 OR MIT | [Source](https://crates.io/api/v1/crates/window-vibrancy/0.6.0/download) |
+| Cargo | windows_x86_64_msvc | 0.52.6 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/windows_x86_64_msvc/0.52.6/download) |
+| Cargo | windows_x86_64_msvc | 0.53.1 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/windows_x86_64_msvc/0.53.1/download) |
+| Cargo | windows-collections | 0.2.0 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/windows-collections/0.2.0/download) |
+| Cargo | windows-core | 0.61.2 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/windows-core/0.61.2/download) |
+| Cargo | windows-future | 0.2.1 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/windows-future/0.2.1/download) |
+| Cargo | windows-implement | 0.60.2 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/windows-implement/0.60.2/download) |
+| Cargo | windows-interface | 0.59.3 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/windows-interface/0.59.3/download) |
+| Cargo | windows-link | 0.1.3 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/windows-link/0.1.3/download) |
+| Cargo | windows-link | 0.2.1 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/windows-link/0.2.1/download) |
+| Cargo | windows-numerics | 0.2.0 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/windows-numerics/0.2.0/download) |
+| Cargo | windows-registry | 0.6.1 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/windows-registry/0.6.1/download) |
+| Cargo | windows-result | 0.3.4 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/windows-result/0.3.4/download) |
+| Cargo | windows-result | 0.4.1 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/windows-result/0.4.1/download) |
+| Cargo | windows-strings | 0.4.2 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/windows-strings/0.4.2/download) |
+| Cargo | windows-strings | 0.5.1 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/windows-strings/0.5.1/download) |
+| Cargo | windows-sys | 0.59.0 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/windows-sys/0.59.0/download) |
+| Cargo | windows-sys | 0.60.2 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/windows-sys/0.60.2/download) |
+| Cargo | windows-sys | 0.61.2 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/windows-sys/0.61.2/download) |
+| Cargo | windows-targets | 0.52.6 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/windows-targets/0.52.6/download) |
+| Cargo | windows-targets | 0.53.5 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/windows-targets/0.53.5/download) |
+| Cargo | windows-threading | 0.1.0 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/windows-threading/0.1.0/download) |
+| Cargo | windows-version | 0.1.7 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/windows-version/0.1.7/download) |
+| Cargo | windows | 0.61.3 | MIT OR Apache-2.0 | [Source](https://crates.io/api/v1/crates/windows/0.61.3/download) |
 | Cargo | winnow | 0.7.15 | MIT | [Source](https://crates.io/api/v1/crates/winnow/0.7.15/download) |
 | Cargo | winnow | 1.0.4 | MIT | [Source](https://crates.io/api/v1/crates/winnow/1.0.4/download) |
+| Cargo | winreg | 0.55.0 | MIT | [Source](https://crates.io/api/v1/crates/winreg/0.55.0/download) |
 | Cargo | writeable | 0.6.4 | Unicode-3.0 | [Source](https://crates.io/api/v1/crates/writeable/0.6.4/download) |
 | Cargo | wry | 0.55.1 | Apache-2.0 OR MIT | [Source](https://crates.io/api/v1/crates/wry/0.55.1/download) |
 | Cargo | yoke-derive | 0.8.2 | Unicode-3.0 | [Source](https://crates.io/api/v1/crates/yoke-derive/0.8.2/download) |

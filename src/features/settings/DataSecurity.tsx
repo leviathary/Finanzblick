@@ -1,3 +1,5 @@
+// Bündelt die Oberflächen für Datenbankprofile, Sicherungen und Passwortverwaltung.
+
 import { useState } from "react";
 import { t } from "../../i18n";
 import { DatabasePicker } from "./DatabasePicker";

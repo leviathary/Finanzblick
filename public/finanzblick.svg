@@ -1,0 +1,42 @@
+<!-- Master-Asset für Brand-Header, Browser-Icon und generierte Plattform-Icons: Schild mit smaragdgrünem Finanzgraphen. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1e293b"/>
+      <stop offset="60%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#020617"/>
+    </linearGradient>
+    <linearGradient id="accentGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#059669"/>
+      <stop offset="50%" stop-color="#10b981"/>
+      <stop offset="100%" stop-color="#34d399"/>
+    </linearGradient>
+    <linearGradient id="shieldGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#334155" stop-opacity="0.4"/>
+      <stop offset="100%" stop-color="#0f172a" stop-opacity="0.6"/>
+    </linearGradient>
+    <linearGradient id="borderHighlight" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.25"/>
+      <stop offset="30%" stop-color="#ffffff" stop-opacity="0.05"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0.0"/>
+    </linearGradient>
+    <filter id="symbolShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#000000" flood-opacity="0.45"/>
+    </filter>
+    <filter id="emeraldGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#10b981" flood-opacity="0.4"/>
+    </filter>
+  </defs>
+  <rect x="24" y="24" width="464" height="464" rx="112" ry="112" fill="url(#bgGrad)"/>
+  <rect x="25" y="25" width="462" height="462" rx="111" ry="111" fill="none" stroke="url(#borderHighlight)" stroke-width="2"/>
+  <g filter="url(#symbolShadow)">
+    <path d="M256 124 C328 124 368 144 368 144 V260 C368 336 296 376 256 392 C216 376 144 336 144 260 V144 C144 144 184 124 256 124 Z" fill="url(#shieldGrad)" stroke="#475569" stroke-width="3" stroke-opacity="0.5"/>
+    <circle cx="256" cy="240" r="76" fill="none" stroke="#334155" stroke-dasharray="6 8" stroke-width="2.5" opacity="0.6"/>
+  </g>
+  <g filter="url(#emeraldGlow)">
+    <path d="M192 268 L232 232 L268 256 L324 184" fill="none" stroke="url(#accentGrad)" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="324" cy="184" r="9" fill="#34d399"/>
+    <circle cx="232" cy="232" r="5" fill="#10b981"/>
+  </g>
+  <text x="256" y="348" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="700" letter-spacing="4" fill="#94a3b8" opacity="0.7">FINANZBLICK</text>
+</svg>

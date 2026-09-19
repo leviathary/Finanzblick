@@ -1,3 +1,5 @@
+//! Sammelt unterstützte Importdateien aus der Dateiauswahl und prüft Pfade sowie Dateigrenzen.
+
 use serde::Serialize;
 use std::{collections::HashSet, fs, path::PathBuf};
 
@@ -98,7 +100,7 @@ fn collect(paths: Vec<String>, recursive: bool) -> FileSelection {
         if !metadata.is_file()
             || !matches!(
                 extension.as_str(),
-                "xlsx" | "xls" | "csv" | "pdf" | "mt940" | "sta"
+                "xlsx" | "xls" | "csv" | "pdf" | "mt940" | "sta" | "xml"
             )
         {
             skipped += 1;

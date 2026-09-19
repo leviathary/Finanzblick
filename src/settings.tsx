@@ -1,3 +1,5 @@
+// Definiert gemeinsame Frontend-Einstellungen und stellt sie über einen React-Kontext bereit.
+
 import { createContext, useContext } from "react";
 
 export type Language = "de" | "en" | "fr" | "it";

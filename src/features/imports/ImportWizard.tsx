@@ -1,3 +1,5 @@
+// Führt durch Dateiauswahl, Importvorschau, Kontozuordnung und Stapelimport.
+
 import { t, tr, locale } from "../../i18n";
 import { useEffect, useRef, useState } from "react";
 import { invoke, isTauri } from "@tauri-apps/api/core";
@@ -98,7 +100,7 @@ export function ImportWizard({ enabled = true }: { enabled?: boolean }) {
       const known = new Set(current.map(item => item.file.path));
       return [...current, ...added.filter(item => !known.has(item.file.path))];
     });
-    if (!selection.files.length) setError(t("Keine unterstützten Dateien gefunden. Unterstützt werden XLSX, XLS, CSV, PDF und MT940 bis 25 MB pro Datei."));
+    if (!selection.files.length) setError(t("Keine unterstützten Dateien gefunden. Unterstützt werden XLSX, XLS, CSV, PDF, MT940 und camt.053 (XML) bis 25 MB pro Datei."));
     await analyzeFiles(added);
   }
 
@@ -106,7 +108,7 @@ export function ImportWizard({ enabled = true }: { enabled?: boolean }) {
     if (!isTauri()) { setError(t("Bitte Dateien oder Ordner in der Desktop-App auswählen.")); return; }
     if (!begin()) return;
     try {
-      const selected = await open({ directory, multiple: true, title: directory ? t("Ordner mit Bankauszügen auswählen") : t("Bankauszüge auswählen"), ...(directory ? {} : { filters: [{ name: "Bankauszüge", extensions: ["xlsx", "xls", "csv", "pdf", "mt940", "sta"] }] }) });
+      const selected = await open({ directory, multiple: true, title: directory ? t("Ordner mit Bankauszügen auswählen") : t("Bankauszüge auswählen"), ...(directory ? {} : { filters: [{ name: "Bankauszüge", extensions: ["xlsx", "xls", "csv", "pdf", "mt940", "sta", "xml"] }] }) });
       if (selected) await addPaths(Array.isArray(selected) ? selected : [selected]);
     } catch (reason) { setError(String(reason)); }
     finally { finish(); }
@@ -271,7 +273,7 @@ export function ImportWizard({ enabled = true }: { enabled?: boolean }) {
       <h2>{t("Dateien oder Ordner hierher ziehen")}</h2>
       <div className="batch-buttons"><button className="primary-button" disabled={busy} onClick={() => void choose(false)}>{t("Dateien auswählen")}</button><button className="secondary-button" disabled={busy} onClick={() => void choose(true)}>{t("Ordner auswählen")}</button></div>
       <label className="batch-check"><input type="checkbox" checked={recursive} disabled={busy} onChange={event => setRecursive(event.target.checked)} />  {t("Unterordner einbeziehen")}</label>
-      <small>{t("XLSX, XLS, CSV, PDF und MT940 · maximal 25 MB pro Datei")}</small>
+      <small>{t("XLSX, XLS, CSV, PDF, MT940 und camt.053 (XML) · maximal 25 MB pro Datei")}</small>
     </div>
     {error && <p className="error-message" role="alert">{t(error)}</p>}
     {completed && <div className="batch-complete" role="status" ref={completedRef}><span className="batch-complete-icon" aria-hidden="true">✓</span><div><h2>{t("Import erfolgreich abgeschlossen")}</h2><p>{completed.imported}  {t("Dateien importiert")}{completed.duplicates > 0 ? tr` · ${completed.duplicates} bereits vorhanden` : ""}.</p><p>{items.length ? t("Offene oder fehlgeschlagene Dateien stehen weiterhin unten in der Liste.") : t("Die Importliste ist jetzt leer. Die importierten Dateien findest du in der Importverwaltung.")}</p></div><a className="secondary-button" href="#import-history">{t("Importierte Dateien ansehen")}</a></div>}
@@ -315,7 +317,7 @@ export function ImportWizard({ enabled = true }: { enabled?: boolean }) {
         <div className="review-header"><div><p className="eyebrow">{hasAccounts(current, accounts) ? t("Importvorschau") : t("Nächster Schritt")}</p><h2>{hasAccounts(current, accounts) ? current.file.name : t("Zielkonto auswählen")}</h2></div><span className="success-chip">{current.parsed.transactions.length}  {t("Buchungen")}</span></div>
         {!hasAccounts(current, accounts) && <div className="mapping-applied-notice" role="status"><strong>{t("Spaltenzuordnung übernommen – noch nicht importiert")}</strong><p>{t("Wähle jetzt das Zielkonto. Erst danach kann die Datei importiert werden.")}</p></div>}
         <p className="intro">{current.parsed.provider === "unknown" ? t("Anbieter aus dem ausgewählten Konto") : providers.find(provider => provider.id === current.parsed?.provider)?.label} · {current.file.extension.toUpperCase()}</p>
-        {current.parsed.format === "MT940" && <p className="intro">{t("Kontokennung im Auszug:")} <strong>{current.parsed.accountName}</strong>  {t("· Vorauswahl anhand der hinterlegten IBAN / Kontoreferenz.")}</p>}<fieldset disabled={busy || Boolean(current.result)} className="batch-account-fields"><div className="form-grid">{currencies(current.parsed).map(currency => {
+        {current.parsed.accountReference && <p className="intro">{t("Kontokennung im Auszug:")} <strong>{current.parsed.accountReference}</strong>  {t("· Vorauswahl anhand der hinterlegten IBAN / Kontoreferenz.")}</p>}<fieldset disabled={busy || Boolean(current.result)} className="batch-account-fields"><div className="form-grid">{currencies(current.parsed).map(currency => {
           const options = matchingAccounts(accounts, current.parsed!, currency);
           return <label key={currency}>{t("Konto oder Vertrag ·")} {currency}<select value={options.some(account => account.id === current.accountIds[currency]) ? current.accountIds[currency] : ""} onChange={event => void changeAccounts(current, { ...current.accountIds, [currency]: Number(event.target.value) })}><option value="">{options.length ? t("Konto auswählen") : t("Kein passendes Konto vorhanden")}</option>{options.map(account => <option key={account.id} value={account.id}>{account.name} · {account.currency} · {account.provider}</option>)}</select></label>;
         })}</div></fieldset>

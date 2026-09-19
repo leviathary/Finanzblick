@@ -1,3 +1,5 @@
+// Stellt das Formular zum Ändern des Datenbankpassworts bereit.
+
 import { useState, type FormEvent } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { t } from "../../i18n";

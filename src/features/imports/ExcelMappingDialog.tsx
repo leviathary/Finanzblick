@@ -1,3 +1,5 @@
+// Ermöglicht die Auswahl von Tabellenblättern und die Zuordnung von Importspalten.
+
 import { useEffect, useMemo, useRef, useState } from "react";
 import { t } from "../../i18n";
 import type { ImportMappingProfile, SheetInspection, TabularInspection, TabularMapping } from "./importTypes";

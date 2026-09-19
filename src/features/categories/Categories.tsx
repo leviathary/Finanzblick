@@ -1,3 +1,5 @@
+// Verwaltet Kategorien sowie Regeln für Händler- und Branchenzuordnungen.
+
 import { t, tr, categoryName } from "../../i18n";
 import { useEffect, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";

@@ -1,3 +1,5 @@
+// Prüft Übersetzungen, Platzhalter und sprachabhängige Formatierung.
+
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -10,6 +12,40 @@ const compiled = ts.transpileModule(source, { compilerOptions: { module: ts.Modu
 const sandbox = { exports: {}, require: () => messages };
 vm.runInNewContext(compiled.outputText, sandbox);
 const { t, tr, setLanguage, setRegion, categoryName, locale } = sandbox.exports;
+
+test('transfer management labels and actions have translations', () => {
+  setLanguage('en');
+  for (const file of ['transactions/TransactionActions.tsx', 'transactions/TransferManagement.tsx', 'transactions/SettlementRuleDialog.tsx', 'transactions/SettlementRules.tsx', 'cards/CreditCards.tsx', 'cards/CardAccountStatus.tsx', 'cards/setup/CardSetupWizard.tsx', 'cards/setup/PatternTable.tsx']) {
+    const code = fs.readFileSync(new URL('../src/features/' + file, import.meta.url), 'utf8');
+    for (const match of code.matchAll(/\bt\("([^"]+)"\)/g)) {
+      assert.ok(messages[match[1]], match[1]);
+    }
+  }
+  assert.equal(t('Alle Transaktionen'), 'All transactions');
+  assert.equal(t('Wiederherstellen'), 'Restore');
+  assert.equal(t('Umbuchungen & Ausgleiche'), 'Transfers & settlements');
+  setLanguage('de');
+});
+
+test('settlement actions and notices are available in English', () => {
+  setLanguage('en');
+  assert.equal(t('Als Rechnungsausgleich markieren'), 'Mark as statement settlement');
+  assert.equal(t('Rechnungsausgleich aufheben'), 'Unmark statement settlement');
+  for (const key of Object.keys(messages).filter(key => /Rechnungsausgleich|Rechnungsausgleiche/.test(key))) {
+    assert.notEqual(t(key), key);
+  }
+  setLanguage('de');
+});
+
+test('unlock controls and security messages are translated', () => {
+  const keys = ['Anmelden', 'Persönliche Finanzen', 'Lokale Daten prüfen …', 'Passwort anzeigen', 'Passwort verbergen',
+    'Caps Lock ist aktiviert', 'Aus Backup wiederherstellen', 'Zurück zur Anmeldung', 'Sicherungsdatei auswählen …', 'Wechseln'];
+  for (const language of ['en', 'fr', 'it']) {
+    setLanguage(language);
+    for (const key of keys) assert.notEqual(t(key), key);
+  }
+  setLanguage('de');
+});
 
 test('financial profile labels are localized consistently', () => {
   for (const [language, singular, plural, create] of [

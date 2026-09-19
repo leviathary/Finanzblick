@@ -1,9 +1,13 @@
+// Steuert Export und Wiederherstellung verschlüsselter Sicherungen über Dateidialoge.
+
 import { useState, type FormEvent } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { open, save } from "@tauri-apps/plugin-dialog";
 import { t } from "../../i18n";
 
-export function BackupPanel({ onRestored, restoreOnly = false }: { onRestored: () => void; restoreOnly?: boolean }) {
+export function BackupPanel({ onRestored, restoreOnly = false, hideHeading = false, onCancel }: {
+  onRestored: () => void; restoreOnly?: boolean; hideHeading?: boolean; onCancel?: () => void;
+}) {
   const [busy, setBusy] = useState(false);
   const [source, setSource] = useState("");
   const [error, setError] = useState("");
@@ -52,12 +56,12 @@ export function BackupPanel({ onRestored, restoreOnly = false }: { onRestored: (
   }
 
   return <section id="data-backup" className={restoreOnly ? "backup-panel" : "dashboard-card settings-card backup-panel"}>
-    <h2>{t(restoreOnly ? "Backup wiederherstellen" : "Backup")}</h2>
+    {!hideHeading && <h2>{t(restoreOnly ? "Backup wiederherstellen" : "Backup")}</h2>}
     {!restoreOnly && <p>{t("Gesichert wird das aktuell ausgewählte Finanzprofil mit allen Daten und Einstellungen. Weitere Finanzprofile bitte einzeln sichern.")}</p>}
     <p className="settings-hint">{t("Backups bleiben verschlüsselt. Zum Wiederherstellen brauchst du das Passwort zum Zeitpunkt der Sicherung.")}</p>
     <div className="settings-actions">
       {!restoreOnly && <button className="primary-button" type="button" disabled={busy} onClick={() => void createBackup()}>{t("Backup erstellen")}</button>}
-      <button className="secondary-button" type="button" disabled={busy} onClick={() => void chooseBackup()}>{t("Backup wiederherstellen")}</button>
+      <button className={restoreOnly ? "primary-button vault-submit" : "secondary-button"} type="button" disabled={busy} onClick={() => void chooseBackup()}>{restoreOnly ? t("Sicherungsdatei auswählen …") : t("Backup wiederherstellen")}</button>
     </div>
     {source && <form onSubmit={restoreBackup}>
       <p className="backup-path">{source}</p>
@@ -72,5 +76,8 @@ export function BackupPanel({ onRestored, restoreOnly = false }: { onRestored: (
     {busy && <p role="status">{t("Bitte warten …")}</p>}
     {error && <p role="alert" className="error-message">{t(error)}</p>}
     {notice && <p role="status" className="settings-success backup-path">{notice}</p>}
+    {onCancel && <div className="vault-backup"><button className="vault-restore-link" type="button" disabled={busy} onClick={onCancel}>
+      <span aria-hidden="true">←</span> {t("Zurück zur Anmeldung")}
+    </button></div>}
   </section>;
 }

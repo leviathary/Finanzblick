@@ -1,15 +1,14 @@
+//! Definiert normalisierte Importmodelle, gemeinsame Hilfsfunktionen und den Einstieg in die Dateiverarbeitung.
+
 use calamine::{Data, DataType};
 use chrono::NaiveDate;
 use serde::{Deserialize, Serialize};
 use std::{fs, path::Path};
-mod csv_import;
-mod excel;
-mod extended;
-mod mt940;
-mod pdf;
+mod formats;
+mod pipeline;
+use formats::{camt053, csv_import, excel, mt940, pdf, tabular};
 mod providers;
 mod registry;
-mod tabular;
 use csv_import::parse_csv;
 pub use tabular::{inspect_tabular_file, TabularInspection, TabularMapping};
 
@@ -61,6 +60,37 @@ static DEFAULT_EXCEL_MAPPING: ProviderExcelMapping = ProviderExcelMapping {
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
+pub struct ParsedSecurityDetails {
+    #[serde(default)]
+    pub isin: Option<String>,
+    #[serde(default)]
+    pub valor_number: Option<String>,
+    #[serde(default)]
+    pub quantity: Option<String>,
+    #[serde(default)]
+    pub price: Option<String>,
+    #[serde(default)]
+    pub price_currency: Option<String>,
+    #[serde(default)]
+    pub exchange_rate: Option<String>,
+    #[serde(default)]
+    pub gross_amount_minor: Option<i64>,
+    #[serde(default)]
+    pub fees_minor: Option<i64>,
+    #[serde(default)]
+    pub taxes_minor: Option<i64>,
+    #[serde(default)]
+    pub withholding_tax_minor: Option<i64>,
+    #[serde(default)]
+    pub accrued_interest_minor: Option<i64>,
+}
+
+fn default_transaction_kind() -> String {
+    "cash_transaction".into()
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct ParsedTransaction {
     pub booking_date: String,
     pub value_date: Option<String>,
@@ -72,6 +102,40 @@ pub struct ParsedTransaction {
     pub currency: String,
     pub confidence: f32,
     pub source_row: usize,
+    #[serde(default = "default_transaction_kind")]
+    pub transaction_kind: String,
+    #[serde(default)]
+    pub reference_namespace: Option<String>,
+    #[serde(default)]
+    pub external_reference: Option<String>,
+    #[serde(default)]
+    pub counterparty_name: Option<String>,
+    #[serde(default)]
+    pub remittance_information: Option<String>,
+    #[serde(default)]
+    pub security_details: Option<ParsedSecurityDetails>,
+}
+
+impl Default for ParsedTransaction {
+    fn default() -> Self {
+        Self {
+            booking_date: String::new(),
+            value_date: None,
+            description: String::new(),
+            industry: None,
+            amount_minor: 0,
+            balance_minor: None,
+            currency: String::new(),
+            confidence: 0.0,
+            source_row: 0,
+            transaction_kind: default_transaction_kind(),
+            reference_namespace: None,
+            external_reference: None,
+            counterparty_name: None,
+            remittance_information: None,
+            security_details: None,
+        }
+    }
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
@@ -88,23 +152,43 @@ pub struct ParsedStatement {
     pub opening_balance_minor: Option<i64>,
     pub closing_balance_minor: Option<i64>,
     pub warnings: Vec<String>,
+    #[serde(default)]
+    pub document_type: Option<String>,
+    #[serde(default)]
+    pub document_date: Option<String>,
+    #[serde(default)]
+    pub document_value_date: Option<String>,
+    #[serde(default)]
+    pub record_definition_id: Option<String>,
+    #[serde(default)]
+    pub account_reference: Option<String>,
 }
 
-pub fn parse_statement(
-    path: String,
-    selected_provider: Option<String>,
-    mapping: Option<TabularMapping>,
-) -> Result<ParsedStatement, String> {
-    let path = Path::new(&path);
-    let metadata = fs::metadata(path)
-        .map_err(|_| "Die ausgewählte Datei ist nicht mehr verfügbar.".to_string())?;
-    if !metadata.is_file() {
-        return Err("Bitte eine Datei und keinen Ordner auswählen.".to_string());
+impl Default for ParsedStatement {
+    fn default() -> Self {
+        Self {
+            currency_balances: Vec::new(),
+            account_type: None,
+            provider: String::new(),
+            format: String::new(),
+            account_name: String::new(),
+            transactions: Vec::new(),
+            opening_balance_minor: None,
+            closing_balance_minor: None,
+            warnings: Vec::new(),
+            document_type: None,
+            document_date: None,
+            document_value_date: None,
+            record_definition_id: None,
+            account_reference: None,
+        }
     }
-    if metadata.len() > MAX_FILE_SIZE {
-        return Err("Die Datei ist größer als 25 MB.".to_string());
-    }
-    registry::parse(path, selected_provider.as_deref(), mapping.as_ref())
+}
+
+pub use pipeline::parse_statement;
+
+pub(crate) fn card_credit_hint(provider: &str, description: &str) -> Option<&'static str> {
+    providers::by_id(provider).and_then(|p| p.card_credit_kind(description))
 }
 
 fn detect_provider_in_cells(rows: &[&[Data]]) -> &'static str {
@@ -323,3 +407,4 @@ Dienstleistungspreisabschluss
         assert!(parse(&text.replace("02.08.23 STORNO", "32.08.23 STORNO")).is_err());
     }
 }
+pub(crate) mod taxes;

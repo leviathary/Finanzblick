@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Document xmlns="urn:iso:std:iso:20022:tech:xsd:camt.053.001.08">
+  <BkToCstmrStmt>
+    <GrpHdr><MsgId>TEST-MESSAGE</MsgId><CreDtTm>2026-09-02T00:30:00+02:00</CreDtTm></GrpHdr>
+    <Stmt>
+      <Id>TEST-STATEMENT</Id>
+      <Acct><Id><IBAN>CH0000000000000000000</IBAN></Id><Ccy>CHF</Ccy></Acct>
+      <Bal><Tp><CdOrPrtry><Cd>OPBD</Cd></CdOrPrtry></Tp><Amt Ccy="CHF">1000.00</Amt><CdtDbtInd>CRDT</CdtDbtInd><Dt><Dt>2026-09-01</Dt></Dt></Bal>
+      <Bal><Tp><CdOrPrtry><Cd>CLBD</Cd></CdOrPrtry></Tp><Amt Ccy="CHF">1130.00</Amt><CdtDbtInd>CRDT</CdtDbtInd><Dt><Dt>2026-09-01</Dt></Dt></Bal>
+      <Ntry>
+        <NtryRef>ENTRY-1</NtryRef><Amt Ccy="CHF">150.00</Amt><CdtDbtInd>CRDT</CdtDbtInd>
+        <Sts><Cd>BOOK</Cd></Sts><BookgDt><Dt>2026-09-01</Dt></BookgDt><ValDt><Dt>2026-09-02</Dt></ValDt>
+        <AcctSvcrRef>BANK-1</AcctSvcrRef>
+        <NtryDtls><TxDtls>
+          <Refs><EndToEndId>ORDER-1</EndToEndId></Refs>
+          <AmtDtls><InstdAmt><Amt Ccy="USD">200.00</Amt></InstdAmt></AmtDtls>
+          <RltdPties><Dbtr><Pty><Nm>Example &amp; Co</Nm></Pty></Dbtr></RltdPties>
+          <RmtInf><Ustrd>Invoice 42</Ustrd><Strd><CdtrRefInf><Ref>210000000003139471430009017</Ref></CdtrRefInf></Strd></RmtInf>
+        </TxDtls></NtryDtls>
+      </Ntry>
+      <Ntry>
+        <NtryRef>ENTRY-2</NtryRef><Amt Ccy="CHF">20.00</Amt><CdtDbtInd>DBIT</CdtDbtInd>
+        <Sts><Cd>BOOK</Cd></Sts><BookgDt><DtTm>2026-09-01T00:15:00+02:00</DtTm></BookgDt>
+        <NtryDtls>
+          <TxDtls><RltdPties><Cdtr><Pty><Nm>Shop A</Nm></Pty></Cdtr></RltdPties><RmtInf><Ustrd>First payment</Ustrd></RmtInf></TxDtls>
+          <TxDtls><RltdPties><Cdtr><Pty><Nm>Shop B</Nm></Pty></Cdtr></RltdPties><RmtInf><Ustrd>Second payment</Ustrd></RmtInf></TxDtls>
+        </NtryDtls>
+      </Ntry>
+      <Ntry><Amt Ccy="CHF">999.00</Amt><CdtDbtInd>DBIT</CdtDbtInd><Sts><Cd>PDNG</Cd></Sts></Ntry>
+    </Stmt>
+  </BkToCstmrStmt>
+</Document>

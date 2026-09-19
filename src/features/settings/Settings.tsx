@@ -1,3 +1,5 @@
+// Zeigt allgemeine Einstellungen für Sprache, Region und automatische Sperre.
+
 import { t } from "../../i18n";
 import { useState, type FormEvent } from "react";
 import { invoke } from "@tauri-apps/api/core";

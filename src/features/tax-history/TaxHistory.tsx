@@ -1,3 +1,5 @@
+// Verwaltet den Import und die manuelle Pflege jährlicher Steuerwerte in der Oberfläche.
+
 import { invoke, isTauri } from "@tauri-apps/api/core";
 import { getCurrentWebview } from "@tauri-apps/api/webview";
 import { open } from "@tauri-apps/plugin-dialog";

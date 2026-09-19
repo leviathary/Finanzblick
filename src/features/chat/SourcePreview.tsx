@@ -1,3 +1,5 @@
+// Zeigt die für eine Chatfrage bereitgestellten Finanzdaten mit Verweisen auf die Berichte.
+
 import { locale, t } from "../../i18n";
 
 export type Preview = { payload: string; instructions: string; followUp?: boolean };
@@ -7,6 +9,7 @@ export function SourcePreview({ preview }: { preview: Preview }) {
   const cardsOnly = data.accountScope === "credit_cards";
   const money = (amount: number | null | undefined) => amount == null ? "—" : new Intl.NumberFormat(locale(), { style: "currency", currency: "CHF" }).format(amount / 100);
   return <div className="chat-sources">
+    {data.unresolvedCardCredits > 0 && <p className="error-message">{t("Ungeklärte Kartengutschriften sind noch nicht in den Ausgaben berücksichtigt.")} <a href="#transactions/cards">{t("Kartengutschriften prüfen")}</a></p>}
     {cardsOnly && <p className="chat-note"><strong>{t("Nur Kreditkarten")}</strong> — {t("Keine Daten anderer Konten, keine Einkommens- oder Vermögensübersicht.")}</p>}
     <p>{data.period.from} – {data.period.to} · CHF</p>
     {data.mode === "details" && <section className="chat-detail-preview">
@@ -15,7 +18,7 @@ export function SourcePreview({ preview }: { preview: Preview }) {
       <details><summary>{t("Alle freigegebenen Buchungen anzeigen")}</summary><div className="chat-detail-table"><table><thead><tr><th>{t("Datum")}</th><th>{t("Kategorie")}</th><th>{t("Betrag")}</th></tr></thead><tbody>{data.detailTransactions.map((row: { id: number; bookingDate: string; categoryLabel: string; amountMinor: number; currency: string }) => <tr key={row.id}><td>{row.bookingDate}</td><td>{row.categoryLabel}</td><td>{row.currency} {new Intl.NumberFormat(locale(), { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(row.amountMinor / 100)}</td></tr>)}</tbody></table></div></details>
     </section>}
     <dl className="chat-totals">
-      <div><dt>{t(cardsOnly ? "Kreditkartenbelastungen" : "Ausgaben nach Kategorien")}</dt><dd>{money(data.spending.totalMinor)}</dd></div>
+      <div><dt>{t("Ausgaben nach Kategorien")}</dt><dd>{money(data.spending.totalMinor)}</dd></div>
       {cardsOnly && <div><dt>{t("Kreditkartengutschriften")}</dt><dd>{money(data.creditCardActivity.creditsMinor)}</dd></div>}
       {!cardsOnly && <><div><dt>{t("Geldzufluss")}</dt><dd>{money(data.cashFlow.inMinor)}</dd></div>
       <div><dt>{t("Geldabfluss")}</dt><dd>{money(data.cashFlow.outMinor)}</dd></div>

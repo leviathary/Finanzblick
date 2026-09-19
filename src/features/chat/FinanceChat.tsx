@@ -1,3 +1,5 @@
+// Stellt den Finanzchat mit Anmeldung, Datenvorschau und optionaler Spracheingabe bereit.
+
 import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";

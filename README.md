@@ -5,7 +5,7 @@ Vermögen und Ausgaben. Ohne Benutzerkonto oder Cloud-Synchronisierung.
 
 ## Windows installieren
 
-[Windows-Installer 0.5.7 herunterladen (64 Bit)](https://github.com/leviathary/Finanzblick/releases/download/v0.5.7/Finanzblick_0.5.7_x64-setup.exe)
+[Windows-Installer 0.5.9 herunterladen (64 Bit)](https://github.com/leviathary/Finanzblick/releases/download/v0.5.9/Finanzblick_0.5.9_x64-setup.exe)
 
 Die heruntergeladene Datei ausführen. Ein Windows-Entwicklermodus ist nicht nötig.
 Der Installer ist nicht signiert; Windows kann deshalb eine Sicherheitswarnung anzeigen.
@@ -142,7 +142,10 @@ cargo test --manifest-path src-tauri/Cargo.toml --lib
 Alle eingecheckten Tests verwenden synthetische Daten. Echte Finanzdaten gehören
 nicht ins Repository.
 
-Veröffentlichungs-Build: `npm run release -- --bundles nsis` (Windows).
+Veröffentlichungs-Build: `node scripts/release.mjs --bundles nsis` (Windows).
+`CARGO_TARGET_DIR` muss dabei auf ein neutrales Verzeichnis außerhalb des
+Repositories und Benutzerprofils zeigen. Ein frischer OpenSSL-Build benötigt
+zusätzlich Perl im Build-PATH; dies ist keine Voraussetzung für die fertige App.
 Für ein natives macOS-DMG auf einem Mac:
 
 ```sh

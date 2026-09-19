@@ -1,3 +1,5 @@
+// Erzeugt synthetische Excel-Bankbelege als Import-Testdaten.
+
 import fs from "node:fs/promises";
 import path from "node:path";
 import { SpreadsheetFile, Workbook } from "@oai/artifact-tool";

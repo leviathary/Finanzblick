@@ -1,6 +1,6 @@
 [package]
 name = "finanzblick"
-version = "0.5.8"
+version = "0.5.9"
 license = "MIT"
 description = "Lokaler Multi-Bank-Aggregator für persönliche Finanzen"
 edition = "2021"
@@ -26,11 +26,13 @@ tauri-plugin-dialog = "2"
 calamine = { version = "0.36.1", features = ["chrono"] }
 chrono = { version = "0.4", features = ["serde"] }
 pdf-extract = "0.12"
+lopdf = { version = "0.42", default-features = false }
 regex = "1"
 rusqlite = { version = "0.37", features = ["bundled-sqlcipher-vendored-openssl"] }
 sha2 = "0.10"
 encoding_rs = "0.8"
 csv = "1.4"
+roxmltree = "0.21"
 zeroize = "1"
 tempfile = "3"
 fs2 = "0.4"

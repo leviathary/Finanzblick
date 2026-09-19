@@ -1,3 +1,5 @@
+// Verbindet Mikrofoneingabe mit lokaler Spracherkennung und verwaltet deren Ressourcen.
+
 import { useEffect, useRef, useState } from 'react';
 import type { VoskClient as Model, KaldiRecognizer } from '@lichess-org/vosk-browser';
 import workerUrl from '@lichess-org/vosk-browser/dist/vosk.worker.js?url';

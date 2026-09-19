@@ -1,3 +1,5 @@
+// Bereitet das lokale Spracherkennungsmodell für die Paketierung vor und prüft dessen Prüfsumme.
+
 import { createHash } from 'node:crypto';
 import { readFile, mkdir, writeFile } from 'node:fs/promises';
 

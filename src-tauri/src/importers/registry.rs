@@ -1,3 +1,5 @@
+//! Erkennt unterstützte Dateiformate und leitet sie an den passenden Importer weiter.
+
 use super::*;
 
 /// Common extension point for statement importers. New bank- or format-specific
@@ -24,6 +26,24 @@ struct ExcelImporter;
 struct CsvImporter;
 struct Mt940Importer;
 struct PdfImporter;
+struct Camt053Importer;
+
+impl StatementImporter for Camt053Importer {
+    fn id(&self) -> &'static str {
+        "camt053"
+    }
+    fn supports(&self, path: &Path, _: Option<&str>, _: Option<&TabularMapping>) -> bool {
+        extension(path) == "xml"
+    }
+    fn parse(
+        &self,
+        path: &Path,
+        provider: Option<&str>,
+        _: Option<&TabularMapping>,
+    ) -> Result<ParsedStatement, String> {
+        camt053::parse(path, provider)
+    }
+}
 
 impl StatementImporter for MappedTabularImporter {
     fn id(&self) -> &'static str {
@@ -110,7 +130,8 @@ impl StatementImporter for PdfImporter {
     }
 }
 
-static IMPORTERS: [&dyn StatementImporter; 5] = [
+static IMPORTERS: [&dyn StatementImporter; 6] = [
+    &Camt053Importer,
     &MappedTabularImporter,
     &ExcelImporter,
     &CsvImporter,
@@ -126,7 +147,9 @@ pub(super) fn parse(
     let importer = IMPORTERS
         .iter()
         .find(|importer| importer.supports(path, provider, mapping))
-        .ok_or_else(|| "Unterstützt werden XLSX, XLS, CSV, PDF und MT940.".to_string())?;
+        .ok_or_else(|| {
+            "Unterstützt werden XLSX, XLS, CSV, PDF, MT940 und camt.053 (XML).".to_string()
+        })?;
     debug_assert!(!importer.id().is_empty());
     importer.parse(path, provider, mapping)
 }

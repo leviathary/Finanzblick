@@ -1,3 +1,5 @@
+// Zeigt importierte Belege mit Such-, Filter-, Gruppierungs- und Löschfunktionen.
+
 import { t, tr, locale } from "../../i18n";
 import { useEffect, useMemo, useState } from "react";
 import { invoke, isTauri } from "@tauri-apps/api/core";
@@ -116,7 +118,7 @@ export function ImportHistory() {
     <div className="history-search">
       <label className="history-search-field" htmlFor="import-filename-search">{t("Dateiname durchsuchen")}<input id="import-filename-search" type="search" value={search} disabled={locked} placeholder={regex ? "UBS|Kontoauszug" : t("z. B. UBS oder *Kontoauszug*")} aria-describedby={filter.error ? "import-search-help import-search-error" : "import-search-help"} aria-invalid={Boolean(filter.error)} onChange={event => { setSearch(event.target.value); setSelected([]); }} />
       </label>
-      <label className="history-type-filter">{t("Dateityp")}<select value={fileType} disabled={locked} onChange={event => { setFileType(event.target.value); setSelected([]); }}><option value="">{t("Alle Dateitypen")}</option><option value="MT940">MT940 (.mt940 / .sta)</option><option value="PDF">PDF</option><option value="CSV">CSV</option><option value="excel">Excel (XLS / XLSX)</option><option value="XLS">XLS</option><option value="XLSX">XLSX</option></select></label>
+      <label className="history-type-filter">{t("Dateityp")}<select value={fileType} disabled={locked} onChange={event => { setFileType(event.target.value); setSelected([]); }}><option value="">{t("Alle Dateitypen")}</option><option value="CAMT053">camt.053 (XML)</option><option value="MT940">MT940 (.mt940 / .sta)</option><option value="PDF">PDF</option><option value="CSV">CSV</option><option value="excel">Excel (XLS / XLSX)</option><option value="XLS">XLS</option><option value="XLSX">XLSX</option></select></label>
       <label className="history-search-mode"><input type="checkbox" checked={regex} disabled={locked} onChange={event => { setRegex(event.target.checked); setSelected([]); }} />  {t("Regulärer Ausdruck (Regex)")}</label>
       {(search || fileType) && <button className="secondary-button" disabled={locked} onClick={() => { setSearch(""); setFileType(""); setSelected([]); }}>{t("Filter zurücksetzen")}</button>}
     </div>

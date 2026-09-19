@@ -1,3 +1,5 @@
+// Zeigt ein Anbieterlogo oder ersatzweise die Initialen der Bank.
+
 import { bankInitials } from "./bankInitials";
 
 export function ProviderLogo({ name, providerKey, customLogo }: { name: string; providerKey: string; customLogo?: string | null }) {

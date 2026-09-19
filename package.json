@@ -1,11 +1,11 @@
 {
   "name": "finanzblick",
   "private": true,
-  "version": "0.5.8",
+  "version": "0.5.9",
   "license": "MIT",
   "type": "module",
   "scripts": {
-    "test": "node --test scripts/test-import-batch.mjs scripts/test-i18n.mjs scripts/test-position-history.mjs scripts/test-bank-initials.mjs",
+    "test": "node --test scripts/test-import-batch.mjs scripts/test-i18n.mjs scripts/test-position-history.mjs scripts/test-bank-initials.mjs scripts/test-card-architecture.mjs",
     "licenses": "node scripts/collect-licenses.mjs",
     "release": "node scripts/release.mjs",
     "release:mac": "node scripts/release.mjs --bundles dmg",
@@ -13,6 +13,7 @@
     "build": "tsc && vite build",
     "preview": "vite preview",
     "tauri": "tauri",
+    "icons": "tauri icon public/finanzblick.svg --output src-tauri/icons",
     "chat:stage": "node scripts/stage-chat-runtime.mjs",
     "predev": "npm run chat:stage && npm run speech:stage",
     "prebuild": "npm run chat:stage && npm run speech:stage",

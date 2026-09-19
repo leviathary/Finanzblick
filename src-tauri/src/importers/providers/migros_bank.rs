@@ -1,3 +1,5 @@
+//! Registriert die Migros Bank und deren Erkennungsnamen im Anbieterregister.
+
 use super::ProviderImporter;
 
 pub(super) static IMPORTER: MigrosBankImporter = MigrosBankImporter;

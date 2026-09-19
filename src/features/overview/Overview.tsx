@@ -1,3 +1,6 @@
+// Zeigt die Kontoübersicht mit aktuellen Salden und Zusammenfassungen nach Anbieter.
+import type { AccountType } from "../../domain/finance";
+
 import { t, tr, locale } from "../../i18n";
 import { useEffect, useState } from "react";
 import { invoke, isTauri } from "@tauri-apps/api/core";
@@ -8,7 +11,7 @@ interface AccountSummary {
   provider: string;
   providerKey: string;
   name: string;
-  accountType: string;
+  accountType: AccountType;
   currency: string;
   balanceCurrency: string;
   balanceMinor: number | null;
@@ -219,7 +222,7 @@ function formatDate(value: string): string {
 
 function accountTypeLabel(value: string): string {
   return value === "pillar3a"
-    ? t("Säule 3a")
+    ? t("Vorsorgekonto")
     : value === "cash"
       ? t("Konto")
       : value === "credit_card"

@@ -1,3 +1,6 @@
+// Definiert die gemeinsamen Frontend-Datentypen für Importvorschau, Zuordnung und Speicherung.
+import type { AccountType } from "../../domain/finance";
+
 import type { ProviderId } from "./fileDetection";
 
 export interface ParsedTransaction {
@@ -10,6 +13,24 @@ export interface ParsedTransaction {
   currency: string;
   confidence: number;
   sourceRow: number;
+  transactionKind: "cash_transaction" | "security_trade" | "dividend" | "interest" | "fee" | "corporate_action" | string;
+  referenceNamespace: string | null;
+  externalReference: string | null;
+  counterpartyName: string | null;
+  remittanceInformation: string | null;
+  securityDetails: {
+    isin: string | null;
+    valorNumber: string | null;
+    quantity: string | null;
+    price: string | null;
+    priceCurrency: string | null;
+    exchangeRate: string | null;
+    grossAmountMinor: number | null;
+    feesMinor: number | null;
+    taxesMinor: number | null;
+    withholdingTaxMinor: number | null;
+    accruedInterestMinor: number | null;
+  } | null;
 }
 
 export interface ParsedStatement {
@@ -21,7 +42,12 @@ export interface ParsedStatement {
   closingBalanceMinor: number | null;
   warnings: string[];
   currencyBalances: Array<{ currency: string; openingDate: string | null; openingBalanceMinor: number; closingBalanceMinor: number; closingDate: string }>;
-  accountType: string | null;
+  accountType: AccountType | null;
+  documentType: string | null;
+  documentDate: string | null;
+  documentValueDate: string | null;
+  recordDefinitionId: string | null;
+  accountReference: string | null;
 }
 
 export type DateFormat = "auto" | "dmy" | "mdy" | "ymd";
@@ -66,7 +92,7 @@ export interface ImportMappingProfile {
 }
 
 export interface ImportAccount {
-  id: number; name: string; provider: string; providerKey: string; currency: string; accountType: string; isActive: boolean;
+  id: number; name: string; provider: string; providerKey: string; currency: string; accountType: AccountType; isActive: boolean;
   externalReference?: string | null;
 }
 

@@ -1,3 +1,5 @@
+// Erkennt bekannte Banknamen und erzeugt kurze Initialen für die Logo-Ersatzdarstellung.
+
 const institutions: Array<[string[], string]> = [
   [["ubs", "union bank of switzerland"], "UBS"],
   [["swissquote"], "SQ"],

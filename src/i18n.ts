@@ -1,3 +1,5 @@
+// Stellt Übersetzungen sowie sprachabhängige Datums- und Zahlenformatierung bereit.
+
 import messages from "./translations.json";
 import type { Language, Region } from "./settings";
 

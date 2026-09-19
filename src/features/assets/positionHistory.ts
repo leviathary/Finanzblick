@@ -1,3 +1,5 @@
+// Führt ausgewählte Positionsverläufe zu einer gemeinsamen Bewertungszeitreihe zusammen.
+
 export interface ChartPoint { date: string; totalMinor: number }
 export interface PositionChart {
   id: number;

@@ -1,5 +1,7 @@
+// Erkennt unterstützte Dateiendungen und Anbieterhinweise und formatiert Dateiangaben.
+
 import { t } from "../../i18n";
-export const supportedExtensions = ["xlsx", "xls", "csv", "pdf", "mt940", "sta"] as const;
+export const supportedExtensions = ["xlsx", "xls", "csv", "pdf", "mt940", "sta", "xml"] as const;
 
 export type SupportedExtension = (typeof supportedExtensions)[number];
 // Importers may introduce additional provider keys without requiring a new
@@ -16,6 +18,7 @@ export interface SelectedStatement {
 }
 
 export const providers: Array<{ id: ProviderId; label: string; type: string }> = [
+  { id: "zkb", label: "Zürcher Kantonalbank", type: "Bank" },
   { id: "ubs", label: "UBS", type: "Bank" },
   { id: "swissquote", label: "Swissquote", type: "Bank / Trading" },
   { id: "migros", label: "Migros Bank", type: "Bank" },
@@ -27,6 +30,7 @@ export const providers: Array<{ id: ProviderId; label: string; type: string }> =
 
 export function detectProvider(fileName: string): ProviderId {
   const normalized = fileName.toLocaleLowerCase("de-CH");
+  if (normalized.includes("zkb") || normalized.includes("zürcher kantonalbank") || normalized.includes("zuercher kantonalbank")) return "zkb";
   if (normalized.includes("ubs")) return "ubs";
   if (normalized.includes("swissquote")) return "swissquote";
   if (normalized.includes("migros")) return "migros";

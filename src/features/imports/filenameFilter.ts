@@ -1,3 +1,5 @@
+// Erzeugt Dateinamenfilter für Text, Platzhalter und reguläre Ausdrücke.
+
 export function filenameFilter(query: string, regex: boolean): { matches: (name: string) => boolean; error: string | null } {
   if (!query) return { matches: () => true, error: null };
   try {

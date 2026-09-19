@@ -1,3 +1,5 @@
+// Ermöglicht Auswahl, Anlage und Verwaltung lokaler Datenbankprofile.
+
 import { useEffect, useState, type FormEvent } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { t } from "../../i18n";
@@ -5,7 +7,8 @@ import { t } from "../../i18n";
 type Choice = { id: string; name: string; active: boolean; demo: boolean };
 type DatabaseTab = "manage" | "create" | "copy";
 
-export function DatabasePicker({ allowCreate = false, onCreatingChange }: { allowCreate?: boolean; onCreatingChange?: (creating: boolean) => void }) {
+export function DatabasePicker({ allowCreate = false, compact = false, disabled = false, onCreatingChange }: { allowCreate?: boolean; compact?: boolean; disabled?: boolean; onCreatingChange?: (creating: boolean) => void }) {
+  const [expanded, setExpanded] = useState(false);
   const [choices, setChoices] = useState<Choice[]>([]);
   const [selected, setSelected] = useState("");
   const [busy, setBusy] = useState(false);
@@ -149,13 +152,17 @@ export function DatabasePicker({ allowCreate = false, onCreatingChange }: { allo
 
   return <div className="database-picker">
     {allowCreate && <h2>{t("Finanzprofile")}</h2>}
-    <label>{t("Finanzprofil")}
-      <select value={selected} disabled={busy} onChange={event => void selectDatabase(event.target.value)}>
+    {compact && choices.length === 1 && !expanded ? <div className="vault-profile">
+      <span className="vault-profile-avatar" aria-hidden="true">{choices[0].name.slice(0, 1).toLocaleUpperCase()}</span>
+      <div><small>{t("Finanzprofil")}</small><strong>{choices[0].id === "original" ? t("Meine Daten") : choices[0].name}</strong></div>
+      <button type="button" disabled={busy || disabled} onClick={() => setExpanded(true)}>{t("Wechseln")}</button>
+    </div> : <label>{t("Finanzprofil")}
+      <select autoFocus={compact && expanded} value={selected} disabled={busy || disabled} onChange={event => void selectDatabase(event.target.value)}>
         <option value="action:new">{t("Neues Finanzprofil")}</option>
         <option value={demoChoice?.id ?? "action:demo"}>{t("Demo-Daten")}</option>
         {choices.filter(choice => choice.id !== demoChoice?.id).map(choice => <option key={choice.id} value={choice.id}>{choice.id === "original" ? t("Meine Daten") : choice.name}</option>)}
       </select>
-    </label>
+    </label>}
     {allowCreate && <>
       <p className="settings-hint">{t("Das gewählte Finanzprofil wird beim nächsten Start wieder geöffnet. Jedes Finanzprofil hat sein eigenes Passwort und seinen eigenen Datenbestand.")}</p>
       <div className="database-tabs" role="tablist" aria-label={t("Profilaktionen")}>

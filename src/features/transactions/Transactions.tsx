@@ -1,20 +1,26 @@
+// Zeigt und analysiert Buchungen mit Zeitfiltern, Kategorien und Einnahmen-/Ausgabenauswertungen.
+
 import { t, tr, locale, categoryName } from "../../i18n";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 
-import { TimelineChart, type TimelinePoint } from "../assets/TimelineChart";
+import { TimelineChart, type TimelinePoint } from "../../shared/charts/TimelineChart";
 import { selectAmountRange } from "./amountSelection";
+import { TransactionActions, type TransferType } from "./TransactionActions";
+import { SettlementRuleDialog } from "./SettlementRuleDialog";
 import { reportPeriod } from "../../domain/reportPeriod";
 
 interface Category { key: string; label: string; color: string; amountMinor: number; transactionCount: number }
 interface Month { month: string; amountMinor: number }
-interface Transaction { id: number; bookingDate: string; description: string; industry: string | null; amountMinor: number; currency: string; categoryKey: string; categoryLabel: string; categoryColor: string; categorySource: "manual" | "merchant" | "industry" | "description"; provider: string; providerKey: string; accountName: string; excludedFromTotals: boolean; isCardSettlement: boolean }
+interface Transaction { id: number; bookingDate: string; description: string; industry: string | null; amountMinor: number; currency: string; categoryKey: string; categoryLabel: string; categoryColor: string; categorySource: "manual" | "merchant" | "industry" | "description"; provider: string; providerKey: string; accountName: string; excludedFromTotals: boolean; isCardSettlement: boolean; isCard: boolean; isManuallyOverridden: boolean; expenseMinor: number; incomeMinor: number }
 interface Provider { provider: string; providerKey: string }
 interface Account { id: number; name: string; providerKey: string; currency: string; isActive: boolean }
 interface Analysis { incomeTransactions: Transaction[]; totalIncomeMinor: number; incomeCount: number; totalSpendMinor: number; transactionCount: number; firstDate: string | null; lastDate: string | null; categories: Category[]; months: Month[]; history: TimelinePoint[]; transactions: Transaction[]; providers: Provider[] }
 
 
 export function Transactions() {
+  const [ruleTransaction, setRuleTransaction] = useState<Transaction | null>(null);
+  const [savingSettlement, setSavingSettlement] = useState(false);
   const [detailMode, setDetailMode] = useState<"income" | "expense">("expense");
   const [analysisView, setAnalysisView] = useState<"category" | "month">("category");
   const [sort, setSort] = useState<{ key: "bookingDate" | "description" | "accountName" | "amountMinor"; descending: boolean }>({ key: "bookingDate", descending: true });
@@ -51,8 +57,8 @@ export function Transactions() {
   useEffect(() => { invoke<Account[]>("list_accounts").then(setAccounts).catch(() => setError(t("Konten konnten nicht geladen werden."))); }, []);
   const categorizedTransactions = useMemo(() => {
     const transactions = detailMode === "income"
-      ? data?.incomeTransactions.filter(item => !item.excludedFromTotals)
-      : data?.transactions.filter(item => !item.isCardSettlement);
+      ? data?.incomeTransactions.filter(item => item.incomeMinor !== 0)
+      : data?.transactions.filter(item => item.expenseMinor !== 0);
     return transactions?.filter(item => item.currency === "CHF") ?? [];
   }, [data, detailMode]);
   const visibleTransactions = useMemo(
@@ -60,11 +66,13 @@ export function Transactions() {
     [categorizedTransactions, category],
   );
   const drilldownTransactions = useMemo(() => {
-    if (!monthlyDrilldown) return visibleTransactions;
+    const neutral = (detailMode === "income" ? data?.incomeTransactions : data?.transactions)?.filter(item => item.excludedFromTotals && (!category.length || category.includes(item.categoryKey))) ?? [];
+    const listed = [...visibleTransactions, ...neutral];
+    if (!monthlyDrilldown) return listed;
     const yearMonth = `${monthlyDrilldown.year}-${String(monthlyDrilldown.month + 1).padStart(2, "0")}`;
-    return visibleTransactions.filter(item => item.bookingDate.startsWith(yearMonth)
+    return listed.filter(item => item.bookingDate.startsWith(yearMonth)
       && (!monthlyDrilldown.categoryKey || item.categoryKey === monthlyDrilldown.categoryKey));
-  }, [monthlyDrilldown, visibleTransactions]);
+  }, [monthlyDrilldown, visibleTransactions, data, detailMode, category]);
   const comparisonYears = useMemo(
     () => [...new Set(categorizedTransactions.map(item => item.bookingDate.slice(0, 4)))].sort((a, b) => b.localeCompare(a)),
     [categorizedTransactions],
@@ -73,6 +81,7 @@ export function Transactions() {
     if (comparisonYears.length && !comparisonYears.includes(comparisonYear)) setComparisonYear(comparisonYears[0]);
   }, [comparisonYear, comparisonYears]);
   useEffect(() => { setMonthlyDrilldown(null); }, [comparisonYear]);
+  const contribution = (item: Transaction) => detailMode === "income" ? item.incomeMinor : item.expenseMinor;
   const comparisonMonths = useMemo(() => {
     const rows = new Map<string, { key: string; label: string; color: string; months: number[]; total: number }>();
     for (const item of visibleTransactions) {
@@ -84,7 +93,7 @@ export function Transactions() {
         months: Array(12).fill(0),
         total: 0,
       };
-      const amount = Math.abs(item.amountMinor);
+      const amount = contribution(item);
       const month = Number(item.bookingDate.slice(5, 7)) - 1;
       row.months[month] += amount;
       row.total += amount;
@@ -114,12 +123,12 @@ export function Transactions() {
       : t("Alle Kategorien");
     return `${categoryLabel} · ${monthNameLong(monthlyDrilldown.month)} ${monthlyDrilldown.year}`;
   }, [categorizedTransactions, monthlyDrilldown]);
-  const drilldownTotal = drilldownTransactions.reduce((sum, item) => sum + Math.abs(item.amountMinor), 0);
+  const drilldownTotal = drilldownTransactions.reduce((sum, item) => sum + contribution(item), 0);
   const filteredTransactions = useMemo(() => {
-    const query = search.trim().toLocaleLowerCase("de-CH");
+    const query = search.trim().toLocaleLowerCase(locale());
     const threshold = Math.max(0, Number(minimum) || 0) * 100;
     return drilldownTransactions.filter(item => Math.abs(item.amountMinor) >= threshold &&
-      (!query || `${item.description} ${item.industry ?? ""} ${item.accountName} ${item.provider} ${item.excludedFromTotals || item.isCardSettlement ? `Kreditkarte Kreditkartenabrechnung LSV-Zahlung ${t("Kreditkartenabrechnung")}` : ""}`.toLocaleLowerCase("de-CH").includes(query)))
+      (!query || `${item.description} ${item.industry ?? ""} ${item.accountName} ${item.provider} ${item.excludedFromTotals || item.isCardSettlement ? t("Rechnungsausgleich") : ""}`.toLocaleLowerCase(locale()).includes(query)))
       .sort((a, b) => {
         const comparison = sort.key === "amountMinor" ? Math.abs(a.amountMinor) - Math.abs(b.amountMinor)
           : a[sort.key].localeCompare(b[sort.key], locale(), { numeric: true, sensitivity: "base" });
@@ -131,7 +140,7 @@ export function Transactions() {
   const amountDrag = useRef<{ start: number; base: number[]; selecting: boolean } | null>(null);
   const amountRows = filteredTransactions.slice(0, rowLimit);
   const selectedAmountRows = amountRows.filter(item => selectedAmounts.includes(item.id));
-  const selectedAmountTotal = selectedAmountRows.reduce((sum, item) => sum + Math.abs(item.amountMinor), 0);
+  const selectedAmountTotal = selectedAmountRows.reduce((sum, item) => sum + contribution(item), 0);
   useEffect(() => {
     setSelectedAmounts([]); amountDrag.current = null;
   }, [from, to, provider, account, detailMode, category, search, minimum, monthlyDrilldown]);
@@ -152,7 +161,7 @@ export function Transactions() {
     window.addEventListener("blur", stop);
     return () => { stop(); window.removeEventListener("mousemove", move); window.removeEventListener("mouseup", stop); window.removeEventListener("blur", stop); };
   }, [filteredTransactions, rowLimit]);
-  const filteredTotal = filteredTransactions.reduce((sum, item) => sum + Math.abs(item.amountMinor), 0);
+  const filteredTotal = filteredTransactions.reduce((sum, item) => sum + contribution(item), 0);
   const hasDetailFilter = search.trim() !== "" || Number(minimum) > 0;
   function sortBy(key: typeof sort.key) {
     setSort(current => ({ key, descending: current.key === key ? !current.descending : key === "amountMinor" || key === "bookingDate" }));
@@ -166,13 +175,13 @@ export function Transactions() {
   const displayedMonths = useMemo(() => {
     if (!category.length && detailMode === "expense") return data?.months ?? [];
     const months = new Map<string, number>();
-    visibleTransactions.forEach(item => months.set(item.bookingDate.slice(0, 7), (months.get(item.bookingDate.slice(0, 7)) ?? 0) + Math.abs(item.amountMinor)));
+    visibleTransactions.forEach(item => months.set(item.bookingDate.slice(0, 7), (months.get(item.bookingDate.slice(0, 7)) ?? 0) + contribution(item)));
     return Array.from(months, ([month, amountMinor]) => ({ month, amountMinor })).sort((left, right) => left.month.localeCompare(right.month));
   }, [category, data, visibleTransactions, detailMode]);
   const breakdown = useMemo(() => {
     if (detailMode === "expense") return data?.categories ?? [];
     const groups = new Map<string, Category>();
-    for (const item of (data?.incomeTransactions ?? []).filter(item => !item.excludedFromTotals)) {
+    for (const item of (data?.incomeTransactions ?? []).filter(item => item.incomeMinor !== 0)) {
       const group = groups.get(item.categoryKey) ?? { key: item.categoryKey, label: item.categoryLabel, color: item.categoryColor, amountMinor: 0, transactionCount: 0 };
       group.amountMinor += item.amountMinor; group.transactionCount += 1; groups.set(item.categoryKey, group);
     }
@@ -182,6 +191,11 @@ export function Transactions() {
     ? data?.totalIncomeMinor ?? 0
     : breakdown.reduce((sum, item) => sum + item.amountMinor, 0);
   const selectedCategories = breakdown.filter(item => category.includes(item.key));
+  useEffect(() => {
+    if (loading || !data) return;
+    const available = new Set(breakdown.map(item => item.key));
+    setCategory(current => current.every(key => available.has(key)) ? current : current.filter(key => available.has(key)));
+  }, [breakdown, loading, data]);
   const selectedCategory = category.length === 1 ? selectedCategories[0] : undefined;
   const selectionLabel = category.length > 1 ? tr`${category.length} Kategorien ausgewählt` : selectedCategory ? categoryName(selectedCategory.key, selectedCategory.label) : undefined;
   const selectedTotal = category.length ? selectedCategories.reduce((sum, item) => sum + item.amountMinor, 0) : breakdownTotal;
@@ -261,6 +275,16 @@ export function Transactions() {
     setTo(fullTo);
   }
 
+  async function changeSettlement(item: Transaction, transferType: TransferType) {
+    if (transferType === "CREDIT_CARD_SETTLEMENT") { setRuleTransaction(item); return; }
+    setSavingSettlement(true);
+    try {
+      await invoke("set_transaction_transfers", { transactionIds: [item.id], transferType });
+      await load();
+    } catch (reason) { setError(typeof reason === "string" ? reason : t("Markierung konnte nicht gespeichert werden.")); }
+    finally { setSavingSettlement(false); }
+  }
+
   async function changeCategory(transactionId: number, categoryKey: string) {
     try { const count = await invoke<number>("set_transaction_category", { transactionId, categoryKey }); setCategoryMessage(tr`Kategorie für ${count} passende Buchungen übernommen. Die Zuordnung gilt auch für zukünftige Importe.`); await load(); }
     catch (reason) { setError(typeof reason === "string" ? reason : t("Kategorie konnte nicht geändert werden.")); }
@@ -268,9 +292,18 @@ export function Transactions() {
 
   if (!data && loading) return <section className="transactions-page transaction-analysis-page"><p className="intro">{t("Transaktionen werden ausgewertet…")}</p></section>;
   return <section className="transactions-page transaction-analysis-page">
+    {ruleTransaction && <SettlementRuleDialog transaction={ruleTransaction} onClose={() => setRuleTransaction(null)} onSaved={load} />}
     <div className="overview-heading"><div><p className="eyebrow">{t("Transaktionen")}</p><h1>{t("Deine Einnahmen und Ausgaben")}</h1><p className="intro">{t("Klicke auf eine Kategorie, um die einzelnen Buchungen zu sehen.")}</p></div></div>
     {error && <p className="error-message">{t(error)}</p>}{categoryMessage && <p className="import-result" role="status">{categoryMessage}</p>}
     {data && <>
+      {data.transactions.some(row => row.isCard && row.amountMinor > 0 && !row.excludedFromTotals && row.expenseMinor === 0) && <aside className="card-credit-notice">
+        <p role="status">{t("Ungeklärte Kartengutschriften sind noch nicht in den Ausgaben berücksichtigt.")}</p>
+        <div className="card-credit-notice-actions">
+          <a className="primary-button" href="#transactions/cards/setup">{t("Karte einrichten")} <span aria-hidden="true">→</span></a>
+          <a className="card-credit-review-link" href="#transactions/cards">{t("Kartentransaktionen prüfen")}</a>
+        </div>
+      </aside>}
+      {[...data.transactions, ...data.incomeTransactions].some(item => item.isCardSettlement) && <p className="import-result" role="status">{t("Rechnungsausgleiche sind neutralisiert. Bitte die zugehörigen Kartenkäufe separat importieren; ihre Vollständigkeit wird nicht geprüft.")}</p>}
       <article className="dashboard-card wealth-chart-card transaction-timeline">
         <div className="card-heading">
           <div><p className="eyebrow">{t("Zeitverlauf")}</p><h2>{t("Saldoverlauf")}</h2><small className="full-period">{t("Gesamte Datenbasis:")} {fullFrom ? `${shortDate(fullFrom)} – ${shortDate(fullTo)}` : "–"}</small></div>
@@ -294,9 +327,9 @@ export function Transactions() {
         <TimelineChart history={timelineHistory} currency="CHF" ariaLabel={t("Verlauf der Kontosalden")} emptyLabel={t("Keine Salden für diesen Zeitverlauf vorhanden.")} onSelectRange={(rangeFrom, rangeTo) => { setFrom(rangeFrom); setTo(rangeTo); setSelectedPeriod("custom"); }} />
       </article>
       <div className="transaction-kpis cashflow-summary">
-        <article><button className="cashflow-link" onClick={() => showDetails("income")} aria-pressed={detailMode === "income"}><span>{account ? t("Gutschriften auf dem Konto") : t("Einnahmen im Zeitraum")}</span><strong className="income-value">{money(data.totalIncomeMinor)}</strong><small>{data.incomeCount}  {t("Gutschriften anzeigen →")}</small></button></article>
-        <article><button className="cashflow-link" onClick={() => showDetails("expense")} aria-pressed={detailMode === "expense"}><span>{account ? t("Belastungen auf dem Konto") : t("Ausgaben im Zeitraum")}</span><strong>{money(data.totalSpendMinor)}</strong><small>{data.transactionCount}  {t("Belastungen anzeigen →")}</small></button></article>
-        <article><span>{t("Differenz")}</span><strong className={data.totalIncomeMinor >= data.totalSpendMinor ? "income-value" : "deficit-value"}>{money(data.totalIncomeMinor - data.totalSpendMinor)}</strong><small>{account ? t("Gutschriften minus Belastungen") : t("Einnahmen minus Ausgaben")}</small></article>
+        <article><button className="cashflow-link" onClick={() => showDetails("income")} aria-pressed={detailMode === "income"}><span>{t("Einnahmen im Zeitraum")}</span><strong className="income-value">{money(data.totalIncomeMinor)}</strong><small>{data.incomeCount}  {t("Gutschriften anzeigen →")}</small></button></article>
+        <article><button className="cashflow-link" onClick={() => showDetails("expense")} aria-pressed={detailMode === "expense"}><span>{t("Ausgaben im Zeitraum")}</span><strong>{money(data.totalSpendMinor)}</strong><small>{data.transactionCount}  {t("Belastungen anzeigen →")}</small></button></article>
+        <article><span>{t("Differenz")}</span><strong className={data.totalIncomeMinor >= data.totalSpendMinor ? "income-value" : "deficit-value"}>{money(data.totalIncomeMinor - data.totalSpendMinor)}</strong><small>{t("Einnahmen minus Ausgaben")}</small></article>
       </div>
       <div className="transaction-kpis"><article><span>{selectionLabel ? selectionLabel : detailMode === "income" ? t("Einnahmen gesamt") : t("Ausgaben gesamt")}</span><strong>{money(selectedTotal)}</strong><small>{visibleTransactions.length}  {t("Buchungen im gewählten Zeitraum")}</small></article><article><span>{t("Durchschnitt pro Monat")}</span><strong>{money(averageMonthly)}</strong><small>{displayedMonths.length}  {t("Kalendermonate mit Buchungen")}</small></article><article><span>{t("Zeitraum")}</span><strong>{data.firstDate && data.lastDate ? `${shortDate(data.firstDate)} – ${shortDate(data.lastDate)}` : "–"}</strong><small>{provider ? data.providers.find(item => item.providerKey === provider)?.provider : t("Alle Anbieter")}</small></article></div>
       <div className="transaction-analysis-grid categories-full-width">
@@ -384,14 +417,14 @@ export function Transactions() {
           {hasDetailFilter && <button className="text-button" onClick={() => { setSearch(""); setMinimum(""); }}>{t("Filter zurücksetzen")}</button>}
         </div>
         <p className="drilldown-result" role="status">{hasDetailFilter ? tr`${filteredTransactions.length} von ${drilldownTransactions.length} Buchungen · Gefilterte Summe: ${money(filteredTotal)}` : t("Spaltenüberschrift anklicken, um die Sortierung zu ändern.")}</p>
-        <div className="expense-table"><div className="expense-row header"><span>{sortHeader("bookingDate", t("Datum"))}</span><span>{sortHeader("description", t("Beschreibung"))}</span><span>{t("Kategorie")}</span><span>{sortHeader("accountName", t("Konto"))}</span><span>{sortHeader("amountMinor", t("Betrag"))}</span></div>
-          {filteredTransactions.slice(0, rowLimit).map(item => <div className={`expense-row ${item.excludedFromTotals ? "card-detail-row" : ""}`} data-amount-row={item.id} key={item.id}><span>{shortDate(item.bookingDate)}</span><div><strong title={item.description}>{item.description}</strong><small>{item.provider}{item.industry ? ` · ${item.industry}` : ""}</small></div><div><select aria-label={tr`Kategorie für ${item.description}`} value={item.categoryKey} style={{ borderLeftColor: item.categoryColor }} onChange={event => void changeCategory(item.id, event.target.value)}>{categoryOptions.map(({key, label}) => <option value={key} key={key}>{categoryName(key, label)}</option>)}</select><small>{item.excludedFromTotals ? t("Kreditkartendetail · in Ausgabenanalyse enthalten") : item.isCardSettlement ? t("Kreditkartenabrechnung · im Geldfluss enthalten") : item.categorySource === "manual" ? t("Manuell gewählt") : item.categorySource === "merchant" ? t("Anhand Händlerregel") : item.categorySource === "industry" ? t("Anhand Branche") : t("Anhand Buchungstext")}</small></div><span>{item.accountName}</span><button type="button" className={`amount-select ${item.amountMinor > 0 ? "income-amount" : ""}`} aria-pressed={selectedAmounts.includes(item.id)} aria-label={tr`Betrag auswählen: ${money(Math.abs(item.amountMinor))} · ${item.description}`} onMouseDown={event => {
+        <div className="expense-table"><div className="expense-row header"><span>{sortHeader("bookingDate", t("Datum"))}</span><span>{sortHeader("description", t("Beschreibung"))}</span><span>{t("Kategorie")}</span><span>{sortHeader("accountName", t("Konto"))}</span><span>{sortHeader("amountMinor", t("Betrag"))}</span><span aria-label={t("Aktionen")} /></div>
+          {filteredTransactions.slice(0, rowLimit).map(item => <div className={`expense-row ${item.excludedFromTotals ? "card-detail-row" : ""}`} data-amount-row={item.id} key={item.id}><span>{shortDate(item.bookingDate)}</span><div><strong title={item.description}>{item.description}</strong><small>{item.provider}{item.industry ? ` · ${item.industry}` : ""}{item.excludedFromTotals && <> · <span className="transfer-badge">{t(item.isCardSettlement ? "Kartenausgleich" : "Umbuchung")}</span></>}</small></div><div><select aria-label={tr`Kategorie für ${item.description}`} value={item.categoryKey} style={{ borderLeftColor: item.categoryColor }} onChange={event => void changeCategory(item.id, event.target.value)}>{categoryOptions.map(({key, label}) => <option value={key} key={key}>{categoryName(key, label)}</option>)}</select><small>{item.excludedFromTotals ? t("Nicht in Auswertungen enthalten") : item.categorySource === "manual" ? t("Manuell gewählt") : item.categorySource === "merchant" ? t("Anhand Händlerregel") : item.categorySource === "industry" ? t("Anhand Branche") : t("Anhand Buchungstext")}</small></div><span>{item.accountName}</span><button type="button" className={`amount-select ${item.amountMinor > 0 ? "income-amount" : ""}`} aria-pressed={selectedAmounts.includes(item.id)} aria-label={tr`Betrag auswählen: ${money(Math.abs(item.amountMinor))} · ${item.description}`} onMouseDown={event => {
             if (event.button !== 0) return;
             event.preventDefault(); event.currentTarget.focus();
             const selecting = !selectedAmounts.includes(item.id);
             amountDrag.current = { start: item.id, base: selectedAmounts, selecting };
             setSelectedAmounts(selectAmountRange(selectedAmounts, amountRows.map(row => row.id), item.id, item.id, selecting));
-          }} onClick={event => { if (event.detail === 0) setSelectedAmounts(current => current.includes(item.id) ? current.filter(id => id !== item.id) : [...current, item.id]); }}>{money(Math.abs(item.amountMinor))}</button></div>)}
+          }} onClick={event => { if (event.detail === 0) setSelectedAmounts(current => current.includes(item.id) ? current.filter(id => id !== item.id) : [...current, item.id]); }}>{money(item.excludedFromTotals ? item.amountMinor : contribution(item))}</button><TransactionActions neutral={item.excludedFromTotals} description={item.description} disabled={savingSettlement} onChange={kind => changeSettlement(item, kind)} /></div>)}
           {!filteredTransactions.length && <p className="intro">{t("Keine Buchungen für diese Auswahl gefunden.")}</p>}
           {filteredTransactions.length > rowLimit && <button className="secondary-button" onClick={() => setRowLimit(limit => limit + 200)}>{t("Weitere Buchungen anzeigen (")}{rowLimit}  {t("von")} {filteredTransactions.length})</button>}
         </div>

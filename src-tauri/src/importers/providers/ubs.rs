@@ -1,3 +1,5 @@
+//! Definiert UBS-Erkennungsregeln sowie Zuordnungen für Excel-, Konto- und Kreditkartenbelege.
+
 use super::{ProviderExcelMapping, ProviderImporter};
 use crate::importers::{
     normalize_date, normalized, parse_money, CurrencyBalance, ParsedPdfRows, ParsedStatement,
@@ -31,6 +33,16 @@ static EXCEL_MAPPING: ProviderExcelMapping = ProviderExcelMapping {
 pub(super) struct UbsImporter;
 
 impl ProviderImporter for UbsImporter {
+    fn card_credit_kind(&self, description: &str) -> Option<&'static str> {
+        // Exact UBS payment labels only; a positive amount or generic LSV text is insufficient.
+        let label = description
+            .split(['·', '\n'])
+            .next()
+            .unwrap_or("")
+            .trim()
+            .to_uppercase();
+        matches!(label.as_str(), "2002 LSV-ZAHLUNG" | "LSV-ZAHLUNG").then_some("card_settlement")
+    }
     fn id(&self) -> &'static str {
         "ubs"
     }
@@ -93,6 +105,7 @@ pub(in crate::importers) fn parse_pdf_text(text: &str) -> Result<ParsedStatement
         } else {
             vec!["Älteres UBS-PDF-Layout heuristisch erkannt. Bitte Datum, Betrag und Saldo kontrollieren.".into()]
         },
+        ..ParsedStatement::default()
     })
 }
 
@@ -153,6 +166,7 @@ fn parse_legacy_account_rows(lines: &[String]) -> Result<ParsedPdfRows, String> 
             currency: "CHF".into(),
             confidence: 0.82,
             source_row: table_start + offset + 2,
+            ..ParsedTransaction::default()
         });
     }
     if transactions.is_empty() {
@@ -245,6 +259,7 @@ pub(in crate::importers) fn parse_account_rows(lines: &[String]) -> Result<Parse
                 currency: "CHF".into(),
                 confidence: 0.99,
                 source_row: index + 1,
+                ..ParsedTransaction::default()
             });
             previous = balance;
         } else if dated.is_match(line) {
@@ -337,6 +352,7 @@ fn parse_mastercard(lines: &[String]) -> Result<ParsedStatement, String> {
                     currency: "CHF".into(),
                     confidence: 0.99,
                     source_row: index + 1,
+                    ..ParsedTransaction::default()
                 });
             }
             continue;
@@ -401,6 +417,7 @@ fn parse_mastercard(lines: &[String]) -> Result<ParsedStatement, String> {
                 currency: "CHF".into(),
                 confidence: 0.99,
                 source_row,
+                ..ParsedTransaction::default()
             });
             card_total += value;
         } else if let Some(c) = dated.captures(line) {
@@ -447,6 +464,7 @@ fn parse_mastercard(lines: &[String]) -> Result<ParsedStatement, String> {
             currency: "CHF".into(),
             confidence: 0.9,
             source_row: lines.len() + 1,
+            ..ParsedTransaction::default()
         });
     }
     rows.sort_by(|a, b| {
@@ -474,6 +492,7 @@ fn parse_mastercard(lines: &[String]) -> Result<ParsedStatement, String> {
         }],
         account_type: Some("credit_card".into()),
         warnings,
+        ..ParsedStatement::default()
     })
 }
 

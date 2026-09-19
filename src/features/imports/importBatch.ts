@@ -1,3 +1,5 @@
+// Koordiniert Kontovorschläge und das schrittweise Speichern eines Importstapels.
+
 import type { ImportAccount, ParsedStatement, SaveImportResult, TabularMapping } from "./importTypes";
 import type { SelectedStatement } from "./fileDetection";
 
@@ -23,7 +25,7 @@ export function matchingAccounts(accounts: ImportAccount[], statement: ParsedSta
 
 export function suggestAccounts(accounts: ImportAccount[], statement: ParsedStatement): Record<string, number> {
   const result: Record<string, number> = {};
-  const reference = statement.format.toUpperCase() === "MT940" ? normalizeAccountReference(statement.accountName) : "";
+  const reference = normalizeAccountReference(statement.accountReference ?? (statement.format.toUpperCase() === "MT940" ? statement.accountName : ""));
   for (const currency of currencies(statement)) {
     const candidates = matchingAccounts(accounts, statement, currency);
     if (reference) {

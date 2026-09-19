@@ -1,4 +1,12 @@
-use super::*;
+//! Verwaltet Kategorien, benutzerdefinierte Bezeichnungen und Zuordnungsregeln.
+use crate::storage::database::errors::db_error;
+#[cfg(test)]
+use crate::storage::database::schema::initialize_schema;
+use crate::storage::database::Storage;
+use crate::storage::rules::categorization::apply_categories;
+use rusqlite::{params, Connection};
+
+use serde::Serialize;
 
 pub(super) fn apply_redirects(db: &Connection) -> rusqlite::Result<()> {
     db.execute_batch("CREATE TABLE IF NOT EXISTS category_redirects(source_id INTEGER PRIMARY KEY REFERENCES categories(id), target_id INTEGER NOT NULL REFERENCES categories(id));
@@ -16,8 +24,7 @@ pub struct ManagedCategory {
     rule_count: i64,
 }
 
-#[tauri::command]
-pub fn list_categories(storage: State<'_, Storage>) -> Result<Vec<ManagedCategory>, String> {
+pub fn list_categories(storage: &Storage) -> Result<Vec<ManagedCategory>, String> {
     let db = storage.connect().map_err(db_error)?;
     let mut query=db.prepare("SELECT c.category_key,c.label,c.color,
       (SELECT COUNT(*) FROM transactions WHERE category_id=c.id),
@@ -48,8 +55,7 @@ pub struct IndustryRule {
     transaction_count: i64,
 }
 
-#[tauri::command]
-pub fn list_industry_rules(storage: State<'_, Storage>) -> Result<Vec<IndustryRule>, String> {
+pub fn list_industry_rules(storage: &Storage) -> Result<Vec<IndustryRule>, String> {
     let db = storage.connect().map_err(db_error)?;
     let mut query = db
         .prepare(
@@ -76,9 +82,8 @@ pub fn list_industry_rules(storage: State<'_, Storage>) -> Result<Vec<IndustryRu
     Ok(rules)
 }
 
-#[tauri::command]
 pub fn save_industry_rule(
-    storage: State<'_, Storage>,
+    storage: &Storage,
     industry: String,
     category_key: String,
 ) -> Result<(), String> {
@@ -133,9 +138,8 @@ fn save(
     tx.commit().map_err(db_error)
 }
 
-#[tauri::command]
 pub fn save_category(
-    storage: State<'_, Storage>,
+    storage: &Storage,
     key: Option<String>,
     label: String,
     color: String,
@@ -186,12 +190,7 @@ fn remove(db: &mut Connection, key: String, target_key: String) -> Result<(), St
     tx.commit().map_err(db_error)
 }
 
-#[tauri::command]
-pub fn remove_category(
-    storage: State<'_, Storage>,
-    key: String,
-    target_key: String,
-) -> Result<(), String> {
+pub fn remove_category(storage: &Storage, key: String, target_key: String) -> Result<(), String> {
     remove(&mut *storage.connect().map_err(db_error)?, key, target_key)
 }
 

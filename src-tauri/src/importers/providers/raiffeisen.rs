@@ -1,3 +1,5 @@
+//! Registriert Raiffeisen und dessen Erkennungsnamen im Anbieterregister.
+
 use super::ProviderImporter;
 
 pub(super) static IMPORTER: RaiffeisenImporter = RaiffeisenImporter;
