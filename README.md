@@ -47,14 +47,14 @@ fiktiven Beispieldaten. Konten, Anbieter und Kursverläufe sind erfunden.
 
 ### Vermögensübersicht
 
-![Vermögensübersicht mit Konten und Anbietern](docs/screenshots/uebersicht.png)
+![Vermögensübersicht mit Konten und Anbietern](docs/screenshots/uebersicht-light-0.5.10.png)
 
 ### Interaktive Vermögensentwicklung
 
 Zeitraum wählen, mit dem Mausrad zoomen, den Verlauf verschieben oder mit dem
 Messwerkzeug Veränderungen untersuchen. Die Kontexthilfe erklärt die Bedienung.
 
-![Vermögensentwicklung mit interaktivem Chart und kompakter Werkzeugleiste](docs/screenshots/vermoegensentwicklung.png)
+![Vermögensentwicklung mit interaktivem Chart und kompakter Werkzeugleiste](docs/screenshots/vermoegensentwicklung-light-0.5.10.png)
 
 ### Dark Mode
 
