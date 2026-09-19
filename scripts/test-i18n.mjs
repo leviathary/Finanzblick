@@ -13,9 +13,23 @@ const sandbox = { exports: {}, require: () => messages };
 vm.runInNewContext(compiled.outputText, sandbox);
 const { t, tr, setLanguage, setRegion, categoryName, locale } = sandbox.exports;
 
+test('unified import navigation and completion messages have translations', () => {
+  for (const key of ['Dateien importieren', 'Importierte Dateien', 'Dateien des letzten Importvorgangs', 'Alle Importe anzeigen', 'Die importierten Dateien findest du im Reiter „Importierte Dateien“.']) {
+    assert.equal(messages[key]?.length, 3, key);
+    assert.ok(messages[key].every(value => value.length > 0), key);
+  }
+  const app = fs.readFileSync(new URL('../src/App.tsx', import.meta.url), 'utf8');
+  assert.ok(!app.includes('t("Importverwaltung")'));
+  assert.ok(app.includes('page === "imports" || page === "import-history"'));
+  assert.ok(app.includes('"#import-history/tax" : "#import-history"'));
+  const wizard = fs.readFileSync(new URL('../src/features/imports/ImportWizard.tsx', import.meta.url), 'utf8');
+  assert.ok(wizard.includes('summary.ids.push(change.result.importId)'));
+  assert.ok(wizard.includes('#import-history?ids='));
+});
+
 test('transfer management labels and actions have translations', () => {
   setLanguage('en');
-  for (const file of ['transactions/TransactionActions.tsx', 'transactions/TransferManagement.tsx', 'transactions/SettlementRuleDialog.tsx', 'transactions/SettlementRules.tsx', 'cards/CreditCards.tsx', 'cards/CardAccountStatus.tsx', 'cards/setup/CardSetupWizard.tsx', 'cards/setup/PatternTable.tsx']) {
+  for (const file of ['transactions/TransactionActions.tsx', 'transactions/TransferManagement.tsx', 'transactions/SettlementRuleDialog.tsx', 'transactions/TransferRules.tsx', 'transactions/TransferRuleEditor.tsx', 'cards/CreditCards.tsx', 'cards/CardAccountStatus.tsx', 'cards/setup/CardSetupWizard.tsx', 'cards/setup/PatternTable.tsx']) {
     const code = fs.readFileSync(new URL('../src/features/' + file, import.meta.url), 'utf8');
     for (const match of code.matchAll(/\bt\("([^"]+)"\)/g)) {
       assert.ok(messages[match[1]], match[1]);
@@ -45,6 +59,17 @@ test('unlock controls and security messages are translated', () => {
     for (const key of keys) assert.notEqual(t(key), key);
   }
   setLanguage('de');
+});
+
+test('chat description-sharing notices are translated and visible in the preview', () => {
+  for (const file of ['FinanceChat.tsx', 'SourcePreview.tsx']) {
+    const code = fs.readFileSync(new URL('../src/features/chat/' + file, import.meta.url), 'utf8');
+    for (const match of code.matchAll(/\bt\("([^"]+)"\)/g)) {
+      assert.ok(messages[match[1]], match[1]);
+    }
+    assert.match(code, /Beschreibungen können persönliche Angaben enthalten/);
+    assert.doesNotMatch(code, /Auch im Fearless-Modus werden keine Buchungstexte|Keine Buchungstexte oder Kontodaten/);
+  }
 });
 
 test('financial profile labels are localized consistently', () => {

@@ -103,7 +103,7 @@ pub(crate) fn credit_card_aggregate(
     let mut query = db
         .prepare(
             "SELECT t.id,t.booking_date,t.amount_minor,t.currency,
-        COALESCE(c.label,'Ohne Kategorie'),COALESCE(c.category_key,'uncategorized'),t.expense_minor,t.is_settlement,t.exclude_from_cashflow
+        COALESCE(c.label,'Ohne Kategorie'),COALESCE(c.category_key,'uncategorized'),t.expense_minor,t.is_settlement,t.exclude_from_cashflow,t.description
         FROM reporting_transactions t JOIN accounts a ON a.id=t.account_id
         LEFT JOIN categories c ON c.id=t.category_id
         WHERE a.is_active=1 AND a.account_type='credit_card' AND t.amount_minor<>0
@@ -167,6 +167,7 @@ pub(crate) fn credit_card_aggregate(
                 return Err("Zu viele Detailtransaktionen. Bitte einen kürzeren Zeitraum wählen (maximal 2000 Buchungen).".into());
             }
             details.push(json!({"id":row.get::<_,i64>(0).map_err(db_error)?,"bookingDate":date,
+                "description":row.get::<_,String>(9).map_err(db_error)?,"isCard":true,"expenseMinor":expense,
                 "amountMinor":amount,"currency":currency,"categoryLabel":row.get::<_,String>(4).map_err(db_error)?,
                 "isCardSettlement":row.get::<_,bool>(7).map_err(db_error)?,
                 "excludedFromChfCashFlow":true,"excludedFromChfSpending":currency!="CHF"||expense==0}));
@@ -193,14 +194,15 @@ pub(crate) fn detail_transactions(
         .prepare(
             "SELECT t.id,t.booking_date,t.amount_minor,t.currency,
                 COALESCE(c.label,'Ohne Kategorie'),a.account_type,
-                t.is_settlement,t.expense_minor,t.exclude_from_cashflow
+                t.is_settlement,t.expense_minor,t.exclude_from_cashflow,t.description
          FROM reporting_transactions t JOIN accounts a ON a.id=t.account_id
          LEFT JOIN categories c ON c.id=t.category_id
          WHERE a.is_active=1 AND t.amount_minor<>0 AND t.booking_date>=?1 AND t.booking_date<=?2
          ORDER BY t.booking_date,t.id LIMIT ?3",
         )
         .map_err(db_error)?;
-    // Explicit allowlist: sensitive source fields are not even selected for serialization.
+    // Explicit detail-mode allowlist: descriptions may contain personal text;
+    // structured account identifiers, bank names and holder fields remain excluded.
     let rows = query
         .query_map(
             rusqlite::params![r.from, r.to, MAX_DETAIL_TRANSACTIONS + 1],
@@ -211,6 +213,8 @@ pub(crate) fn detail_transactions(
                 let settlement: bool = row.get(6)?;
                 Ok(json!({
                     "id":row.get::<_,i64>(0)?, "bookingDate":row.get::<_,String>(1)?,
+                    "description":row.get::<_,String>(9)?, "isCard":account_type == "credit_card",
+                    "expenseMinor":row.get::<_,i64>(7)?,
                     "amountMinor":amount, "currency":currency,
                     "categoryLabel":row.get::<_,String>(4)?,
                     "isCardSettlement":settlement,

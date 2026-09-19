@@ -14,8 +14,8 @@ export function SourcePreview({ preview }: { preview: Preview }) {
     <p>{data.period.from} – {data.period.to} · CHF</p>
     {data.mode === "details" && <section className="chat-detail-preview">
       <h3>{t("Detailtransaktionen")}: {data.detailCoverage.count}</h3>
-      <p>{t("Enthält nur Datum, Beträge, Währungen und Kategorien. Keine Buchungstexte oder Kontodaten. Fremdwährungen sind nicht in den CHF-Summen enthalten.")}</p>
-      <details><summary>{t("Alle freigegebenen Buchungen anzeigen")}</summary><div className="chat-detail-table"><table><thead><tr><th>{t("Datum")}</th><th>{t("Kategorie")}</th><th>{t("Betrag")}</th></tr></thead><tbody>{data.detailTransactions.map((row: { id: number; bookingDate: string; categoryLabel: string; amountMinor: number; currency: string }) => <tr key={row.id}><td>{row.bookingDate}</td><td>{row.categoryLabel}</td><td>{row.currency} {new Intl.NumberFormat(locale(), { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(row.amountMinor / 100)}</td></tr>)}</tbody></table></div></details>
+      <p>{t("Enthält Beschreibungen, Datum, Beträge, Währungen und Kategorien. Beschreibungen können persönliche Angaben enthalten. Fremdwährungen sind nicht in den CHF-Summen enthalten.")}</p>
+      <details><summary>{t("Alle freigegebenen Buchungen anzeigen")}</summary><div className="chat-detail-table"><table><thead><tr><th>{t("Datum")}</th><th>{t("Beschreibung")}</th><th>{t("Kategorie")}</th><th>{t("Betrag")}</th></tr></thead><tbody>{data.detailTransactions.map((row: { id: number; bookingDate: string; description: string; categoryLabel: string; amountMinor: number; currency: string }) => <tr key={row.id}><td>{row.bookingDate}</td><td>{row.description}</td><td>{row.categoryLabel}</td><td>{row.currency} {new Intl.NumberFormat(locale(), { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(row.amountMinor / 100)}</td></tr>)}</tbody></table></div></details>
     </section>}
     <dl className="chat-totals">
       <div><dt>{t("Ausgaben nach Kategorien")}</dt><dd>{money(data.spending.totalMinor)}</dd></div>

@@ -99,3 +99,8 @@
   .cards-type-filter { margin-left: 0; align-items: stretch; }
   .cards-wizard .card-setup-steps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
+/* Zeitraum und Suche begrenzen nur die sichtbare Kartenhistorie. */
+.cards-history-filters { display: grid; grid-template-columns: repeat(auto-fit,minmax(min(200px,100%),1fr)); gap: 16px; margin: 16px 0; }
+.cards-history-filters label { display: grid; gap: 8px; color: var(--text-secondary); font-size: 13px; }
+.cards-history-filters input, .cards-history-filters select { width: 100%; min-width: 0; min-height: 44px; padding: 10px 12px; background: var(--bg-surface); color: var(--text-primary); border: 1px solid var(--border-subtle); border-radius: 10px; }
+.cards-history-footer { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-top: 16px; }

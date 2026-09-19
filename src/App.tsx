@@ -116,8 +116,7 @@ function App() {
           <a className={page === "transactions" || page === "transfers" || page === "cards" || page === "card-setup" ? "active" : ""} href="#transactions"><NavIcon name="transactions"/><span>{t("Transaktionen")}</span></a>
           <a className={page === "categories" ? "active" : ""} href="#categories"><NavIcon name="tag"/><span>{t("Kategorien")}</span></a>
           <a className={page === "chat" ? "active" : ""} href="#chat"><NavIcon name="chat"/><span>{t("Finanzchat")}</span></a>
-          <a className={page === "imports" ? "active" : ""} href="#imports"><NavIcon name="import"/><span>{t("Import")}</span></a>
-          <a className={page === "import-history" ? "active" : ""} href="#import-history"><NavIcon name="history"/><span>{t("Importverwaltung")}</span></a>
+          <a className={page === "imports" || page === "import-history" ? "active" : ""} aria-current={page === "imports" || page === "import-history" ? "page" : undefined} href="#imports"><NavIcon name="import"/><span>{t("Import")}</span></a>
         </nav>
         <nav className="sidebar-secondary" aria-label={t("Kontonavigation")}>
           <a className={page === "data-security" ? "active" : ""} href="#data-security"><NavIcon name="history"/><span>{t("Daten & Sicherheit")}</span></a>
@@ -126,6 +125,10 @@ function App() {
         </nav>
       </aside>
       <div className="content">
+        {(page === "imports" || page === "import-history") && <nav className="transaction-tabs" aria-label={t("Import")}>
+          <a href={ (page === "imports" ? importKind : managementKind) === "tax" ? "#imports/tax" : "#imports"} aria-current={page === "imports" ? "page" : undefined}>{t("Dateien importieren")}</a>
+          <a href={(page === "imports" ? importKind : managementKind) === "tax" ? "#import-history/tax" : "#import-history"} aria-current={page === "import-history" ? "page" : undefined}>{t("Importierte Dateien")}</a>
+        </nav>}
         {(page === "transactions" || page === "transfers" || page === "cards" || page === "card-setup") && <nav className="transaction-tabs" aria-label={t("Transaktionen")}><a href="#transactions" aria-current={page === "transactions" ? "page" : undefined}>{t("Alle Transaktionen")}</a><a href="#transactions/transfers" aria-current={page === "transfers" ? "page" : undefined}>{t("Umbuchungen & Ausgleiche")}</a><a href="#transactions/cards" aria-current={page === "cards" || page === "card-setup" ? "page" : undefined}>{t("Kartentransaktionen")}</a></nav>}
         {page === "chat" ? <FinanceChat /> : page === "data-security" ? <DataSecurity /> : page === "settings" ? <Settings /> : page === "overview" ? <Overview onImport={() => navigate("imports")} /> : page === "accounts" ? <Accounts /> : page === "assets" ? <Assets onAccounts={() => navigate("accounts")} onImport={() => navigate("imports")} /> : page === "tax-history" ? <TaxHistory /> : page === "transactions" ? <Transactions /> : page === "transfers" ? <TransferManagement /> : page === "cards" ? <CreditCards /> : page === "card-setup" ? <CardSetupWizard /> : page === "categories" ? <Categories /> : null}
         <div hidden={page !== "imports"}>

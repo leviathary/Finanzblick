@@ -25,7 +25,7 @@ export function ImportWizard({ enabled = true }: { enabled?: boolean }) {
   const [progress, setProgress] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [warnings, setWarnings] = useState<string[]>([]);
-  const [completed, setCompleted] = useState<{ imported: number; duplicates: number } | null>(null);
+  const [completed, setCompleted] = useState<{ imported: number; duplicates: number; ids: number[] } | null>(null);
   const [dragging, setDragging] = useState(false);
   const [mappingEditor, setMappingEditor] = useState<{ item: BatchItem; inspection: TabularInspection; profiles: ImportMappingProfile[] } | null>(null);
   const busyRef = useRef(false);
@@ -194,7 +194,7 @@ export function ImportWizard({ enabled = true }: { enabled?: boolean }) {
     if (!targets.length || !begin()) return;
     let count = 0;
     const finishedPaths = new Set<string>();
-    const summary = { imported: 0, duplicates: 0 };
+    const summary = { imported: 0, duplicates: 0, ids: [] as number[] };
     try {
       await saveBatch(targets, async item => {
         setProgress(tr`Import ${++count} von ${targets.length}: ${item.file.name}`);
@@ -206,6 +206,7 @@ export function ImportWizard({ enabled = true }: { enabled?: boolean }) {
       }, (path, change) => {
         update(path, change);
         if (change.result) {
+          summary.ids.push(change.result.importId);
           finishedPaths.add(path);
           if (change.result.duplicate) summary.duplicates++; else summary.imported++;
         }
@@ -276,7 +277,7 @@ export function ImportWizard({ enabled = true }: { enabled?: boolean }) {
       <small>{t("XLSX, XLS, CSV, PDF, MT940 und camt.053 (XML) · maximal 25 MB pro Datei")}</small>
     </div>
     {error && <p className="error-message" role="alert">{t(error)}</p>}
-    {completed && <div className="batch-complete" role="status" ref={completedRef}><span className="batch-complete-icon" aria-hidden="true">✓</span><div><h2>{t("Import erfolgreich abgeschlossen")}</h2><p>{completed.imported}  {t("Dateien importiert")}{completed.duplicates > 0 ? tr` · ${completed.duplicates} bereits vorhanden` : ""}.</p><p>{items.length ? t("Offene oder fehlgeschlagene Dateien stehen weiterhin unten in der Liste.") : t("Die Importliste ist jetzt leer. Die importierten Dateien findest du in der Importverwaltung.")}</p></div><a className="secondary-button" href="#import-history">{t("Importierte Dateien ansehen")}</a></div>}
+    {completed && <div className="batch-complete" role="status" ref={completedRef}><span className="batch-complete-icon" aria-hidden="true">✓</span><div><h2>{t("Import erfolgreich abgeschlossen")}</h2><p>{completed.imported}  {t("Dateien importiert")}{completed.duplicates > 0 ? tr` · ${completed.duplicates} bereits vorhanden` : ""}.</p><p>{items.length ? t("Offene oder fehlgeschlagene Dateien stehen weiterhin unten in der Liste.") : t("Die importierten Dateien findest du im Reiter „Importierte Dateien“.")}</p></div><a className="secondary-button" href={`#import-history?ids=${completed.ids.join(",")}`}>{t("Importierte Dateien ansehen")}</a></div>}
     {warnings.length > 0 && <details className="warning-message"><summary>{warnings.length}  {t("Hinweise zur Dateiauswahl")}</summary><ul>{warnings.map((warning, index) => <li key={index}>{warning}</li>)}</ul></details>}
     {busy && <div className="info-panel" role="status"><p>{progress || t("Dateiauswahl geöffnet…")}</p>{(progress.startsWith("Analyse ") || progress.startsWith("Import ")) && <button className="secondary-button" disabled={stopRef.current} onClick={() => { stopRef.current = true; setProgress(value => tr`${value} · Stopp angefordert`); }}>{t("Nach aktueller Datei stoppen")}</button>}</div>}
     {items.length > 0 && <>

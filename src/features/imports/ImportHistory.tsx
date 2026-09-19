@@ -16,6 +16,13 @@ interface WealthDataBasis {
 }
 
 export function ImportHistory() {
+  const readLinkedIds = () => (new URLSearchParams(window.location.hash.split("?")[1]).get("ids") ?? "").split(",").map(Number).filter(id => Number.isSafeInteger(id) && id > 0);
+  const [linkedIds, setLinkedIds] = useState<number[]>(readLinkedIds);
+  useEffect(() => {
+    const sync = () => setLinkedIds(readLinkedIds());
+    window.addEventListener("hashchange", sync);
+    return () => window.removeEventListener("hashchange", sync);
+  }, []);
   const [grouping, setGrouping] = useState("month");
   const [expanded, setExpanded] = useState<string[]>([]);
   const [imports, setImports] = useState<ImportRun[]>([]);
@@ -30,7 +37,7 @@ export function ImportHistory() {
   const [regex, setRegex] = useState(false);
   const [fileType, setFileType] = useState("");
   const filter = useMemo(() => filenameFilter(search, regex), [search, regex]);
-  const visibleImports = imports.filter(row => filter.matches(row.sourceName) && (!fileType || (fileType === "excel" ? ["XLS", "XLSX"].includes(row.sourceFormat.toUpperCase()) : row.sourceFormat.toUpperCase() === fileType)));
+  const visibleImports = imports.filter(row => (!linkedIds.length || linkedIds.includes(row.id)) && filter.matches(row.sourceName) && (!fileType || (fileType === "excel" ? ["XLS", "XLSX"].includes(row.sourceFormat.toUpperCase()) : row.sourceFormat.toUpperCase() === fileType)));
   const visibleSelected = visibleImports.filter(row => selected.includes(row.id));
   const storedTransactions = imports.reduce((sum, row) => sum + row.transactionCount, 0);
   const recentImport = imports[0];
@@ -71,8 +78,8 @@ export function ImportHistory() {
   }
   const orderedGroups = [...groups.entries()].sort(([a], [b]) => grouping === "provider" ? a.localeCompare(b, locale()) : b.localeCompare(a));
   useEffect(() => {
-    if (search || fileType) setExpanded([...groups.keys()]);
-  }, [search, regex, fileType, grouping, imports]);
+    if (search || fileType || linkedIds.length) setExpanded([...groups.keys()]);
+  }, [search, regex, fileType, grouping, imports, linkedIds]);
   function groupLabel(key: string) {
     if (grouping !== "month") return key;
     return new Date(`${key}-01T12:00:00`).toLocaleDateString(locale(), { month: "long", year: "numeric" });
@@ -88,8 +95,9 @@ export function ImportHistory() {
     </table></div>;
   }
   return <section className="import-history">
-    <div className="overview-heading"><div><p className="eyebrow">{t("Importverwaltung")}</p><h1>{t("Importierte Dateien")}</h1><p className="intro">{t("Prüfe deine Importe und entferne bei Bedarf einzelne oder mehrere Auszüge.")}</p></div><a className="primary-button" href="#imports">{t("Datei importieren")}</a></div>
+    <div className="overview-heading"><div><p className="eyebrow">{t("Import")}</p><h1>{t("Importierte Dateien")}</h1><p className="intro">{t("Prüfe deine Importe und entferne bei Bedarf einzelne oder mehrere Auszüge.")}</p></div><a className="primary-button" href="#imports">{t("Datei importieren")}</a></div>
     {message && <p className="import-result" role="status">{t(message)}</p>}
+    {linkedIds.length > 0 && <p className="intro">{t("Dateien des letzten Importvorgangs")} · <a href="#import-history">{t("Alle Importe anzeigen")}</a></p>}
     {error && <p className="error-message" role="alert">{t(error)}</p>}
     {!loading && recentImport && <div className="import-management-overview">
       <article className="summary-card">
@@ -126,7 +134,7 @@ export function ImportHistory() {
     {filter.error && <p className="error-message" id="import-search-error" role="alert">{filter.error}</p>}
     <div className="history-group-controls"><label>{t("Gruppieren nach")} <select value={grouping} onChange={event => { setGrouping(event.target.value); setExpanded([]); }}><option value="month">{t("Monat und Jahr")}</option><option value="year">{t("Jahr")}</option><option value="provider">{t("Anbieter")}</option><option value="none">{t("Keine Gruppierung")}</option></select></label>{grouping !== "none" && <><button className="secondary-button" onClick={() => setExpanded([...groups.keys()])}>{t("Alle aufklappen")}</button><button className="secondary-button" onClick={() => setExpanded([])}>{t("Alle zuklappen")}</button></>}</div>
     {(grouping === "month" || grouping === "year") && <p className="intro">{t("Zuordnung nach dem letzten Buchungsdatum des Auszugs; ohne Buchungen nach dem Importdatum.")}</p>}
-    <div className="history-actions"><span role="status">{search || fileType ? tr`${visibleImports.length} von ${imports.length} Importen` : tr`${imports.length} Importe`} · {visibleSelected.length}  {t("ausgewählt")}</span><button className="secondary-button" disabled={locked} onClick={() => void refresh()}>{t("Aktualisieren")}</button><button className="danger-button" disabled={locked || visibleSelected.length === 0} onClick={() => { setError(null); setPending(visibleSelected); }}>{t("Auswahl löschen")}</button></div>
+    <div className="history-actions"><span role="status">{search || fileType || linkedIds.length ? tr`${visibleImports.length} von ${imports.length} Importen` : tr`${imports.length} Importe`} · {visibleSelected.length}  {t("ausgewählt")}</span><button className="secondary-button" disabled={locked} onClick={() => void refresh()}>{t("Aktualisieren")}</button><button className="danger-button" disabled={locked || visibleSelected.length === 0} onClick={() => { setError(null); setPending(visibleSelected); }}>{t("Auswahl löschen")}</button></div>
     {!loading && imports.length > 0 && visibleImports.length === 0 && !filter.error && <p role="status">{t("Keine Dateien gefunden. Passe den Suchbegriff oder Dateityp an oder setze die Filter zurück.")}</p>}
     {pending.length > 0 && <div className="history-confirm" role="region" aria-label={t("Löschung bestätigen")}>
       <h2>{pending.length === 1 ? t("Diesen Import löschen?") : tr`${pending.length} Importe löschen?`}</h2>

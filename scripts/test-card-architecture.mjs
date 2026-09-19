@@ -8,12 +8,64 @@ import ts from "typescript";
 
 const root = new URL("../", import.meta.url);
 const read = file => fs.readFileSync(new URL(file, root), "utf8");
+test("transfer sorting toggles headers, compares magnitude and preserves source rows", () => {
+  const sandbox = { exports: {}, Intl };
+  vm.runInNewContext(ts.transpileModule(read("src/features/transactions/transferSorting.ts"), {
+    compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020 },
+  }).outputText, sandbox);
+  const { sortTransfers, nextTransferSort } = sandbox.exports;
+  const rows = [
+    { id: 1, bookingDate: "2026-09-01", amountMinor: -400000, accountName: "B", description: "Beta", transferType: "INTERNAL_TRANSFER" },
+    { id: 2, bookingDate: "2026-09-03", amountMinor: 20000, accountName: "A", description: "Alpha", transferType: "CREDIT_CARD_SETTLEMENT" },
+    { id: 3, bookingDate: "2026-09-02", amountMinor: -20000, accountName: "A", description: "Gamma", transferType: "INTERNAL_TRANSFER" },
+  ];
+  const labels = type => type === "INTERNAL_TRANSFER" ? "Umbuchung" : "Kartenausgleich";
+  const ids = (key, descending) => Array.from(sortTransfers(rows, { key, descending }, "de-CH", labels), row => row.id);
+  assert.deepEqual(ids("amountMinor", true), [1, 2, 3]);
+  assert.deepEqual(ids("amountMinor", false), [2, 3, 1]);
+  assert.deepEqual(ids("bookingDate", true), [2, 3, 1]);
+  assert.deepEqual(ids("bookingDate", false), [1, 3, 2]);
+  assert.deepEqual(ids("accountName", false), [2, 3, 1]);
+  assert.deepEqual(ids("description", false), [2, 1, 3]);
+  assert.deepEqual(ids("transferType", false), [2, 3, 1]);
+  assert.equal(nextTransferSort({ key: "bookingDate", descending: true }, "amountMinor").descending, true);
+  assert.equal(nextTransferSort({ key: "amountMinor", descending: true }, "amountMinor").descending, false);
+  assert.equal(nextTransferSort({ key: "amountMinor", descending: true }, "description").descending, false);
+  assert.deepEqual(rows.map(row => row.id), [1, 2, 3]);
+  assert.equal(sortTransfers([], { key: "amountMinor", descending: true }, "en", labels).length, 0);
+});
 test("unresolved credit badge is an accessible shortcut to the existing account-scoped filter", () => {
   const source = read("src/features/cards/CreditCards.tsx");
   assert.match(source, /<button type="button" className="cards-unresolved-count"/);
-  assert.match(source, /aria-pressed=\{filter==="UNKNOWN"\} aria-controls="card-transactions-table"/);
-  assert.match(source, /onClick=\{\(\)=>setFilter\("UNKNOWN"\)\}/);
+  assert.match(source, /aria-controls="card-transactions-table"/);
+  assert.match(source, /onClick=\{showUnresolved\}/);
+  assert.match(source, /setFilter\("UNKNOWN"\);setPeriod\("all"\);setSearch\(""\)/);
   assert.match(source, /id="card-transactions-table"/);
+});
+test("card history filters use local calendar years, inclusive dates and account-scoped search", () => {
+  const sandbox = { exports: {} };
+  vm.runInNewContext(ts.transpileModule(read("src/features/cards/overviewModel.ts"), {
+    compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020 },
+  }).outputText, sandbox);
+  const { cardPeriodRange, selectCardRows, sortCardRows } = sandbox.exports;
+  const rows = [
+    { id:1, accountId:1, accountName:"Visa", kind:"PURCHASE", bookingDate:"2026-01-01", description:"Bolt ride", amountMinor:-200 },
+    { id:2, accountId:1, accountName:"Visa", kind:"UNKNOWN", bookingDate:"2025-12-31", description:"Credit", amountMinor:500 },
+    { id:3, accountId:2, accountName:"Mastercard", kind:"PURCHASE", bookingDate:"2026-12-31", description:"BOLT trip", amountMinor:-1000 },
+    { id:4, accountId:2, accountName:"Mastercard", kind:"UNKNOWN", bookingDate:"2024-06-01", description:"Old credit", amountMinor:100 },
+  ];
+  const range = period => cardPeriodRange(period, "2026-01-01", "2026-01-01", new Date(2026,0,1));
+  const ids = (account, kind, filters) => Array.from(selectCardRows(rows, account, kind, filters), r=>r.id);
+  assert.deepEqual(ids("ALL", "ALL", range("current")), [3,1]);
+  assert.deepEqual(ids("ALL", "ALL", range("previous")), [2]);
+  assert.deepEqual(ids("ALL", "ALL", range("custom")), [1]);
+  assert.deepEqual(ids("1", "UNKNOWN", range("all")), [2]);
+  assert.deepEqual(ids("ALL", "UNKNOWN", range("all")), [2,4]);
+  assert.deepEqual(ids("ALL", "ALL", {...range("current"),search:" bolt "}), [3,1]);
+  assert.deepEqual(ids("1", "ALL", {...range("current"),search:"bolt"}), [1]);
+  assert.deepEqual(ids("ALL", "ALL", {from:"2026-12-31",to:"2026-01-01"}), []);
+  assert.deepEqual(Array.from(sortCardRows(rows,{key:"amountMinor",descending:true},"de"),r=>r.id),[3,2,1,4]);
+  assert.deepEqual(rows.map(r=>r.id),[1,2,3,4]);
 });
 test("bank payment search filters descriptions case-insensitively and excludes credits", () => {
   const sandbox = { exports: {} };

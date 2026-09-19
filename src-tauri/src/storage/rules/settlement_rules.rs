@@ -4,17 +4,17 @@ use rusqlite::{params, Connection};
 use serde::Serialize;
 
 fn normalized(text: &str) -> String {
-    text.split_whitespace()
-        .collect::<Vec<_>>()
-        .join(" ")
-        .to_lowercase()
+    crate::domain::banking::transfers::normalized_rule_text(text)
 }
 
 pub(in crate::storage) fn initialize(db: &Connection) -> rusqlite::Result<()> {
     db.execute_batch("CREATE TABLE IF NOT EXISTS settlement_rules(
         id INTEGER PRIMARY KEY, account_id INTEGER NOT NULL REFERENCES accounts(id) ON DELETE CASCADE,
         currency TEXT NOT NULL, direction INTEGER NOT NULL CHECK(direction IN (-1,1)),
-        prefix TEXT NOT NULL, UNIQUE(account_id,currency,direction,prefix));")
+        prefix TEXT NOT NULL, UNIQUE(account_id,currency,direction,prefix));
+        CREATE TABLE IF NOT EXISTS transfer_rule_details(
+        rule_id INTEGER PRIMARY KEY REFERENCES settlement_rules(id) ON DELETE CASCADE,
+        name TEXT NOT NULL, transfer_type TEXT NOT NULL CHECK(transfer_type IN ('CREDIT_CARD_SETTLEMENT','INTERNAL_TRANSFER')));")
 }
 
 #[derive(Serialize)]
@@ -139,6 +139,15 @@ pub(crate) fn apply_confirmed(
     future: bool,
 ) -> Result<usize, String> {
     let (account, p) = preview(db, id, Some(prefix))?;
+    super::transfer_rules::check_conflicts(
+        db,
+        None,
+        account,
+        &p.currency,
+        p.direction,
+        &p.prefix,
+        "CREDIT_CARD_SETTLEMENT",
+    )?;
     let expected: std::collections::BTreeSet<_> = expected_ids.into_iter().collect();
     let actual: std::collections::BTreeSet<_> = p.matches.iter().map(|r| r.id).collect();
     if actual != expected || actual.is_empty() || actual.len() > 5000 {
@@ -168,8 +177,9 @@ pub fn confirm_settlement_rule(
 }
 
 pub(in crate::storage) fn apply_import(db: &Connection, import_id: i64) -> Result<(), String> {
-    let mut q=db.prepare("SELECT t.id,t.description,r.prefix FROM transactions t
+    let mut q=db.prepare("SELECT t.id,t.description,r.prefix,COALESCE(d.transfer_type,'CREDIT_CARD_SETTLEMENT') FROM transactions t
         JOIN settlement_rules r ON r.account_id=t.account_id AND r.currency=t.currency AND r.direction=sign(t.amount_minor)
+        LEFT JOIN transfer_rule_details d ON d.rule_id=r.id
         LEFT JOIN transaction_reporting_flags f ON f.transaction_id=t.id
         WHERE t.import_id=?1 AND COALESCE(f.is_manually_overridden,0)=0").map_err(db_error)?;
     let rows = q
@@ -178,16 +188,17 @@ pub(in crate::storage) fn apply_import(db: &Connection, import_id: i64) -> Resul
                 r.get::<_, i64>(0)?,
                 r.get::<_, String>(1)?,
                 r.get::<_, String>(2)?,
+                r.get::<_, String>(3)?,
             ))
         })
         .map_err(db_error)?
         .collect::<Result<Vec<_>, _>>()
         .map_err(db_error)?;
-    for (id, text, prefix) in rows {
+    for (id, text, prefix, kind) in rows {
         if normalized(&text).starts_with(&prefix) {
             db.execute("INSERT INTO transaction_reporting_flags(transaction_id,exclude_from_cashflow,is_settlement,is_manually_overridden)
-                VALUES(?1,1,1,0) ON CONFLICT(transaction_id) DO UPDATE SET exclude_from_cashflow=1,is_settlement=1
-                WHERE transaction_reporting_flags.is_manually_overridden=0",[id]).map_err(db_error)?;
+                VALUES(?1,1,?2,0) ON CONFLICT(transaction_id) DO UPDATE SET exclude_from_cashflow=1,is_settlement=excluded.is_settlement
+                WHERE transaction_reporting_flags.is_manually_overridden=0",params![id,kind=="CREDIT_CARD_SETTLEMENT"]).map_err(db_error)?;
         }
     }
     Ok(())
@@ -213,7 +224,9 @@ fn rules_from(db: &Connection) -> Result<Vec<Rule>, String> {
     let mut q = db
         .prepare(
             "SELECT r.id,a.name,r.currency,r.direction,r.prefix,r.account_id FROM settlement_rules r
-        JOIN accounts a ON a.id=r.account_id ORDER BY a.name,r.id",
+        JOIN accounts a ON a.id=r.account_id
+        LEFT JOIN transfer_rule_details d ON d.rule_id=r.id
+        WHERE COALESCE(d.transfer_type,'CREDIT_CARD_SETTLEMENT')='CREDIT_CARD_SETTLEMENT' ORDER BY a.name,r.id",
         )
         .map_err(db_error)?;
     let rows = q
@@ -248,7 +261,8 @@ mod tests {
     #[test]
     fn listed_rules_preserve_account_ids_even_for_identical_names() {
         let db = fixture();
-        db.execute("UPDATE accounts SET name='Family card'", []).unwrap();
+        db.execute("UPDATE accounts SET name='Family card'", [])
+            .unwrap();
         db.execute("INSERT INTO settlement_rules(account_id,currency,direction,prefix) VALUES(1,'CHF',1,'payment'),(2,'CHF',1,'payment')", []).unwrap();
         let rules = rules_from(&db).unwrap();
         assert_eq!(rules.len(), 2);
@@ -257,10 +271,19 @@ mod tests {
         assert_eq!(rules[1].account_id, 2);
         let json = serde_json::to_value(&rules[0]).unwrap();
         assert_eq!(json["accountId"], 1);
-        db.execute("DELETE FROM settlement_rules WHERE account_id=1", []).unwrap();
+        db.execute("DELETE FROM settlement_rules WHERE account_id=1", [])
+            .unwrap();
         let remaining = rules_from(&db).unwrap();
         assert_eq!(remaining.len(), 1);
         assert_eq!(remaining[0].account_id, 2);
+    }
+    #[test]
+    fn internal_rules_do_not_claim_that_card_settlement_is_configured() {
+        let db = fixture();
+        db.execute("INSERT INTO settlement_rules(id,account_id,currency,direction,prefix) VALUES(1,2,'CHF',1,'household transfer')", []).unwrap();
+        assert_eq!(rules_from(&db).unwrap().len(), 1);
+        db.execute("INSERT INTO transfer_rule_details(rule_id,name,transfer_type) VALUES(1,'Household','INTERNAL_TRANSFER')", []).unwrap();
+        assert!(rules_from(&db).unwrap().is_empty());
     }
     fn fixture() -> Connection {
         let db = Connection::open_in_memory().unwrap();

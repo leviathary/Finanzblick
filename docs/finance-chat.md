@@ -1,6 +1,6 @@
 # Finanzchat mit ChatGPT-Konto
 
-Stand: 14. September 2026.
+Stand: 19. September 2026.
 
 ## Bedienung
 
@@ -17,10 +17,12 @@ Der Zeitraum steht unter „Datenschutz & Modell-Info“, standardmässig laufen
 Kalenderjahr bis heute. Dort gibt es zwei unabhängige Schalter:
 
 - Fearless-Modus: standardmässig aus. Aktiviert zusätzlich Detailtransaktionen mit
-  Datum, Betrag, Währung und Kategorie sowie technischen Berechnungskennzeichen.
-  Buchungstexte, Konto- und Banknamen, IBAN, Kontonummern, Inhaber- und Adressfelder
-  werden auch im Direktmodus nicht übertragen. Persönliche Angaben in eigenen
-  Kategorienamen oder Fragen müssen Nutzer selbst weglassen.
+  Datum, Beschreibung, Betrag, Währung und Kategorie sowie technischen
+  Berechnungskennzeichen. Beschreibungen ermöglichen Händlerfragen (z. B. Bolt
+  im August und September), können aber persönliche Angaben enthalten.
+  Separate Konto- und Banknamen, IBAN, Kontonummern, Inhaber- und Adressfelder
+  werden nicht übertragen. Solche Angaben innerhalb von Beschreibungen,
+  Kategorienamen oder Fragen werden jedoch mitgesendet.
 - Vor dem Senden prüfen: standardmässig an. Ausschalten erlaubt direkten Versand
   sowohl für Zusammenfassungen als auch für Detailtransaktionen.
 
@@ -108,6 +110,11 @@ aktiven Konten im ausgewählten Zeitraum, auch Fremdwährungen. Diese werden nic
 CHF umgerechnet. Pro Zeile kennzeichnen Ausschlussflags die Zugehörigkeit zu den
 bestehenden CHF-Ausgaben- und Geldflusssummen. Eigene Kategorienamen bleiben in den
 Detailzeilen erhalten; in den anonymisierten Summen bleiben sie zusammengefasst.
+Die Datenvorschau zeigt auch die Beschreibungen. `isCard` unterscheidet Karten-
+von Bankbuchungen, `expenseMinor` enthält den Konsumbeitrag in der Zeilenwährung:
+Käufe positiv, bestätigte Erstattungen negativ, neutrale Umbuchungen null.
+Monatsvergleiche verwenden das Buchungsdatum. Für Händlerfragen müssen der
+gewünschte Zeitraum und der Detailmodus vor Beginn eines neuen Chats gewählt sein.
 Es werden höchstens 2000 Detailzeilen und 400000 Bytes Anfrageinhalt zugelassen.
 Überschreitungen führen zum Fehler mit Bitte um kürzeren Zeitraum, nicht zu stiller
 Kürzung. Ohne Fearless gilt weiterhin das Limit von 120000 Bytes. Der Zugriff bleibt
@@ -174,10 +181,14 @@ Während der Aufnahme ist Absenden gesperrt. macOS enthält den Mikrofon-Nutzung
 in Info.plist. Das Sprachmodell wird auch im macOS-DMG mitgeliefert;
 ein praktischer Mikrofon-/Diktiertest auf macOS steht weiterhin aus.
 
-Die Detailabfrage nutzt eine explizite Feldfreigabe; Beschreibung, Kontoname und
-Kontoreferenz werden nicht selektiert. Ein Regressionstest prüft den vollständigen
-Snapshot auf synthetische Namen, Adressen, IBAN und Kontonummern und erzwingt
-die erlaubten JSON-Felder für jede Detailtransaktion.
+Die Detailabfrage nutzt eine explizite Feldfreigabe einschließlich Beschreibung;
+separate Kontonamen und Kontoreferenzen bleiben ausgeschlossen. Regressionstests
+prüfen die erlaubten JSON-Felder, den Ausschluss strukturierter Kontodaten und
+dass Beschreibungen ausschließlich im Detailmodus übertragen werden. Persönliche
+Angaben innerhalb der Beschreibungen werden nicht automatisch anonymisiert.
+Ein Bolt-Test prüft Monatswerte mit Erstattung, neutralisiertem Ausgleich,
+Bankbuchung und Fremdwährung. Beschreibungen gelten im Modellkontext ausdrücklich
+als untrusted data, nicht als Anweisungen.
 
 ## Auf Kreditkarten begrenzter Kontext
 

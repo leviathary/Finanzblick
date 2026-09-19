@@ -352,7 +352,7 @@ export function TaxHistory({ view = "history", active = true }: { view?: TaxHist
 
       {view === "management" && <div className="overview-heading">
         <div>
-          <p className="eyebrow">{t("Importverwaltung")}</p>
+          <p className="eyebrow">{t("Import")}</p>
           <h1>{t("Importierte Steuererklärungen")}</h1>
           <p className="intro">{t("Prüfe die gespeicherten Jahreswerte und passe sie bei Bedarf an.")}</p>
         </div>

@@ -115,6 +115,11 @@ Die bestehenden Variablen stehen in `src/styles/application.css` unter `:root`.
 - Dedizierte Einrichtungsansichten dürfen direkte Zeilenaktionen haben.
 - Tabellensortierung direkt an den Spaltenüberschriften mit `expense-sort`,
   Richtungspfeilen und Tastaturbedienung anbieten, nicht als separates Dropdown.
+  Dies ist der Standard für datenreiche Tabellen, insbesondere mit Geldbeträgen:
+  Datum und Betrag sowie sinnvolle Textspalten auf-/absteigend sortierbar machen.
+  Aktive Richtung mit `aria-sort` auszeichnen; Checkbox- und Aktionsspalten nicht
+  sortierbar machen. Beträge wie in der Transaktionsübersicht nach absoluter
+  Betragshöhe sortieren, ohne Vorzeichen, Währung oder gespeicherte Daten zu ändern.
 - Ausnahme für die Mustertabelle im Kreditkarten-Wizard: genau ein Auswahlbutton
   pro Zeile, 36 px Höhe, Schriftgewicht 500, vertikal mittig. Keine Zeilen-Akkordeons
   oder zusätzlichen Einordnungsbuttons. Erstattungen werden in der Kartenübersicht
@@ -136,10 +141,24 @@ Die bestehenden Variablen stehen in `src/styles/application.css` unter `:root`.
   der gewählten Kontenauswahl zählen; verschiedene Währungen nicht zusammenrechnen.
   Im oberen Banner die eingerichteten Karten zusätzlich mit Namen und Währung
   auflisten; diese Gesamtliste bleibt unabhängig vom Tabellen-Kontofilter.
+  Kartenhistorie standardmäßig auf das aktuelle Kalenderjahr und 50 sichtbare
+  Buchungen begrenzen, mit Vorjahr, eigenem Zeitraum, gesamter Historie und Suche.
+  „Weitere laden“ zeigt jeweils 50 zusätzliche Treffer. Filterwechsel setzt die
+  Anzeigegrenze zurück. Ungeklärte Gutschriften kontobezogen über alle Jahre zählen;
+  ihr Hinweis öffnet die gesamte Historie und setzt die Textsuche zurück.
 - Horizontales Scrollen auf breite Tabellen begrenzen, nicht auf die gesamte Seite.
+- Automatische Umbuchungsregeln mit Name, Konto, Währung, Richtung, Textanfang
+  und Wirkung darstellen. Regeln bearbeiten und deaktivieren können; die
+  Bedingungen sind kein Tabellenfilter. Vor dem Anwenden Treffer zeigen.
+  Zukünftige Importe und historische Buchungen getrennt bestätigen lassen;
+  manuelle Entscheidungen und bisherige Markierungen außerhalb der Treffer erhalten.
 
 ## 6. Navigation und Einrichtungsassistenten
 
+- Import und Importverwaltung bilden einen Seitenleistenpunkt „Import“ mit den
+  Reitern „Dateien importieren“ und „Importierte Dateien“. Darunter bleibt die
+  Auswahl Bankauszüge/Steuererklärungen beim Reiterwechsel erhalten. Bestehende
+  Direktlinks bleiben erreichbar; erfolgreiche Bankimporte verlinken ihre Einträge.
 - Aktiver Tab: Text und Unterstrich Dunkelblau, Gewicht 600, `aria-current="page"`.
 - Aktueller Schritt: Dunkelblau mit Weiß, `aria-current="step"`.
 - Vergangene Schritte: dezentes Slate 200; zukünftige Schritte: Slate 100.

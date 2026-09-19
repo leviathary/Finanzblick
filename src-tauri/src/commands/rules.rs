@@ -1,7 +1,33 @@
-//! Tauri-Eingänge für bestätigte Ausgleichsregeln.
+//! Tauri-Eingänge für Umbuchungsregeln und den bestehenden Kartenausgleichs-Workflow.
+use crate::domain::banking::transfers::TransferRuleInput;
 use crate::storage::rules::settlement_rules::{self as repository, Preview, Rule};
+use crate::storage::rules::transfer_rules;
 use crate::storage::Storage;
 use tauri::State;
+
+#[tauri::command]
+pub fn list_transfer_rules(
+    storage: State<'_, Storage>,
+) -> Result<Vec<transfer_rules::Rule>, String> {
+    transfer_rules::list_transfer_rules(&storage)
+}
+#[tauri::command]
+pub fn preview_transfer_rule(
+    storage: State<'_, Storage>,
+    input: TransferRuleInput,
+) -> Result<transfer_rules::Preview, String> {
+    transfer_rules::preview_transfer_rule(&storage, input)
+}
+#[tauri::command]
+pub fn save_transfer_rule(
+    storage: State<'_, Storage>,
+    input: TransferRuleInput,
+    expected_ids: Vec<i64>,
+    past: bool,
+    future: bool,
+) -> Result<usize, String> {
+    transfer_rules::save_transfer_rule(&storage, input, expected_ids, past, future)
+}
 #[tauri::command]
 pub fn preview_settlement_rule(
     storage: State<'_, Storage>,

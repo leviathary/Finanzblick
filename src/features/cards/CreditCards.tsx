@@ -1,13 +1,13 @@
 // Zeigt Kartenbuchungen und persistiert explizite Einordnungen; enthält keinen Setup-Zustand.
 import { useEffect, useState } from "react";
-import { categoryName, t, tr } from "../../i18n";
+import { categoryName, locale, t, tr } from "../../i18n";
 import { cardsApi } from "./api";
 import type { Account, Row, Category, Decision, SettlementRule, AccountRow } from "./types";
 import { kindLabels, money, date } from "./presentation";
 import { SettlementRuleDialog } from "../transactions/SettlementRuleDialog";
 import { TransactionActions, type TransferType } from "../transactions/TransactionActions";
 import { CardAccountStatus } from "./CardAccountStatus";
-import { ALL_CARDS, hasSettlementRule, selectCardRows } from "./overviewModel";
+import { ALL_CARDS, hasSettlementRule, selectCardRows, cardPeriodRange, sortCardRows, type CardPeriod, type CardSort, type CardSortKey } from "./overviewModel";
 
 export function CreditCards() {
   const [snapshot,setSnapshot]=useState<{cards:Account[];categories:Category[];rules:SettlementRule[];rows:AccountRow[]}|null>(null);
@@ -17,6 +17,13 @@ export function CreditCards() {
   const [loadError,setLoadError]=useState("");
   const [error,setError]=useState("");
   const [filter,setFilter]=useState("ALL");
+  const [period,setPeriod]=useState<CardPeriod>("current");
+  const [from,setFrom]=useState(`${new Date().getFullYear()}-01-01`);
+  const [to,setTo]=useState(`${new Date().getFullYear()}-12-31`);
+  const [search,setSearch]=useState("");
+  const [limit,setLimit]=useState(50);
+  const [sort,setSort]=useState<CardSort>({key:"bookingDate",descending:true});
+  useEffect(()=>{setLimit(50);},[card,filter,period,from,to,search,sort]);
   const [dialog,setDialog]=useState<Row|null>(null);
   const [reload,setReload]=useState(0);
   useEffect(()=>{
@@ -37,7 +44,15 @@ export function CreditCards() {
   const categories=snapshot?.categories??[];
   const rules=snapshot?.rules??[];
   const rows=selectCardRows(snapshot?.rows??[],card);
-  const visibleRows=selectCardRows(rows,ALL_CARDS,filter);
+  const invalidPeriod=period==="custom"&&(!from||!to||from>to);
+  const filteredRows=invalidPeriod?[]:sortCardRows(selectCardRows(rows,ALL_CARDS,filter,{...cardPeriodRange(period,from,to),search}),sort,locale());
+  const visibleRows=filteredRows.slice(0,limit);
+  function showUnresolved() {
+    setFilter("UNKNOWN");setPeriod("all");setSearch("");setLimit(50);setSort({key:"bookingDate",descending:true});
+  }
+  function nextSort(key:CardSortKey):CardSort {
+    return {key,descending:sort.key===key?!sort.descending:key==="bookingDate"||key==="amountMinor"};
+  }
   const unresolvedCount=rows.filter(row=>row.kind==="UNKNOWN").length;
   const configuredCards=cards.filter(account=>hasSettlementRule(account,rules));
   const configuredCount=configuredCards.length;
@@ -93,14 +108,29 @@ export function CreditCards() {
             <option value="TRANSFER">{t("Umbuchung")}</option>
           </select>
         </label>{unresolvedCount>0&&<button type="button" className="cards-unresolved-count" disabled={busy||!!dialog}
-          aria-pressed={filter==="UNKNOWN"} aria-controls="card-transactions-table"
-          onClick={()=>setFilter("UNKNOWN")}>{tr`${unresolvedCount} ungeklärte Gutschriften`} <span aria-hidden="true">→</span></button>}</div>
+          aria-pressed={filter==="UNKNOWN"&&period==="all"&&!search.trim()} aria-controls="card-transactions-table"
+          title={t("Ungeklärte Gutschriften aus allen Jahren anzeigen")}
+          onClick={showUnresolved}>{tr`${unresolvedCount} ungeklärte Gutschriften`} <span aria-hidden="true">→</span></button>}</div>
       </div>
+      <div className="cards-history-filters">
+        <label>{t("Zeitraum")}<select aria-label={t("Zeitraum")} disabled={busy||!!dialog} value={period} onChange={e=>setPeriod(e.target.value as CardPeriod)}>
+          <option value="current">{t("Aktuelles Jahr")}</option><option value="previous">{t("Vorjahr")}</option>
+          <option value="custom">{t("Eigener Zeitraum")}</option><option value="all">{t("Gesamte Historie")}</option>
+        </select></label>
+        {period==="custom"&&<><label>{t("Von")}<input type="date" value={from} max={to||undefined} disabled={busy||!!dialog} onChange={e=>setFrom(e.target.value)}/></label>
+          <label>{t("Bis")}<input type="date" value={to} min={from||undefined} disabled={busy||!!dialog} onChange={e=>setTo(e.target.value)}/></label></>}
+        <label>{t("Buchungen durchsuchen")}<input type="search" value={search} disabled={busy||!!dialog} onChange={e=>setSearch(e.target.value)} placeholder={t("Händler oder Buchungstext suchen")}/></label>
+      </div>
+      {invalidPeriod&&<p className="error-message" role="alert">{t("Bitte einen gültigen Zeitraum mit Start- und Enddatum wählen.")}</p>}
       <CardAccountStatus accounts={statusCards} rules={rules}/>
       <p className="cards-status-hint">{t("Der Status betrifft die Regel auf dem Kartenkonto. Die Bankseite und die Vollständigkeit der Importe werden damit nicht bestätigt.")}</p>
       {rows.some(row=>row.kind==="UNKNOWN")&&<p className="cards-review-notice" role="status">{t("Ungeklärte Gutschriften sind noch nicht in den Auswertungen enthalten. Bitte prüfe ihre Einordnung.")}</p>}
       <div className="transfer-table-scroll" id="card-transactions-table"><table className="transfer-table">
-        <thead><tr>{["Datum","Konto","Beschreibung","Betrag","Einordnung","Aktionen"].map(x=><th key={x}>{t(x)}</th>)}</tr></thead>
+        <thead><tr>{([["bookingDate","Datum"],["accountName","Konto"],["description","Beschreibung"],["amountMinor","Betrag"]] as const).map(([key,label])=><th key={key} scope="col" aria-sort={sort.key===key?sort.descending?"descending":"ascending":undefined}>
+          <button type="button" className="expense-sort" disabled={busy||!!dialog} aria-pressed={sort.key===key}
+            aria-label={tr`${t(label)}: ${nextSort(key).descending?t("absteigend"):t("aufsteigend")} sortieren`} onClick={()=>setSort(nextSort(key))}>
+            {t(label)} <span aria-hidden="true">{sort.key===key?sort.descending?"↓":"↑":"↕"}</span>
+          </button></th>)}<th scope="col">{t("Einordnung")}</th><th scope="col">{t("Aktionen")}</th></tr></thead>
         <tbody>{!visibleRows.length&&<tr><td colSpan={6}>{t("Keine Buchungen für diese Auswahl gefunden.")}</td></tr>}{visibleRows.map(row=><tr key={row.id}>
           <td>{date(row.bookingDate)}</td><td>{row.accountName}<small>{row.currency}</small></td><td>{row.description}{row.suggestedSettlement&&row.kind==="UNKNOWN"&&<small>{t("Ausgleich vorgeschlagen")}</small>}</td><td>{money(row.amountMinor,row.currency)}</td>
           <td>{t(kindLabels[row.kind]??"Reguläre Buchung")}{row.kind==="REFUND"&&<select aria-label={t("Kategorie")} disabled={busy} value={row.categoryKey} onChange={e=>void saveDecision(row,"REFUND",e.target.value)}>{categories.map(c=><option key={c.key} value={c.key}>{categoryName(c.key,c.label)}</option>)}</select>}</td>
@@ -110,6 +140,9 @@ export function CreditCards() {
           </td>
         </tr>)}</tbody>
       </table></div>
+      <div className="cards-history-footer"><p role="status">{tr`${visibleRows.length} von ${filteredRows.length} Buchungen angezeigt`}</p>
+        {visibleRows.length<filteredRows.length&&<button type="button" className="secondary-button" disabled={busy||!!dialog} onClick={()=>setLimit(value=>value+50)}>{t("Weitere laden")}</button>}
+      </div>
     </article>}
     </>}
   </section>;

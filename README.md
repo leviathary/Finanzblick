@@ -87,9 +87,11 @@ Kreditkartenkonten begrenzt; unter **Kontenauswahl** lässt sich der Umfang auch
 ausdrücklich wählen. Allgemeines Einkommen und Vermögen werden bei reinen
 Kreditkartenfragen nicht mitgegeben. Der Chatbot bleibt rein lesend.
 
-Auch im Fearless-Modus bleiben Buchungstexte, Konto- und Banknamen, IBAN,
-Kontonummern, Inhaber- und Adressfelder ausgeschlossen. Persönliche Angaben in
-eigenen Kategorienamen und Fragen werden mitgesendet. „Neuer Chat“, Verlassen
+Im freiwilligen Fearless-Modus werden auch Buchungsbeschreibungen übertragen,
+damit Händlerfragen möglich sind. Diese Texte können persönliche Angaben enthalten.
+Separate Konto- und Banknamen, IBAN, Kontonummern, Inhaber- und Adressfelder bleiben
+ausgeschlossen; Angaben innerhalb von Beschreibungen, Kategorienamen und Fragen
+werden jedoch mitgesendet. „Neuer Chat“, Verlassen
 oder Sperren beendet den flüchtigen Chatkontext; die Anmeldung bleibt gespeichert.
 
 Details, Grenzen und Tests: [Finanzchat](docs/finance-chat.md).

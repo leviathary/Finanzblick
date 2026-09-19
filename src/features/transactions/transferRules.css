@@ -1,0 +1,10 @@
+/* Hält Regelliste und Editor kompakt, responsiv und im gemeinsamen Formularstil. */
+.settlement-rules .settlement-rule { flex-wrap: wrap; margin-top: 16px; }
+.settlement-rules .settlement-rule > div:first-child { flex: 1 1 320px; min-width: 0; }
+.settlement-rules .settlement-rule p { margin: 4px 0; }
+.transfer-rule-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.settlement-rules > p, .transfer-rule-editor > p { margin: 12px 0; }
+.transfer-rule-editor .form-grid { grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr)); gap: 16px; }
+.transfer-rule-editor .form-grid label { display: grid; gap: 8px; }
+.transfer-rule-editor .form-grid input, .transfer-rule-editor .form-grid select { min-height: 44px; border-radius: 10px; border: 1px solid var(--border-subtle); font-weight: 400; }
+.transfer-rule-editor .settlement-future { display: flex; align-items: center; gap: 8px; margin-top: 16px; }
