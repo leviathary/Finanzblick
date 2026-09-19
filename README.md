@@ -5,7 +5,10 @@ Vermögen und Ausgaben. Ohne Benutzerkonto oder Cloud-Synchronisierung.
 
 ## Windows installieren
 
-[Windows-Installer 0.5.9 herunterladen (64 Bit)](https://github.com/leviathary/Finanzblick/releases/download/v0.5.9/Finanzblick_0.5.9_x64-setup.exe)
+[Windows-Installer 0.5.10 herunterladen (64 Bit)](https://github.com/leviathary/Finanzblick/releases/download/v0.5.10/Finanzblick_0.5.10_x64-setup.exe)
+
+[Release-Notizen](https://github.com/leviathary/Finanzblick/releases/tag/v0.5.10)
+· [SHA-256-Prüfsumme](https://github.com/leviathary/Finanzblick/releases/download/v0.5.10/Finanzblick_0.5.10_x64-setup.exe.sha256)
 
 Die heruntergeladene Datei ausführen. Ein Windows-Entwicklermodus ist nicht nötig.
 Der Installer ist nicht signiert; Windows kann deshalb eine Sicherheitswarnung anzeigen.
@@ -39,17 +42,33 @@ sind noch nicht getestet.
 
 ## Einblick
 
-Die Screenshots zeigen ausschliesslich fiktive Demo-Daten.
+Die Screenshots zeigen die Oberfläche von Version 0.5.10 mit ausschliesslich
+fiktiven Beispieldaten. Konten, Anbieter und Kursverläufe sind erfunden.
+
+### Vermögensübersicht
 
 ![Vermögensübersicht mit Konten und Anbietern](docs/screenshots/uebersicht.png)
 
-![Vermögensentwicklung über acht Jahre](docs/screenshots/vermoegensentwicklung.png)
+### Interaktive Vermögensentwicklung
+
+Zeitraum wählen, mit dem Mausrad zoomen, den Verlauf verschieben oder mit dem
+Messwerkzeug Veränderungen untersuchen. Die Kontexthilfe erklärt die Bedienung.
+
+![Vermögensentwicklung mit interaktivem Chart und kompakter Werkzeugleiste](docs/screenshots/vermoegensentwicklung.png)
+
+### Dark Mode
+
+Unter Einstellungen zwischen heller, dunkler und systemabhängiger Darstellung wechseln.
+
+![Vermögensentwicklung im Dark Mode](docs/screenshots/dark-mode.png)
 
 ## Funktionen
 
 - Bankauszüge aus Excel, CSV, PDF und MT940 importieren und vor dem Speichern prüfen
 - Konten, Aktien, ETFs, Kryptowährungen und Vorsorgevermögen gemeinsam auswerten
 - Vermögensentwicklung, Geldfluss und Steuerhistorie visualisieren
+- Interaktive Vermögenscharts mit Zoom, Messwerkzeug und optionalem Indexvergleich (SMI, S&P 500)
+- Helle, dunkle oder systemabhängige Darstellung wählen
 - Depotpositionen einzeln oder gemeinsam im Verlauf anzeigen; bei einer Position zwischen Wert und Kurs wechseln
 - Transaktionen kategorisieren und Kreditkartenzahlungen ohne Doppelzählung erfassen
 - Unabhängige Finanzprofile erstellen, kopieren, anonymisieren und sichern
