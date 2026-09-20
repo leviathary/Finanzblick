@@ -1,4 +1,4 @@
-// Steuert Profilwahl und Entsperrung, bevor die geschützte Anwendung angezeigt wird.
+// Steuert Anzeigesprache, Profilwahl und Entsperrung vor der geschützten Anwendung.
 
 import { DatabasePicker } from "../settings/DatabasePicker";
 import { BackupPanel } from "../settings/BackupPanel";
@@ -16,7 +16,7 @@ import {
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 
-import { SettingsContext, defaultSettings, type AppSettings } from "../../settings";
+import { SettingsContext, defaultSettings, type AppSettings, type Language } from "../../settings";
 
 type Status = {
   initialized: boolean;
@@ -40,6 +40,9 @@ export function VaultGate({ children }: { children: ReactNode }) {
   const [confirmation, setConfirmation] = useState("");
   const [acknowledged, setAcknowledged] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [displayLanguage, setDisplayLanguage] = useState<Language>("de");
+  const [languageBusy, setLanguageBusy] = useState(false);
+  const [languageError, setLanguageError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [capsLock, setCapsLock] = useState(false);
   const [showRestore, setShowRestore] = useState(false);
@@ -69,6 +72,7 @@ export function VaultGate({ children }: { children: ReactNode }) {
       const next = await invoke<Status>("vault_status");
       if (current === revision.current) {
         setLanguage(next.settings?.language ?? "de");
+        setDisplayLanguage(next.settings?.language ?? "de");
         setRegion(next.settings?.region ?? "CH");
         setStatus(next);
       }
@@ -169,7 +173,7 @@ export function VaultGate({ children }: { children: ReactNode }) {
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!status || busy) return;
+    if (!status || busy || languageBusy) return;
     const setup = !status.initialized;
     // Read the actual fields: password managers can fill inputs without firing
     // React's onChange event. Never trim or otherwise change the password.
@@ -209,6 +213,31 @@ export function VaultGate({ children }: { children: ReactNode }) {
     await refresh();
   }
 
+  async function changeDisplayLanguage(language: Language) {
+    const previousLanguage = displayLanguage;
+    setDisplayLanguage(language);
+    setLanguage(language);
+    setStatus(previous => previous ? {
+      ...previous,
+      settings: { ...previous.settings, language },
+    } : previous);
+    setLanguageBusy(true);
+    setLanguageError("");
+    try {
+      await invoke("save_display_language", { language });
+    } catch {
+      setDisplayLanguage(previousLanguage);
+      setLanguage(previousLanguage);
+      setStatus(previous => previous ? {
+        ...previous,
+        settings: { ...previous.settings, language: previousLanguage },
+      } : previous);
+      setLanguageError(t("Sprache konnte nicht gespeichert werden."));
+    } finally {
+      setLanguageBusy(false);
+    }
+  }
+
   if (status?.unlocked)
     return (
       <SettingsContext.Provider
@@ -224,9 +253,22 @@ export function VaultGate({ children }: { children: ReactNode }) {
     <main className="vault-screen">
       <section className="vault-card" aria-labelledby="vault-heading">
         <header className="vault-brand">
-          <img className="vault-brand-icon" src="/finanzblick.svg" width="40" height="40" alt="" />
-          <div><strong>Finanzblick</strong><span>{t("Persönliche Finanzen")}</span></div>
+          <div className="vault-brand-identity">
+            <img className="vault-brand-icon" src="/finanzblick.svg" width="40" height="40" alt="" />
+            <div><strong>Finanzblick</strong><span>{t("Persönliche Finanzen")}</span></div>
+          </div>
+          <label className="vault-language">
+            <span className="visually-hidden">{t("Sprache")}</span>
+            <select value={displayLanguage} disabled={languageBusy || busy}
+              onChange={event => void changeDisplayLanguage(event.target.value as Language)}>
+              <option value="de" lang="de">Deutsch</option>
+              <option value="en" lang="en">English</option>
+              <option value="fr" lang="fr">Français</option>
+              <option value="it" lang="it">Italiano</option>
+            </select>
+          </label>
         </header>
+        {languageError && <p className="vault-error" role="alert">{languageError}</p>}
         <h1 id="vault-heading" ref={heading} tabIndex={-1}>
           {showRestore ? t("Backup wiederherstellen") : status && !status.initialized ? t("Deine Finanzen sicher verwahren") : t("Anmelden")}
         </h1>
@@ -254,8 +296,8 @@ export function VaultGate({ children }: { children: ReactNode }) {
                     "Schütze deine Finanzen mit einem Passwort aus mindestens 7 Zeichen.",
                   )}
             </p>
-            <DatabasePicker disabled={busy} onCreatingChange={setCreatingDatabase} />
-            {!creatingDatabase && <form className="vault-login-form" onSubmit={submit} autoComplete="on" aria-busy={busy}>
+            <DatabasePicker disabled={busy || languageBusy} onCreatingChange={setCreatingDatabase} />
+            {!creatingDatabase && <form className="vault-login-form" onSubmit={submit} autoComplete="on" aria-busy={busy || languageBusy}>
               <label htmlFor="vault-password">{t("Passwort")}</label>
               <div className="vault-password-field">
               <input
@@ -272,14 +314,14 @@ export function VaultGate({ children }: { children: ReactNode }) {
                 autoCapitalize="none"
                 spellCheck={false}
                 value={password}
-                disabled={busy}
+                disabled={busy || languageBusy}
                 aria-describedby={capsLock ? "vault-caps-lock" : undefined}
                 onKeyDown={event => setCapsLock(event.getModifierState("CapsLock"))}
                 onKeyUp={event => setCapsLock(event.getModifierState("CapsLock"))}
                 onBlur={() => setCapsLock(false)}
                 onChange={(e) => setPassword(e.target.value)}
               />
-              <button className="vault-eye" type="button" disabled={busy}
+              <button className="vault-eye" type="button" disabled={busy || languageBusy}
                 aria-label={showPassword ? t("Passwort verbergen") : t("Passwort anzeigen")}
                 aria-controls="vault-password" aria-pressed={showPassword}
                 onClick={() => { setShowPassword(value => !value); passwordField.current?.focus(); }}>
@@ -305,7 +347,7 @@ export function VaultGate({ children }: { children: ReactNode }) {
                     autoCapitalize="none"
                     spellCheck={false}
                     value={confirmation}
-                    disabled={busy}
+                    disabled={busy || languageBusy}
                     onChange={(e) => setConfirmation(e.target.value)}
                   />
                   <label className="vault-acknowledgement">
@@ -326,7 +368,7 @@ export function VaultGate({ children }: { children: ReactNode }) {
                   {t(error)}
                 </p>
               )}
-              <button className="vault-submit" type="submit" disabled={busy}>
+              <button className="vault-submit" type="submit" disabled={busy || languageBusy}>
                 {busy && <span className="vault-spinner" aria-hidden="true" />}
                 {busy
                   ? t("Bitte warten …")
@@ -336,7 +378,7 @@ export function VaultGate({ children }: { children: ReactNode }) {
               </button>
             </form>}
             <div className="vault-backup">
-              <button className="vault-restore-link" type="button" disabled={busy}
+              <button className="vault-restore-link" type="button" disabled={busy || languageBusy}
                 onClick={() => { setPassword(""); setConfirmation(""); setShowPassword(false); setCapsLock(false); setError(""); setShowRestore(true); }}>
                 <span aria-hidden="true">↺</span> {t("Aus Backup wiederherstellen")}
               </button>

@@ -109,14 +109,20 @@ function App() {
       <aside className="sidebar">
         <strong className="brand">Finanzblick</strong>
         <nav className="sidebar-primary" aria-label={t("Hauptnavigation")}>
-          <a className={page === "overview" ? "active" : ""} href="#overview"><NavIcon name="home"/><span>{t("Übersicht")}</span></a>
-          <a className={page === "accounts" ? "active" : ""} href="#banks"><NavIcon name="bank"/><span>{t("Banken & Konten")}</span></a>
-          <a className={page === "assets" ? "active" : ""} href="#assets"><NavIcon name="chart"/><span>{t("Vermögen")}</span></a>
-          <a className={page === "tax-history" ? "active" : ""} href="#tax-history"><NavIcon name="tax"/><span>{t("Steuerhistorie")}</span></a>
-          <a className={page === "transactions" || page === "transfers" || page === "cards" || page === "card-setup" ? "active" : ""} href="#transactions"><NavIcon name="transactions"/><span>{t("Transaktionen")}</span></a>
-          <a className={page === "categories" ? "active" : ""} href="#categories"><NavIcon name="tag"/><span>{t("Kategorien")}</span></a>
-          <a className={page === "chat" ? "active" : ""} href="#chat"><NavIcon name="chat"/><span>{t("Finanzchat")}</span></a>
-          <a className={page === "imports" || page === "import-history" ? "active" : ""} aria-current={page === "imports" || page === "import-history" ? "page" : undefined} href="#imports"><NavIcon name="import"/><span>{t("Import")}</span></a>
+          <div className="sidebar-nav-group" role="group" aria-label={t("Analyse")}>
+            <a className={page === "overview" ? "active" : ""} href="#overview"><NavIcon name="home"/><span>{t("Übersicht")}</span></a>
+            <a className={page === "assets" ? "active" : ""} href="#assets"><NavIcon name="chart"/><span>{t("Vermögen")}</span></a>
+            <a className={page === "transactions" || page === "transfers" || page === "cards" || page === "card-setup" ? "active" : ""} href="#transactions"><NavIcon name="transactions"/><span>{t("Transaktionen")}</span></a>
+          </div>
+          <div className="sidebar-nav-group" role="group" aria-label={t("Weitere Auswertungen und Werkzeuge")}>
+            <a className={page === "tax-history" ? "active" : ""} href="#tax-history"><NavIcon name="tax"/><span>{t("Steuerhistorie")}</span></a>
+            <a className={page === "chat" ? "active" : ""} href="#chat"><NavIcon name="chat"/><span>{t("Finanzchat")}</span></a>
+          </div>
+          <div className="sidebar-nav-group" role="group" aria-label={t("Verwaltung")}>
+            <a className={page === "imports" || page === "import-history" ? "active" : ""} aria-current={page === "imports" || page === "import-history" ? "page" : undefined} href="#imports"><NavIcon name="import"/><span>{t("Import")}</span></a>
+            <a className={page === "accounts" ? "active" : ""} href="#banks"><NavIcon name="bank"/><span>{t("Banken & Konten")}</span></a>
+            <a className={page === "categories" ? "active" : ""} href="#categories"><NavIcon name="tag"/><span>{t("Kategorien")}</span></a>
+          </div>
         </nav>
         <nav className="sidebar-secondary" aria-label={t("Kontonavigation")}>
           <a className={page === "data-security" ? "active" : ""} href="#data-security"><NavIcon name="history"/><span>{t("Daten & Sicherheit")}</span></a>

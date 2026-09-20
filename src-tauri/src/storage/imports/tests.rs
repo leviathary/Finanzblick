@@ -121,6 +121,92 @@ fn camt_import_roundtrip_distinguishes_references_and_skips_overlap() {
 }
 
 #[test]
+fn balance_backed_import_skips_exact_duplicate_but_keeps_repeated_payments() {
+    let directory = tempfile::tempdir().unwrap();
+    let storage = Storage::test_storage(directory.path().join("balanced-dedup.sqlite3"));
+    initialize_schema(&storage.connect().unwrap()).unwrap();
+    let source = directory.path().join("ubs-statement.pdf");
+    fs::write(&source, b"first statement").unwrap();
+    let tax = crate::importers::ParsedTransaction {
+        booking_date: "2026-08-24".into(),
+        value_date: Some("2026-08-24".into()),
+        description: "Steuerverwaltung des Kantons Bern\ne-banking-Verguetungsauftrag".into(),
+        amount_minor: -59_000,
+        balance_minor: Some(3_534_091),
+        currency: "CHF".into(),
+        confidence: 0.99,
+        source_row: 1,
+        ..crate::importers::ParsedTransaction::default()
+    };
+    let first_sbb = crate::importers::ParsedTransaction {
+        booking_date: "2026-08-24".into(),
+        value_date: Some("2026-08-24".into()),
+        description: "SBB Contact Center Swiss Pass\nE-BILL, PayNet-Auftrag".into(),
+        amount_minor: -8_500,
+        balance_minor: Some(3_615_551),
+        currency: "CHF".into(),
+        confidence: 0.99,
+        source_row: 2,
+        ..crate::importers::ParsedTransaction::default()
+    };
+    let second_sbb = crate::importers::ParsedTransaction {
+        balance_minor: Some(3_624_051),
+        source_row: 3,
+        ..first_sbb.clone()
+    };
+    let result = save_import_to(
+        &storage,
+        SaveImportRequest {
+            account_ids: BTreeMap::new(),
+            source_path: source.to_string_lossy().into(),
+            account_name: "Privatkonto".into(),
+            statement: crate::importers::ParsedStatement {
+                provider: "ubs".into(),
+                format: "PDF".into(),
+                account_name: "Privatkonto".into(),
+                transactions: vec![tax.clone(), tax, first_sbb, second_sbb],
+                opening_balance_minor: Some(3_683_051),
+                closing_balance_minor: Some(3_534_091),
+                warnings: Vec::new(),
+                ..crate::importers::ParsedStatement::default()
+            },
+        },
+    )
+    .unwrap();
+
+    assert_eq!(result.inserted_transactions, 3);
+    let connection = storage.connect().unwrap();
+    assert_eq!(
+        connection
+            .query_row("SELECT COUNT(*) FROM transactions", [], |row| {
+                row.get::<_, i64>(0)
+            })
+            .unwrap(),
+        3
+    );
+    assert_eq!(
+        connection
+            .query_row(
+                "SELECT COUNT(*) FROM transactions WHERE description LIKE 'Steuerverwaltung%'",
+                [],
+                |row| row.get::<_, i64>(0),
+            )
+            .unwrap(),
+        1
+    );
+    assert_eq!(
+        connection
+            .query_row(
+                "SELECT COUNT(DISTINCT balance_minor) FROM transactions WHERE description LIKE 'SBB Contact%'",
+                [],
+                |row| row.get::<_, i64>(0),
+            )
+            .unwrap(),
+        2
+    );
+}
+
+#[test]
 fn category_priority_is_manual_then_merchant_then_industry_then_description() {
     let connection = Connection::open_in_memory().unwrap();
     initialize_schema(&connection).unwrap();

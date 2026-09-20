@@ -1,5 +1,5 @@
 // Verwaltet Positionen und Bewertungen eines einzelnen Kontos, getrennt von der Kontenübersicht.
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { positionsApi } from "./api";
 import { t, tr, locale } from "../../i18n";
 import type { Account } from "../accounts/types";
@@ -15,6 +15,7 @@ type Props = {
 };
 
 export function ManualPositions({ account: valuing, onClose, onChanged, onError: setError }: Props) {
+  const backButton = useRef<HTMLButtonElement>(null);
   const [saving, setSaving] = useState(false);
   const [valuationNotice, setValuationNotice] = useState<string | null>(null);
   const [marketRefreshPending, setMarketRefreshPending] = useState(false);
@@ -37,6 +38,10 @@ export function ManualPositions({ account: valuing, onClose, onChanged, onError:
     holdingEndDate: "",
   });
   const [positions, setPositions] = useState<ManualPosition[]>([]);
+
+  useEffect(() => {
+    backButton.current?.focus();
+  }, []);
 
   useEffect(() => {
     let active = true;
@@ -227,7 +232,12 @@ export function ManualPositions({ account: valuing, onClose, onChanged, onError:
   }
 
 
-  return (
+  return <>
+        <div className="manual-position-back">
+          <button ref={backButton} className="secondary-button" type="button" onClick={onClose}>
+            <span aria-hidden="true">←</span> {t("Zurück zu Banken & Konten")}
+          </button>
+        </div>
         <article className="dashboard-card manual-valuation-form">
           <div className="card-heading">
             <div>
@@ -236,9 +246,6 @@ export function ManualPositions({ account: valuing, onClose, onChanged, onError:
                 {valuing.provider} · {valuing.name}
               </h2>
             </div>
-            <button className="text-button" onClick={onClose}>
-              {t("Abbrechen")}
-            </button>
           </div>
           <p className="settings-hint">
             {t(
@@ -736,6 +743,5 @@ export function ManualPositions({ account: valuing, onClose, onChanged, onError:
             </section>
           )}
         </article>
-
-  );
+      </>;
 }

@@ -26,3 +26,5 @@
 .category-donut { position: sticky; top: 24px; }
 .category-donut p { font-size: 12px; color: var(--text-secondary); }
 @media (max-width: 1100px) { .category-breakdown-layout { grid-template-columns: 1fr; } .category-donut { position: static; } }
+.transaction-timeline .wealth-timeframe-bar { padding-left: 0; }
+.transaction-timeline .wealth-timeframes { border-left: 0; padding-left: 0; }

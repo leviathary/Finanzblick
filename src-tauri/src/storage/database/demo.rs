@@ -21,13 +21,23 @@ use std::time::SystemTime;
 use zeroize::Zeroizing;
 
 const PASSWORD: &str = "demo1234";
+const DEMO_VERSION: i64 = 2;
+
+fn is_current_demo(db: &Connection) -> bool {
+    db.query_row(
+        "SELECT version=?1 FROM finanzblick_demo WHERE id=1",
+        [DEMO_VERSION],
+        |row| row.get::<_, bool>(0),
+    )
+    .unwrap_or(false)
+}
 
 pub(super) fn is_reusable_demo(path: &Path, name: &str) -> bool {
     name.strip_prefix("Demo ")
         .and_then(|number| number.parse::<u32>().ok())
         .is_some()
         && open(path, PASSWORD, false)
-            .map(|db| is_demo(&db))
+            .map(|db| is_current_demo(&db))
             .unwrap_or(false)
 }
 
@@ -74,7 +84,7 @@ impl Storage {
             let db = open(&path, PASSWORD, false).map_err(|_| {
                 format!("{name} konnte nicht geöffnet werden. Bitte dieses Finanzprofil direkt auswählen und mit seinem Passwort entsperren.")
             })?;
-            if !is_demo(&db) {
+            if !is_current_demo(&db) {
                 continue;
             }
             initialize_schema(&db).map_err(|_| "Demo konnte nicht geöffnet werden.")?;
@@ -244,13 +254,17 @@ fn seed(db: &mut Connection, today: NaiveDate) -> rusqlite::Result<()> {
     let first_year = today.year() - 8;
     let start = date_at(first_year, 0, 1);
     let stamp = today.to_string();
-    transaction.execute_batch("CREATE TABLE finanzblick_demo(id INTEGER PRIMARY KEY,version INTEGER NOT NULL); INSERT INTO finanzblick_demo VALUES(1,1);")?;
-    for (id, key, name) in [
-        (1, "ubs", "UBS"),
-        (2, "raiffeisen", "Raiffeisen"),
-        (3, "swissquote", "Swissquote"),
+    transaction.execute_batch(
+        "CREATE TABLE finanzblick_demo(id INTEGER PRIMARY KEY,version INTEGER NOT NULL);",
+    )?;
+    transaction.execute("INSERT INTO finanzblick_demo VALUES(1,?1)", [DEMO_VERSION])?;
+    for (id, key, name, kind) in [
+        (1, "ubs", "UBS", "bank"),
+        (2, "raiffeisen", "Raiffeisen", "bank"),
+        (3, "swissquote", "Swissquote", "broker"),
+        (4, "beispiel-ag", "Beispiel AG", "broker"),
     ] {
-        transaction.execute("INSERT INTO institutions(id,provider_key,name,institution_type,created_at) VALUES(?1,?2,?3,'bank',?4)", params![id,key,name,start.to_string()])?;
+        transaction.execute("INSERT INTO institutions(id,provider_key,name,institution_type,created_at) VALUES(?1,?2,?3,?4,?5)", params![id,key,name,kind,start.to_string()])?;
     }
     for (id, name, kind) in [
         (1, "Privatkonto – Alltag", "cash"),
@@ -260,6 +274,7 @@ fn seed(db: &mut Connection, today: NaiveDate) -> rusqlite::Result<()> {
         transaction.execute("INSERT INTO accounts(id,institution_id,name,account_type,currency,created_at) VALUES(?1,?1,?2,?3,'CHF',?4)",params![id,name,kind,start.to_string()])?;
     }
     transaction.execute("INSERT INTO accounts(id,institution_id,name,account_type,currency,created_at) VALUES(4,1,'Mastercard – Alltag','credit_card','CHF',?1)", [start.to_string()])?;
+    transaction.execute("INSERT INTO accounts(id,institution_id,name,account_type,currency,created_at) VALUES(5,4,'Mitarbeiteraktien','manual_asset','CHF',?1)", [start.to_string()])?;
     let positions = holdings();
     for (index, holding) in positions.iter().enumerate() {
         let id = index as i64 + 1;
@@ -281,6 +296,12 @@ fn seed(db: &mut Connection, today: NaiveDate) -> rusqlite::Result<()> {
         if let Some(closing) = &closing {
             transaction.execute("INSERT INTO position_quantities(position_id,valid_from,quantity_amount,quantity_scale,source,recorded_at) VALUES(?1,?2,0,0,'demo',?3)",params![id,closing,stamp])?;
         }
+    }
+    for grant_year in first_year..=today.year() {
+        let id = positions.len() as i64 + 1 + i64::from(grant_year - first_year);
+        let opening = date_at(first_year, (grant_year - first_year) * 12, 15);
+        transaction.execute("INSERT INTO portfolio_positions(id,account_id,listing_id,label,asset_type,holding_start_date,created_at,updated_at) VALUES(?1,5,1,?2,'stock',?3,?4,?4)",params![id,format!("Apple {grant_year}"),opening.to_string(),stamp])?;
+        transaction.execute("INSERT INTO position_quantities(position_id,valid_from,quantity_amount,quantity_scale,source,recorded_at) VALUES(?1,?2,400,0,'demo',?3)",params![id,opening.to_string(),stamp])?;
     }
     let mut cash = 5_000_000_i64;
     let mut savings = 1_500_000_i64;
@@ -476,6 +497,7 @@ fn seed(db: &mut Connection, today: NaiveDate) -> rusqlite::Result<()> {
         transaction.execute("INSERT INTO fx_rates(base_currency,quote_currency,rate_date,rate_amount,rate_scale,source,fetched_at) VALUES('USD','CHF',?1,?2,6,'demo',?3)",params![day.to_string(),fx_amount,stamp])?;
         let fx_id = transaction.last_insert_rowid();
         let mut portfolio = 0_i64;
+        let mut apple_price_id = None;
         for (index, holding) in positions.iter().enumerate() {
             let id = index as i64 + 1;
             let opening = date_at(first_year, holding.start_month, 15);
@@ -496,6 +518,9 @@ fn seed(db: &mut Connection, today: NaiveDate) -> rusqlite::Result<()> {
             let value = (units as f64 * price_minor as f64 * rate).round() as i64;
             transaction.execute("INSERT INTO instrument_prices(listing_id,price_date,price_type,price_amount,price_scale,currency,source,fetched_at) VALUES(?1,?2,'eod_close',?3,2,?4,'demo',?5)",params![id,day.to_string(),price_minor,holding.currency,stamp])?;
             let price_id = transaction.last_insert_rowid();
+            if id == 1 {
+                apple_price_id = Some(price_id);
+            }
             let sold = closing == Some(day);
             transaction.execute("INSERT INTO daily_valuations(position_id,valuation_date,quantity_amount,quantity_scale,instrument_price_id,fx_rate_id,value_minor,currency,calculated_at) VALUES(?1,?2,?3,0,?4,?5,?6,'CHF',?7)",params![id,day.to_string(),if sold {0}else{units},price_id,if holding.currency=="USD" {Some(fx_id)}else{None},if sold {0}else{value},stamp])?;
             if day == opening || (added && day == opening + Days::days(730)) {
@@ -544,6 +569,18 @@ fn seed(db: &mut Connection, today: NaiveDate) -> rusqlite::Result<()> {
                     "income",
                 )?;
             }
+        }
+        for grant_year in first_year..=today.year() {
+            let opening = date_at(first_year, (grant_year - first_year) * 12, 15);
+            if day < opening {
+                continue;
+            }
+            let position_id = positions.len() as i64 + 1 + i64::from(grant_year - first_year);
+            let apple_price_minor = price(&positions[0], elapsed, 0);
+            let value =
+                (400.0 * apple_price_minor as f64 * fx_amount as f64 / 1_000_000.0).round() as i64;
+            transaction.execute("INSERT INTO daily_valuations(position_id,valuation_date,quantity_amount,quantity_scale,instrument_price_id,fx_rate_id,value_minor,currency,calculated_at) VALUES(?1,?2,400,0,?3,?4,?5,'CHF',?6)",params![position_id,day.to_string(),apple_price_id,fx_id,value,stamp])?;
+            portfolio += value;
         }
         if day.day() == 27 {
             let interest = savings / 1500;
@@ -626,8 +663,11 @@ mod tests {
             db.query_row("SELECT COUNT(*) FROM accounts", [], |row| row
                 .get::<_, i64>(0))
                 .unwrap(),
-            4
+            5
         );
+        assert_eq!(db.query_row("SELECT COUNT(*) FROM portfolio_positions WHERE account_id=(SELECT id FROM accounts WHERE name='Mitarbeiteraktien')", [], |row| row.get::<_, i64>(0)).unwrap(), 9);
+        assert_eq!(db.query_row("SELECT COUNT(*) FROM position_quantities q JOIN portfolio_positions p ON p.id=q.position_id WHERE p.account_id=(SELECT id FROM accounts WHERE name='Mitarbeiteraktien') AND q.quantity_amount=400 AND q.quantity_scale=0", [], |row| row.get::<_, i64>(0)).unwrap(), 9);
+        assert_eq!(db.query_row("SELECT COUNT(DISTINCT substr(p.label,7,4)) FROM portfolio_positions p WHERE p.account_id=(SELECT id FROM accounts WHERE name='Mitarbeiteraktien') AND p.label LIKE 'Apple %'", [], |row| row.get::<_, i64>(0)).unwrap(), 9);
         assert_eq!(
             db.query_row("SELECT COUNT(*) FROM annual_tax_snapshots", [], |row| row
                 .get::<_, i64>(

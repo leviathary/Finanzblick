@@ -136,6 +136,11 @@ export function Assets({
       </section>
     );
 
+  const sortedAccounts = [...data.accounts].sort((left, right) => {
+    const amountDifference =
+      Math.abs(right.balanceMinor ?? 0) - Math.abs(left.balanceMinor ?? 0);
+    return amountDifference || left.name.localeCompare(right.name, locale());
+  });
   const fullFrom = chartHistory[0]?.date ?? "";
   const fullTo = chartHistory[chartHistory.length - 1]?.date ?? "";
   const filteredHistory = (() => {
@@ -346,16 +351,19 @@ export function Assets({
       <div className="asset-breakdowns">
         <BreakdownCard
           translateTypes
+          variant="category"
           title={t("Nach Kategorie")}
           values={data.byType}
           total={data.currentTotalMinor}
           currency={data.currency}
         />
         <BreakdownCard
+          variant="provider"
           title={t("Nach Anbieter")}
           values={data.byProvider}
           total={data.currentTotalMinor}
           currency={data.currency}
+          accounts={data.accounts}
         />
       </div>
       <article className="dashboard-card asset-accounts">
@@ -368,7 +376,7 @@ export function Assets({
             {data.accounts.length} {t("Positionen")}
           </span>
         </div>
-        {data.accounts.map((account) => (
+        {sortedAccounts.map((account) => (
           <div className="asset-account" key={account.id}>
             <ProviderLogo
               name={account.provider}
@@ -386,7 +394,15 @@ export function Assets({
                 ? tr`Stand ${shortDate(account.balanceDate)}`
                 : t("Ohne Stichtag")}
             </span>
-            <b>{money(account.balanceMinor, account.currency)}</b>
+            <b
+              className={
+                account.balanceMinor === null || account.balanceMinor === 0
+                  ? "asset-account-amount zero"
+                  : "asset-account-amount"
+              }
+            >
+              {money(account.balanceMinor ?? 0, account.balanceCurrency)}
+            </b>
           </div>
         ))}
       </article>

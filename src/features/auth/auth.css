@@ -15,10 +15,24 @@
   border-radius: 16px;
   box-shadow: var(--shadow-login);
 }
-.vault-brand { display: flex; align-items: center; gap: 12px; padding-bottom: 20px; margin-bottom: 24px; border-bottom: 1px solid var(--border-subtle); }
+.vault-brand { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-bottom: 20px; margin-bottom: 24px; border-bottom: 1px solid var(--border-subtle); }
+.vault-brand-identity { display: flex; align-items: center; gap: 12px; min-width: 0; }
 .vault-brand-icon { display: block; flex: 0 0 40px; width: 40px; height: 40px; object-fit: contain; }
 .vault-brand strong { display: block; font-size: 16px; font-weight: 700; letter-spacing: -0.025em; color: var(--text-primary); }
-.vault-brand div > span { display: block; font-size: 11px; font-weight: 400; color: var(--text-secondary); margin-top: 2px; }
+.vault-brand-identity > div > span { display: block; font-size: 11px; font-weight: 400; color: var(--text-secondary); margin-top: 2px; }
+.vault-language { flex: 0 0 auto; }
+.vault-card .vault-language select {
+  width: 112px;
+  height: 44px;
+  box-sizing: border-box;
+  padding: 10px 28px 10px 10px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  font: inherit;
+  font-size: 13px;
+}
 .vault-card h1 {
   font-size: 20px;
   font-weight: 600;
@@ -117,4 +131,9 @@
 .vault-profile-avatar { display: grid; place-items: center; width: 32px; height: 32px; flex-shrink: 0; background: var(--bg-muted); border-radius: 50%; color: var(--text-secondary); }
 .vault-card .vault-profile button, .vault-card .vault-restore-link { background: transparent; color: var(--text-secondary); font-size: 12px; padding: 8px; }
 .vault-card .vault-profile button:hover:not(:disabled), .vault-card .vault-restore-link:hover:not(:disabled) { background: transparent; color: var(--text-primary); text-decoration: underline; }
-@media (max-width: 480px) { .vault-screen { padding: 24px 16px; } .vault-card { padding: 24px; } }
+@media (max-width: 480px) {
+  .vault-screen { padding: 24px 16px; }
+  .vault-card { padding: 24px; }
+  .vault-brand { align-items: flex-start; flex-wrap: wrap; }
+  .vault-language { margin-left: 52px; }
+}

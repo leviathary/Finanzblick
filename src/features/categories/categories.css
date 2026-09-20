@@ -1,4 +1,5 @@
 /* Hält Kategorieaktionen kompakt und die Bearbeitung direkt in der betroffenen Zeile. */
+.category-page-intro { max-width: none; }
 .category-create-action { margin: 24px 0; }
 .category-inline-editor { flex-basis: 100%; display: flex; align-items: end; flex-wrap: wrap; gap: 12px; padding: 16px 0; }
 .category-inline-editor label { display: grid; gap: 8px; }

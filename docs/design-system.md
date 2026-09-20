@@ -66,6 +66,9 @@ in `src/styles/application.css`; Feature-Styles verwenden dieselben Farbrollen.
   allein ausdrücken, dass eine vorgeschlagene Entscheidung bereits gespeichert ist.
 - Warnungen und Zustände immer zusätzlich mit Text oder Symbol kennzeichnen.
 - Kategorie-Farben sind Datenkennzeichnungen, keine neue Palette für Buttons.
+- Verteilungsdiagramme verwenden die zentralen, gedeckten Rollen
+  `--chart-distribution-1` bis `--chart-distribution-8`; keine neonartigen
+  Einzelfarben in Komponenten ergänzen.
 - Vorhandene Variablen verwenden; keine gleichwertigen Hex-Farben je Feature kopieren.
   Neue wiederkehrende Rollen zentral definieren und hier dokumentieren.
 
@@ -194,50 +197,123 @@ in `src/styles/application.css`; Feature-Styles verwenden dieselben Farbrollen.
 
 ## 6. Navigation und Einrichtungsassistenten
 
+- Die Hauptnavigation der Seitenleiste ist ohne sichtbare Gruppenüberschriften in
+  drei Bereiche gegliedert: Übersicht, Vermögen und Transaktionen; danach
+  Steuerhistorie und Finanzchat; danach Import, Banken & Konten und Kategorien.
+  Dezente Trennlinien mit kompaktem Abstand kennzeichnen die Gruppen. Für
+  assistive Technologien bleiben die Bereiche als benannte Gruppen erkennbar.
 - Banken & Konten: Zeilenaktionen im Drei-Punkte-Menü (Bearbeiten, Einbezug ins
   Gesamtvermögen, Archivieren/Aktivieren bzw. Löschen bei leeren Konten).
   Archivieren/Löschen absetzen und bestätigen lassen. Ausschluss vom Vermögen
   und Archivstatus bleiben direkt in der Zeile sichtbar. „Konto hinzufügen“
   bleibt die sichtbare Hauptaktion. Menü mit Tastatur, Escape/Fokusrückkehr
   und Schließen bei Außenklick bedienen können.
+  Keine dauerhafte Erklärung zu Archivierung und Löschung im Seitenkopf;
+  solche allgemeinen Erläuterungen gehören in eine gemeinsame Hilfe. Konkrete
+  Folgen werden weiterhin unmittelbar im jeweiligen Bestätigungsdialog erklärt.
+  Kontenzeilen formatieren den aktuellen Wert mit dessen gelieferter
+  Bewertungswährung (`balanceCurrency`), nicht pauschal mit der Kontowährung.
+  Ein fehlender oder exakter Nullsaldo erscheint konsistent als `CHF 0.00` in
+  Sekundärtextfarbe. Der rechtsbündige Betragsblock hat feste Breite und
+  tabellarische Ziffern. Ausgeschlossene Konten zeigen „Nicht im Gesamtvermögen“,
+  archivierte Konten „Archiviert“ als dezentes Status-Badge direkt in der Zeile.
+  Die Standardansicht bleibt vertikal kompakt: Institutszeilen sind 56 px hoch
+  mit 36-px-Logo und inline gesetzter Kontenanzahl, Kontenzeilen mindestens 64 px.
+  Kontotyp, Referenz und Positions-/Importanzahl stehen in einer gemeinsamen
+  Metadatenzeile. Zwischen Institutskarten liegen 10 px; die 44-px-Aktionsfläche
+  und ein kontrollierter Umbruch langer Metadaten bleiben erhalten.
+  Die Verwaltung manueller Positionen ist eine eigene Detailansicht. Oberhalb
+  ihrer Card steht ein lokalisierter sekundärer Button „← Zurück zu Banken &
+  Konten“; kein „Abbrechen“ im Card-Header. Beim Öffnen erhält die Rückkehraktion
+  den Fokus. Formular-Abbrechen bleibt unten neben der Speicheraktion; Escape
+  verwirft keinen begonnenen Positionsentwurf.
 
 - „Vermögen nach Anbieter“: gemeinsamer Donut links, Liste mit Logos, Farbpunkt,
   Betrag und Anteil rechts; auf schmalen Fenstern untereinander. Keine zusätzlichen
   Balken. Alle Anbieter einzeln zeigen, Details bei Hover und Tastaturfokus.
+  Ein Mausklick auf ein nicht auswählbares Ringsegment zeigt keinen Browser-
+  Standardrahmen; der eigene sichtbare Tastaturfokus für die Detailanzeige bleibt.
+  Im Ringzentrum Label, Betrag und Anteil niemals innerhalb eines Worts oder Betrags
+  umbrechen. Prozentanteile einheitlich mit genau einer Nachkommastelle darstellen.
   Ring und Prozente basieren auf positiven Anbietersalden; negative Salden in der
   Liste benennen und im Gesamtvermögen der Ringmitte weiterhin berücksichtigen.
   Bei fehlenden positiven Salden neutralen leeren Ring mit Hinweis zeigen.
 
+- „Vermögenspositionen“ bleibt eine kompakte Liste ohne zusätzliche Tabellenleiste
+  und ist standardmäßig nach absoluter Betragshöhe absteigend sortiert. Beträge
+  stehen rechtsbündig mit tabellarischen Ziffern; ein fehlender oder exakter
+  Nullsaldo erscheint konsistent als `CHF 0.00` in Sekundärtextfarbe. Kontotypen
+  werden lokalisiert und niemals als interne Schlüssel angezeigt. Ein Stichtag
+  wird nur dargestellt, wenn ein Saldo- oder Bewertungsdatum vorliegt.
+
 - Kategorien: Drei-Punkte-Aktionen pro Zeile; Name und Farbe direkt inline
   bearbeiten, jeweils nur eine Kategorie. Speichern/Abbrechen bleiben in der
-  betroffenen Zeile. Oben nur „Neue Kategorie“. Zusammenführen und Löschen
+  betroffenen Zeile. Oben nur „Neue Kategorie“ als dunkelblaue Hauptaktion.
+  Der kurze Einleitungssatz nutzt auf breiten Ansichten die verfügbare Zeile und
+  wird nicht durch die allgemeine 700-px-Textbreite künstlich umgebrochen; auf
+  schmalen Ansichten bleibt natürlicher Umbruch erlaubt.
+  Kategoriezeilen verwenden einen 8–10 px großen Farbpunkt statt eines Balkens,
+  rund 8 px vertikales Padding und weiterhin eine 44-px-Aktionsfläche.
+  Zusammenführen und Löschen
   öffnen einen Bestätigungsdialog mit Zielkategorie, Buchungs-/Regelanzahlen
   und Erklärung der Wirkung auf zukünftige Importe. Keine stillen Datenverluste.
   Branchenzuordnungen als kompakte Zweispaltenliste: Branche mit Buchungsanzahl
   links, Kategorieauswahl rechts; 8 px vertikaler Zeilenabstand und weiterhin
-  mindestens 44 px hohe Auswahlfelder.
+  mindestens 44 px hohe Auswahlfelder. Die Spalten heißen „Kreditkarten-Kategorie“
+  und „Finanzblick-Kategorie“, damit Quellwert und eigene Zuordnung eindeutig sind.
+  Auf schmalen Ansichten stehen die Zeilen untereinander und die Zielbeschriftung
+  wird direkt über dem Auswahlfeld wiederholt.
 
 - Kategorie-Mehrfachauswahl ohne Checkbox-Kästchen: Nur ausgewählte Zeilen zeigen
   ein Häkchen zusätzlich zum farbigen Hintergrund. Zeilen bleiben ausgerichtet
   und als Buttons mit aria-pressed per Tastatur bedienbar.
   Daneben ein Donut mit den acht größten positiven Kategoriesummen; Rest als
-  „Weitere Kategorien“. Farben und Mehrfachauswahl mit der Liste synchronisieren.
+  „Weitere Kategorien“. Die danebenstehende Hauptliste verwendet dieselbe
+  Gruppierung; „Weitere Kategorien“ ist eine mit Pfeil und `aria-expanded`
+  gekennzeichnete Aufklappzeile. Aufgeklappt erscheinen die gebündelten Kategorien
+  einzeln mit Betrag und Anteil und bleiben für den Buchungs-Drilldown auswählbar.
+  Im Ring bleibt die Restgruppe unabhängig vom Aufklappzustand ein einziges,
+  zusammenhängendes Slate-Segment und übernimmt dessen `aria-expanded`-Zustand.
+  Unterkategorien verwenden 6-px-Farbpunkte; Beträge und Anteile sind tabellarisch
+  ausgerichtet und der Aufklapppfeil hat 8 px Abstand zum nachfolgenden Inhalt.
+  Die kompakten, mindestens 44 px hohen Zeilen
+  zeigen Kategorie und Buchungsanzahl inline mit einem 8-px-Farbpunkt. Kein
+  permanenter Anleitungstext für Klick-, Zieh- oder Shift-Auswahl.
+  Farben und Mehrfachauswahl mit der Liste synchronisieren.
   Negative Nettokategorien nicht als positive Segmente darstellen, sondern erläutern.
   Auf schmalen Fenstern Diagramm über der Liste. Bank und Konto der Auswertung
   sind Mehrfachauswahlen (leere Auswahl = alle); Banken und Konten werden kombiniert.
   Der Saldochart behält seine unabhängigen Einfachfilter.
   „Einnahmen und Ausgaben“ fasst Auswertungsfilter, die drei rahmenlosen Kennzahlen
   und die Kategorie-/Monatsaufteilung in einer gemeinsamen Card zusammen.
+  Einfache Chartfilter und Mehrfachfilter der Auswertung verwenden dieselbe
+  44-px-Feldhöhe, 10-px-Radius und Select-Anmutung; die unterschiedliche Auswahlart
+  bleibt über Beschriftung und Verhalten eindeutig. In der Aufteilung steht zuerst
+  der dominante Typ „Ausgaben/Einnahmen“, danach die dezentere Darstellung
+  „nach Kategorie/nach Monat“. Die beiden Darstellungsoptionen belegen gleich
+  breite Spalten und haben dieselbe Mindesthöhe, unabhängig von Beschriftung und
+  aktivem Zustand. „Typ“ und „Darstellung“ sowie ihre jeweils 44 px hohen Controls
+  beginnen auf derselben horizontalen Linie; unterschiedliche Control-Höhen dürfen
+  die Labels nicht gegeneinander verschieben. Die Differenz ist bei positivem Wert grün und bei
+  negativem Wert rot. Summen- und Auswahlzeilen bleiben neutral statt mintgrün.
+  Der Chart reserviert oben ausreichend Skalenraum für Werte- und Fokuslabels.
   Aufteilung mit dezenter Trennlinie absetzen. Zeitraum und Monatsdurchschnitt
   sind kompakte Zusatzinformationen statt weiterer Cards; keine doppelte Gesamtsumme.
   Der auswahlabhängige Durchschnitt steht bei der Aufteilung, die Auswahlsumme
-  bleibt in deren Statusleiste. Saldochart und Buchungsdetails bleiben separat.
+  bleibt in deren Statusleiste. In der Monatsdarstellung stehen Währungshinweis und
+  Jahreswahl rechts in derselben Zeile wie die Aufteilungscontrols; kein zusätzlicher
+  Einleitungstext. Die Vergleichstabelle verwendet 6–8 px vertikales Zellpadding,
+  kompakte Monatsspalten und kleine Kategorie-Farbpunkte. Leere Monate treten
+  optisch zurück. Hohe Ausgaben, Hover und Auswahl werden neutral in Slate statt
+  positivem Grün gekennzeichnet. Saldochart und Buchungsdetails bleiben separat.
 
 - Unter „Alle Transaktionen“ keinen allgemeinen Banner zu neutralisierten
   Kartenabrechnungen anzeigen; konkrete Hinweise auf ungeklärte Gutschriften bleiben.
   Den Kategorie-Klickhinweis nur an der Kategorieübersicht zeigen, nicht im Seitenkopf.
   Saldoverlauf mit derselben interaktiven TradingView-Komponente wie Vermögen,
   kompakten Zeiträumen (Standard YTD), Lineal, Reset und eigener Kontexthilfe.
+  Im Saldoverlauf beginnt die Zeitraumleiste links ohne vorgelagerten Trennstrich
+  oder zusätzlichen Einzug; die Instrument-Trennung im Vermögenschart bleibt erhalten.
   Bank-/Kontofilter erhalten, keine Benchmarks, Datenbasis- oder Tageswertezähler.
   Zeitraumwahl filtert die Auswertung; Canvas-Zoom und Verschieben ändern sie nicht.
   Saldochart ausschließlich für aktive Privat-/Sparkonten nach gespeichertem
@@ -323,6 +399,10 @@ in `src/styles/application.css`; Feature-Styles verwenden dieselben Farbrollen.
 
 - Alle UI-Texte mit `t`/`tr` und Übersetzungen für Deutsch, Englisch, Französisch
   und Italienisch. Labels auch mit längeren Übersetzungen prüfen.
+- Anmeldung und Wiederherstellung bieten oben rechts eine kompakte Sprachauswahl
+  mit den Eigennamen Deutsch, English, Français und Italiano. Die Auswahl wirkt
+  sofort, wird gerätebezogen außerhalb der Finanzprofile gespeichert und nach dem
+  Entsperren als Sprache des gewählten Profils übernommen.
 - Kurze, konkrete Handlungsaufforderungen statt interner Begriffe wie Flags.
 - Logo-Master: `public/finanzblick.svg`. Header, Favicon und Plattform-Icons
   daraus ableiten; keine abweichenden Inline-Logos neu zeichnen.

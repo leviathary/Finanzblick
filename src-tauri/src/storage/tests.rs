@@ -783,16 +783,29 @@ fn balance_history_only_includes_bank_accounts_even_when_explicitly_selected() {
       INSERT INTO balance_snapshots SELECT id,id,'2020-01-01',id*100,'CHF' FROM accounts;").unwrap();
     let all = transaction_history(&db, &None, None).unwrap();
     assert_eq!(all[0].total_minor, 300);
-    assert_eq!(transaction_history(&db, &None, Some(2)).unwrap()[0].total_minor, 200);
+    assert_eq!(
+        transaction_history(&db, &None, Some(2)).unwrap()[0].total_minor,
+        200
+    );
     for id in 3..=8 {
-        assert!(transaction_history(&db, &None, Some(id)).unwrap().is_empty());
+        assert!(transaction_history(&db, &None, Some(id))
+            .unwrap()
+            .is_empty());
     }
-    assert!(transaction_history(&db, &Some("broker".into()), None).unwrap().is_empty());
-    assert_eq!(db.query_row("SELECT account_type FROM accounts WHERE id=3", [], |r| r.get::<_, String>(0)).unwrap(), "credit_card");
+    assert!(transaction_history(&db, &Some("broker".into()), None)
+        .unwrap()
+        .is_empty());
+    assert_eq!(
+        db.query_row("SELECT account_type FROM accounts WHERE id=3", [], |r| {
+            r.get::<_, String>(0)
+        })
+        .unwrap(),
+        "credit_card"
+    );
 }
 
 #[test]
-fn overlapping_import_inserts_only_new_transaction_occurrences() {
+fn overlapping_import_skips_repeated_balance_backed_rows() {
     let directory =
         std::env::temp_dir().join(format!("finanzblick-overlap-test-{}", std::process::id()));
     fs::create_dir_all(&directory).expect("create overlap test directory");
@@ -819,14 +832,14 @@ fn overlapping_import_inserts_only_new_transaction_occurrences() {
     combined.statement.transactions.push(new_row);
 
     let preview = duplicate_check(&storage.connect().unwrap(), &combined, "different").unwrap();
-    assert_eq!(preview.matching_transactions, 1);
+    assert_eq!(preview.matching_transactions, 2);
     assert_eq!(preview.total_transactions, 3);
 
     let result = save_import_to(&storage, combined).unwrap();
     assert!(!result.duplicate);
-    assert_eq!(result.inserted_transactions, 2);
+    assert_eq!(result.inserted_transactions, 1);
     let connection = storage.connect().unwrap();
-    assert_eq!(count(&connection, "transactions").unwrap(), 3);
+    assert_eq!(count(&connection, "transactions").unwrap(), 2);
     assert_eq!(
             connection
                 .query_row(
@@ -835,7 +848,7 @@ fn overlapping_import_inserts_only_new_transaction_occurrences() {
                     |row| row.get::<_, usize>(0),
                 )
                 .unwrap(),
-            2
+            1
         );
     drop(connection);
     drop(storage);

@@ -1,4 +1,4 @@
-//! Tauri-Eingänge für Anmeldung, Datenbankprofile und Backups; keine SQL- oder Passwortverwaltung.
+//! Tauri-Eingänge für Anmeldung, Anzeigesprache, Datenbankprofile und Backups; keine SQL- oder Passwortverwaltung.
 use crate::storage::database::profiles::DatabaseChoice;
 use crate::storage::database::{AppSettings, Storage, VaultStatus};
 use chrono::Local;
@@ -8,6 +8,11 @@ use tauri::{Manager, State};
 #[tauri::command]
 pub fn vault_status(storage: State<'_, Storage>) -> Result<VaultStatus, String> {
     storage.status()
+}
+
+#[tauri::command]
+pub fn save_display_language(storage: State<'_, Storage>, language: String) -> Result<(), String> {
+    storage.save_display_language(language)
 }
 
 #[tauri::command]

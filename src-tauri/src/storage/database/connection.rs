@@ -1,4 +1,4 @@
-//! Öffnet SQLCipher-Verbindungen mit Sitzungsschutz und verwaltet den Datenbankzugriff.
+//! Öffnet SQLCipher-Verbindungen und verwaltet Sitzungsschutz, Datenbankzugriff und den gerätebezogenen Sprachhinweis.
 use super::handle::Storage;
 use super::profiles as databases;
 use super::schema::initialize_schema;
@@ -12,6 +12,7 @@ use rusqlite::Connection;
 use rusqlite::OpenFlags;
 use serde::Serialize;
 use std::fs;
+use std::io::Write;
 use std::ops::Deref;
 use std::ops::DerefMut;
 use std::path::Path;
@@ -185,6 +186,16 @@ impl Storage {
         })
     }
 
+    pub(crate) fn save_display_language(&self, language: String) -> Result<(), String> {
+        if !["de", "en", "fr", "it"].contains(&language.as_str()) {
+            return Err("Bitte eine gültige Sprache auswählen.".into());
+        }
+        let mut session = self.session.write().map_err(|_| LOCKED.to_string())?;
+        self.write_language_hint(&language)?;
+        session.settings.language = language;
+        Ok(())
+    }
+
     pub(crate) fn unlock(&self, password: String, setup: bool) -> Result<(), String> {
         let password = Zeroizing::new(password);
         if password.len() > 1024 || password.is_empty() {
@@ -217,7 +228,19 @@ impl Storage {
         }
         let db = open(&self.database_path(&session), &password, false)
             .map_err(|_| "Finanzprofil nicht lesbar.")?;
-        session.settings = read_settings(&db)?;
+        let display_language = session.settings.language.clone();
+        let mut settings = read_settings(&db)?;
+        if settings.language != display_language {
+            settings.language = display_language;
+            let json = serde_json::to_string(&settings)
+                .map_err(|_| "Einstellungen konnten nicht gespeichert werden.")?;
+            db.execute(
+                "INSERT INTO app_settings(id,value) VALUES(1,?1) ON CONFLICT(id) DO UPDATE SET value=excluded.value",
+                [json],
+            )
+            .map_err(|_| "Sprache konnte nicht gespeichert werden.")?;
+        }
+        session.settings = settings;
         session.generation = session.generation.wrapping_add(1);
         session.password = Some(password);
         session.activity = Some(SystemTime::now());
@@ -242,22 +265,24 @@ impl Storage {
             .unchecked_transaction()
             .map_err(|_| "Einstellungen konnten nicht gespeichert werden.")?;
         transaction.execute("INSERT INTO app_settings(id,value) VALUES(1,?1) ON CONFLICT(id) DO UPDATE SET value=excluded.value", [json]).map_err(|_| "Einstellungen konnten nicht gespeichert werden.")?;
-        let directory = self.path.parent().ok_or("Speicherort nicht verfügbar.")?;
-        let mut hint = tempfile::NamedTempFile::new_in(directory)
-            .map_err(|_| "Sprache konnte nicht gespeichert werden.")?;
-        use std::io::Write;
-        hint.write_all(settings.language.as_bytes())
-            .map_err(|_| "Sprache konnte nicht gespeichert werden.")?;
-        hint.as_file()
-            .sync_all()
-            .map_err(|_| "Sprache konnte nicht gespeichert werden.")?;
-        hint.persist(directory.join("language"))
-            .map_err(|_| "Sprache konnte nicht gespeichert werden.")?;
+        self.write_language_hint(&settings.language)?;
         transaction
             .commit()
             .map_err(|_| "Einstellungen konnten nicht gespeichert werden.")?;
         session.settings = settings;
         session.activity = Some(SystemTime::now());
+        Ok(())
+    }
+
+    fn write_language_hint(&self, language: &str) -> Result<(), String> {
+        let directory = self.path.parent().ok_or("Speicherort nicht verfügbar.")?;
+        let mut hint = tempfile::NamedTempFile::new_in(directory)
+            .map_err(|_| "Sprache konnte nicht gespeichert werden.")?;
+        hint.write_all(language.as_bytes())
+            .and_then(|_| hint.as_file().sync_all())
+            .map_err(|_| "Sprache konnte nicht gespeichert werden.")?;
+        hint.persist(directory.join("language"))
+            .map_err(|_| "Sprache konnte nicht gespeichert werden.")?;
         Ok(())
     }
 
@@ -638,6 +663,34 @@ mod tests {
         assert!(vault.save_settings(AppSettings::default()).is_err());
         vault.expire_session();
         assert!(vault.session.read().unwrap().password.is_none());
+    }
+
+    #[test]
+    fn display_language_can_be_saved_before_unlocking() {
+        let dir = tempfile::tempdir().unwrap();
+        let vault = locked(dir.path());
+        assert!(vault.save_display_language("xx".into()).is_err());
+        vault.save_display_language("it".into()).unwrap();
+        assert_eq!(
+            fs::read_to_string(dir.path().join("language")).unwrap(),
+            "it"
+        );
+
+        vault.unlock(PASSWORD.into(), true).unwrap();
+        assert_eq!(vault.session.read().unwrap().settings.language, "it");
+        assert_eq!(
+            read_settings(&vault.connect().unwrap()).unwrap().language,
+            "it"
+        );
+
+        vault.lock_session().unwrap();
+        vault.save_display_language("en".into()).unwrap();
+        vault.unlock(PASSWORD.into(), false).unwrap();
+        assert_eq!(vault.session.read().unwrap().settings.language, "en");
+        assert_eq!(
+            read_settings(&vault.connect().unwrap()).unwrap().language,
+            "en"
+        );
     }
 
     #[test]

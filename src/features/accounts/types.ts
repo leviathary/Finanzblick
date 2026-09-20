@@ -14,6 +14,7 @@ export interface Account {
   includeInNetWorth: boolean;
   balanceMinor: number | null;
   balanceDate: string | null;
+  balanceCurrency: string;
   importCount: number;
   manualValuationCount: number;
   manualQuantity: number | null;

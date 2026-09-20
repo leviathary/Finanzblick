@@ -1,7 +1,7 @@
 // Zeigt und analysiert Buchungen mit Zeitfiltern, Kategorien und Einnahmen-/Ausgabenauswertungen.
 import { TransactionTabs } from "./TransactionTabs";
 import { MultiSelect } from "../../shared/MultiSelect";
-import { CategoryDonut } from "./CategoryDonut";
+import { CategoryDonut, splitPositiveCategories } from "./CategoryDonut";
 import { InlineCategoryEditor } from "./InlineCategoryEditor";
 import "./analysis.css";
 
@@ -19,6 +19,7 @@ import { SettlementRuleDialog } from "./SettlementRuleDialog";
 import { reportPeriod } from "../../domain/reportPeriod";
 
 interface Category { key: string; label: string; color: string; amountMinor: number; transactionCount: number }
+interface CategoryBreakdownRow extends Category { keys: string[]; expandable?: boolean; nested?: boolean }
 interface Month { month: string; amountMinor: number }
 interface Transaction { id: number; bookingDate: string; description: string; industry: string | null; amountMinor: number; currency: string; categoryKey: string; categoryLabel: string; categoryColor: string; categorySource: "manual" | "merchant" | "industry" | "description"; provider: string; providerKey: string; accountName: string; excludedFromTotals: boolean; isCardSettlement: boolean; isCard: boolean; isManuallyOverridden: boolean; expenseMinor: number; incomeMinor: number }
 interface Provider { provider: string; providerKey: string }
@@ -40,6 +41,7 @@ export function Transactions() {
   const suppressCategoryClick = useRef(false);
   const categoryAnchor = useRef<string | null>(null);
   const [category, setCategory] = useState<string[]>([]);
+  const [remainingExpanded, setRemainingExpanded] = useState(false);
   const [provider, setProvider] = useState<string[]>([]);
   const [categoryOptions, setCategoryOptions] = useState<{ key: string; label: string }[]>([]);
   useEffect(() => { invoke<{ key: string; label: string }[]>("list_categories").then(setCategoryOptions).catch(() => setError(t("Kategorien konnten nicht geladen werden."))); }, []);
@@ -223,6 +225,22 @@ export function Transactions() {
   const breakdownTotal = detailMode === "income"
     ? data?.totalIncomeMinor ?? 0
     : breakdown.reduce((sum, item) => sum + item.amountMinor, 0);
+  const compactBreakdown = useMemo(() => {
+    const { primary, remaining } = splitPositiveCategories(breakdown);
+    const rows: CategoryBreakdownRow[] = primary.map(item => ({ ...item, keys: [item.key] }));
+    if (remaining.length) rows.push({
+      key: "__remaining",
+      label: t("Weitere Kategorien"),
+      color: "var(--text-secondary)",
+      amountMinor: remaining.reduce((sum, item) => sum + item.amountMinor, 0),
+      transactionCount: remaining.reduce((sum, item) => sum + item.transactionCount, 0),
+      keys: remaining.map(item => item.key),
+      expandable: true,
+    });
+    if (remainingExpanded) rows.push(...remaining.map(item => ({ ...item, keys: [item.key], nested: true })));
+    rows.push(...breakdown.filter(item => item.amountMinor <= 0).map(item => ({ ...item, keys: [item.key] })));
+    return rows;
+  }, [breakdown, remainingExpanded]);
   const selectedCategories = breakdown.filter(item => category.includes(item.key));
   useEffect(() => {
     if (loading || !data) return;
@@ -230,7 +248,9 @@ export function Transactions() {
     setCategory(current => current.every(key => available.has(key)) ? current : current.filter(key => available.has(key)));
   }, [breakdown, loading, data]);
   const selectedCategory = category.length === 1 ? selectedCategories[0] : undefined;
-  const selectionLabel = category.length > 1 ? tr`${category.length} Kategorien ausgewählt` : selectedCategory ? categoryName(selectedCategory.key, selectedCategory.label) : undefined;
+  const remainingGroup = compactBreakdown.find(item => item.key === "__remaining");
+  const remainingSelected = remainingGroup && category.length === remainingGroup.keys.length && remainingGroup.keys.every(key => category.includes(key));
+  const selectionLabel = remainingSelected ? t("Weitere Kategorien") : category.length > 1 ? tr`${category.length} Kategorien ausgewählt` : selectedCategory ? categoryName(selectedCategory.key, selectedCategory.label) : undefined;
   const selectedTotal = category.length ? selectedCategories.reduce((sum, item) => sum + item.amountMinor, 0) : breakdownTotal;
   const averageMonthly = displayedMonths.length ? selectedTotal / displayedMonths.length : 0;
   const fullFrom = [balanceHistory[0]?.date, data?.history[0]?.date, data?.firstDate].filter(Boolean).sort()[0] ?? "";
@@ -240,7 +260,7 @@ export function Transactions() {
     [balanceHistory, from, to],
   );
 
-  useEffect(() => { categoryAnchor.current = null; }, [detailMode, provider, account, from, to]);
+  useEffect(() => { categoryAnchor.current = null; setRemainingExpanded(false); }, [detailMode, provider, account, from, to]);
   useEffect(() => { setMonthlyDrilldown(null); }, [category, detailMode, provider, account, from, to]);
   useEffect(() => {
     function move(event: MouseEvent) {
@@ -275,6 +295,13 @@ export function Transactions() {
       categoryAnchor.current = key;
       setCategory(current => current.includes(key) ? current.filter(item => item !== key) : [...current, key]);
     }
+    setSearch(""); setMinimum("");
+  }
+  function selectCategoryGroup(keys: string[]) {
+    categoryAnchor.current = keys[0] ?? null;
+    setCategory(current => keys.every(key => current.includes(key))
+      ? current.filter(key => !keys.includes(key))
+      : [...new Set([...current, ...keys])]);
     setSearch(""); setMinimum("");
   }
   function showDetails(mode: "income" | "expense") {
@@ -363,11 +390,11 @@ export function Transactions() {
             <label>{t("Bis")}<input type="date" lang={locale()} min={from || fullFrom} max={fullTo} value={to} onChange={event => { setTo(event.target.value); setSelectedPeriod("custom"); }} /></label>
           </div>}
         </div>
-        {balanceLoading ? <p role="status">{t("Bitte warten …")}</p> : balanceError ? <p role="alert" className="error-message">{t(balanceError)}</p> : <InteractiveTimelineChart history={timelineHistory} currency="CHF" controlsContainer={chartControls} ariaLabel={t("Verlauf der Kontosalden")} />}
+        {balanceLoading ? <p role="status">{t("Bitte warten …")}</p> : balanceError ? <p role="alert" className="error-message">{t(balanceError)}</p> : <InteractiveTimelineChart history={timelineHistory} currency="CHF" controlsContainer={chartControls} topScaleMargin={0.2} ariaLabel={t("Verlauf der Kontosalden")} />}
       </article>
       <section className="dashboard-card cashflow-analysis" aria-labelledby="cashflow-analysis-title">
         <h2 id="cashflow-analysis-title">{t("Einnahmen und Ausgaben")}</h2>
-        <div className="transaction-timeline-filters">
+        <div className="transaction-timeline-filters cashflow-filters">
           <MultiSelect label={t("Bank der Auswertung")} allLabel={t("Alle Anbieter")} value={provider} options={data.providers.map(item=>({value:item.providerKey,label:item.provider}))} onChange={next=>{setProvider(next);setAccount(current=>current.filter(id=>accounts.some(item=>String(item.id)===id && (!next.length || next.includes(item.providerKey)))));setCategory([]);}}/>
           <MultiSelect label={t("Konto der Auswertung")} allLabel={t("Alle Konten")} value={account} options={accounts.filter(item=>item.isActive && (!provider.length || provider.includes(item.providerKey))).map(item=>({value:String(item.id),label:`${item.name} · ${item.provider} (${item.currency})`}))} onChange={next=>{setAccount(next);setCategory([]);}}/>
         </div>
@@ -379,44 +406,51 @@ export function Transactions() {
         <div className="cashflow-period"><span>{t("Zeitraum")}: </span><strong>{data.firstDate && data.lastDate ? `${shortDate(data.firstDate)} – ${shortDate(data.lastDate)}` : "–"}</strong></div>
         <div className={`category-analysis cashflow-breakdown ${analysisView === "month" ? "monthly-comparison" : ""}`}>
           <div className="card-heading">
-            <div>
-              <p className="eyebrow">{t("Aufteilung")}</p>
-              <div className="analysis-view-tabs" role="tablist" aria-label={t("Darstellung auswählen")}>
-                <button role="tab" aria-selected={analysisView === "category"} onClick={() => { setAnalysisView("category"); setMonthlyDrilldown(null); }}>{detailMode === "income" ? t("Einnahmen nach Kategorie") : t("Ausgaben nach Kategorie")}</button>
-                <button role="tab" aria-selected={analysisView === "month"} onClick={() => setAnalysisView("month")}>{detailMode === "income" ? t("Einnahmen nach Monat") : t("Ausgaben nach Monat")}</button>
-              </div>
-            </div>
+            <p className="eyebrow">{t("Aufteilung")}</p>
             {category.length > 0 && <button className="secondary-button" onClick={() => { setCategory([]); categoryAnchor.current = null; }}>{t("Auswahl aufheben")}</button>}
           </div>
-          <div className="category-controls">
-            <div className="quick-periods category-mode" role="group" aria-label={t("Aufteilung auswählen")}>{(["expense", "income"] as const).map(mode => <button key={mode} aria-pressed={detailMode === mode} onClick={() => { setDetailMode(mode); setCategory([]); setSearch(""); setMinimum(""); setRowLimit(200); }}>{mode === "income" ? t("Einnahmen") : t("Ausgaben")}</button>)}</div>
+          <div className="breakdown-controls">
+            <div>
+              <span className="analysis-control-label">{t("Typ")}</span>
+              <div className="quick-periods category-mode" role="group" aria-label={t("Aufteilung auswählen")}>{(["expense", "income"] as const).map(mode => <button key={mode} aria-pressed={detailMode === mode} onClick={() => { setDetailMode(mode); setCategory([]); setSearch(""); setMinimum(""); setRowLimit(200); }}>{mode === "income" ? t("Einnahmen") : t("Ausgaben")}</button>)}</div>
+            </div>
+            <div>
+              <span className="analysis-control-label">{t("Darstellung")}</span>
+              <div className="analysis-view-tabs" role="group" aria-label={t("Darstellung auswählen")}>
+                <button aria-pressed={analysisView === "category"} onClick={() => { setAnalysisView("category"); setMonthlyDrilldown(null); }}>{detailMode === "income" ? t("Einnahmen nach Kategorie") : t("Ausgaben nach Kategorie")}</button>
+                <button aria-pressed={analysisView === "month"} onClick={() => setAnalysisView("month")}>{detailMode === "income" ? t("Einnahmen nach Monat") : t("Ausgaben nach Monat")}</button>
+              </div>
+            </div>
+            {analysisView === "month" && <div className="monthly-comparison-options">
+              <span>{t("Alle Beträge in CHF")}</span>
+              <label className="comparison-year-select">{t("Jahr")}
+                <select value={comparisonYear} onChange={event => { setComparisonYear(event.target.value); setMonthlyDrilldown(null); }} disabled={!comparisonYears.length}>
+                  {comparisonYears.length
+                    ? comparisonYears.map(year => <option key={year} value={year}>{year}</option>)
+                    : <option value={comparisonYear}>{comparisonYear}</option>}
+                </select>
+              </label>
+            </div>}
           </div>
           <p className="cashflow-average">{t("Durchschnitt pro Monat")}: <strong>{money(averageMonthly)}</strong> · {displayedMonths.length} {t("Kalendermonate mit Buchungen")}{selectionLabel && <> · {selectionLabel}</>}</p>
           {analysisView === "category" ? <>
             {!breakdown.length && <p className="intro">{t("Keine")} {detailMode === "income" ? t("Einnahmen") : t("Ausgaben")}  {t("für diese Auswahl.")}</p>}
             <div className="category-selection-summary" role="status"><span>{category.length ? selectionLabel : t("Alle Kategorien")} · {visibleTransactions.length}  {t("Buchungen")}</span><strong>{money(selectedTotal)}</strong></div>
-            <p className="intro">{t("Klicken, mit gedrückter linker Maustaste ziehen oder mit Shift-Klick einen Bereich auswählen.")}</p>
             <div className={breakdown.some(item=>item.amountMinor>0) ? "category-breakdown-layout" : "category-breakdown-empty"}>
-            <CategoryDonut categories={breakdown} selected={category} total={breakdownTotal} label={detailMode === "income" ? t("Einnahmen gesamt") : t("Ausgaben gesamt")} onSelect={keys=>setCategory(current=>keys.every(key=>current.includes(key)) ? current.filter(key=>!keys.includes(key)) : [...new Set([...current,...keys])])}/>
-            <div className="category-drilldown category-multiselect">{breakdown.map(item => <button aria-pressed={category.includes(item.key)} className={category.includes(item.key) ? "selected" : ""} key={item.key} data-category-key={item.key} onMouseDown={event => {
+            <CategoryDonut categories={breakdown} selected={category} total={breakdownTotal} label={detailMode === "income" ? t("Einnahmen gesamt") : t("Ausgaben gesamt")} remainingExpanded={remainingExpanded} onSelect={keys => keys.length > 1 ? setRemainingExpanded(current => !current) : selectCategoryGroup(keys)}/>
+            <div className="category-drilldown category-multiselect">{compactBreakdown.map(item => {
+              const selected = item.keys.every(key => category.includes(key));
+              return <button aria-pressed={item.expandable ? undefined : selected} aria-expanded={item.expandable ? remainingExpanded : undefined} className={`${selected && !item.expandable ? "selected " : ""}${item.expandable ? "category-disclosure " : ""}${item.nested ? "subcategory " : ""}`.trim()} key={`${item.key}-${item.nested ? "nested" : "main"}`} data-category-key={!item.expandable && item.keys.length === 1 ? item.keys[0] : undefined} onMouseDown={event => {
               suppressCategoryClick.current = false;
-              if (event.button === 0 && !event.shiftKey) dragSelection.current = { key: item.key, base: category, selecting: !category.includes(item.key) };
-            }} onClick={event => { if (suppressCategoryClick.current && event.detail > 0) { suppressCategoryClick.current = false; return; } selectCategory(item.key, event.shiftKey); }}><span className="category-check" aria-hidden="true">{category.includes(item.key) ? "✓" : ""}</span><span className="category-color" style={{ background: item.color }}/><div><strong>{categoryName(item.key, item.label)}</strong><small>{item.transactionCount}  {t("Buchungen")}</small></div><b>{money(item.amountMinor)}</b><span className="category-share">{breakdownTotal ? `${(item.amountMinor / breakdownTotal * 100).toFixed(1)} %` : "–"}</span></button>)}</div>
+              if (!item.expandable && item.keys.length === 1 && event.button === 0 && !event.shiftKey) dragSelection.current = { key: item.keys[0], base: category, selecting: !selected };
+            }} onClick={event => {
+              if (suppressCategoryClick.current && event.detail > 0) { suppressCategoryClick.current = false; return; }
+              if (item.expandable) setRemainingExpanded(current => !current);
+              else selectCategory(item.keys[0], event.shiftKey);
+            }}><span className={`category-check${item.expandable ? " category-toggle-icon" : ""}`} aria-hidden="true">{item.expandable ? remainingExpanded ? "▾" : "▸" : selected ? "✓" : ""}</span><span className="category-color" style={{ background: item.color }}/><div><strong>{item.key === "__remaining" ? item.label : categoryName(item.key, item.label)}</strong><small> · {item.transactionCount}  {t("Buchungen")}</small></div><b>{money(item.amountMinor)}</b><span className="category-share">{breakdownTotal ? `${(item.amountMinor / breakdownTotal * 100).toFixed(1)} %` : "–"}</span></button>;
+            })}</div>
             </div>
           </> : <>
-            <div className="monthly-comparison-toolbar">
-              <p className="intro">{t("Kategorien im gewählten Jahr vergleichen.")}</p>
-              <div className="monthly-comparison-options">
-                <span>{t("Alle Beträge in CHF")}</span>
-                <label className="comparison-year-select">{t("Jahr")}
-                  <select value={comparisonYear} onChange={event => { setComparisonYear(event.target.value); setMonthlyDrilldown(null); }} disabled={!comparisonYears.length}>
-                    {comparisonYears.length
-                      ? comparisonYears.map(year => <option key={year} value={year}>{year}</option>)
-                      : <option value={comparisonYear}>{comparisonYear}</option>}
-                  </select>
-                </label>
-              </div>
-            </div>
             {comparisonMonths.length ? <div className="monthly-comparison-scroll">
               <table>
                 <thead><tr>
@@ -431,7 +465,7 @@ export function Transactions() {
                       <th scope="row"><span className="category-color" style={{ background: row.color }}/><span>{categoryName(row.key, row.label)}</span></th>
                       {row.months.map((amount, month) => {
                         const selected = monthlyDrilldown?.categoryKey === row.key && monthlyDrilldown.year === comparisonYear && monthlyDrilldown.month === month;
-                        const className = `${month < comparisonMonthRange.start || month > comparisonMonthRange.end ? "outside-range " : ""}${amount > 0 && average > 0 && amount > average * 1.35 ? "high-spend " : ""}${selected ? "selected-month-cell" : ""}`.trim();
+                        const className = `${month < comparisonMonthRange.start || month > comparisonMonthRange.end ? "outside-range " : ""}${!amount ? "empty-month " : ""}${amount > 0 && average > 0 && amount > average * 1.35 ? "high-spend " : ""}${selected ? "selected-month-cell" : ""}`.trim();
                         return <td className={className} key={month}>{amount
                           ? <button className="monthly-value-button" aria-pressed={selected} onClick={() => showMonthlyTransactions(row.key, month)} aria-label={`${categoryName(row.key, row.label)} · ${monthNameLong(month)} ${comparisonYear}: ${money(amount)}`}>{amountNumber(amount)}</button>
                           : "–"}</td>;
@@ -444,7 +478,7 @@ export function Transactions() {
                   <th scope="row">{t("Gesamt")}</th>
                   {comparisonTotals.map((amount, month) => {
                     const selected = monthlyDrilldown?.categoryKey === null && monthlyDrilldown.year === comparisonYear && monthlyDrilldown.month === month;
-                    return <td className={`${month < comparisonMonthRange.start || month > comparisonMonthRange.end ? "outside-range " : ""}${selected ? "selected-month-cell" : ""}`.trim()} key={month}>{amount
+                    return <td className={`${month < comparisonMonthRange.start || month > comparisonMonthRange.end ? "outside-range " : ""}${!amount ? "empty-month " : ""}${selected ? "selected-month-cell" : ""}`.trim()} key={month}>{amount
                       ? <button className="monthly-value-button" aria-pressed={selected} onClick={() => showMonthlyTransactions(null, month)} aria-label={`${t("Gesamt")} · ${monthNameLong(month)} ${comparisonYear}: ${money(amount)}`}>{amountNumber(amount)}</button>
                       : "–"}</td>;
                   })}

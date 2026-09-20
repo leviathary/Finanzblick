@@ -11,7 +11,7 @@ import "./interactiveTimeline.css";
 function timeDate(time: Time) {
   return typeof time === "string" ? time : typeof time === "number" ? new Date(time * 1000).toISOString().slice(0, 10) : `${time.year}-${String(time.month).padStart(2, "0")}-${String(time.day).padStart(2, "0")}`;
 }
-export function InteractiveTimelineChart({ history, currency, controlsContainer, indexed = false, comparison, ariaLabel }: { history: DailyValue[]; currency: string; controlsContainer: HTMLElement | null; indexed?: boolean; comparison?: DailyValue[]; ariaLabel?: string }) {
+export function InteractiveTimelineChart({ history, currency, controlsContainer, indexed = false, comparison, topScaleMargin = 0.12, ariaLabel }: { history: DailyValue[]; currency: string; controlsContainer: HTMLElement | null; indexed?: boolean; comparison?: DailyValue[]; topScaleMargin?: number; ariaLabel?: string }) {
   const comparisonSignature = JSON.stringify(comparison ?? []);
   const signature = JSON.stringify(history);
   const model = useMemo(() => {
@@ -43,7 +43,7 @@ export function InteractiveTimelineChart({ history, currency, controlsContainer,
       autoSize: true,
       layout: { background: { type: ColorType.Solid, color: color("--bg-surface") }, textColor: color("--text-secondary"), fontFamily: styles.fontFamily, fontSize: 12, attributionLogo: false },
       grid: { vertLines: { visible: false }, horzLines: { color: color("--border-subtle") } },
-      rightPriceScale: { borderVisible: false, scaleMargins: { top: 0.12, bottom: 0.12 } },
+      rightPriceScale: { borderVisible: false, scaleMargins: { top: topScaleMargin, bottom: 0.12 } },
       timeScale: { borderVisible: false, minBarSpacing: 0.01, timeVisible: false, rightOffset: 0, fixLeftEdge: true, fixRightEdge: true, lockVisibleTimeRangeOnResize: true },
       crosshair: { mode: CrosshairMode.Normal, vertLine: { labelBackgroundColor: color("--color-primary") }, horzLine: { labelBackgroundColor: color("--color-primary") } },
       localization: { locale: region, priceFormatter: (value: number) => money(value * 100), timeFormatter: (time: Time) => date(timeDate(time)) },
@@ -112,7 +112,7 @@ export function InteractiveTimelineChart({ history, currency, controlsContainer,
     };
     host.addEventListener("mousedown", mouseDown, true);
     return () => { window.removeEventListener("appearance-changed", updateAppearance); stopDragRef.current?.(); host.removeEventListener("mousedown", mouseDown, true); chart.remove(); chartRef.current = null; seriesRef.current = null; };
-  }, [model, currency, region, comparisonSignature, indexed]);
+  }, [model, currency, region, comparisonSignature, indexed, topScaleMargin]);
 
   useEffect(() => {
     const chart = chartRef.current, series = seriesRef.current;

@@ -18,6 +18,16 @@ pub(crate) fn transaction_identity(
     account_id: i64,
     fallback_occurrence: usize,
 ) -> TransactionIdentity {
+    // A running balance identifies the concrete posting position. Repeating the
+    // same non-zero posting with the same resulting balance can only be an
+    // extraction/import duplicate; genuine repeated payments produce different
+    // balances. Formats without a row balance still need an occurrence suffix so
+    // that legitimate identical postings are retained.
+    let stable_occurrence = if row.balance_minor.is_some() && row.amount_minor != 0 {
+        0
+    } else {
+        fallback_occurrence
+    };
     let external_reference = row
         .external_reference
         .as_deref()
@@ -43,7 +53,7 @@ pub(crate) fn transaction_identity(
         canonical_identity_text(row.counterparty_name.as_deref().unwrap_or("")),
         canonical_identity_text(row.remittance_information.as_deref().unwrap_or("")),
         canonical_identity_text(&row.description),
-        fallback_occurrence,
+        stable_occurrence,
     );
     TransactionIdentity {
         namespace,

@@ -8,6 +8,20 @@ import ts from "typescript";
 
 const root = new URL("../", import.meta.url);
 const read = file => fs.readFileSync(new URL(file, root), "utf8");
+test("sidebar prioritizes analysis and separates unlabeled task groups", () => {
+  const app = read("src/App.tsx");
+  const styles = read("src/styles/application.css");
+  const links = ["#overview", "#assets", "#transactions", "#tax-history", "#chat", "#imports", "#banks", "#categories"];
+  const positions = links.map(link => app.indexOf(`href="${link}"`));
+  assert.ok(positions.every(position => position >= 0));
+  assert.deepEqual([...positions].sort((a, b) => a - b), positions);
+  assert.equal((app.match(/className="sidebar-nav-group"/g) ?? []).length, 3);
+  assert.match(app, /className="sidebar-nav-group" role="group" aria-label=\{t\("Analyse"\)\}/);
+  assert.match(app, /className="sidebar-nav-group" role="group" aria-label=\{t\("Weitere Auswertungen und Werkzeuge"\)\}/);
+  assert.match(app, /className="sidebar-nav-group" role="group" aria-label=\{t\("Verwaltung"\)\}/);
+  assert.match(styles, /\.sidebar-nav-group \+ \.sidebar-nav-group\s*\{[^}]*border-top:\s*1px solid var\(--border-subtle\)/s);
+});
+
 test("transfer sorting toggles headers, compares magnitude and preserves source rows", () => {
   const sandbox = { exports: {}, Intl };
   vm.runInNewContext(ts.transpileModule(read("src/features/transactions/transferSorting.ts"), {
@@ -220,9 +234,14 @@ test("market and tax workflows keep SQL and external data access behind their bo
 
 test("positions use a separate component and preserve typed command payloads", async () => {
   const accounts = read("src/features/accounts/Accounts.tsx");
+  const positions = read("src/features/positions/ManualPositions.tsx");
   assert.doesNotMatch(accounts, /setValuation|save_manual_valuation|list_manual_positions/);
   assert.match(accounts, /<ManualPositions\s/);
-  assert.doesNotMatch(read("src/features/positions/ManualPositions.tsx"), /@tauri-apps|\binvoke\s*[<(]/);
+  assert.doesNotMatch(positions, /@tauri-apps|\binvoke\s*[<(]/);
+  assert.match(positions, /className="manual-position-back"/);
+  assert.match(positions, /backButton\.current\?\.focus\(\)/);
+  assert.match(positions, /t\("Zurück zu Banken & Konten"\)/);
+  assert.equal(positions.match(/t\("Abbrechen"\)/g)?.length, 1, "Only the actual position form uses Cancel");
   const calls = [];
   const sandbox = {
     exports: {},
@@ -246,6 +265,32 @@ test("positions use a separate component and preserve typed command payloads", a
     { command: "delete_manual_position", args: { positionId: 9 } },
     { command: "refresh_market_data", args: { force: true } },
   ]);
+});
+
+test("managed accounts use valuation currency, consistent zero values and visible status badges", () => {
+  const accounts = read("src/features/accounts/Accounts.tsx");
+  const types = read("src/features/accounts/types.ts");
+  const styles = read("src/styles/application.css");
+  assert.match(types, /balanceCurrency: string/);
+  assert.match(accounts, /money\(account\.balanceMinor \?\? 0, account\.balanceCurrency\)/);
+  assert.match(accounts, /t\("Nicht im Gesamtvermögen"\)/);
+  assert.match(accounts, /t\("Archiviert"\)/);
+  assert.doesNotMatch(accounts, /accounts-archive-hint|Archivierte Konten bleiben/);
+  assert.doesNotMatch(styles, /\.accounts-archive-hint/);
+  assert.match(styles, /\.managed-account-amount[\s\S]*font-variant-numeric: tabular-nums/);
+  assert.match(styles, /\.managed-account-amount\.zero/);
+  assert.match(styles, /\.account-status-badge/);
+});
+
+test("managed account cards use the compact approved density", () => {
+  const accounts = read("src/features/accounts/Accounts.tsx");
+  const styles = read("src/styles/application.css");
+  assert.match(accounts, /accountMetadata\(account\)/);
+  assert.match(styles, /\.institution-list\s*\{[\s\S]*?gap: 10px/);
+  assert.match(styles, /\.institution-card > header\s*\{[\s\S]*?min-height: 56px/);
+  assert.match(styles, /\.institution-card \.provider-logo\s*\{[\s\S]*?width: 36px;[\s\S]*?height: 36px/);
+  assert.match(styles, /\.managed-account\s*\{[\s\S]*?min-height: 64px/);
+  assert.match(styles, /\.row-action-trigger\s*\{[\s\S]*?min-width: 44px;[\s\S]*?min-height: 44px/);
 });
 
 test("auth and reusable charts belong to their own modules", () => {

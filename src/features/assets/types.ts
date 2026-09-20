@@ -17,6 +17,7 @@ export interface AssetAccount {
   name: string;
   accountType: AccountType;
   currency: string;
+  balanceCurrency: string;
   balanceMinor: number | null;
   balanceDate: string | null;
   logoDataUrl: string | null;

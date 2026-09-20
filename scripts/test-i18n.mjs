@@ -87,12 +87,24 @@ test('anonymized-copy dialog strings are translated and profile actions do not m
 
 test('category inline actions are translated and do not scroll to a distant editor', () => {
   const code = fs.readFileSync(new URL('../src/features/categories/Categories.tsx', import.meta.url), 'utf8');
+  const styles = fs.readFileSync(new URL('../src/styles/application.css', import.meta.url), 'utf8');
+  const categoryStyles = fs.readFileSync(new URL('../src/features/categories/categories.css', import.meta.url), 'utf8');
   for (const match of code.matchAll(/\bt\("([^"]+)"\)/g)) {
     assert.ok(messages[match[1]], match[1]);
   }
   assert.doesNotMatch(code, /window.scrollTo/);
   assert.match(code, /edit===item.key && editor/);
   assert.match(code, /targetKey:target/);
+  assert.match(code, /className="category-create-action"><button type="button"[^>]*className="primary-button"/);
+  assert.match(code, /className="intro category-page-intro"/);
+  assert.match(categoryStyles, /\.category-page-intro\s*\{\s*max-width: none;/);
+  assert.match(styles, /\.managed-category\s*\{[\s\S]*gap: 12px;[\s\S]*padding: 8px 0;/);
+  assert.match(styles, /\.managed-category \.category-color\s*\{[\s\S]*width: 9px;[\s\S]*height: 9px;[\s\S]*border-radius: 50%/);
+  assert.match(styles, /\.transactions-page > \.industry-rules > label\s*\{[\s\S]*grid-template-columns:[\s\S]*padding: 8px 0;/);
+  assert.match(code, /className="industry-rules-header"[\s\S]*t\("Kreditkarten-Kategorie"\)[\s\S]*t\("Finanzblick-Kategorie"\)/);
+  assert.match(code, /aria-label=\{`\$\{t\("Finanzblick-Kategorie"\)\}: \$\{rule\.industry\}`\}/);
+  assert.match(styles, /\.transactions-page > \.industry-rules > label select\s*\{[\s\S]*min-height: 44px/);
+  assert.match(styles, /@media \(max-width: 700px\)[\s\S]*\.industry-rules-header\s*\{[\s\S]*display: none/);
 });
 
 test('financial profile labels are localized consistently', () => {
@@ -107,6 +119,53 @@ test('financial profile labels are localized consistently', () => {
     assert.equal(t('Finanzprofile'), plural);
     assert.equal(t('Neues Finanzprofil'), create);
     assert.equal(t('Mein persönliches Profil'), 'Mein persönliches Profil');
+  }
+  setLanguage('de');
+});
+
+test('tax history summary and chart labels are translated', () => {
+  const code = fs.readFileSync(new URL('../src/features/tax-history/TaxHistory.tsx', import.meta.url), 'utf8');
+  const staticKeys = [
+    ...Array.from(code.matchAll(/\bt\("([^"]+)"\)/g), match => match[1]),
+    ...Array.from(code.matchAll(/label: "([^"]+)"/g), match => match[1]),
+  ];
+  for (const key of staticKeys) {
+    assert.equal(messages[key]?.length, 3, key);
+  }
+  for (const [language, year, years, debt] of [
+    ['en', 'Tax year', 'Tax years', 'Debt'],
+    ['fr', 'Année fiscale', 'Années fiscales', 'Dettes'],
+    ['it', 'Anno fiscale', 'Anni fiscali', 'Debiti'],
+  ]) {
+    setLanguage(language);
+    assert.equal(t('Steuerjahr'), year);
+    assert.equal(t('Steuerjahre'), years);
+    assert.equal(t('Schulden'), debt);
+  }
+  setLanguage('de');
+});
+
+test('manual positions use a localized return action', () => {
+  for (const [language, label] of [
+    ['en', 'Back to banks & accounts'],
+    ['fr', 'Retour aux banques et comptes'],
+    ['it', 'Torna a banche e conti'],
+  ]) {
+    setLanguage(language);
+    assert.equal(t('Zurück zu Banken & Konten'), label);
+  }
+  setLanguage('de');
+});
+
+test('managed account status badges are localized', () => {
+  for (const [language, excluded, archived] of [
+    ['en', 'Excluded from total assets', 'Archived'],
+    ['fr', 'Exclu du patrimoine total', 'Archivé'],
+    ['it', 'Escluso dal patrimonio totale', 'Archiviato'],
+  ]) {
+    setLanguage(language);
+    assert.equal(t('Nicht im Gesamtvermögen'), excluded);
+    assert.equal(t('Archiviert'), archived);
   }
   setLanguage('de');
 });

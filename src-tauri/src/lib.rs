@@ -82,6 +82,7 @@ pub fn run() {
             commands::appearance::save_appearance,
             commands::appearance::show_themed_window,
             commands::database::vault_status,
+            commands::database::save_display_language,
             commands::assistant::prepare_finance_chat,
             commands::assistant::chatgpt_status,
             commands::assistant::chatgpt_login_start,

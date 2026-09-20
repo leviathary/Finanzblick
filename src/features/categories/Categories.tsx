@@ -58,9 +58,9 @@ export function Categories() {
  </form>;
  return <section className="transactions-page">
   <p className="eyebrow">{t("Verwaltung")}</p><h1>{t("Kategorien")}</h1>
-  <p className="intro">{t("Passe Namen und Farben an deine Auswertung an. Eigene Kategorien stehen auch bei den Transaktionen zur Verfügung.")}</p>
+  <p className="intro category-page-intro">{t("Passe Namen und Farben an deine Auswertung an. Eigene Kategorien stehen auch bei den Transaktionen zur Verfügung.")}</p>
   {error && !edit && !creating && !removing && <p className="error-message" role="alert">{t(error)}</p>}{message && <p className="import-result" role="status">{t(message)}</p>}
-  <div className="category-create-action"><button ref={createButton} className="secondary-button" disabled={busy || !!edit || creating} onClick={()=>{origin.current=createButton.current;setCreating(true);setLabel("");setColor("#527b91");setError("");}}>{t("Neue Kategorie")}</button></div>
+  <div className="category-create-action"><button type="button" ref={createButton} className="primary-button" disabled={busy || !!edit || creating} onClick={()=>{origin.current=createButton.current;setCreating(true);setLabel("");setColor("#527b91");setError("");}}>{t("Neue Kategorie")}</button></div>
   {creating && <div className="dashboard-card category-editor">{editor}</div>}
   <dialog ref={dialog} className="settlement-rule-dialog category-removal-dialog" aria-labelledby="category-removal-title" onCancel={event=>{if(busy)event.preventDefault();}} onClose={()=>{setRemoving(null);setError("");origin.current?.focus();}}>
   {removing && <>
@@ -71,7 +71,7 @@ export function Categories() {
    <div className="category-dialog-actions"><button className="secondary-button" disabled={busy} onClick={()=>dialog.current?.close()}>{t("Abbrechen")}</button><button className={operation==="delete" ? "danger-button" : "primary-button"} disabled={busy || !target} onClick={()=>void remove()}>{busy ? t("Bitte warten …") : t("Übernehmen und Kategorie entfernen")}</button></div>
   </>}</dialog>
   <div className="dashboard-card managed-categories">{items.map(item=><div className="managed-category" key={item.key}>
-   <span className="category-color" style={{background:item.color}}/><div><strong>{categoryName(item.key,item.label)}</strong><small>{item.transactionCount} {t("Buchungen ·")} {item.ruleCount} {t("Regeln")}</small></div>
+   <span className="category-color" style={{background:item.color}} aria-hidden="true"/><div><strong>{categoryName(item.key,item.label)}</strong><small>{item.transactionCount} {t("Buchungen ·")} {item.ruleCount} {t("Regeln")}</small></div>
    <details className="category-menu" onToggle={event=>{if(event.currentTarget.open)document.querySelectorAll<HTMLDetailsElement>(".category-menu[open]").forEach(other=>{if(other!==event.currentTarget)other.open=false;});}} onKeyDown={event=>{if(event.key==="Escape"){event.currentTarget.open=false;event.currentTarget.querySelector("summary")?.focus();}}} onBlur={event=>{if(!event.currentTarget.contains(event.relatedTarget as Node))event.currentTarget.open=false;}}>
     <summary aria-label={t("Aktionen")+": "+categoryName(item.key,item.label)}>⋯</summary>
     <div className="category-menu-options">
@@ -82,6 +82,12 @@ export function Categories() {
    </details>
    {edit===item.key && editor}
   </div>)}</div>
-  {industries.length>0 && <div className="dashboard-card industry-rules"><h2>{t("Kartenkäufe automatisch kategorisieren")}</h2><p className="intro">{t("Wähle für jede Branche die passende Ausgabenkategorie – zum Beispiel „Lebensmittel & Haushalt“ für Lebensmittelgeschäfte. Deine Auswahl gilt für bestehende und künftig importierte Kartenkäufe.")}</p><p className="settings-hint">{t("Selbst zugewiesene Kategorien und Regeln für einzelne Händler bleiben erhalten.")}</p>{industries.map(rule=><label key={rule.industry}><span><strong>{rule.industry}</strong><small>{rule.transactionCount} {t("Buchungen")}</small></span><select disabled={busy} value={rule.categoryKey} onChange={event=>void assignIndustry(rule.industry,event.target.value)}>{items.map(item=><option key={item.key} value={item.key}>{categoryName(item.key,item.label)}</option>)}</select></label>)}</div>}
+  {industries.length>0 && <div className="dashboard-card industry-rules">
+   <h2>{t("Kartenkäufe automatisch kategorisieren")}</h2>
+   <p className="intro">{t("Wähle für jede Branche die passende Ausgabenkategorie – zum Beispiel „Lebensmittel & Haushalt“ für Lebensmittelgeschäfte. Deine Auswahl gilt für bestehende und künftig importierte Kartenkäufe.")}</p>
+   <p className="settings-hint">{t("Selbst zugewiesene Kategorien und Regeln für einzelne Händler bleiben erhalten.")}</p>
+   <div className="industry-rules-header" aria-hidden="true"><span>{t("Kreditkarten-Kategorie")}</span><span>{t("Finanzblick-Kategorie")}</span></div>
+   {industries.map(rule=><label key={rule.industry}><span><strong>{rule.industry}</strong><small>{rule.transactionCount} {t("Buchungen")}</small></span><span className="industry-category-control"><span>{t("Finanzblick-Kategorie")}</span><select aria-label={`${t("Finanzblick-Kategorie")}: ${rule.industry}`} disabled={busy} value={rule.categoryKey} onChange={event=>void assignIndustry(rule.industry,event.target.value)}>{items.map(item=><option key={item.key} value={item.key}>{categoryName(item.key,item.label)}</option>)}</select></span></label>)}
+  </div>}
  </section>;
 }

@@ -1,4 +1,6 @@
 {
+"Analyse": ["Analysis","Analyse","Analisi"],
+"Weitere Auswertungen und Werkzeuge": ["Additional analyses and tools","Analyses et outils supplémentaires","Analisi e strumenti aggiuntivi"],
 "Vom Gesamtvermögen ausschließen": ["Exclude from total wealth","Exclure du patrimoine total","Escludi dal patrimonio totale"],
 "Zum Gesamtvermögen zählen": ["Include in total wealth","Inclure dans le patrimoine total","Includi nel patrimonio totale"],
 "Dieses Konto archivieren? Die Historie bleibt erhalten.": ["Archive this account? Its history will be retained.","Archiver ce compte ? Son historique sera conservé.","Archiviare questo conto? La cronologia verrà conservata."],
@@ -18,6 +20,8 @@
 "Bank, Konto und Zeitraum filtern den Saldoverlauf und die Einnahmen-/Ausgabenauswertung. YTD zeigt das laufende Kalenderjahr, Max die gesamte Historie. Unter … kannst du einen eigenen Zeitraum wählen.": ["Bank, account and period filter the balance history and income/expense analysis. YTD shows the current calendar year, Max the entire history. Use … to select a custom period.", "La banque, le compte et la période filtrent l’évolution du solde et l’analyse des revenus et dépenses. YTD affiche l’année civile en cours, Max tout l’historique. Sous …, tu peux choisir une période personnalisée.", "Banca, conto e periodo filtrano l’andamento del saldo e l’analisi di entrate e uscite. YTD mostra l’anno solare corrente, Max l’intera cronologia. Con … puoi scegliere un periodo personalizzato."],
 "Shift + Ziehen misst die Veränderung zwischen zwei Tageswerten. Alternativ aktivierst du das Lineal und klickst Start und Ende an. Die Messung zeigt Betrag, Prozentänderung und Kalendertage.": ["Shift + drag measures the change between two daily values. Alternatively, activate the ruler and click the start and end points. The measurement shows the amount, percentage change and calendar days.", "Maj + glisser mesure la variation entre deux valeurs journalières. Tu peux aussi activer la règle et cliquer sur le début et la fin. La mesure indique le montant, la variation en pourcentage et les jours calendaires.", "Maiusc + trascina misura la variazione tra due valori giornalieri. In alternativa, attiva il righello e fai clic sui punti iniziale e finale. La misura mostra importo, variazione percentuale e giorni di calendario."],
 "Kartenkäufe automatisch kategorisieren": ["Automatically categorize card purchases", "Catégoriser automatiquement les achats par carte", "Categorizza automaticamente gli acquisti con carta"],
+"Kreditkarten-Kategorie": ["Card category", "Catégorie de la carte", "Categoria della carta"],
+"Finanzblick-Kategorie": ["Finanzblick category", "Catégorie Finanzblick", "Categoria Finanzblick"],
 "Wähle für jede Branche die passende Ausgabenkategorie – zum Beispiel „Lebensmittel & Haushalt“ für Lebensmittelgeschäfte. Deine Auswahl gilt für bestehende und künftig importierte Kartenkäufe.": ["Choose the appropriate expense category for each industry – for example, “Groceries & Household” for grocery stores. Your selection applies to existing and future imported card purchases.", "Choisis la catégorie de dépenses adaptée à chaque secteur – par exemple « Alimentation & Ménage » pour les magasins alimentaires. Ton choix s’applique aux achats par carte déjà importés et aux futurs imports.", "Scegli la categoria di spesa adatta a ogni settore – ad esempio « Alimentari & Casa » per i negozi alimentari. La scelta si applica agli acquisti con carta già importati e a quelli importati in futuro."],
 "Selbst zugewiesene Kategorien und Regeln für einzelne Händler bleiben erhalten.": ["Manually assigned categories and rules for individual merchants are preserved.", "Les catégories attribuées manuellement et les règles propres à chaque commerçant sont conservées.", "Le categorie assegnate manualmente e le regole per i singoli esercenti restano invariate."],
 "Kategorie zusammenführen": ["Merge category", "Fusionner la catégorie", "Unisci categoria"],
@@ -373,10 +377,10 @@
     "Ouverture de la démonstration …",
     "Apertura demo …"
   ],
-  "Drei Banken, Aktien und ETF mit acht Jahren simulierter Historie. Jede Demo wird als zusätzliches Finanzprofil angelegt. Passwort: demo1234.": [
-    "Three banks, stocks and an ETF with eight years of simulated history. Each demo creates an additional financial profile. Password: demo1234.",
-    "Trois banques, des actions et un ETF avec huit ans d’historique simulé. Chaque démonstration crée un profil financier supplémentaire. Mot de passe : demo1234.",
-    "Tre banche, azioni e un ETF con otto anni di storico simulato. Ogni demo crea un profilo finanziario aggiuntivo. Password: demo1234."
+  "Drei Banken, ein Mitarbeiteraktienkonto, Aktien und ETF mit acht Jahren simulierter Historie. Jede Demo wird als zusätzliches Finanzprofil angelegt. Passwort: demo1234.": [
+    "Three banks, an employee share account, stocks and an ETF with eight years of simulated history. Each demo creates an additional financial profile. Password: demo1234.",
+    "Trois banques, un compte d’actions du personnel, des actions et un ETF avec huit ans d’historique simulé. Chaque démonstration crée un profil financier supplémentaire. Mot de passe : demo1234.",
+    "Tre banche, un conto azionario per dipendenti, azioni e un ETF con otto anni di storico simulato. Ogni demo crea un profilo finanziario aggiuntivo. Password: demo1234."
   ],
   "Demo – fiktive Daten": [
     "Demo – fictional data",
@@ -547,6 +551,71 @@
     "Close manual entry",
     "Fermer la saisie manuelle",
     "Chiudi inserimento manuale"
+  ],
+  "Steuerjahr": [
+    "Tax year",
+    "Année fiscale",
+    "Anno fiscale"
+  ],
+  "Steuerjahre": [
+    "Tax years",
+    "Années fiscales",
+    "Anni fiscali"
+  ],
+  "Schulden": [
+    "Debt",
+    "Dettes",
+    "Debiti"
+  ],
+  "Lokale Verarbeitung": [
+    "Local processing",
+    "Traitement local",
+    "Elaborazione locale"
+  ],
+  "PDFs werden verarbeitet…": [
+    "Processing PDFs…",
+    "Traitement des PDF…",
+    "Elaborazione dei PDF…"
+  ],
+  "PDFs auswählen": [
+    "Select PDFs",
+    "Sélectionner des PDF",
+    "Seleziona PDF"
+  ],
+  "Jahr aktualisieren": [
+    "Update year",
+    "Mettre à jour l’année",
+    "Aggiorna anno"
+  ],
+  "Jahr speichern": [
+    "Save year",
+    "Enregistrer l’année",
+    "Salva anno"
+  ],
+  "PDF": [
+    "PDF",
+    "PDF",
+    "PDF"
+  ],
+  "PDFs": [
+    "PDFs",
+    "PDF",
+    "PDF"
+  ],
+  "Jahreswerte": [
+    "Annual values",
+    "Valeurs annuelles",
+    "Valori annuali"
+  ],
+  "Vermögenswerte": [
+    "Assets",
+    "Actifs",
+    "Attività"
+  ],
+  "Steuerbares Vermögen": [
+    "Taxable assets",
+    "Patrimoine imposable",
+    "Patrimonio imponibile"
   ],
   "Steuerjahr manuell erfassen": [
     "Enter tax year manually",
@@ -822,6 +891,11 @@
     "Banks & accounts",
     "Banques et comptes",
     "Banche e conti"
+  ],
+  "Zurück zu Banken & Konten": [
+    "Back to banks & accounts",
+    "Retour aux banques et comptes",
+    "Torna a banche e conti"
   ],
   "Vermögen": [
     "Assets",
@@ -1377,6 +1451,16 @@
     " · Excluded from assets",
     " · Exclu du patrimoine",
     " · Escluso dal patrimonio"
+  ],
+  "Nicht im Gesamtvermögen": [
+    "Excluded from total assets",
+    "Exclu du patrimoine total",
+    "Escluso dal patrimonio totale"
+  ],
+  "Archiviert": [
+    "Archived",
+    "Archivé",
+    "Archiviato"
   ],
   "z. B. Sparkonto": [
     "e.g. savings account",

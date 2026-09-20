@@ -33,10 +33,12 @@ export function typeLabel(value: string) {
     (
       {
         cash: "Konto",
+        checking: "Privatkonto",
         savings: "Sparkonto",
         portfolio: "Depot",
         pillar3a: "Vorsorgekonto",
         mortgage: "Hypothek",
+        credit_card: "Kreditkarte",
         manual_asset: "Manuell verwaltete Position",
       } as Record<string, string>
     )[value] ?? value,

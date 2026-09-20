@@ -100,13 +100,61 @@ test("category donut and multi-select expose translated keyboard-accessible cont
   for (const code of [donut, multi]) {
     for (const [, key] of code.matchAll(/\bt\("([^"]+)"\)/g)) assert.equal(messages[key]?.length, 3, key);
   }
-  assert.ok(donut.includes("positive.slice(0,8)"));
-  assert.ok(donut.includes("positive.slice(8)"));
+  assert.ok(donut.includes("primary: positive.slice(0,8)"));
+  assert.ok(donut.includes("remaining: positive.slice(8)"));
   assert.ok(donut.includes("item.amountMinor > 0"));
   const shared = await readFile(new URL("../src/shared/charts/DistributionDonut.tsx", import.meta.url), "utf8");
+  const sharedStyles = await readFile(new URL("../src/shared/charts/distributionDonut.css", import.meta.url), "utf8");
   assert.ok(shared.includes('role={onSelect ? "button" : "img"} tabIndex={0}'));
+  assert.ok(sharedStyles.includes("circle:focus { outline: none; }"));
+  assert.ok(sharedStyles.includes("circle:focus-visible"));
   assert.ok(multi.includes('type="checkbox"'));
   assert.ok(multi.includes('event.key === "Escape"'));
+});
+
+test("cashflow analysis uses consistent filters, semantic totals and hierarchical breakdown controls", async () => {
+  const transactions = await readFile(new URL("../src/features/transactions/Transactions.tsx", import.meta.url), "utf8");
+  const donut = await readFile(new URL("../src/features/transactions/CategoryDonut.tsx", import.meta.url), "utf8");
+  const shared = await readFile(new URL("../src/shared/charts/DistributionDonut.tsx", import.meta.url), "utf8");
+  const chart = await readFile(new URL("../src/shared/charts/InteractiveTimelineChart.tsx", import.meta.url), "utf8");
+  const application = await readFile(new URL("../src/styles/application.css", import.meta.url), "utf8");
+  const management = await readFile(new URL("../src/styles/management.css", import.meta.url), "utf8");
+  assert.match(transactions, /totalIncomeMinor >= data\.totalSpendMinor \? "income-value" : "deficit-value"/);
+  assert.match(transactions, /className="breakdown-controls"[\s\S]*t\("Typ"\)[\s\S]*className="analysis-view-tabs"/);
+  assert.match(transactions, /analysis-view-tabs" role="group"[\s\S]*aria-pressed=\{analysisView === "category"\}/);
+  assert.match(transactions, /topScaleMargin=\{0\.2\}/);
+  assert.match(chart, /topScaleMargin = 0\.12[\s\S]*scaleMargins: \{ top: topScaleMargin, bottom: 0\.12 \}/);
+  assert.match(application, /\.transaction-timeline-filters select[\s\S]*min-height: 44px[\s\S]*border-radius: 10px/);
+  assert.match(application, /\.deficit-value\s*\{\s*color: var\(--text-negative\)/);
+  assert.match(application, /\.category-selection-summary[\s\S]*background: var\(--bg-muted\)[\s\S]*color: var\(--text-primary\)/);
+  assert.match(management, /\.analysis-view-tabs button\[aria-pressed="true"\][\s\S]*background: var\(--bg-surface\)/);
+  assert.match(management, /\.analysis-view-tabs\s*\{[\s\S]*grid-template-columns: repeat\(2, minmax\(0, 1fr\)\)[\s\S]*width: min\(100%, 400px\)/);
+  assert.match(management, /\.analysis-view-tabs button\s*\{[\s\S]*min-height: 44px/);
+  assert.match(application, /\.breakdown-controls\s*\{[\s\S]*align-items: start/);
+  assert.match(application, /\.breakdown-controls \.category-mode button\s*\{[\s\S]*min-height: 44px/);
+  assert.doesNotMatch(transactions, /Kategorien im gewählten Jahr vergleichen/);
+  assert.match(transactions, /className="breakdown-controls"[\s\S]*className="monthly-comparison-options"/);
+  assert.match(transactions, /!amount \? "empty-month/);
+  assert.match(management, /\.monthly-comparison th,[\s\S]*padding: 7px 8px/);
+  assert.match(management, /\.monthly-comparison td\.high-spend\s*\{[\s\S]*background: var\(--bg-hover\)[\s\S]*color: var\(--text-primary\)/);
+  assert.match(management, /\.monthly-comparison td\.selected-month-cell\s*\{[\s\S]*box-shadow: inset 0 0 0 2px var\(--interactive\)/);
+  assert.doesNotMatch(transactions, /Klicken, mit gedrückter linker Maustaste ziehen/);
+  assert.match(transactions, /compactBreakdown\.map/);
+  assert.match(transactions, /key: "__remaining"[\s\S]*keys: remaining\.map/);
+  assert.match(transactions, /keys\.length > 1 \? setRemainingExpanded/);
+  assert.match(transactions, /aria-expanded=\{item\.expandable \? remainingExpanded/);
+  assert.match(transactions, /item\.expandable \? remainingExpanded \? "▾" : "▸"/);
+  assert.match(transactions, /remainingExpanded[\s\S]*nested: true/);
+  assert.match(transactions, /remainingExpanded=\{remainingExpanded\}/);
+  assert.match(donut, /buildCategoryDonutSegments/);
+  assert.match(donut, /segments\.push\(\{key:"__remaining"[\s\S]*amountMinor:remaining\.reduce[\s\S]*expanded:remainingExpanded/);
+  assert.match(shared, /aria-expanded=\{expandable \? item\.expanded : undefined\}/);
+  assert.match(application, /\.category-drilldown\s*\{[\s\S]*gap: 2px[\s\S]*margin-top: 8px/);
+  assert.match(application, /\.category-multiselect button\s*\{[\s\S]*grid-template-columns: 18px 8px/);
+  assert.match(application, /\.category-multiselect button\.subcategory\s*\{[\s\S]*padding-left: 28px/);
+  assert.match(application, /\.category-multiselect button\.subcategory \.category-color\s*\{[\s\S]*width: 6px;[\s\S]*height: 6px/);
+  assert.match(application, /\.category-drilldown b,[\s\S]*\.category-share\s*\{[\s\S]*font-variant-numeric: tabular-nums/);
+  assert.match(application, /\.category-disclosure \.category-toggle-icon\s*\{[\s\S]*margin-right: 8px/);
 });
 
 test("drilldown category changes require explicit inline save", async () => {
@@ -134,4 +182,36 @@ test("provider allocation shares donut, excludes negative slices and translates 
   assert.ok(code.includes("total={total}"));
   assert.ok(!overview.includes('className="provider-bar"'));
   for (const [, key] of code.matchAll(/\bt\("([^"]+)"\)/g)) assert.equal(messages[key]?.length, 3, key);
+});
+
+test("wealth breakdowns use shared donuts, provider logos and CHF valuation currency", async () => {
+  const breakdown = await readFile(new URL("../src/features/assets/BreakdownCard.tsx", import.meta.url), "utf8");
+  const assets = await readFile(new URL("../src/features/assets/Assets.tsx", import.meta.url), "utf8");
+  const layout = await readFile(new URL("../src/styles/application.css", import.meta.url), "utf8");
+  const donutStyles = await readFile(new URL("../src/shared/charts/distributionDonut.css", import.meta.url), "utf8");
+  const colors = await readFile(new URL("../src/shared/charts/distributionColors.ts", import.meta.url), "utf8");
+  const messages = JSON.parse(await readFile(new URL("../src/translations.json", import.meta.url), "utf8"));
+  assert.ok(breakdown.includes("<DistributionDonut"));
+  assert.ok(breakdown.includes("<ProviderLogo"));
+  assert.ok(breakdown.includes('variant === "category" ? 8 : positive.length'));
+  assert.ok(breakdown.includes("minimumFractionDigits: 1"));
+  assert.ok(!breakdown.includes("breakdown-bar"));
+  assert.ok(assets.includes("account.balanceCurrency"));
+  assert.ok(layout.includes("grid-template-columns: minmax(185px, 0.8fr) minmax(220px, 1.2fr)"));
+  assert.ok(layout.includes("@container (max-width: 420px)"));
+  assert.ok(donutStyles.includes("white-space: nowrap"));
+  assert.ok(colors.includes("--chart-distribution-3"));
+  for (const [, key] of breakdown.matchAll(/\bt\("([^"]+)"\)/g)) assert.equal(messages[key]?.length, 3, key);
+});
+
+test("wealth positions sort by absolute value and present zero balances consistently", async () => {
+  const assets = await readFile(new URL("../src/features/assets/Assets.tsx", import.meta.url), "utf8");
+  const presentation = await readFile(new URL("../src/features/assets/presentation.ts", import.meta.url), "utf8");
+  const styles = await readFile(new URL("../src/styles/application.css", import.meta.url), "utf8");
+  assert.ok(assets.includes("Math.abs(right.balanceMinor ?? 0) - Math.abs(left.balanceMinor ?? 0)"));
+  assert.ok(assets.includes("sortedAccounts.map"));
+  assert.ok(assets.includes("money(account.balanceMinor ?? 0, account.balanceCurrency)"));
+  assert.ok(presentation.includes('credit_card: "Kreditkarte"'));
+  assert.ok(styles.includes(".asset-account-amount.zero"));
+  assert.ok(styles.includes("font-variant-numeric: tabular-nums"));
 });

@@ -13,6 +13,15 @@ import { ManualPositions } from "../positions/ManualPositions";
 import { AccountEditor } from "./AccountEditor";
 import { accountTypes, supportsManualValuation, typeLabel, money } from "./presentation";
 
+function accountMetadata(account: Account) {
+  const activity = supportsManualValuation(account.accountType)
+    ? `${account.manualValuationCount} ${account.manualValuationCount === 1 ? t("Position") : t("Positionen")}${account.manualQuantity !== null && account.manualUnitPriceMinor !== null ? ` · ${account.manualQuantity.toLocaleString(locale())} ${t("Einheiten")} × ${money(account.manualUnitPriceMinor, account.manualQuoteCurrency ?? account.currency)}` : ""}`
+    : `${account.importCount} ${account.importCount === 1 ? t("Import") : t("Importe")}`;
+  return [typeLabel(account.accountType), account.externalReference, activity]
+    .filter(Boolean)
+    .join(" · ");
+}
+
 export function Accounts() {
   const { settings } = useSettings();
   const [accounts, setAccounts] = useState<Account[]>([]);
@@ -235,11 +244,6 @@ export function Accounts() {
               "Verwalte deine Bankbeziehungen und bestimme, welche Konten zum Gesamtvermögen zählen.",
             )}
           </p>
-          <p className="accounts-archive-hint">
-            {t(
-              "Archivierte Konten bleiben mit ihrer Historie erhalten, erscheinen aber nicht mehr als aktive Konten. Konten ohne Importe können endgültig gelöscht werden.",
-            )}
-          </p>
         </div>
         <button className="primary-button" onClick={() => setShowCreate(true)}>
           {t("Konto hinzufügen")}
@@ -413,7 +417,7 @@ export function Accounts() {
                 <div>
                   <h2>{group.name}</h2>
                   <small>
-                    {group.accounts.length}{" "}
+                    · {group.accounts.length}{" "}
                     {group.accounts.length === 1 ? t("Konto") : t("Konten")}
                   </small>
                 </div>
@@ -425,23 +429,19 @@ export function Accounts() {
                 >
                   <div>
                     <strong>{account.name}</strong>
-                    <small>
-                      {typeLabel(account.accountType)}
-                      {account.externalReference
-                        ? ` · ${account.externalReference}`
-                        : ""}
-                    </small>
-                    <span>
-                      {supportsManualValuation(account.accountType)
-                        ? `${account.manualValuationCount} ${account.manualValuationCount === 1 ? t("Position") : t("Positionen")}${account.manualQuantity !== null && account.manualUnitPriceMinor !== null ? ` · ${account.manualQuantity.toLocaleString(locale())} ${t("Einheiten")} × ${money(account.manualUnitPriceMinor, account.manualQuoteCurrency ?? account.currency)}` : ""}`
-                        : `${account.importCount} ${account.importCount === 1 ? t("Import") : t("Importe")}`}
-                      {!account.includeInNetWorth
-                        ? t(" · Nicht im Vermögen")
-                        : ""}
-                      {!account.isActive ? t(" · Archiviert") : ""}
-                    </span>
+                    <div className="managed-account-meta">
+                      <span>{accountMetadata(account)}</span>
+                      {!account.includeInNetWorth && (
+                        <span className="account-status-badge">{t("Nicht im Gesamtvermögen")}</span>
+                      )}
+                      {!account.isActive && (
+                        <span className="account-status-badge">{t("Archiviert")}</span>
+                      )}
+                    </div>
                   </div>
-                  <b>{money(account.balanceMinor, account.currency)}</b>
+                  <b className={`managed-account-amount${account.balanceMinor === null || account.balanceMinor === 0 ? " zero" : ""}`}>
+                    {money(account.balanceMinor ?? 0, account.balanceCurrency)}
+                  </b>
                   <ActionMenu label={t("Aktionen") + ": " + account.name} disabled={saving} actions={[
                     { label: t("Bearbeiten"), onClick: () => setEditing({ ...account }) },
                     { label: account.includeInNetWorth ? t("Vom Gesamtvermögen ausschließen") : t("Zum Gesamtvermögen zählen"), onClick: () => void toggle(account, "includeInNetWorth") },
