@@ -44,12 +44,12 @@ sind noch nicht getestet.
 
 ## Einblick
 
-Die Screenshots zeigen die Oberfläche von Version 0.5.10 mit ausschliesslich
+Die Übersicht zeigt Version 0.6.0, die weiteren Screenshots Version 0.5.10 – mit ausschliesslich
 fiktiven Beispieldaten. Konten, Anbieter und Kursverläufe sind erfunden.
 
 ### Vermögensübersicht
 
-![Vermögensübersicht mit Konten und Anbietern](docs/screenshots/uebersicht-light-0.5.10.png)
+![Vermögensübersicht mit Donut zur Anbieterverteilung und Kontosalden](docs/screenshots/uebersicht-light-0.6.0.png)
 
 ### Interaktive Vermögensentwicklung
 

@@ -43,13 +43,13 @@ fresh installation after downloading from GitHub have not yet been tested.
 
 ## Screenshots
 
-These screenshots show version 0.5.10 with fictional sample data.
+The overview shows version 0.6.0; the other screenshots show version 0.5.10, all with fictional sample data.
 Accounts, providers and price histories are invented. The screenshots use the
 German interface; English, French and Italian are also available in the app.
 
 ### Net worth overview
 
-![Net worth overview with accounts and providers](docs/screenshots/uebersicht-light-0.5.10.png)
+![Net worth overview with provider allocation donut and account balances](docs/screenshots/uebersicht-light-0.6.0.png)
 
 ### Interactive net worth history
 
