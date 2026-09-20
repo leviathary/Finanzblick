@@ -25,6 +25,8 @@ pub struct CurrencyBalance {
 
 const MAX_FILE_SIZE: u64 = 25 * 1024 * 1024;
 type ParsedPdfRows = (Vec<ParsedTransaction>, Option<i64>, Option<i64>);
+pub(crate) const CARD_PURCHASE_REFERENCE_NAMESPACE: &str = "credit-card-purchase";
+pub(crate) const PROVISIONAL_CARD_TRANSACTION_KIND: &str = "provisional_card_transaction";
 
 /// Column aliases are owned by a provider importer; the Excel reader only
 /// applies the selected provider's mapping to the workbook.
@@ -189,6 +191,10 @@ pub use pipeline::parse_statement;
 
 pub(crate) fn card_credit_hint(provider: &str, description: &str) -> Option<&'static str> {
     providers::by_id(provider).and_then(|p| p.card_credit_kind(description))
+}
+
+fn supports_provisional_card_csv(provider: &str) -> bool {
+    providers::by_id(provider).is_some_and(|provider| provider.supports_provisional_card_csv())
 }
 
 fn detect_provider_in_cells(rows: &[&[Data]]) -> &'static str {

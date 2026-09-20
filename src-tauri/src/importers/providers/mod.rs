@@ -15,6 +15,9 @@ mod zkb;
 pub(super) trait ProviderImporter: Sync {
     fn id(&self) -> &'static str;
     fn aliases(&self) -> &'static [&'static str];
+    fn supports_provisional_card_csv(&self) -> bool {
+        false
+    }
     fn card_credit_kind(&self, _description: &str) -> Option<&'static str> {
         None
     }
@@ -50,12 +53,19 @@ pub(super) fn by_id(id: &str) -> Option<&'static dyn ProviderImporter> {
 
 pub(super) fn detect(value: &str) -> Option<&'static dyn ProviderImporter> {
     let normalized = super::normalized(value);
-    PROVIDERS.iter().copied().find(|provider| {
-        provider
-            .aliases()
-            .iter()
-            .any(|alias| normalized.contains(&super::normalized(alias)))
-    })
+    PROVIDERS
+        .iter()
+        .copied()
+        .filter_map(|provider| {
+            provider
+                .aliases()
+                .iter()
+                .filter_map(|alias| normalized.find(&super::normalized(alias)))
+                .min()
+                .map(|position| (position, provider))
+        })
+        .min_by_key(|(position, _)| *position)
+        .map(|(_, provider)| provider)
 }
 
 #[cfg(test)]
@@ -64,6 +74,7 @@ mod tests {
     #[test]
     fn ubs_credit_labels_are_narrow_and_provider_owned() {
         let ubs = by_id("ubs").unwrap();
+        assert!(ubs.supports_provisional_card_csv());
         assert_eq!(
             ubs.card_credit_kind("2002 LSV-ZAHLUNG · Einkauf: 01.01.2026"),
             Some("card_settlement")
@@ -83,6 +94,7 @@ mod tests {
                 .card_credit_kind("2002 LSV-ZAHLUNG"),
             None
         );
+        assert!(!by_id("swissquote").unwrap().supports_provisional_card_csv());
     }
 
     #[test]
@@ -91,6 +103,12 @@ mod tests {
             assert_eq!(by_id(provider.id()).unwrap().id(), provider.id());
         }
         assert_eq!(detect("UBS Switzerland AG").unwrap().id(), "ubs");
+        assert_eq!(
+            detect("UBS Privatkonto CHF\nBuchungen\nZKB ZUERICH ZOO")
+                .unwrap()
+                .id(),
+            "ubs"
+        );
         assert_eq!(detect("Migros Bank AG").unwrap().id(), "migros");
         assert_eq!(detect("Zürcher Kantonalbank").unwrap().id(), "zkb");
     }

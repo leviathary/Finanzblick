@@ -107,6 +107,31 @@ vorgesehene Kontozuordnung. Vorlagen existieren unter anderem für UBS inklusive
 Mastercard, Swissquote, Migros Bank, Raiffeisen und Generali. Andere tabellarische
 Dateien lassen sich über eine Spaltenzuordnung einlesen.
 
+Enthält ein Auszug eine IBAN oder Kontoreferenz, ordnet Finanzblick ihn nur einem
+aktiven Konto mit derselben hinterlegten Kennung zu. Bei einer fehlenden oder
+abweichenden Kennung bleibt der Import gesperrt, bis die Kontodaten unter
+**Banken & Konten** korrigiert wurden. Nur Auszüge ohne Kontokennung werden über
+Anbieter, Währung und Kontotyp zugeordnet.
+
+### Datenschutz beim Import
+
+Bankauszüge, Kreditkartenabrechnungen und Steuererklärungen werden ausschliesslich
+lokal auf deinem Gerät verarbeitet. Die Importdateien werden weder hochgeladen
+noch an Finanzblick oder Dritte übertragen.
+
+Finanzblick kopiert die Quelldokumente nicht in dein Finanzprofil. Nach der Analyse
+werden die eingelesenen Dateiinhalte aus dem Arbeitsspeicher verworfen; die App
+benötigt die Dokumente danach nicht mehr. Deine Originaldateien bleiben an ihrem
+bisherigen Speicherort und werden weder verändert noch gelöscht.
+
+Gespeichert werden nur die von dir bestätigten Finanzdaten, der Dateiname und ein
+technischer Fingerabdruck zur Duplikaterkennung. Diese Informationen liegen
+verschlüsselt in deinem lokalen Finanzprofil.
+
+> Nur wenn du im Finanzchat ausdrücklich ein Datenpaket freigibst, werden die darin
+> angezeigten Informationen an den gewählten Chat-Dienst übertragen. Die
+> ursprünglichen Importdokumente gehören nicht zu diesem Datenpaket.
+
 ### Einen oder mehrere Auszüge importieren
 
 1. Öffne **Import → Dateien importieren → Bankauszüge**.
@@ -134,6 +159,20 @@ werden bei späteren Prüfungen nicht erneut angezeigt; entfernte Dubletten blei
 > **Vor dem Import prüfen:** Achte besonders auf Zielkonto, Währung, Vorzeichen
 > und Datumsformat. Ein erfolgreicher Import ersetzt keine fachliche Kontrolle.
 
+### Offene Kreditkartenmonate
+
+Noch nicht abgerechnete Kartenkäufe in der Kontowährung können bereits importiert
+werden. Finanzblick verwendet dafür vorläufig das Einkaufsdatum und den
+Originalbetrag und zeigt in der Vorschau einen Warnhinweis. Der spätere
+Abrechnungsbetrag oder das endgültige Buchungsdatum kann davon abweichen.
+
+Offene Fremdwährungsbuchungen ohne abgerechneten Betrag werden nicht automatisch
+umgerechnet. Importiere sie erst, wenn der Kartenanbieter den endgültigen Betrag
+in der Kontowährung ausweist. Spätere vollständige Jahres- oder Monatsauszüge
+dürfen sich überlappen: Finanzblick erkennt zuvor offene Kartenkäufe wieder und
+ersetzt Einkaufsdatum und Originalbetrag automatisch durch die endgültigen
+Abrechnungsdaten, statt eine zweite Buchung anzulegen.
+
 **Screenshot:** `import-review.png` – Importliste mit geöffneter Vorschau und
 Kontozuordnung.
 
@@ -153,13 +192,17 @@ verstanden hast; der Bestätigungsdialog beschreibt die konkrete Wirkung.
 
 ## 5. Banken & Konten
 
-### Ein Konto hinzufügen
+### Eine Bank und ihre Konten hinzufügen
 
 1. Öffne **Banken & Konten**.
-2. Wähle **Konto hinzufügen**.
-3. Erfasse Anbieter, Kontoname, Kontotyp und Währung.
-4. Lege fest, ob das Konto zum Gesamtvermögen zählt.
-5. Speichere das Konto.
+2. Wähle **Bank oder Anbieter hinzufügen** und erfasse Name sowie Anbietertyp.
+3. Öffne anschließend das Drei-Punkte-Menü der neuen Anbietergruppe.
+4. Wähle **Konto hinzufügen** und erfasse Kontoname, Kontotyp und Währung.
+5. Lege fest, ob das Konto zum Gesamtvermögen zählt, und speichere es.
+
+Name, Typ und Logo werden zentral über das Drei-Punkte-Menü im Kopf der
+Anbietergruppe bearbeitet. Die Änderung gilt für alle zugehörigen Konten. Über
+dieses Menü kannst du außerdem direkt ein weiteres Konto beim Anbieter anlegen.
 
 Konten desselben Anbieters werden gemeinsam gruppiert. Ein Konto mit dem Hinweis
 **Nicht im Gesamtvermögen** bleibt sichtbar, wird aber in den Vermögenssummen nicht
@@ -249,7 +292,10 @@ Auswertung von Einnahmen und Ausgaben.
 3. Wechsle zwischen der Darstellung **nach Kategorie** und **nach Monat**.
 4. Klicke auf eine Kategorie oder einen Monatswert, um die zugehörigen Buchungen
    zu öffnen.
-5. Suche oder sortiere im Drilldown nach Datum, Beschreibung, Konto oder Betrag.
+5. Ziehe in der Monatsmatrix mit gedrückter linker Maustaste über mehrere Zellen,
+   um die Summe der ausgewählten Beträge anzuzeigen. Halte **Strg** (Windows)
+   oder **Cmd** (macOS) gedrückt, um weitere Zellen und Bereiche hinzuzufügen.
+6. Suche oder sortiere im Drilldown nach Datum, Beschreibung, Konto oder Betrag.
 
 **Weitere Kategorien** bündelt kleinere Kategorien im Donut. Öffne die Zeile, um
 Einzelwerte wie **Digitale Abos** zu sehen und auszuwählen.

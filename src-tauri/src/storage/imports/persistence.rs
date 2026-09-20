@@ -1,5 +1,6 @@
 //! Speichert freigegebene Importe, Buchungen und Salden gemeinsam.
 use super::deduplication::{suspected_duplicates, transaction_indices_to_insert};
+use crate::importers::{CARD_PURCHASE_REFERENCE_NAMESPACE, PROVISIONAL_CARD_TRANSACTION_KIND};
 use crate::storage::banking::cards;
 use crate::storage::database::errors::db_error;
 use crate::storage::database::Storage;
@@ -37,6 +38,7 @@ pub(crate) fn save_import_to(
             import_id,
             account_id,
             inserted_transactions: count as usize,
+            updated_transactions: 0,
             duplicate: true,
         });
     }
@@ -110,14 +112,19 @@ pub(crate) fn save_import_to(
             if !valid {
                 return Err(format!("Das gewählte {currency}-Konto passt nicht zu Anbieter, Kontotyp oder Währung oder ist archiviert."));
             }
+            validate_account_reference(
+                &transaction,
+                id,
+                request.statement.account_reference.as_deref(),
+            )?;
             account_ids.insert(currency, id);
             continue;
         }
         transaction
         .execute(
-            "INSERT OR IGNORE INTO accounts(institution_id, name, account_type, currency, created_at)
-             VALUES (?1, ?2, ?3, ?4, ?5)",
-            params![institution_id, request.account_name.trim(), account_type, currency, now],
+            "INSERT OR IGNORE INTO accounts(institution_id, name, account_type, currency, created_at, external_reference)
+             VALUES (?1, ?2, ?3, ?4, ?5, ?6)",
+            params![institution_id, request.account_name.trim(), account_type, currency, now, request.statement.account_reference.as_deref()],
         )
         .map_err(db_error)?;
         let account_id: i64 = transaction
@@ -127,9 +134,16 @@ pub(crate) fn save_import_to(
                 |row| row.get(0),
             )
             .map_err(db_error)?;
+        validate_account_reference(
+            &transaction,
+            account_id,
+            request.statement.account_reference.as_deref(),
+        )?;
         account_ids.insert(currency, account_id);
     }
     let account_id = account_ids[currency];
+    let updated_transactions =
+        reconcile_provisional_card_transactions(&transaction, &request, &account_ids)?;
     let transaction_indices = transaction_indices_to_insert(&transaction, &request, &account_ids)?;
     let suspected =
         suspected_duplicates(&transaction, &request, &account_ids, &transaction_indices)?;
@@ -168,8 +182,14 @@ pub(crate) fn save_import_to(
         .file_name()
         .and_then(|name| name.to_str())
         .unwrap_or("Import");
+    let mut import_warnings = request.statement.warnings.clone();
+    if updated_transactions > 0 {
+        import_warnings.push(format!(
+            "{updated_transactions} vorläufige Kreditkartenbuchungen wurden mit den endgültigen Abrechnungsdaten aktualisiert."
+        ));
+    }
     let warnings_json =
-        serde_json::to_string(&request.statement.warnings).map_err(|error| error.to_string())?;
+        serde_json::to_string(&import_warnings).map_err(|error| error.to_string())?;
     transaction
         .execute(
             "INSERT INTO import_runs(account_id, source_name, source_format, source_hash, imported_at, transaction_count, warnings_json)
@@ -341,8 +361,129 @@ pub(crate) fn save_import_to(
         import_id,
         account_id,
         inserted_transactions,
-        duplicate: inserted_transactions == 0,
+        updated_transactions,
+        duplicate: inserted_transactions == 0
+            && updated_transactions == 0
+            && request.statement.currency_balances.is_empty(),
     })
+}
+
+fn validate_account_reference(
+    connection: &rusqlite::Transaction<'_>,
+    account_id: i64,
+    statement_reference: Option<&str>,
+) -> Result<(), String> {
+    let Some(expected) = statement_reference
+        .map(normalize_account_reference)
+        .filter(|value| !value.is_empty())
+    else {
+        return Ok(());
+    };
+    let stored = connection
+        .query_row(
+            "SELECT external_reference FROM accounts WHERE id=?1",
+            [account_id],
+            |row| row.get::<_, Option<String>>(0),
+        )
+        .map_err(db_error)?
+        .map(|value| normalize_account_reference(&value));
+    if stored.as_deref() != Some(expected.as_str()) {
+        return Err("Die Kontokennung im Auszug stimmt nicht mit der beim gewählten Konto hinterlegten IBAN oder Kontoreferenz überein. Bitte die Kontozuordnung prüfen.".into());
+    }
+    Ok(())
+}
+
+fn normalize_account_reference(value: &str) -> String {
+    let trimmed = value.trim();
+    let without_label = if trimmed
+        .get(..4)
+        .is_some_and(|prefix| prefix.eq_ignore_ascii_case("IBAN"))
+    {
+        trimmed[4..].trim_start_matches([':', ' '])
+    } else {
+        trimmed
+    };
+    without_label
+        .chars()
+        .filter(|character| !character.is_whitespace())
+        .collect::<String>()
+        .to_uppercase()
+}
+
+fn reconcile_provisional_card_transactions(
+    connection: &rusqlite::Transaction<'_>,
+    request: &SaveImportRequest,
+    account_ids: &std::collections::BTreeMap<&str, i64>,
+) -> Result<usize, String> {
+    let mut find = connection
+        .prepare(
+            "SELECT transaction_id FROM transaction_metadata
+             WHERE account_id=?1 AND reference_namespace=?3
+               AND external_reference=?2
+               AND transaction_kind=?4",
+        )
+        .map_err(db_error)?;
+    let mut updated = 0;
+    for row in &request.statement.transactions {
+        if row.reference_namespace.as_deref() != Some(CARD_PURCHASE_REFERENCE_NAMESPACE)
+            || row.transaction_kind == PROVISIONAL_CARD_TRANSACTION_KIND
+        {
+            continue;
+        }
+        let Some(reference) = row.external_reference.as_deref() else {
+            continue;
+        };
+        let account_id = account_ids[row.currency.as_str()];
+        let transaction_id = find
+            .query_row(
+                params![
+                    account_id,
+                    reference,
+                    CARD_PURCHASE_REFERENCE_NAMESPACE,
+                    PROVISIONAL_CARD_TRANSACTION_KIND
+                ],
+                |result| result.get::<_, i64>(0),
+            )
+            .optional()
+            .map_err(db_error)?;
+        let Some(transaction_id) = transaction_id else {
+            continue;
+        };
+        connection
+            .execute(
+                "UPDATE transactions SET
+                   booking_date=?1,value_date=?2,description=?3,industry=?4,
+                   amount_minor=?5,balance_minor=?6,currency=?7,confidence=?8
+                 WHERE id=?9",
+                params![
+                    row.booking_date,
+                    row.value_date,
+                    row.description,
+                    row.industry,
+                    row.amount_minor,
+                    row.balance_minor,
+                    row.currency,
+                    row.confidence,
+                    transaction_id
+                ],
+            )
+            .map_err(db_error)?;
+        connection
+            .execute(
+                "UPDATE transaction_metadata SET
+                   transaction_kind=?1,counterparty_name=?2,remittance_information=?3
+                 WHERE transaction_id=?4",
+                params![
+                    row.transaction_kind,
+                    row.counterparty_name,
+                    row.remittance_information,
+                    transaction_id
+                ],
+            )
+            .map_err(db_error)?;
+        updated += 1;
+    }
+    Ok(updated)
 }
 
 pub(crate) fn provider_metadata(provider: &str) -> (&'static str, &'static str, &'static str) {
@@ -354,5 +495,44 @@ pub(crate) fn provider_metadata(provider: &str) -> (&'static str, &'static str, 
         "raiffeisen" => ("Raiffeisen", "bank", "cash"),
         "generali" => ("Generali", "insurance", "pillar3a"),
         _ => ("Unbekannter Anbieter", "bank", "cash"),
+    }
+}
+
+#[cfg(test)]
+mod reference_tests {
+    use super::{normalize_account_reference, validate_account_reference};
+    use rusqlite::Connection;
+
+    #[test]
+    fn normalizes_iban_labels_case_and_spacing() {
+        assert_eq!(
+            normalize_account_reference(" iban: ch26 0029 2292 6049 4440 d "),
+            "CH260029229260494440D"
+        );
+    }
+
+    #[test]
+    fn rejects_selected_accounts_with_a_different_or_missing_reference() {
+        let mut connection = Connection::open_in_memory().unwrap();
+        connection
+            .execute_batch(
+                "CREATE TABLE accounts(id INTEGER PRIMARY KEY, external_reference TEXT);
+                 INSERT INTO accounts VALUES(1, 'CH26 0029 2292 6049 4440 D');
+                 INSERT INTO accounts VALUES(2, NULL);",
+            )
+            .unwrap();
+        let transaction = connection.transaction().unwrap();
+
+        assert!(
+            validate_account_reference(&transaction, 1, Some("IBAN: CH260029229260494440D"))
+                .is_ok()
+        );
+        assert!(
+            validate_account_reference(&transaction, 1, Some("CH9300762011623852957")).is_err()
+        );
+        assert!(
+            validate_account_reference(&transaction, 2, Some("CH260029229260494440D")).is_err()
+        );
+        assert!(validate_account_reference(&transaction, 2, None).is_ok());
     }
 }

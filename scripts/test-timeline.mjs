@@ -138,6 +138,10 @@ test("cashflow analysis uses consistent filters, semantic totals and hierarchica
   assert.match(management, /\.monthly-comparison th,[\s\S]*padding: 7px 8px/);
   assert.match(management, /\.monthly-comparison td\.high-spend\s*\{[\s\S]*background: var\(--bg-hover\)[\s\S]*color: var\(--text-primary\)/);
   assert.match(management, /\.monthly-comparison td\.selected-month-cell\s*\{[\s\S]*box-shadow: inset 0 0 0 2px var\(--interactive\)/);
+  assert.match(transactions, /data-monthly-row=\{rowIndex\}[\s\S]*data-monthly-month=\{month\}/);
+  assert.match(transactions, /monthly-selection-summary/);
+  assert.match(management, /\.monthly-comparison td\.range-selected-month-cell[\s\S]*var\(--interactive\)/);
+  assert.match(management, /\.monthly-selection-summary[\s\S]*background: var\(--bg-muted\)/);
   assert.doesNotMatch(transactions, /Klicken, mit gedrückter linker Maustaste ziehen/);
   assert.match(transactions, /compactBreakdown\.map/);
   assert.match(transactions, /key: "__remaining"[\s\S]*keys: remaining\.map/);
@@ -155,6 +159,25 @@ test("cashflow analysis uses consistent filters, semantic totals and hierarchica
   assert.match(application, /\.category-multiselect button\.subcategory \.category-color\s*\{[\s\S]*width: 6px;[\s\S]*height: 6px/);
   assert.match(application, /\.category-drilldown b,[\s\S]*\.category-share\s*\{[\s\S]*font-variant-numeric: tabular-nums/);
   assert.match(application, /\.category-disclosure \.category-toggle-icon\s*\{[\s\S]*margin-right: 8px/);
+});
+
+test("monthly cell selection includes a rectangular range and totals only populated values", async () => {
+  const source = await readFile(new URL("../src/features/transactions/monthlyCellSelection.ts", import.meta.url), "utf8");
+  const js = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2020 } }).outputText;
+  const { monthlySelectionContains, summarizeMonthlySelection } = await import(`data:text/javascript;base64,${Buffer.from(js).toString("base64")}`);
+  const selection = { anchor: { row: 2, month: 3 }, focus: { row: 0, month: 1 } };
+  assert.equal(monthlySelectionContains([selection], 1, 2), true);
+  assert.equal(monthlySelectionContains([selection], 2, 4), false);
+  assert.deepEqual(summarizeMonthlySelection([selection], [
+    [100, 200, 0, 400],
+    [10, 20, 30, 40],
+    [1, 2, 3, 4],
+  ]), { count: 8, total: 699 });
+  assert.deepEqual(summarizeMonthlySelection([
+    { anchor: { row: 0, month: 0 }, focus: { row: 0, month: 1 } },
+    { anchor: { row: 0, month: 1 }, focus: { row: 1, month: 1 } },
+  ], [[100, 200], [10, 20]]), { count: 3, total: 320 }, "overlapping additive ranges count shared cells once");
+  assert.deepEqual(summarizeMonthlySelection([], [[100]]), { count: 0, total: 0 });
 });
 
 test("drilldown category changes require explicit inline save", async () => {

@@ -10,6 +10,7 @@ export interface BatchItem {
   reviewed: boolean;
   result?: SaveImportResult;
   error?: string;
+  sourceOpenError?: string;
   duplicateNotice?: string;
   alreadyImported?: boolean;
   duplicateCheck?: DuplicateCheck;
@@ -22,12 +23,17 @@ export function currencies(statement: ParsedStatement): string[] {
 }
 
 export function matchingAccounts(accounts: ImportAccount[], statement: ParsedStatement, currency: string): ImportAccount[] {
-  return accounts.filter(account => account.isActive && (statement.provider === "unknown" || account.providerKey === statement.provider) && account.currency === currency && (!statement.accountType || account.accountType === statement.accountType));
+  const reference = statementAccountReference(statement);
+  return accounts.filter(account => account.isActive
+    && (statement.provider === "unknown" || account.providerKey === statement.provider)
+    && account.currency === currency
+    && (!statement.accountType || account.accountType === statement.accountType)
+    && (!reference || normalizeAccountReference(account.externalReference ?? "") === reference));
 }
 
 export function suggestAccounts(accounts: ImportAccount[], statement: ParsedStatement): Record<string, number> {
   const result: Record<string, number> = {};
-  const reference = normalizeAccountReference(statement.accountReference ?? (statement.format.toUpperCase() === "MT940" ? statement.accountName : ""));
+  const reference = statementAccountReference(statement);
   for (const currency of currencies(statement)) {
     const candidates = matchingAccounts(accounts, statement, currency);
     if (reference) {
@@ -51,8 +57,32 @@ export function readyToSave(item: BatchItem, accounts: ImportAccount[]): boolean
   return !item.result && !item.alreadyImported && hasAccounts(item, accounts) && unresolvedDuplicateCount(item) === 0;
 }
 
+export function hasAccountReferenceMismatch(accounts: ImportAccount[], statement: ParsedStatement): boolean {
+  return Boolean(statementAccountReference(statement))
+    && currencies(statement).some(currency => matchingAccounts(accounts, statement, currency).length === 0);
+}
+
+function statementAccountReference(statement: ParsedStatement): string {
+  return normalizeAccountReference(statement.accountReference ?? (statement.format.toUpperCase() === "MT940" ? statement.accountName : ""));
+}
+
 export function unresolvedDuplicateCount(item: BatchItem): number {
   return item.duplicateCheck?.suspectedTransactions.filter(match => !item.duplicateResolutions?.[match.transactionIndex]).length ?? 0;
+}
+
+export function orderedPreviewTransactionIndices(item: BatchItem): number[] {
+  const suspected = new Set(item.duplicateCheck?.suspectedTransactions.map(match => match.transactionIndex) ?? []);
+  return (item.parsed?.transactions.map((_, index) => index) ?? []).sort((left, right) => {
+    const priority = (index: number) => !suspected.has(index) ? 2 : item.duplicateResolutions?.[index] ? 1 : 0;
+    return priority(left) - priority(right) || left - right;
+  });
+}
+
+export function orderedBatchItems(items: BatchItem[]): BatchItem[] {
+  return items.map((item, index) => ({ item, index })).sort((left, right) => {
+    const priority = (item: BatchItem) => item.error ? 0 : unresolvedDuplicateCount(item) > 0 ? 1 : 2;
+    return priority(left.item) - priority(right.item) || left.index - right.index;
+  }).map(({ item }) => item);
 }
 
 export function canRelease(item: BatchItem, accounts: ImportAccount[]): boolean {

@@ -293,6 +293,22 @@ test("managed account cards use the compact approved density", () => {
   assert.match(styles, /\.row-action-trigger\s*\{[\s\S]*?min-width: 44px;[\s\S]*?min-height: 44px/);
 });
 
+test("providers are selected once and their shared details are edited centrally", () => {
+  const accounts = read("src/features/accounts/Accounts.tsx");
+  const editor = read("src/features/accounts/AccountEditor.tsx");
+  const backend = read("src-tauri/src/storage/banking/accounts.rs");
+  assert.match(accounts, /t\("Bank oder Anbieter hinzufügen"\)/);
+  assert.match(accounts, /invoke\("create_institution"/);
+  assert.match(accounts, /invoke<ManagedInstitution\[]>\("list_institutions"\)/);
+  assert.doesNotMatch(accounts, /<option value="__new__"/);
+  assert.match(accounts, /t\("Anbieter bearbeiten"\)/);
+  assert.match(accounts, /invoke\("update_institution"/);
+  assert.match(accounts, /institution-logo-editor/);
+  assert.doesNotMatch(editor, /Logo der Bank oder des Anbieters|set_institution_logo|account\.provider/);
+  assert.match(backend, /pub\(crate\) fn update_institution/);
+  assert.match(backend, /lower\(name\)=lower\(\?1\) AND id<>\?2/);
+});
+
 test("auth and reusable charts belong to their own modules", () => {
   assert.match(read("src/App.tsx"), /features\/auth\/VaultGate/);
   assert.match(read("src/features/transactions/Transactions.tsx"), /shared\/charts\/TimelineChart/);

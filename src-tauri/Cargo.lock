@@ -1181,11 +1181,12 @@ dependencies = [
 
 [[package]]
 name = "finanzblick"
-version = "0.6.2"
+version = "0.6.3"
 dependencies = [
  "calamine",
  "chrono",
  "csv",
+ "dunce",
  "encoding_rs",
  "fs2",
  "lopdf",

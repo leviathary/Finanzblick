@@ -1,12 +1,28 @@
 //! Tauri-Schnittstellen für Kontenverwaltung, ohne eigene SQL-Abfragen.
 use crate::storage;
-use crate::storage::banking::models::{CreateAccountRequest, ManagedAccount, UpdateAccountRequest};
+use crate::storage::banking::models::{
+    CreateAccountRequest, CreateInstitutionRequest, ManagedAccount, ManagedInstitution,
+    UpdateAccountRequest, UpdateInstitutionRequest,
+};
 use crate::storage::database::Storage;
 use tauri::State;
 
 #[tauri::command]
 pub fn list_accounts(storage: State<'_, Storage>) -> Result<Vec<ManagedAccount>, String> {
     storage::banking::accounts::list_accounts(&storage)
+}
+
+#[tauri::command]
+pub fn list_institutions(storage: State<'_, Storage>) -> Result<Vec<ManagedInstitution>, String> {
+    storage::banking::accounts::list_institutions(&storage)
+}
+
+#[tauri::command]
+pub fn create_institution(
+    storage: State<'_, Storage>,
+    request: CreateInstitutionRequest,
+) -> Result<i64, String> {
+    storage::banking::accounts::create_institution(&storage, request)
 }
 
 #[tauri::command]
@@ -23,6 +39,14 @@ pub fn update_account(
     request: UpdateAccountRequest,
 ) -> Result<(), String> {
     storage::banking::accounts::update_account(&storage, request)
+}
+
+#[tauri::command]
+pub fn update_institution(
+    storage: State<'_, Storage>,
+    request: UpdateInstitutionRequest,
+) -> Result<(), String> {
+    storage::banking::accounts::update_institution(&storage, request)
 }
 
 #[tauri::command]

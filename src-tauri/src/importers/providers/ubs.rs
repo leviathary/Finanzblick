@@ -33,6 +33,10 @@ static EXCEL_MAPPING: ProviderExcelMapping = ProviderExcelMapping {
 pub(super) struct UbsImporter;
 
 impl ProviderImporter for UbsImporter {
+    fn supports_provisional_card_csv(&self) -> bool {
+        true
+    }
+
     fn card_credit_kind(&self, description: &str) -> Option<&'static str> {
         // Exact UBS payment labels only; a positive amount or generic LSV text is insufficient.
         let label = description
@@ -76,6 +80,7 @@ pub(in crate::importers) fn parse_pdf_text(text: &str) -> Result<ParsedStatement
         .filter(|line| !line.is_empty())
         .map(str::to_string)
         .collect();
+    let account_reference = extract_iban(text);
     let account_name = lines
         .iter()
         .find(|line| line.contains("IBAN"))
@@ -85,14 +90,34 @@ pub(in crate::importers) fn parse_pdf_text(text: &str) -> Result<ParsedStatement
         .to_string();
     let validated_from_balances = lines
         .iter()
-        .any(|line| line.starts_with("Ihr Konto auf einen Blick"));
+        .any(|line| line.contains("Ihr Konto auf einen Blick"));
     let (transactions, opening_balance_minor, closing_balance_minor) = if validated_from_balances {
         parse_account_rows(&lines)?
     } else {
         parse_legacy_account_rows(&lines)?
     };
+    let currency_balances = if transactions.is_empty() {
+        match (
+            extract_statement_period(text),
+            opening_balance_minor,
+            closing_balance_minor,
+        ) {
+            (Some((opening_date, closing_date)), Some(opening), Some(closing)) => {
+                vec![CurrencyBalance {
+                    currency: "CHF".into(),
+                    opening_date: Some(opening_date),
+                    opening_balance_minor: opening,
+                    closing_balance_minor: closing,
+                    closing_date,
+                }]
+            }
+            _ => Vec::new(),
+        }
+    } else {
+        Vec::new()
+    };
     Ok(ParsedStatement {
-        currency_balances: Vec::new(),
+        currency_balances,
         account_type: None,
         provider: "ubs".into(),
         format: "PDF".into(),
@@ -105,8 +130,28 @@ pub(in crate::importers) fn parse_pdf_text(text: &str) -> Result<ParsedStatement
         } else {
             vec!["Älteres UBS-PDF-Layout heuristisch erkannt. Bitte Datum, Betrag und Saldo kontrollieren.".into()]
         },
+        account_reference,
         ..ParsedStatement::default()
     })
+}
+
+fn extract_iban(text: &str) -> Option<String> {
+    let pattern = Regex::new(r"(?i)\bCH\d{2}(?:\s*[A-Z0-9]){17}\b").ok()?;
+    pattern.find(text).map(|value| {
+        value
+            .as_str()
+            .chars()
+            .filter(|character| !character.is_whitespace())
+            .collect::<String>()
+            .to_uppercase()
+    })
+}
+
+fn extract_statement_period(text: &str) -> Option<(String, String)> {
+    let pattern =
+        Regex::new(r"(?m)^\s*(\d{2}\.\d{2}\.\d{4})\s*-\s*(\d{2}\.\d{2}\.\d{4})\s*/").ok()?;
+    let captures = pattern.captures(text)?;
+    Some((normalize_date(&captures[1])?, normalize_date(&captures[2])?))
 }
 
 /// Older UBS account exports use one compact row with booking date, optional
@@ -181,41 +226,66 @@ fn parse_legacy_account_rows(lines: &[String]) -> Result<ParsedPdfRows, String> 
 pub(in crate::importers) fn parse_account_rows(lines: &[String]) -> Result<ParsedPdfRows, String> {
     if !lines
         .iter()
-        .any(|line| line.starts_with("Ihr Konto auf einen Blick"))
+        .any(|line| line.contains("Ihr Konto auf einen Blick"))
     {
         return Err("Das UBS-PDF-Layout wird noch nicht unterstützt.".into());
     }
-    let money = r"[+-]?\d+(?:[ '’]\d{3})*[.,]\d{2}";
+    // Older UBS PDFs render negative balances with a trailing minus. Their
+    // text layer may also place a credit description after the balance.
+    let money = r"[+-]?\d+(?:[ '’]\d{3})*[.,]\d{2}(?: ?-)?";
     let row = Regex::new(&format!(
-        r"^(\d{{2}}\.\d{{2}}\.\d{{2}}) (.*?) ({money}) (\d{{2}}\.\d{{2}}\.\d{{2}}) ({money})$"
+        r"^(\d{{2}}\.\d{{2}}\.\d{{2}})\s+(.*?)\s+({money})\s+(\d{{2}}\.\d{{2}}\.\d{{2}})\s+({money})(?:\s+(\S.*))?$"
+    ))
+    .unwrap();
+    let trailing_description_row = Regex::new(&format!(
+        r"^(\d{{2}}\.\d{{2}}\.\d{{2}}) ({money}) (\d{{2}}\.\d{{2}}\.\d{{2}}) ({money})\s*(\S.*)$"
     ))
     .unwrap();
     let balance_row = Regex::new(&format!(
-        r"^\d{{2}}\.\d{{2}}\.\d{{2}} (Anfangssaldo|Schlusssaldo) ({money})$"
+        r"^\d{{2}}\.\d{{2}}\.\d{{2}}\s+(Anfangssaldo|Schlusssaldo)\s+({money})(?:\s+.*)?$"
     ))
     .unwrap();
     let dated = Regex::new(r"^\d{2}\.\d{2}\.\d{2}(?: |$)").unwrap();
+    let booking_candidate =
+        Regex::new(r"^\d{2}\.\d{2}\.\d{2}\s+.*\s+\d{2}\.\d{2}\.\d{2}(?:\s|$)").unwrap();
     let summary = |label: &str| -> Result<i64, String> {
+        let pattern = Regex::new(&format!(r"{}\s+({money})", regex::escape(label)))
+            .map_err(|_| "UBS-Summenerkennung konnte nicht initialisiert werden.")?;
         lines
             .iter()
-            .find_map(|line| line.strip_prefix(label).and_then(parse_money))
+            .find_map(|line| {
+                pattern
+                    .captures(line)
+                    .and_then(|capture| parse_ubs_money(&capture[1]))
+            })
             .ok_or_else(|| format!("UBS-Auszug: {label} fehlt oder ist unlesbar."))
     };
-    let opening = summary("Anfangssaldo ")?;
-    let closing = summary("Schlusssaldo ")?;
-    let credits = summary("Total Gutschriften ")?;
-    let debits = summary("Total Belastungen ")?;
+    let opening = summary("Anfangssaldo")?;
+    let closing = summary("Schlusssaldo")?;
+    let credits = summary("Total Gutschriften")?;
+    let debits = summary("Total Belastungen")?;
     let mut previous = opening;
     let mut transactions: Vec<ParsedTransaction> = Vec::new();
+    let mut statement_credits = 0;
+    let mut statement_debits = 0;
     let mut in_table = false;
     let mut complete = false;
     for (index, line) in lines.iter().enumerate() {
-        if line.starts_with("Datum Informationen") && line.contains("Kontostand") {
+        let mut line = line.as_str();
+        if line.contains("Datum Informationen") && line.contains("Kontostand") {
             in_table = true;
-            continue;
+            line = line
+                .split_once("Kontostand")
+                .map(|(_, remainder)| remainder.trim())
+                .unwrap_or_default();
+            if line.is_empty() {
+                continue;
+            }
         }
-        if line.contains("GNZKOA") || line == "aUBS" || line.contains("Formular ohne Unterschrift")
-        {
+        let has_footer = line.contains("GNZKOA")
+            || line == "aUBS"
+            || line.contains("Formular ohne Unterschrift");
+        if has_footer && !balance_row.is_match(line) && !dated.is_match(line) {
             in_table = false;
             continue;
         }
@@ -223,7 +293,7 @@ pub(in crate::importers) fn parse_account_rows(lines: &[String]) -> Result<Parse
             continue;
         }
         if let Some(capture) = balance_row.captures(line) {
-            let balance = parse_money(&capture[2]).ok_or("UBS-Saldo unlesbar.")?;
+            let balance = parse_ubs_money(&capture[2]).ok_or("UBS-Saldo unlesbar.")?;
             if &capture[1] == "Schlusssaldo" {
                 if balance != closing {
                     return Err("UBS-Schlusssalden stimmen nicht überein.".into());
@@ -239,9 +309,34 @@ pub(in crate::importers) fn parse_account_rows(lines: &[String]) -> Result<Parse
         if line.starts_with("Umsatztotal") {
             continue;
         }
-        if let Some(capture) = row.captures(line) {
-            let balance = parse_money(&capture[5]).ok_or("UBS-Kontostand unlesbar.")?;
-            let amount = parse_money(&capture[3]).ok_or("UBS-Betrag unlesbar.")?;
+        let parsed_row = row
+            .captures(line)
+            .map(|capture| {
+                (
+                    capture[1].to_string(),
+                    match capture.get(6) {
+                        Some(details) => format!("{}\n{}", &capture[2], details.as_str()),
+                        None => capture[2].to_string(),
+                    },
+                    capture[3].to_string(),
+                    capture[4].to_string(),
+                    capture[5].to_string(),
+                )
+            })
+            .or_else(|| {
+                trailing_description_row.captures(line).map(|capture| {
+                    (
+                        capture[1].to_string(),
+                        capture[5].to_string(),
+                        capture[2].to_string(),
+                        capture[3].to_string(),
+                        capture[4].to_string(),
+                    )
+                })
+            });
+        if let Some((booking_date, description, amount, value_date, balance)) = parsed_row {
+            let balance = parse_ubs_money(&balance).ok_or("UBS-Kontostand unlesbar.")?;
+            let amount = parse_ubs_money(&amount).ok_or("UBS-Betrag unlesbar.")?;
             let change = balance - previous;
             if change.abs() != amount.abs() {
                 return Err(format!(
@@ -249,10 +344,26 @@ pub(in crate::importers) fn parse_account_rows(lines: &[String]) -> Result<Parse
                     index + 1
                 ));
             }
+            // UBS prints reversals with a trailing minus in the original
+            // debit or credit column. The balance change still determines
+            // the transaction sign, while the monthly column totals must
+            // retain that negative contribution on its original side.
+            if amount < 0 {
+                if change > 0 {
+                    statement_debits += amount;
+                } else {
+                    statement_credits += amount;
+                }
+            } else if change > 0 {
+                statement_credits += amount;
+            } else {
+                statement_debits += amount;
+            }
             transactions.push(ParsedTransaction {
-                booking_date: normalize_date(&capture[1]).ok_or("Ungültiges UBS-Buchungsdatum.")?,
-                value_date: Some(normalize_date(&capture[4]).ok_or("Ungültige UBS-Valuta.")?),
-                description: capture[2].to_string(),
+                booking_date: normalize_date(&booking_date)
+                    .ok_or("Ungültiges UBS-Buchungsdatum.")?,
+                value_date: Some(normalize_date(&value_date).ok_or("Ungültige UBS-Valuta.")?),
+                description,
                 industry: None,
                 amount_minor: change,
                 balance_minor: Some(balance),
@@ -262,7 +373,7 @@ pub(in crate::importers) fn parse_account_rows(lines: &[String]) -> Result<Parse
                 ..ParsedTransaction::default()
             });
             previous = balance;
-        } else if dated.is_match(line) {
+        } else if booking_candidate.is_match(line) {
             return Err(format!(
                 "UBS-Buchungszeile {} konnte nicht vollständig gelesen werden.",
                 index + 1
@@ -272,16 +383,10 @@ pub(in crate::importers) fn parse_account_rows(lines: &[String]) -> Result<Parse
             transaction.description.push_str(line);
         }
     }
-    let actual_credits: i64 = transactions.iter().map(|row| row.amount_minor.max(0)).sum();
-    let actual_debits: i64 = transactions
-        .iter()
-        .map(|row| (-row.amount_minor).max(0))
-        .sum();
     if !complete
-        || transactions.is_empty()
         || previous != closing
-        || actual_credits != credits
-        || actual_debits != debits
+        || statement_credits != credits
+        || statement_debits != debits
     {
         return Err(
             "UBS-Auszug unvollständig: Buchungen, Summen oder Schlusssaldo stimmen nicht überein."
@@ -289,6 +394,15 @@ pub(in crate::importers) fn parse_account_rows(lines: &[String]) -> Result<Parse
         );
     }
     Ok((transactions, Some(opening), Some(closing)))
+}
+
+fn parse_ubs_money(value: &str) -> Option<i64> {
+    let value = value.trim();
+    if let Some(unsigned) = value.strip_suffix('-') {
+        parse_money(unsigned.trim()).map(|amount| -amount.abs())
+    } else {
+        parse_money(value)
+    }
 }
 
 fn amount(value: &str) -> Result<i64, String> {
@@ -540,6 +654,134 @@ Umsatztotal 23.00 200.00
         assert_eq!(closing, Some(117_700));
         assert_eq!(rows[0].amount_minor, 20_000);
         assert!(parse_account_rows(&lines(&text.replace("TWINT 200.00", "TWINT 199.00"))).is_err());
+    }
+
+    #[test]
+    fn parses_trailing_negative_balances_and_reordered_credit_labels() {
+        let text = "Ihr Konto auf einen Blick
+Anfangssaldo 280.41
+Total Gutschriften 12 078.20
+Total Belastungen 4 000.00
+Schlusssaldo 8 358.61
+Datum Informationen Belastungen Gutschriften Valuta Kontostand
+01.12.14 Anfangssaldo 280.41
+19.12.14 E-BANKING-AUFTRAG 2 000.00 19.12.14 1 719.59 -
+19.12.14 E-BANKING-AUFTRAG 2 000.00 19.12.14 3 719.59-
+19.12.14 12 078.20 20.12.14 8 358.61HSGUTSCHRIFT
+Umsatztotal 4 000.00 12 078.20
+31.12.14 Schlusssaldo 8 358.61";
+
+        let (rows, opening, closing) = parse_account_rows(&lines(text)).unwrap();
+
+        assert_eq!(opening, Some(28_041));
+        assert_eq!(closing, Some(835_861));
+        assert_eq!(rows.len(), 3);
+        assert_eq!(rows[0].amount_minor, -200_000);
+        assert_eq!(rows[0].balance_minor, Some(-171_959));
+        assert_eq!(rows[1].amount_minor, -200_000);
+        assert_eq!(rows[1].balance_minor, Some(-371_959));
+        assert_eq!(rows[2].description, "HSGUTSCHRIFT");
+        assert_eq!(rows[2].amount_minor, 1_207_820);
+    }
+
+    #[test]
+    fn validates_reversals_against_the_original_ubs_total_column() {
+        let text = "Ihr Konto auf einen Blick
+Anfangssaldo 1 000.00
+Total Gutschriften 200.00
+Total Belastungen 50.00
+Schlusssaldo 1 150.00
+Datum Informationen Belastungen Gutschriften Valuta Kontostand
+01.09.18 Anfangssaldo 1 000.00
+03.09.18 BELASTUNG 100.00 03.09.18 900.00
+07.09.18 STORNOBUCHUNG 50.00- 07.09.18 950.00
+28.09.18 GUTSCHRIFT 200.00 28.09.18 1 150.00
+Umsatztotal 50.00 200.00
+30.09.18 Schlusssaldo 1 150.00";
+
+        let (rows, opening, closing) = parse_account_rows(&lines(text)).unwrap();
+
+        assert_eq!(opening, Some(100_000));
+        assert_eq!(closing, Some(115_000));
+        assert_eq!(rows.len(), 3);
+        assert_eq!(rows[1].amount_minor, 5_000);
+        assert!(rows[1].description.contains("STORNOBUCHUNG"));
+    }
+
+    #[test]
+    fn accepts_a_valid_balance_only_savings_statement() {
+        let text = "UBS Sparkonto CHF
+IBAN CH53 0029 2292 6049 44M1 G
+Kontoauszug
+01.01.2019 - 31.12.2019 / Jährlich
+Ihr Konto auf einen Blick Belastungen Gutschriften Kontostand
+Anfangssaldo 42.67
+Total Gutschriften 0.00
+Total Belastungen 0.00
+Schlusssaldo 42.67
+Datum Informationen Belastungen Gutschriften Valuta Kontostand
+01.01.19 Anfangssaldo 42.67
+Umsatztotal 0.00 0.00
+31.12.19 Schlusssaldo 42.67";
+
+        let parsed = parse_pdf_text(text).unwrap();
+
+        assert!(parsed.transactions.is_empty());
+        assert_eq!(parsed.opening_balance_minor, Some(4_267));
+        assert_eq!(parsed.closing_balance_minor, Some(4_267));
+        assert_eq!(parsed.currency_balances.len(), 1);
+        assert_eq!(
+            parsed.currency_balances[0].opening_date.as_deref(),
+            Some("2019-01-01")
+        );
+        assert_eq!(parsed.currency_balances[0].closing_date, "2019-12-31");
+    }
+
+    #[test]
+    fn parses_compact_text_runs_from_older_pdf_streams() {
+        let text = "UBS Privatkonto CHF IBAN CH26 0029 Ihr Konto auf einen Blick Belastungen Gutschriften Kontostand Anfangssaldo 1 000.00 Total Gutschriften 200.00 Total Belastungen 23.00 Schlusssaldo 1 177.00
+Datum Informationen Belastungen Gutschriften Valuta Kontostand 01.08.23 Anfangssaldo 1 000.00
+02.08.23 STORNO UBS TWINT 200.00 01.08.23 1 200.00 TEST SHOP Referenz 123
+Datum Informationen Belastungen Gutschriften Valuta Kontostand 31.08.23 SALDO DIENSTLEISTUNGSPREISABSCHLUSS 23.00 31.08.23 1 177.00 Details
+Umsatztotal 23.00 200.00
+31.08.23 Schlusssaldo 1 177.00 Formular ohne Unterschrift";
+
+        let (rows, opening, closing) = parse_account_rows(&lines(text)).unwrap();
+
+        assert_eq!(opening, Some(100_000));
+        assert_eq!(closing, Some(117_700));
+        assert_eq!(rows.len(), 2);
+        assert!(rows[0].description.contains("TEST SHOP"));
+    }
+
+    #[test]
+    fn extracts_canonical_iban_from_account_statement() {
+        assert_eq!(
+            extract_iban("UBS Privatkonto CHF\nIBAN CH26 0029 2292 6049 4440 D"),
+            Some("CH260029229260494440D".into())
+        );
+        assert_eq!(extract_iban("UBS Mastercard ohne IBAN"), None);
+    }
+
+    #[test]
+    fn keeps_dated_payment_details_with_their_transaction() {
+        let text = "Ihr Konto auf einen Blick
+Anfangssaldo 100.00
+Total Gutschriften 20.00
+Total Belastungen 10.00
+Schlusssaldo 110.00
+Datum Informationen Belastungen Gutschriften Valuta Kontostand
+01.01.19 Anfangssaldo 100.00
+02.01.19 E-BANKING-AUFTRAG 10.00 02.01.19 90.00
+21.11.18 CHF 10.00
+03.01.19 GUTSCHRIFT 20.00 03.01.19 110.00
+Umsatztotal 10.00 20.00
+31.01.19 Schlusssaldo 110.00";
+
+        let (rows, _, _) = parse_account_rows(&lines(text)).unwrap();
+
+        assert_eq!(rows.len(), 2);
+        assert!(rows[0].description.contains("21.11.18 CHF 10.00"));
     }
 
     #[test]

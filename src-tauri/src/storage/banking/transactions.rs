@@ -21,7 +21,15 @@ pub(crate) fn transaction_analysis(
     account_ids: Vec<i64>,
 ) -> Result<TransactionAnalysis, String> {
     let connection = storage.connect().map_err(db_error)?;
-    analyze_transactions_filtered(&connection, from, to, provider_key, account_id, provider_keys, account_ids)
+    analyze_transactions_filtered(
+        &connection,
+        from,
+        to,
+        provider_key,
+        account_id,
+        provider_keys,
+        account_ids,
+    )
 }
 
 pub(crate) fn analyze_transactions(
@@ -31,7 +39,15 @@ pub(crate) fn analyze_transactions(
     provider_key: Option<String>,
     account_id: Option<i64>,
 ) -> Result<TransactionAnalysis, String> {
-    analyze_transactions_filtered(connection, from, to, provider_key, account_id, vec![], vec![])
+    analyze_transactions_filtered(
+        connection,
+        from,
+        to,
+        provider_key,
+        account_id,
+        vec![],
+        vec![],
+    )
 }
 
 pub(crate) fn analyze_transactions_filtered(
@@ -47,7 +63,9 @@ pub(crate) fn analyze_transactions_filtered(
     // Multi-select analysis has its own filters; bank balances use their dedicated command.
     let history = if provider_keys.is_empty() && account_ids.is_empty() {
         transaction_history(connection, &provider_key, account_id).map_err(db_error)?
-    } else { vec![] };
+    } else {
+        vec![]
+    };
     let providers_json = serde_json::to_string(&provider_keys).map_err(|e| e.to_string())?;
     let accounts_json = serde_json::to_string(&account_ids).map_err(|e| e.to_string())?;
     let mut query = connection
@@ -68,29 +86,39 @@ pub(crate) fn analyze_transactions_filtered(
         )
         .map_err(db_error)?;
     let rows = query
-        .query_map(params![from, to, provider_key, account_id, providers_json, accounts_json], |r| {
-            Ok(AnalyzedTransaction {
-                id: r.get(0)?,
-                booking_date: r.get(1)?,
-                description: r.get(2)?,
-                industry: r.get(3)?,
-                amount_minor: r.get(4)?,
-                currency: r.get(5)?,
-                category_key: r.get(6)?,
-                category_label: r.get(7)?,
-                category_color: r.get(8)?,
-                category_source: r.get(9)?,
-                provider: r.get(10)?,
-                provider_key: r.get(11)?,
-                account_name: r.get(12)?,
-                excluded_from_totals: r.get(13)?,
-                is_card_settlement: r.get(14)?,
-                is_card: r.get(15)?,
-                is_manually_overridden: r.get(16)?,
-                expense_minor: r.get(17)?,
-                income_minor: r.get(18)?,
-            })
-        })
+        .query_map(
+            params![
+                from,
+                to,
+                provider_key,
+                account_id,
+                providers_json,
+                accounts_json
+            ],
+            |r| {
+                Ok(AnalyzedTransaction {
+                    id: r.get(0)?,
+                    booking_date: r.get(1)?,
+                    description: r.get(2)?,
+                    industry: r.get(3)?,
+                    amount_minor: r.get(4)?,
+                    currency: r.get(5)?,
+                    category_key: r.get(6)?,
+                    category_label: r.get(7)?,
+                    category_color: r.get(8)?,
+                    category_source: r.get(9)?,
+                    provider: r.get(10)?,
+                    provider_key: r.get(11)?,
+                    account_name: r.get(12)?,
+                    excluded_from_totals: r.get(13)?,
+                    is_card_settlement: r.get(14)?,
+                    is_card: r.get(15)?,
+                    is_manually_overridden: r.get(16)?,
+                    expense_minor: r.get(17)?,
+                    income_minor: r.get(18)?,
+                })
+            },
+        )
         .map_err(db_error)?
         .collect::<Result<Vec<_>, _>>()
         .map_err(db_error)?;

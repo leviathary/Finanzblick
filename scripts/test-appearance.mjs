@@ -59,6 +59,14 @@ test('invalid preference falls back to system; browser storage updates synchroni
   s.listeners.storage({ key: null, newValue: null });
   assert.equal(s.root.dataset.theme, 'dark');
 });
+
+test('desktop window opens wide enough for the complete monthly comparison', () => {
+  const config = JSON.parse(fs.readFileSync(new URL('../src-tauri/tauri.conf.json', import.meta.url), 'utf8'));
+  const mainWindow = config.app.windows[0];
+  assert.equal(mainWindow.width, 1520);
+  assert.equal(mainWindow.height, 900);
+  assert.ok(mainWindow.minWidth <= 920);
+});
 test('appearance strings have all translations', () => {
   const messages = JSON.parse(fs.readFileSync(new URL('../src/translations.json', import.meta.url), 'utf8'));
   const ui = fs.readFileSync(new URL('../src/shared/theme/AppearanceSettings.tsx', import.meta.url), 'utf8');

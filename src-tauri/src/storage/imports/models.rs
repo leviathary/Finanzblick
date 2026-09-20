@@ -59,6 +59,7 @@ pub struct SaveImportResult {
     pub import_id: i64,
     pub account_id: i64,
     pub inserted_transactions: usize,
+    pub updated_transactions: usize,
     pub duplicate: bool,
 }
 
@@ -67,6 +68,7 @@ pub struct SaveImportResult {
 pub struct DuplicateCheck {
     pub(crate) exact_file: bool,
     pub(crate) matching_transactions: usize,
+    pub(crate) updatable_transactions: usize,
     pub(crate) total_transactions: usize,
     pub(crate) suspected_transactions: Vec<SuspectedDuplicate>,
 }

@@ -3,6 +3,96 @@ use super::*;
 use crate::importers::{ParsedSecurityDetails, ParsedStatement, ParsedTransaction};
 
 #[test]
+fn institution_details_are_shared_and_duplicate_names_are_rejected() {
+    let directory = std::env::temp_dir().join(format!(
+        "finanzblick-institution-test-{}",
+        std::process::id()
+    ));
+    fs::create_dir_all(&directory).unwrap();
+    let storage = Storage::test_storage(directory.join("test.sqlite3"));
+    let connection = storage.connect().unwrap();
+    initialize_schema(&connection).unwrap();
+    connection
+        .execute_batch(
+            "INSERT INTO institutions(id,provider_key,name,institution_type,created_at) VALUES
+           (1,'ubs','UBS','bank',datetime('now')),
+           (2,'zkb','ZKB','bank',datetime('now'));
+         INSERT INTO accounts(id,institution_id,name,account_type,currency,created_at) VALUES
+           (1,1,'Privatkonto','cash','CHF',datetime('now')),
+           (2,1,'Sparkonto','savings','CHF',datetime('now'));",
+        )
+        .unwrap();
+    drop(connection);
+
+    let empty_id = banking::accounts::create_institution(
+        &storage,
+        banking::models::CreateInstitutionRequest {
+            name: "Neue Bank".into(),
+            institution_type: "bank".into(),
+            logo_data_url: Some("data:image/png;base64,dGVzdA==".into()),
+        },
+    )
+    .unwrap();
+    let institutions = banking::accounts::list_institutions(&storage).unwrap();
+    assert!(institutions
+        .iter()
+        .any(|institution| institution.id == empty_id
+            && institution.name == "Neue Bank"
+            && institution.logo_data_url.as_deref() == Some("data:image/png;base64,dGVzdA==")));
+    assert!(!accounts_from(&storage)
+        .unwrap()
+        .iter()
+        .any(|account| account.institution_id == empty_id));
+
+    banking::accounts::update_institution(
+        &storage,
+        banking::models::UpdateInstitutionRequest {
+            id: 1,
+            name: "UBS Schweiz".into(),
+            institution_type: "broker".into(),
+        },
+    )
+    .unwrap();
+    let accounts = accounts_from(&storage).unwrap();
+    assert_eq!(
+        accounts
+            .iter()
+            .filter(|account| account.provider == "UBS Schweiz")
+            .count(),
+        2
+    );
+    assert!(
+        accounts
+            .iter()
+            .filter(|account| account.institution_type == "broker")
+            .count()
+            >= 2
+    );
+
+    let error = banking::accounts::update_institution(
+        &storage,
+        banking::models::UpdateInstitutionRequest {
+            id: 1,
+            name: "zkb".into(),
+            institution_type: "bank".into(),
+        },
+    )
+    .unwrap_err();
+    assert!(error.contains("verwendet diesen Namen bereits"));
+    let duplicate = banking::accounts::create_institution(
+        &storage,
+        banking::models::CreateInstitutionRequest {
+            name: "NEUE BANK".into(),
+            institution_type: "bank".into(),
+            logo_data_url: None,
+        },
+    )
+    .unwrap_err();
+    assert!(duplicate.contains("bereits vorhanden"));
+    fs::remove_dir_all(directory).unwrap();
+}
+
+#[test]
 fn pillar3a_is_manually_valued_and_excluded_from_assets_by_default() {
     assert!(!default_include_in_net_worth("pillar3a"));
     assert!(default_include_in_net_worth("cash"));
@@ -745,8 +835,11 @@ fn stores_the_dated_opening_balance_for_the_real_balance_history() {
         closing_balance_minor: 98750,
         closing_date: "2026-08-01".to_string(),
     }];
+    import.statement.transactions.clear();
 
-    save_import_to(&storage, import).expect("save MT940 import");
+    let result = save_import_to(&storage, import).expect("save MT940 import");
+    assert!(!result.duplicate);
+    assert_eq!(result.inserted_transactions, 0);
 
     let connection = storage.connect().expect("reopen database");
     let snapshots = connection

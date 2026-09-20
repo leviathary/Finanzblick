@@ -148,7 +148,9 @@ mod tests {
         let db = fixture();
         set_settlement(&db, 3, true).unwrap();
         set_settlement(&db, 4, true).unwrap();
-        let analyze = |providers, accounts| analyze_transactions_filtered(&db, None, None, None, None, providers, accounts).unwrap();
+        let analyze = |providers, accounts| {
+            analyze_transactions_filtered(&db, None, None, None, None, providers, accounts).unwrap()
+        };
         let all = analyze(vec![], vec![]);
         let combined = analyze(vec!["bank".into(), "other".into()], vec![1, 2, 2]);
         assert_eq!(combined.total_spend_minor, all.total_spend_minor);
@@ -160,7 +162,7 @@ mod tests {
         let bank = analyze(vec![], vec![1]);
         assert_eq!(bank.total_income_minor, 50000);
         assert_eq!(bank.total_spend_minor, 0);
-        let mismatch = analyze(vec!["unknown".into()], vec![1,2]);
+        let mismatch = analyze(vec!["unknown".into()], vec![1, 2]);
         assert_eq!(mismatch.transaction_count, 0);
         assert_eq!(mismatch.income_count, 0);
         let unknown = analyze(vec![], vec![999]);

@@ -2,7 +2,10 @@
 use crate::domain::banking::accounts::{
     clean_optional, default_include_in_net_worth, validate_account,
 };
-use crate::storage::banking::models::{CreateAccountRequest, ManagedAccount, UpdateAccountRequest};
+use crate::storage::banking::models::{
+    CreateAccountRequest, CreateInstitutionRequest, ManagedAccount, ManagedInstitution,
+    UpdateAccountRequest, UpdateInstitutionRequest,
+};
 use crate::storage::database::errors::db_error;
 use crate::storage::database::Storage;
 use chrono::Utc;
@@ -11,6 +14,58 @@ use rusqlite::{params, Connection};
 
 pub(crate) fn list_accounts(storage: &Storage) -> Result<Vec<ManagedAccount>, String> {
     accounts_from(&storage)
+}
+
+pub(crate) fn list_institutions(storage: &Storage) -> Result<Vec<ManagedInstitution>, String> {
+    let connection = storage.connect().map_err(db_error)?;
+    let mut statement = connection
+        .prepare(
+            "SELECT id, name, provider_key, institution_type, logo_data_url
+             FROM institutions ORDER BY name COLLATE NOCASE",
+        )
+        .map_err(db_error)?;
+    let institutions = statement
+        .query_map([], |row| {
+            Ok(ManagedInstitution {
+                id: row.get(0)?,
+                name: row.get(1)?,
+                provider_key: row.get(2)?,
+                institution_type: row.get(3)?,
+                logo_data_url: row.get(4)?,
+            })
+        })
+        .map_err(db_error)?
+        .collect::<Result<Vec<_>, _>>()
+        .map_err(db_error)?;
+    Ok(institutions)
+}
+
+pub(crate) fn create_institution(
+    storage: &Storage,
+    request: CreateInstitutionRequest,
+) -> Result<i64, String> {
+    validate_institution(&request.name, &request.institution_type)?;
+    let connection = storage.connect().map_err(db_error)?;
+    let duplicate: Option<i64> = connection
+        .query_row(
+            "SELECT id FROM institutions WHERE lower(name)=lower(?1)",
+            [request.name.trim()],
+            |row| row.get(0),
+        )
+        .optional()
+        .map_err(db_error)?;
+    if duplicate.is_some() {
+        return Err("Eine Bank oder ein Anbieter mit diesem Namen ist bereits vorhanden.".into());
+    }
+    let logo_data_url = normalize_institution_logo(request.logo_data_url)?;
+    let provider_key = unique_provider_key(&connection, &request.name)?;
+    connection
+        .execute(
+            "INSERT INTO institutions(provider_key, name, institution_type, logo_data_url, created_at) VALUES (?1, ?2, ?3, ?4, ?5)",
+            params![provider_key, request.name.trim(), request.institution_type, logo_data_url, Utc::now().to_rfc3339()],
+        )
+        .map_err(db_error)?;
+    Ok(connection.last_insert_rowid())
 }
 
 pub(crate) fn create_account(
@@ -22,23 +77,36 @@ pub(crate) fn create_account(
         &request.currency,
         &request.account_type,
     )?;
-    if request.institution_name.trim().is_empty() {
-        return Err("Bitte einen Namen für die Bank oder den Anbieter eingeben.".to_string());
-    }
     let connection = storage.connect().map_err(db_error)?;
-    let provider_key = unique_provider_key(&connection, &request.institution_name)?;
     let now = Utc::now().to_rfc3339();
-    connection.execute(
-        "INSERT OR IGNORE INTO institutions(provider_key, name, institution_type, created_at) VALUES (?1, ?2, ?3, ?4)",
-        params![provider_key, request.institution_name.trim(), request.institution_type, now],
-    ).map_err(db_error)?;
-    let institution_id: i64 = connection
-        .query_row(
-            "SELECT id FROM institutions WHERE provider_key = ?1",
-            [&provider_key],
-            |row| row.get(0),
-        )
-        .map_err(db_error)?;
+    let institution_id: i64 = if let Some(institution_id) = request.institution_id {
+        connection
+            .query_row(
+                "SELECT id FROM institutions WHERE id=?1",
+                [institution_id],
+                |row| row.get(0),
+            )
+            .map_err(|error| match error {
+                rusqlite::Error::QueryReturnedNoRows => {
+                    "Der Anbieter wurde nicht gefunden.".to_string()
+                }
+                other => db_error(other),
+            })?
+    } else {
+        validate_institution(&request.institution_name, &request.institution_type)?;
+        let provider_key = unique_provider_key(&connection, &request.institution_name)?;
+        connection.execute(
+            "INSERT OR IGNORE INTO institutions(provider_key, name, institution_type, created_at) VALUES (?1, ?2, ?3, ?4)",
+            params![provider_key, request.institution_name.trim(), request.institution_type, now],
+        ).map_err(db_error)?;
+        connection
+            .query_row(
+                "SELECT id FROM institutions WHERE provider_key = ?1",
+                [&provider_key],
+                |row| row.get(0),
+            )
+            .map_err(db_error)?
+    };
     let include_in_net_worth = default_include_in_net_worth(&request.account_type);
     connection.execute(
         "INSERT INTO accounts(institution_id, name, account_type, currency, created_at, external_reference, include_in_net_worth) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)",
@@ -55,12 +123,6 @@ pub(crate) fn update_account(
     request: UpdateAccountRequest,
 ) -> Result<(), String> {
     validate_account(&request.name, &request.currency, &request.account_type)?;
-    if let Some(name) = &request.institution_name {
-        let name = name.trim();
-        if name.is_empty() || name.chars().count() > 120 || name.chars().any(char::is_control) {
-            return Err("Bitte einen Banknamen mit 1 bis 120 Zeichen eingeben.".into());
-        }
-    }
     let mut connection = storage.connect().map_err(db_error)?;
     let transaction = connection.transaction().map_err(db_error)?;
     let changed = transaction.execute(
@@ -70,28 +132,67 @@ pub(crate) fn update_account(
     if changed == 0 {
         return Err("Das Konto wurde nicht gefunden.".to_string());
     }
-    if let Some(name) = request.institution_name {
-        transaction.execute(
-            "UPDATE institutions SET name = ?1 WHERE id = (SELECT institution_id FROM accounts WHERE id = ?2)",
-            params![name.trim(), request.id],
-        ).map_err(db_error)?;
-    }
     transaction.commit().map_err(db_error)
+}
+
+pub(crate) fn update_institution(
+    storage: &Storage,
+    request: UpdateInstitutionRequest,
+) -> Result<(), String> {
+    validate_institution(&request.name, &request.institution_type)?;
+    let connection = storage.connect().map_err(db_error)?;
+    let duplicate: Option<i64> = connection
+        .query_row(
+            "SELECT id FROM institutions WHERE lower(name)=lower(?1) AND id<>?2",
+            params![request.name.trim(), request.id],
+            |row| row.get(0),
+        )
+        .optional()
+        .map_err(db_error)?;
+    if duplicate.is_some() {
+        return Err(
+            "Eine andere Bank oder ein anderer Anbieter verwendet diesen Namen bereits.".into(),
+        );
+    }
+    let changed = connection
+        .execute(
+            "UPDATE institutions SET name=?1, institution_type=?2 WHERE id=?3",
+            params![request.name.trim(), request.institution_type, request.id],
+        )
+        .map_err(db_error)?;
+    if changed == 0 {
+        Err("Der Anbieter wurde nicht gefunden.".into())
+    } else {
+        Ok(())
+    }
+}
+
+fn validate_institution(name: &str, institution_type: &str) -> Result<(), String> {
+    let name = name.trim();
+    if name.is_empty() || name.chars().count() > 120 || name.chars().any(char::is_control) {
+        return Err("Bitte einen Banknamen mit 1 bis 120 Zeichen eingeben.".into());
+    }
+    if !matches!(
+        institution_type,
+        "bank" | "insurance" | "broker" | "pension" | "self_custody"
+    ) {
+        return Err("Bitte einen gültigen Anbietertyp auswählen.".into());
+    }
+    Ok(())
 }
 
 pub(crate) fn delete_account(storage: &Storage, account_id: i64) -> Result<(), String> {
     let mut connection = storage.connect().map_err(db_error)?;
     let transaction = connection.transaction().map_err(db_error)?;
-    let institution_id: i64 = transaction
-        .query_row(
-            "SELECT institution_id FROM accounts WHERE id = ?1",
-            [account_id],
-            |row| row.get(0),
-        )
-        .map_err(|error| match error {
-            rusqlite::Error::QueryReturnedNoRows => "Das Konto wurde nicht gefunden.".to_string(),
-            other => db_error(other),
-        })?;
+    let exists = transaction
+        .query_row("SELECT 1 FROM accounts WHERE id = ?1", [account_id], |_| {
+            Ok(())
+        })
+        .optional()
+        .map_err(db_error)?;
+    if exists.is_none() {
+        return Err("Das Konto wurde nicht gefunden.".to_string());
+    }
     let related_data: i64 = transaction
         .query_row(
             "SELECT (SELECT COUNT(*) FROM import_runs WHERE account_id = ?1)
@@ -108,12 +209,6 @@ pub(crate) fn delete_account(storage: &Storage, account_id: i64) -> Result<(), S
     transaction
         .execute("DELETE FROM accounts WHERE id = ?1", [account_id])
         .map_err(db_error)?;
-    transaction
-        .execute(
-            "DELETE FROM institutions WHERE id = ?1 AND NOT EXISTS (SELECT 1 FROM accounts WHERE institution_id = ?1)",
-            [institution_id],
-        )
-        .map_err(db_error)?;
     transaction.commit().map_err(db_error)
 }
 
@@ -122,6 +217,22 @@ pub(crate) fn set_institution_logo(
     institution_id: i64,
     data_url: Option<String>,
 ) -> Result<(), String> {
+    let value = normalize_institution_logo(data_url)?;
+    let connection = storage.connect().map_err(db_error)?;
+    let changed = connection
+        .execute(
+            "UPDATE institutions SET logo_data_url = ?1 WHERE id = ?2",
+            params![value, institution_id],
+        )
+        .map_err(db_error)?;
+    if changed == 0 {
+        Err("Der Anbieter wurde nicht gefunden.".to_string())
+    } else {
+        Ok(())
+    }
+}
+
+fn normalize_institution_logo(data_url: Option<String>) -> Result<Option<String>, String> {
     let value = data_url
         .map(|value| value.trim().to_string())
         .filter(|value| !value.is_empty());
@@ -139,18 +250,7 @@ pub(crate) fn set_institution_logo(
             return Err("Das Logo darf maximal 2 MB gross sein.".to_string());
         }
     }
-    let connection = storage.connect().map_err(db_error)?;
-    let changed = connection
-        .execute(
-            "UPDATE institutions SET logo_data_url = ?1 WHERE id = ?2",
-            params![value, institution_id],
-        )
-        .map_err(db_error)?;
-    if changed == 0 {
-        Err("Der Anbieter wurde nicht gefunden.".to_string())
-    } else {
-        Ok(())
-    }
+    Ok(value)
 }
 
 pub(crate) fn accounts_from(storage: &Storage) -> Result<Vec<ManagedAccount>, String> {

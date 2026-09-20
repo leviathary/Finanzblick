@@ -1,5 +1,6 @@
 //! Prüft gespeicherte Referenzen und überlappende Buchungen vor der Importfreigabe.
 use super::identity::transaction_identity;
+use crate::importers::{CARD_PURCHASE_REFERENCE_NAMESPACE, PROVISIONAL_CARD_TRANSACTION_KIND};
 use crate::storage::database::errors::db_error;
 use crate::storage::database::Storage;
 use crate::storage::imports::models::{
@@ -96,11 +97,14 @@ pub(crate) fn duplicate_check(
             .map(|(currency, account_id)| (currency.as_str(), *account_id))
             .collect();
         let insertions = transaction_indices_to_insert(connection, request, &account_ids)?;
+        let updatable_transactions =
+            count_updatable_card_transactions(connection, request, &account_ids)?;
         let suspected_transactions =
             suspected_duplicates(connection, request, &account_ids, &insertions)?;
         return Ok(DuplicateCheck {
             exact_file,
             matching_transactions: request.statement.transactions.len() - insertions.len(),
+            updatable_transactions,
             total_transactions: request.statement.transactions.len(),
             suspected_transactions,
         });
@@ -145,9 +149,58 @@ pub(crate) fn duplicate_check(
     Ok(DuplicateCheck {
         exact_file,
         matching_transactions,
+        updatable_transactions: 0,
         total_transactions: request.statement.transactions.len(),
         suspected_transactions: Vec::new(),
     })
+}
+
+pub(crate) fn count_updatable_card_transactions(
+    connection: &Connection,
+    request: &SaveImportRequest,
+    account_ids: &std::collections::BTreeMap<&str, i64>,
+) -> Result<usize, String> {
+    let candidates = request
+        .statement
+        .transactions
+        .iter()
+        .filter(|row| {
+            row.reference_namespace.as_deref() == Some(CARD_PURCHASE_REFERENCE_NAMESPACE)
+                && row.transaction_kind != PROVISIONAL_CARD_TRANSACTION_KIND
+                && row.external_reference.is_some()
+        })
+        .collect::<Vec<_>>();
+    if candidates.is_empty() {
+        return Ok(0);
+    }
+    let mut query = connection
+        .prepare(
+            "SELECT EXISTS(
+               SELECT 1 FROM transaction_metadata
+               WHERE account_id=?1 AND reference_namespace=?3
+                 AND external_reference=?2
+                 AND transaction_kind=?4
+             )",
+        )
+        .map_err(db_error)?;
+    let mut count = 0;
+    for row in candidates {
+        let reference = row.external_reference.as_deref().unwrap();
+        let account_id = account_ids[row.currency.as_str()];
+        let exists: bool = query
+            .query_row(
+                params![
+                    account_id,
+                    reference,
+                    CARD_PURCHASE_REFERENCE_NAMESPACE,
+                    PROVISIONAL_CARD_TRANSACTION_KIND
+                ],
+                |result| result.get(0),
+            )
+            .map_err(db_error)?;
+        count += usize::from(exists);
+    }
+    Ok(count)
 }
 
 pub(crate) fn suspected_duplicates(
@@ -169,7 +222,7 @@ pub(crate) fn suspected_duplicates(
         )
         .map_err(db_error)?;
     let mut result = Vec::new();
-    for index in candidate_indices.iter().copied() {
+    for index in candidate_indices {
         let row = &request.statement.transactions[index];
         let account_id = account_ids[row.currency.as_str()];
         let stored = query
@@ -286,31 +339,16 @@ fn suspicious_match(
     compared_date: &str,
     compared_description: &str,
 ) -> bool {
-    incoming_date == compared_date
-        || (dates_are_close(incoming_date, compared_date)
-            && descriptions_are_similar(incoming_description, compared_description))
-}
-
-fn descriptions_are_similar(left: &str, right: &str) -> bool {
-    let left = similarity_tokens(left);
-    let right = similarity_tokens(right);
-    if left.is_empty() || right.is_empty() {
+    if !dates_are_close(incoming_date, compared_date) {
         return false;
     }
-    if left == right {
-        return true;
-    }
-    let common = left.intersection(&right).count();
-    common >= 2 && common * 4 >= left.len().max(right.len()) * 3
+    let incoming = normalized_description(incoming_description);
+    let compared = normalized_description(compared_description);
+    incoming.is_empty() || compared.is_empty() || incoming == compared
 }
 
-fn similarity_tokens(value: &str) -> std::collections::BTreeSet<String> {
-    value
-        .to_lowercase()
-        .split(|character: char| !character.is_alphanumeric())
-        .filter(|token| token.len() > 1)
-        .map(ToOwned::to_owned)
-        .collect()
+fn normalized_description(value: &str) -> String {
+    value.split_whitespace().collect::<Vec<_>>().join(" ")
 }
 
 pub(crate) fn stored_identity_exists(
@@ -452,7 +490,10 @@ pub(crate) fn transaction_indices_to_insert(
         }
         // A new bank reference is a distinct posting even when date, amount
         // and description coincide with another posting.
-        if identity.external_reference.is_some() || exceeds_legacy_count {
+        let stable_card_reference =
+            identity.namespace.as_deref() == Some(CARD_PURCHASE_REFERENCE_NAMESPACE);
+        if (identity.external_reference.is_some() && !stable_card_reference) || exceeds_legacy_count
+        {
             indices.push((index, identity.clone()));
         }
     }

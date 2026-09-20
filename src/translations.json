@@ -1,4 +1,12 @@
 {
+"Datenschutz beim Import": ["Privacy during import","Confidentialité lors de l’importation","Privacy durante l’importazione"],
+"Bankauszüge, Kreditkartenabrechnungen und Steuererklärungen werden ausschliesslich lokal auf deinem Gerät verarbeitet. Die Importdateien werden weder hochgeladen noch an Finanzblick oder Dritte übertragen.": ["Bank statements, credit card statements and tax returns are processed exclusively locally on your device. Import files are neither uploaded nor transferred to Finanzblick or third parties.","Les relevés bancaires, relevés de carte de crédit et déclarations fiscales sont traités exclusivement en local sur ton appareil. Les fichiers importés ne sont ni téléversés ni transmis à Finanzblick ou à des tiers.","Estratti conto, estratti della carta di credito e dichiarazioni fiscali vengono elaborati esclusivamente in locale sul tuo dispositivo. I file importati non vengono caricati né trasmessi a Finanzblick o a terzi."],
+"Finanzblick kopiert die Quelldokumente nicht in dein Finanzprofil. Nach der Analyse werden die eingelesenen Dateiinhalte aus dem Arbeitsspeicher verworfen; die App benötigt die Dokumente danach nicht mehr. Deine Originaldateien bleiben an ihrem bisherigen Speicherort und werden weder verändert noch gelöscht.": ["Finanzblick does not copy source documents into your financial profile. After analysis, the file contents read into memory are discarded; the app no longer needs the documents. Your original files remain in their existing location and are neither modified nor deleted.","Finanzblick ne copie pas les documents sources dans ton profil financier. Après l’analyse, le contenu des fichiers lu en mémoire est supprimé ; l’application n’a ensuite plus besoin des documents. Tes fichiers originaux restent à leur emplacement et ne sont ni modifiés ni supprimés.","Finanzblick non copia i documenti sorgente nel tuo profilo finanziario. Dopo l’analisi, i contenuti letti in memoria vengono scartati; l’app non ha più bisogno dei documenti. I file originali rimangono nella loro posizione e non vengono né modificati né eliminati."],
+"Gespeichert werden nur die von dir bestätigten Finanzdaten, der Dateiname und ein technischer Fingerabdruck zur Duplikaterkennung. Diese Informationen liegen verschlüsselt in deinem lokalen Finanzprofil.": ["Only the financial data you confirm, the file name and a technical fingerprint for duplicate detection are stored. This information is encrypted in your local financial profile.","Seules les données financières que tu confirmes, le nom du fichier et une empreinte technique destinée à la détection des doublons sont enregistrés. Ces informations sont chiffrées dans ton profil financier local.","Vengono salvati solo i dati finanziari da te confermati, il nome del file e un’impronta tecnica per il rilevamento dei duplicati. Queste informazioni sono cifrate nel tuo profilo finanziario locale."],
+"Nur wenn du im Finanzchat ausdrücklich ein Datenpaket freigibst, werden die darin angezeigten Informationen an den gewählten Chat-Dienst übertragen. Die ursprünglichen Importdokumente gehören nicht zu diesem Datenpaket.": ["Only when you explicitly approve a data package in Finance Chat is the information shown in it transferred to the selected chat service. The original import documents are not part of this data package.","Ce n’est que si tu autorises explicitement un paquet de données dans le chat financier que les informations qui y sont affichées sont transmises au service de chat choisi. Les documents importés d’origine ne font pas partie de ce paquet.","Solo quando autorizzi esplicitamente un pacchetto di dati nella chat finanziaria, le informazioni mostrate vengono trasmesse al servizio di chat selezionato. I documenti importati originali non fanno parte di questo pacchetto."],
+"PDF anzeigen": ["View PDF","Afficher le PDF","Visualizza PDF"],
+"PDFs können nur in der Desktop-App angezeigt werden.": ["PDFs can only be viewed in the desktop app.","Les PDF ne peuvent être affichés que dans l’application de bureau.","I PDF possono essere visualizzati solo nell’app desktop."],
+"PDF konnte nicht geöffnet werden: {0}": ["The PDF could not be opened: {0}","Le PDF n’a pas pu être ouvert : {0}","Impossibile aprire il PDF: {0}"],
 "Datenqualität": ["Data quality","Qualité des données","Qualità dei dati"],
 "Bestand auf Duplikate prüfen": ["Check existing data for duplicates","Vérifier les données existantes pour détecter les doublons","Controlla i dati esistenti per duplicati"],
 "Findet mögliche Dubletten aus früheren Importen, ohne Buchungen automatisch zu verändern.": ["Finds potential duplicates from earlier imports without changing transactions automatically.","Détecte les doublons potentiels provenant d’importations antérieures sans modifier automatiquement les écritures.","Individua potenziali duplicati di importazioni precedenti senza modificare automaticamente le transazioni."],
@@ -28,13 +36,23 @@
 "mögliche Duplikate": ["potential duplicates","doublons potentiels","potenziali duplicati"],
 "Entscheide bei jeder markierten Buchung, ob sie importiert oder übersprungen werden soll.": ["For each marked transaction, decide whether it should be imported or skipped.","Pour chaque écriture marquée, décide si elle doit être importée ou ignorée.","Per ogni transazione contrassegnata, decidi se deve essere importata o ignorata."],
 "Duplikatprüfung vollständig abgeschlossen.": ["Duplicate review completed.","Vérification des doublons terminée.","Verifica dei duplicati completata."],
+"{0} von {1} ungeklärt": ["{0} of {1} unresolved","{0} sur {1} non résolus","{0} di {1} da chiarire"],
 "Duplikatprüfung": ["Duplicate review","Vérification des doublons","Verifica duplicati"],
 "Mögliches Duplikat": ["Potential duplicate","Doublon potentiel","Potenziale duplicato"],
 "Ähnliche Buchung bereits gespeichert": ["Similar transaction already stored","Écriture similaire déjà enregistrée","Transazione simile già salvata"],
 "Ähnliche Buchung in dieser Datei": ["Similar transaction in this file","Écriture similaire dans ce fichier","Transazione simile in questo file"],
+"Vergleichsbuchung": ["Comparison transaction","Écriture de comparaison","Transazione di confronto"],
+"Bereits gespeichert": ["Already stored","Déjà enregistrée","Già salvata"],
+"Aus derselben Datei": ["From the same file","Du même fichier","Dallo stesso file"],
 "Duplikatentscheidung": ["Duplicate decision","Décision concernant le doublon","Decisione sul duplicato"],
 "Als neue Buchung importieren": ["Import as new transaction","Importer comme nouvelle écriture","Importa come nuova transazione"],
+"Kein Duplikat – behalten": ["Not a duplicate – keep","Pas un doublon – conserver","Non è un duplicato – conserva"],
+"✓ Kein Duplikat – wird importiert": ["✓ Not a duplicate – will be imported","✓ Pas un doublon – sera importé","✓ Non è un duplicato – verrà importato"],
 "Als Duplikat überspringen": ["Skip as duplicate","Ignorer comme doublon","Ignora come duplicato"],
+"✓ Als Duplikat erkannt – wird übersprungen": ["✓ Confirmed duplicate – will be skipped","✓ Doublon confirmé – sera ignoré","✓ Duplicato confermato – verrà ignorato"],
+"Import läuft …": ["Import in progress …","Importation en cours…","Importazione in corso…"],
+"1 Warnhinweis": ["1 warning","1 avertissement","1 avviso"],
+"{0} Warnhinweise": ["{0} warnings","{0} avertissements","{0} avvisi"],
 "Kein verdächtiger Treffer": ["No suspicious match","Aucune correspondance suspecte","Nessuna corrispondenza sospetta"],
 "Kontozuordnung und Duplikatprüfung vollständig. Die Datei ist jetzt bereit zum Import.": ["Account assignment and duplicate review are complete. The file is ready to import.","L’affectation du compte et la vérification des doublons sont terminées. Le fichier est prêt à être importé.","L’assegnazione del conto e la verifica dei duplicati sono complete. Il file è pronto per l’importazione."],
 "Prüfe zuerst alle möglichen Duplikate in den Dateivorschauen.": ["Review all potential duplicates in the file previews first.","Vérifie d’abord tous les doublons potentiels dans les aperçus des fichiers.","Controlla prima tutti i potenziali duplicati nelle anteprime dei file."],
@@ -1302,6 +1320,41 @@
     "Bank or provider",
     "Banque ou prestataire",
     "Banca o fornitore"
+  ],
+  "Anbieter auswählen": [
+    "Select provider",
+    "Sélectionner un prestataire",
+    "Seleziona fornitore"
+  ],
+  "Neuen Anbieter anlegen": [
+    "Create new provider",
+    "Créer un nouveau prestataire",
+    "Crea nuovo fornitore"
+  ],
+  "Anbietername": [
+    "Provider name",
+    "Nom du prestataire",
+    "Nome del fornitore"
+  ],
+  "Anbieter bearbeiten": [
+    "Edit provider",
+    "Modifier le prestataire",
+    "Modifica fornitore"
+  ],
+  "Der Anbieter konnte nicht gespeichert werden.": [
+    "The provider could not be saved.",
+    "Le prestataire n’a pas pu être enregistré.",
+    "Impossibile salvare il fornitore."
+  ],
+  "Eine andere Bank oder ein anderer Anbieter verwendet diesen Namen bereits.": [
+    "Another bank or provider already uses this name.",
+    "Une autre banque ou un autre prestataire utilise déjà ce nom.",
+    "Un’altra banca o un altro fornitore usa già questo nome."
+  ],
+  "Bitte einen gültigen Anbietertyp auswählen.": [
+    "Select a valid provider type.",
+    "Sélectionnez un type de prestataire valide.",
+    "Seleziona un tipo di fornitore valido."
   ],
   "Anbietertyp": [
     "Provider type",
@@ -2598,6 +2651,21 @@
     "· Présélection selon l’IBAN / la référence enregistrée.",
     "· Preselezione in base all’IBAN / riferimento salvato."
   ],
+  "Für die Kontokennung im Auszug ist kein aktives Konto mit derselben hinterlegten IBAN oder Kontoreferenz vorhanden. Prüfe die Kontodaten unter Banken & Konten.": [
+    "No active account has the same saved IBAN or account reference as the statement. Check the account details under Banks & Accounts.",
+    "Aucun compte actif ne possède le même IBAN ou la même référence enregistrée que le relevé. Vérifiez les données sous Banques et comptes.",
+    "Nessun conto attivo ha lo stesso IBAN o riferimento salvato dell’estratto. Verifica i dati in Banche e conti."
+  ],
+  "Enthält der Auszug eine IBAN oder Kontoreferenz, wird er nur einem aktiven Konto mit derselben hinterlegten Kennung zugeordnet. Bei einer Abweichung bleibt der Import gesperrt, bis du die Kontodaten korrigiert hast.": [
+    "If the statement contains an IBAN or account reference, it is assigned only to an active account with the same saved identifier. If they differ, importing remains blocked until you correct the account details.",
+    "Si le relevé contient un IBAN ou une référence de compte, il est affecté uniquement à un compte actif portant le même identifiant enregistré. En cas de différence, l’importation reste bloquée jusqu’à la correction des données du compte.",
+    "Se l’estratto contiene un IBAN o un riferimento del conto, viene assegnato solo a un conto attivo con lo stesso identificativo salvato. In caso di differenza, l’importazione resta bloccata finché non correggi i dati del conto."
+  ],
+  "Die Kontokennung im Auszug stimmt nicht mit der beim gewählten Konto hinterlegten IBAN oder Kontoreferenz überein. Bitte die Kontozuordnung prüfen.": [
+    "The account reference in the statement does not match the IBAN or account reference saved for the selected account. Check the account assignment.",
+    "La référence du relevé ne correspond pas à l’IBAN ou à la référence enregistrée pour le compte sélectionné. Vérifiez l’affectation du compte.",
+    "Il riferimento nell’estratto non corrisponde all’IBAN o al riferimento salvato per il conto selezionato. Verifica l’assegnazione del conto."
+  ],
   "Kein passendes Konto vorhanden": [
     "No matching account",
     "Aucun compte correspondant",
@@ -3267,6 +3335,11 @@
     "{0} amounts selected",
     "{0} montants sélectionnés",
     "{0} importi selezionati"
+  ],
+  "Summe der Auswahl": [
+    "Selection total",
+    "Total de la sélection",
+    "Totale della selezione"
   ],
   "Beträge anklicken oder mit gedrückter Maustaste darüberziehen.": [
     "Click amounts or drag across them with the mouse button held down.",
@@ -4866,9 +4939,17 @@
   "Bereits importierte Dateien und vorhandene Buchungen werden erkannt. Einzelne vorhandene Buchungen werden übersprungen und in der Vorschau ausgewiesen.": ["Previously imported files and existing transactions are detected. Individual existing transactions are skipped and identified in the preview.", "Les fichiers déjà importés et les transactions existantes sont détectés. Les transactions déjà présentes sont ignorées et signalées dans l’aperçu.", "I file già importati e le transazioni esistenti vengono rilevati. Le singole transazioni già presenti vengono ignorate e indicate nell’anteprima."],
   "Unter Importierte Dateien kannst du später nachvollziehen, welche Quelle welchem Konto zugeordnet wurde.": ["Under Imported files you can later see which source was assigned to which account.", "Sous Fichiers importés, tu peux ensuite vérifier quelle source a été attribuée à quel compte.", "In File importati puoi verificare in seguito quale fonte è stata assegnata a quale conto."],
   "Lösche einen Import erst, nachdem du die im Bestätigungsdialog beschriebene Wirkung geprüft hast.": ["Delete an import only after reviewing the effect described in the confirmation dialog.", "Ne supprime une importation qu’après avoir vérifié l’effet décrit dans la boîte de confirmation.", "Elimina un’importazione solo dopo aver verificato l’effetto descritto nella finestra di conferma."],
+  "Offene Kreditkartenmonate": ["Open credit card months", "Mois de carte de crédit ouverts", "Mesi aperti della carta di credito"],
+  "Noch nicht abgerechnete Kartenkäufe in der Kontowährung können bereits importiert werden. Bis zur Abrechnung verwendet Finanzblick dafür vorläufig das Einkaufsdatum und den Originalbetrag; die Vorschau weist darauf hin.": ["Card purchases that have not yet been settled can already be imported when they are in the account currency. Until settlement, Finanzblick provisionally uses the purchase date and original amount; the preview indicates this.", "Les achats par carte non encore décomptés peuvent déjà être importés s’ils sont dans la devise du compte. Jusqu’au décompte, Finanzblick utilise provisoirement la date d’achat et le montant d’origine ; l’aperçu le signale.", "Gli acquisti con carta non ancora contabilizzati possono già essere importati se sono nella valuta del conto. Fino alla contabilizzazione, Finanzblick usa provvisoriamente la data di acquisto e l’importo originale; l’anteprima lo segnala."],
+  "Offene Fremdwährungsbuchungen ohne abgerechneten Betrag werden nicht umgerechnet. Importiere sie erst, wenn der Kartenanbieter den endgültigen Betrag in der Kontowährung ausweist.": ["Open foreign-currency transactions without a settled amount are not converted. Import them only when the card provider shows the final amount in the account currency.", "Les opérations ouvertes en devise étrangère sans montant décompté ne sont pas converties. Importe-les seulement lorsque l’émetteur de la carte indique le montant final dans la devise du compte.", "Le transazioni aperte in valuta estera senza importo contabilizzato non vengono convertite. Importale solo quando l’emittente della carta mostra l’importo finale nella valuta del conto."],
+  "Importiere spätere vollständige Jahres- oder Monatsauszüge wie gewohnt. Finanzblick erkennt zuvor offene Kartenkäufe wieder und ersetzt Einkaufsdatum und Originalbetrag automatisch durch die endgültigen Abrechnungsdaten, statt eine zweite Buchung anzulegen.": ["Import later complete annual or monthly statements as usual. Finanzblick recognizes previously open card purchases and automatically replaces the purchase date and original amount with the final settlement data instead of creating a second transaction.", "Importe normalement les relevés annuels ou mensuels complets ultérieurs. Finanzblick reconnaît les achats par carte précédemment ouverts et remplace automatiquement la date d’achat et le montant d’origine par les données de décompte définitives au lieu de créer une seconde écriture.", "Importa normalmente i successivi estratti annuali o mensili completi. Finanzblick riconosce gli acquisti con carta precedentemente aperti e sostituisce automaticamente la data di acquisto e l’importo originale con i dati definitivi di contabilizzazione, invece di creare una seconda transazione."],
+  "{0} vorläufige Kreditkartenbuchungen werden mit den endgültigen Abrechnungsdaten aktualisiert.": ["{0} provisional credit card transactions will be updated with the final settlement data.", "{0} opérations provisoires de carte de crédit seront mises à jour avec les données de décompte définitives.", "{0} transazioni provvisorie della carta di credito verranno aggiornate con i dati definitivi di contabilizzazione."],
+  "{0} vorläufige Kartenbuchungen aktualisiert": ["{0} provisional card transactions updated", "{0} opérations provisoires de carte mises à jour", "{0} transazioni provvisorie della carta aggiornate"],
   "Konten, Anbieter und manuelle Vermögenspositionen verwalten.": ["Manage accounts, providers and manual asset positions.", "Gérer les comptes, les prestataires et les positions patrimoniales manuelles.", "Gestisci conti, fornitori e posizioni patrimoniali manuali."],
   "Konto hinzufügen": ["Add account", "Ajouter un compte", "Aggiungi conto"],
-  "Wähle Konto hinzufügen und erfasse Anbieter, Kontoname, Kontotyp und Währung.": ["Select Add account and enter the provider, account name, account type and currency.", "Sélectionne Ajouter un compte et saisis le prestataire, le nom, le type de compte et la devise.", "Seleziona Aggiungi conto e inserisci fornitore, nome del conto, tipo di conto e valuta."],
+  "Wähle Konto hinzufügen und danach einen vorhandenen Anbieter oder lege bewusst einen neuen an.": ["Select Add account, then choose an existing provider or explicitly create a new one.", "Sélectionne Ajouter un compte, puis choisis un prestataire existant ou crées-en explicitement un nouveau.", "Seleziona Aggiungi conto, quindi scegli un fornitore esistente o creane esplicitamente uno nuovo."],
+  "Erfasse Kontoname, Kontotyp und Währung.": ["Enter the account name, account type and currency.", "Saisis le nom du compte, le type de compte et la devise.", "Inserisci nome del conto, tipo di conto e valuta."],
+  "Name, Typ und Logo bearbeitest du zentral über das Drei-Punkte-Menü des Anbieters. Die Änderung gilt für alle zugehörigen Konten.": ["Edit the name, type and logo centrally from the provider’s three-dot menu. The change applies to all associated accounts.", "Modifie le nom, le type et le logo de manière centralisée via le menu à trois points du prestataire. La modification s’applique à tous les comptes associés.", "Modifica nome, tipo e logo centralmente dal menu a tre punti del fornitore. La modifica vale per tutti i conti associati."],
   "Lege fest, ob das Konto zum Gesamtvermögen zählt, und speichere es.": ["Choose whether the account is included in total assets and save it.", "Indique si le compte est inclus dans le patrimoine total, puis enregistre-le.", "Scegli se il conto deve essere incluso nel patrimonio totale e salvalo."],
   "Konten desselben Anbieters werden gemeinsam gruppiert. Ausgeschlossene Konten bleiben sichtbar, fliessen aber nicht in Vermögenssummen ein.": ["Accounts from the same provider are grouped together. Excluded accounts remain visible but are not included in asset totals.", "Les comptes d’un même prestataire sont regroupés. Les comptes exclus restent visibles mais ne sont pas inclus dans les totaux du patrimoine.", "I conti dello stesso fornitore sono raggruppati. I conti esclusi restano visibili ma non sono inclusi nei totali del patrimonio."],
   "Manuelle Positionen": ["Manual positions", "Positions manuelles", "Posizioni manuali"],
@@ -4894,6 +4975,7 @@
   "Begrenze bei Bedarf Bank, Konto und Zeitraum.": ["Limit the bank, account and period if needed.", "Limite la banque, le compte et la période si nécessaire.", "Limita banca, conto e periodo se necessario."],
   "Wähle Ausgaben oder Einnahmen und danach die Darstellung nach Kategorie oder Monat.": ["Choose Expenses or Income, then the view by category or month.", "Choisis Dépenses ou Revenus, puis l’affichage par catégorie ou par mois.", "Scegli Uscite o Entrate, quindi la vista per categoria o mese."],
   "Öffne eine Kategorie oder einen Monatswert, um die zugehörigen Buchungen zu prüfen.": ["Open a category or monthly value to review the related transactions.", "Ouvre une catégorie ou une valeur mensuelle pour vérifier les transactions correspondantes.", "Apri una categoria o un valore mensile per controllare le transazioni corrispondenti."],
+  "Ziehe in der Monatsmatrix mit gedrückter linker Maustaste über mehrere Zellen. Mit Strg oder Cmd kannst du weitere Zellen und Bereiche hinzufügen.": ["In the monthly matrix, hold the left mouse button and drag across multiple cells. Hold Ctrl or Cmd to add more cells and ranges.", "Dans la matrice mensuelle, maintiens le bouton gauche de la souris enfoncé et fais glisser sur plusieurs cellules. Maintiens Ctrl ou Cmd pour ajouter d’autres cellules et plages.", "Nella matrice mensile, tieni premuto il pulsante sinistro del mouse e trascina su più celle. Tieni premuto Ctrl o Cmd per aggiungere altre celle e intervalli."],
   "Weitere Kategorien bündelt kleinere Werte. Klappe die Zeile auf, um jede enthaltene Kategorie einzeln zu sehen.": ["Other categories groups smaller values. Expand the row to see each included category.", "Autres catégories regroupe les petites valeurs. Déplie la ligne pour voir chaque catégorie incluse.", "Altre categorie raggruppa i valori minori. Espandi la riga per vedere ogni categoria inclusa."],
   "Umbuchungen und Kartenausgleiche": ["Transfers and card settlements", "Virements et règlements de carte", "Trasferimenti e saldi carta"],
   "Markiere Überträge zwischen eigenen Konten und Kreditkartenausgleiche über das Drei-Punkte-Menü. Dadurch werden interne Bewegungen nicht als zusätzliche Einnahmen oder Ausgaben gezählt.": ["Mark transfers between your own accounts and credit card settlements from the three-dot menu. This prevents internal movements from being counted as additional income or expenses.", "Marque les virements entre tes propres comptes et les règlements de carte via le menu à trois points. Les mouvements internes ne sont ainsi pas comptés comme revenus ou dépenses supplémentaires.", "Contrassegna i trasferimenti tra i tuoi conti e i saldi delle carte dal menu a tre punti. In questo modo i movimenti interni non vengono conteggiati come ulteriori entrate o uscite."],
@@ -4953,5 +5035,10 @@
   "Warum fehlen aktuelle Marktwerte?": ["Why are current market values missing?", "Pourquoi les valeurs de marché actuelles manquent-elles ?", "Perché mancano i valori di mercato attuali?"],
   "Prüfe Wertpapierkennung, Börse, Internetverbindung und Einstellungen → Marktpreise. Dort kannst du einen neuen Abruf starten und Fehlermeldungen sehen.": ["Check the security identifier, exchange, internet connection and Settings → Market prices. There you can start a new retrieval and view errors.", "Vérifie l’identifiant du titre, la bourse, la connexion Internet et Paramètres → Cours de marché. Tu peux y lancer une nouvelle récupération et consulter les erreurs.", "Controlla identificativo del titolo, borsa, connessione Internet e Impostazioni → Prezzi di mercato. Da lì puoi avviare un nuovo recupero e vedere gli errori."],
   "Ich habe mein Passwort vergessen. Was kann ich tun?": ["I forgot my password. What can I do?", "J’ai oublié mon mot de passe. Que puis-je faire ?", "Ho dimenticato la password. Cosa posso fare?"],
-  "Es gibt keinen Passwort-Reset. Ein Profil und seine Backups können nur mit dem jeweils gültigen Passwort geöffnet werden.": ["There is no password reset. A profile and its backups can only be opened with the applicable password.", "Il n’existe pas de réinitialisation du mot de passe. Un profil et ses sauvegardes ne peuvent être ouverts qu’avec le mot de passe correspondant.", "Non è possibile reimpostare la password. Un profilo e i relativi backup possono essere aperti solo con la password valida." ]
+  "Es gibt keinen Passwort-Reset. Ein Profil und seine Backups können nur mit dem jeweils gültigen Passwort geöffnet werden.": ["There is no password reset. A profile and its backups can only be opened with the applicable password.", "Il n’existe pas de réinitialisation du mot de passe. Un profil et ses sauvegardes ne peuvent être ouverts qu’avec le mot de passe correspondant.", "Non è possibile reimpostare la password. Un profilo e i relativi backup possono essere aperti solo con la password valida." ],
+  "Bank oder Anbieter hinzufügen": ["Add bank or provider", "Ajouter une banque ou un prestataire", "Aggiungi banca o fornitore"],
+  "Neuer Anbieter": ["New provider", "Nouveau prestataire", "Nuovo fornitore"],
+  "Lege über Bank oder Anbieter hinzufügen zuerst die Bankbeziehung an. Ein Konto ergänzt du danach über das Drei-Punkte-Menü der Anbietergruppe.": ["First create the banking relationship with Add bank or provider. Then add an account from the provider group's three-dot menu.", "Crée d’abord la relation bancaire avec Ajouter une banque ou un prestataire. Ajoute ensuite un compte via le menu à trois points du groupe de prestataires.", "Crea prima il rapporto bancario con Aggiungi banca o fornitore. Aggiungi poi un conto dal menu a tre punti del gruppo del fornitore."],
+  "Der PDF-Text ist beschädigt oder verwendet ein nicht unterstütztes älteres Format. Die übrigen Dateien können weiterverarbeitet werden.": ["The PDF text is damaged or uses an unsupported older format. The remaining files can still be processed.", "Le texte du PDF est endommagé ou utilise un ancien format non pris en charge. Les autres fichiers peuvent continuer à être traités.", "Il testo del PDF è danneggiato o utilizza un vecchio formato non supportato. Gli altri file possono continuare a essere elaborati."],
+  "Die Datei konnte nicht verarbeitet werden. Die übrigen Dateien können weiterverarbeitet werden.": ["The file could not be processed. The remaining files can still be processed.", "Le fichier n’a pas pu être traité. Les autres fichiers peuvent continuer à être traités.", "Impossibile elaborare il file. Gli altri file possono continuare a essere elaborati."]
 }

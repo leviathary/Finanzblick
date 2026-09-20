@@ -13,6 +13,31 @@ import { ManualPositions } from "../positions/ManualPositions";
 import { AccountEditor } from "./AccountEditor";
 import { accountTypes, supportsManualValuation, typeLabel, money } from "./presentation";
 
+interface InstitutionGroup {
+  id: number;
+  name: string;
+  key: string;
+  institutionType: string;
+  logoDataUrl: string | null;
+  accounts: Account[];
+}
+
+interface ManagedInstitution {
+  id: number;
+  name: string;
+  providerKey: string;
+  institutionType: string;
+  logoDataUrl: string | null;
+}
+
+const institutionTypes = [
+  ["bank", "Bank"],
+  ["insurance", "Versicherung"],
+  ["broker", "Broker"],
+  ["pension", "Vorsorge"],
+  ["self_custody", "Selbstverwahrung (eigene Wallet)"],
+] as const;
+
 function accountMetadata(account: Account) {
   const activity = supportsManualValuation(account.accountType)
     ? `${account.manualValuationCount} ${account.manualValuationCount === 1 ? t("Position") : t("Positionen")}${account.manualQuantity !== null && account.manualUnitPriceMinor !== null ? ` · ${account.manualQuantity.toLocaleString(locale())} ${t("Einheiten")} × ${money(account.manualUnitPriceMinor, account.manualQuoteCurrency ?? account.currency)}` : ""}`
@@ -25,12 +50,15 @@ function accountMetadata(account: Account) {
 export function Accounts() {
   const { settings } = useSettings();
   const [accounts, setAccounts] = useState<Account[]>([]);
+  const [institutions, setInstitutions] = useState<ManagedInstitution[]>([]);
   const [editing, setEditing] = useState<Account | null>(null);
+  const [editingInstitution, setEditingInstitution] = useState<Omit<InstitutionGroup, "accounts"> | null>(null);
   const [showCreate, setShowCreate] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [valuing, setValuing] = useState<Account | null>(null);
   const [draft, setDraft] = useState({
+    institutionId: "",
     institutionName: "",
     institutionType: "bank",
     accountName: "",
@@ -41,7 +69,12 @@ export function Accounts() {
 
   const load = useCallback(async () => {
     try {
-      setAccounts(await invoke<Account[]>("list_accounts"));
+      const [nextAccounts, nextInstitutions] = await Promise.all([
+        invoke<Account[]>("list_accounts"),
+        invoke<ManagedInstitution[]>("list_institutions"),
+      ]);
+      setAccounts(nextAccounts);
+      setInstitutions(nextInstitutions);
       setError(null);
     } catch (reason) {
       setError(
@@ -63,21 +96,15 @@ export function Accounts() {
       window.removeEventListener("market-data-refreshed", refreshMarketValues);
   }, [load]);
   const groups = useMemo(
-    () =>
-      Object.values(
-        accounts.reduce<
-          Record<string, { name: string; key: string; accounts: Account[] }>
-        >((result, account) => {
-          result[account.providerKey] ??= {
-            name: account.provider,
-            key: account.providerKey,
-            accounts: [],
-          };
-          result[account.providerKey].accounts.push(account);
-          return result;
-        }, {}),
-      ),
-    [accounts],
+    () => institutions.map(institution => ({
+      id: institution.id,
+      name: institution.name,
+      key: institution.providerKey,
+      institutionType: institution.institutionType,
+      logoDataUrl: institution.logoDataUrl,
+      accounts: accounts.filter(account => account.institutionId === institution.id),
+    })),
+    [accounts, institutions],
   );
   async function createAccount() {
     setSaving(true);
@@ -86,10 +113,12 @@ export function Accounts() {
       await invoke("create_account", {
         request: {
           ...draft,
+          institutionId: draft.institutionId === "__new__" ? null : Number(draft.institutionId),
           externalReference: draft.externalReference || null,
         },
       });
       setDraft({
+        institutionId: "",
         institutionName: "",
         institutionType: "bank",
         accountName: "",
@@ -118,7 +147,6 @@ export function Accounts() {
         request: {
           id: account.id,
           name: account.name,
-          institutionName: editing?.id === account.id ? account.provider : null,
           accountType: account.accountType,
           currency: account.currency,
           externalReference: account.externalReference || null,
@@ -134,6 +162,42 @@ export function Accounts() {
           ? reason
           : t("Konto konnte nicht gespeichert werden."),
       );
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  function openCreate(group: InstitutionGroup) {
+    setEditing(null); setEditingInstitution(null); setValuing(null); setError(null);
+    setDraft({
+      institutionId: String(group.id),
+      institutionName: group.name,
+      institutionType: group.institutionType,
+      accountName: "",
+      accountType: group?.institutionType === "self_custody" ? "manual_asset" : "cash",
+      currency: group?.institutionType === "self_custody" ? "USD" : settings.defaultCurrency,
+      externalReference: "",
+    });
+    setShowCreate(true);
+  }
+
+  async function saveInstitution() {
+    if (!editingInstitution) return;
+    setSaving(true); setError(null);
+    try {
+      const request = {
+        name: editingInstitution.name,
+        institutionType: editingInstitution.institutionType,
+      };
+      if (editingInstitution.id === 0) {
+        await invoke("create_institution", { request: { ...request, logoDataUrl: editingInstitution.logoDataUrl } });
+      } else {
+        await invoke("update_institution", { request: { id: editingInstitution.id, ...request } });
+      }
+      setEditingInstitution(null);
+      await load();
+    } catch (reason) {
+      setError(typeof reason === "string" ? reason : t("Der Anbieter konnte nicht gespeichert werden."));
     } finally {
       setSaving(false);
     }
@@ -190,12 +254,16 @@ export function Accounts() {
       reader.onerror = () => reject(reader.error);
       reader.readAsDataURL(file);
     });
+    if (institutionId === 0) {
+      setEditingInstitution(current => current ? { ...current, logoDataUrl: dataUrl } : current);
+      return;
+    }
     setSaving(true);
     setError(null);
     try {
       await invoke("set_institution_logo", { institutionId, dataUrl });
-      setEditing((current) =>
-        current?.institutionId === institutionId
+      setEditingInstitution((current) =>
+        current?.id === institutionId
           ? { ...current, logoDataUrl: dataUrl }
           : current,
       );
@@ -212,12 +280,16 @@ export function Accounts() {
   }
 
   async function removeLogo(institutionId: number) {
+    if (institutionId === 0) {
+      setEditingInstitution(current => current ? { ...current, logoDataUrl: null } : current);
+      return;
+    }
     setSaving(true);
     setError(null);
     try {
       await invoke("set_institution_logo", { institutionId, dataUrl: null });
-      setEditing((current) =>
-        current?.institutionId === institutionId
+      setEditingInstitution((current) =>
+        current?.id === institutionId
           ? { ...current, logoDataUrl: null }
           : current,
       );
@@ -245,8 +317,11 @@ export function Accounts() {
             )}
           </p>
         </div>
-        <button className="primary-button" onClick={() => setShowCreate(true)}>
-          {t("Konto hinzufügen")}
+        <button className="primary-button" onClick={() => {
+          setShowCreate(false); setEditing(null); setValuing(null); setError(null);
+          setEditingInstitution({ id: 0, name: "", key: "", institutionType: "bank", logoDataUrl: null });
+        }}>
+          {t("Bank oder Anbieter hinzufügen")}
         </button>
       </div>
       {error && <p className="error-message">{t(error)}</p>}
@@ -262,53 +337,7 @@ export function Accounts() {
             </button>
           </div>
           <div className="management-form">
-            <label>
-              {t("Bank oder Anbieter")}
-              <input
-                value={draft.institutionName}
-                onChange={(event) =>
-                  setDraft({ ...draft, institutionName: event.target.value })
-                }
-                placeholder={t(
-                  draft.institutionType === "self_custody"
-                    ? "z. B. eigene Verwaltung"
-                    : "z. B. ZKB",
-                )}
-              />
-            </label>
-            <label>
-              {t("Anbietertyp")}
-              <select
-                value={draft.institutionType}
-                onChange={(event) => {
-                  const institutionType = event.target.value;
-                  setDraft({
-                    ...draft,
-                    institutionType,
-                    accountType:
-                      institutionType === "self_custody"
-                        ? "manual_asset"
-                        : draft.accountType,
-                    currency:
-                      institutionType === "self_custody"
-                        ? "USD"
-                        : draft.currency,
-                    externalReference:
-                      institutionType === "self_custody"
-                        ? ""
-                        : draft.externalReference,
-                  });
-                }}
-              >
-                <option value="bank">{t("Bank")}</option>
-                <option value="insurance">{t("Versicherung")}</option>
-                <option value="broker">Broker</option>
-                <option value="pension">{t("Vorsorge")}</option>
-                <option value="self_custody">
-                  {t("Selbstverwahrung (eigene Wallet)")}
-                </option>
-              </select>
-            </label>
+            <label>{t("Bank oder Anbieter")}<input value={draft.institutionName} disabled /></label>
             <label>
               {t("Kontoname")}
               <input
@@ -371,12 +400,30 @@ export function Accounts() {
           <div className="form-actions">
             <button
               className="primary-button"
-              disabled={saving}
+              disabled={saving || !draft.institutionId || !draft.institutionName.trim()}
               onClick={createAccount}
             >
               {saving ? t("Wird gespeichert…") : t("Konto anlegen")}
             </button>
           </div>
+        </article>
+      )}
+      {editingInstitution && (
+        <article className="dashboard-card account-edit-screen institution-edit-screen">
+          <div className="card-heading">
+            <div><p className="eyebrow">{t(editingInstitution.id === 0 ? "Neuer Anbieter" : "Anbieter bearbeiten")}</p><h2>{editingInstitution.id === 0 ? t("Bank oder Anbieter hinzufügen") : editingInstitution.name}</h2></div>
+          </div>
+          <div className="management-form institution-form">
+            <label>{t("Anbietername")}<input maxLength={120} disabled={saving} value={editingInstitution.name} onChange={event => setEditingInstitution({ ...editingInstitution, name: event.target.value })}/></label>
+            <label>{t("Anbietertyp")}<select disabled={saving} value={editingInstitution.institutionType} onChange={event => setEditingInstitution({ ...editingInstitution, institutionType: event.target.value })}>{institutionTypes.map(([value, label]) => <option value={value} key={value}>{t(label)}</option>)}</select></label>
+          </div>
+          <div className="institution-logo-editor">
+            <ProviderLogo name={editingInstitution.name} providerKey={editingInstitution.key} customLogo={editingInstitution.logoDataUrl}/>
+            <div><strong>{t("Logo der Bank oder des Anbieters")}</strong><small>{t("PNG, JPEG, WebP oder SVG · maximal 2 MB")}</small></div>
+            <label className="secondary-button">{t("Eigenes Logo hochladen")}<input type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" disabled={saving} onChange={event => { void setLogo(editingInstitution.id, event.target.files?.[0] ?? null); event.currentTarget.value = ""; }}/></label>
+            {editingInstitution.logoDataUrl && <button className="text-button danger" disabled={saving} onClick={() => void removeLogo(editingInstitution.id)}>{t("Logo entfernen")}</button>}
+          </div>
+          <div className="form-actions"><button className="secondary-button" disabled={saving} onClick={() => setEditingInstitution(null)}>{t("Abbrechen")}</button><button className="primary-button" disabled={saving || !editingInstitution.name.trim()} onClick={() => void saveInstitution()}>{saving ? t("Wird gespeichert…") : t("Speichern")}</button></div>
         </article>
       )}
       {editing && (
@@ -395,8 +442,6 @@ export function Accounts() {
             saving={saving}
             onCancel={() => setEditing(null)}
             onSave={() => void saveAccount(editing)}
-            onSetLogo={(file) => void setLogo(editing.institutionId, file)}
-            onRemoveLogo={() => void removeLogo(editing.institutionId)}
             onValue={() => void openValuation(editing)}
           />
         </article>
@@ -404,7 +449,7 @@ export function Accounts() {
       {valuing && (
         <ManualPositions key={valuing.id} account={valuing} onClose={() => setValuing(null)} onChanged={load} onError={setError} />
       )}
-      {!valuing && !editing && (
+      {!valuing && !editing && !editingInstitution && (
         <div className="institution-list">
           {groups.map((group) => (
             <article className="institution-card" key={group.key}>
@@ -412,15 +457,19 @@ export function Accounts() {
                 <ProviderLogo
                   name={group.name}
                   providerKey={group.key}
-                  customLogo={group.accounts[0]?.logoDataUrl}
+                  customLogo={group.logoDataUrl}
                 />
-                <div>
+                <div className="institution-heading">
                   <h2>{group.name}</h2>
                   <small>
                     · {group.accounts.length}{" "}
                     {group.accounts.length === 1 ? t("Konto") : t("Konten")}
                   </small>
                 </div>
+                <ActionMenu label={t("Aktionen") + ": " + group.name} disabled={saving} actions={[
+                  { label: t("Konto hinzufügen"), onClick: () => openCreate(group) },
+                  { label: t("Anbieter bearbeiten"), onClick: () => { setShowCreate(false); setEditing(null); setValuing(null); setEditingInstitution({ id: group.id, name: group.name, key: group.key, institutionType: group.institutionType, logoDataUrl: group.logoDataUrl }); } },
+                ]}/>
               </header>
               {group.accounts.map((account) => (
                 <div
@@ -443,7 +492,7 @@ export function Accounts() {
                     {money(account.balanceMinor ?? 0, account.balanceCurrency)}
                   </b>
                   <ActionMenu label={t("Aktionen") + ": " + account.name} disabled={saving} actions={[
-                    { label: t("Bearbeiten"), onClick: () => setEditing({ ...account }) },
+                    { label: t("Bearbeiten"), onClick: () => { setShowCreate(false); setEditingInstitution(null); setEditing({ ...account }); } },
                     { label: account.includeInNetWorth ? t("Vom Gesamtvermögen ausschließen") : t("Zum Gesamtvermögen zählen"), onClick: () => void toggle(account, "includeInNetWorth") },
                     account.importCount === 0 && account.manualValuationCount === 0
                       ? { label: t("Löschen"), onClick: () => void deleteAccount(account), separated: true, danger: true }

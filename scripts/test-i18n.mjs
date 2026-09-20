@@ -212,6 +212,9 @@ test('local help is routed, searchable and fully translated', () => {
   assert.match(help, /type="search"/);
   assert.match(help, /aria-current=\{activeArticle\.id === article\.id \? "page"/);
   assert.match(help, /headingRef\.current\?\.focus\(\)/);
+  assert.match(content, /t\("Datenschutz beim Import"\)/);
+  assert.match(content, /Finanzblick kopiert die Quelldokumente nicht in dein Finanzprofil/);
+  assert.match(content, /Gespeichert werden nur die von dir bestätigten Finanzdaten, der Dateiname und ein technischer Fingerabdruck/);
   for (const match of (help + content).matchAll(/\bt\("([^"\\]+)"\)/g)) {
     assert.equal(messages[match[1]]?.length, 3, match[1]);
   }

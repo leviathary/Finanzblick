@@ -6,8 +6,11 @@ import test from "node:test";
 import ts from "typescript";
 
 const source = await readFile(new URL("../src/features/imports/importBatch.ts", import.meta.url), "utf8");
+const wizardSource = await readFile(new URL("../src/features/imports/ImportWizard.tsx", import.meta.url), "utf8");
+const applicationCss = await readFile(new URL("../src/styles/application.css", import.meta.url), "utf8");
+const desktopCapability = JSON.parse(await readFile(new URL("../src-tauri/capabilities/default.json", import.meta.url), "utf8"));
 const js = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.ESNext } }).outputText;
-const { canRelease, displayedProvider, suggestAccounts, hasAccounts, readyToSave, saveBatch, unresolvedDuplicateCount } = await import(`data:text/javascript;base64,${Buffer.from(js).toString("base64")}`);
+const { canRelease, displayedProvider, suggestAccounts, hasAccountReferenceMismatch, hasAccounts, orderedBatchItems, orderedPreviewTransactionIndices, readyToSave, saveBatch, unresolvedDuplicateCount } = await import(`data:text/javascript;base64,${Buffer.from(js).toString("base64")}`);
 const account = { id: 1, name: "Privat", provider: "UBS", providerKey: "ubs", currency: "CHF", accountType: "checking", isActive: true };
 const parsed = { format: "CSV", accountName: "", provider: "ubs", accountType: "checking", transactions: [{ currency: "CHF" }], currencyBalances: [{ currency: "USD" }] };
 const usd = { ...account, id: 2, currency: "USD" };
@@ -46,6 +49,69 @@ test("potential duplicates block import until every row has an explicit decision
   assert.equal(readyToSave(reviewed, [account, usd]), true);
 });
 
+test("duplicate decisions and the actual import expose distinct visible states", () => {
+  assert.match(wizardSource, /✓ Kein Duplikat – wird importiert/);
+  assert.match(wizardSource, /✓ Als Duplikat erkannt – wird übersprungen/);
+  assert.match(wizardSource, /Import läuft …/);
+  assert.match(wizardSource, /duplicate-comparison-row/);
+  assert.match(wizardSource, /t\("Vergleichsbuchung"\)/);
+  assert.match(applicationCss, /\.duplicate-review-actions[^}]+\[aria-pressed="true"\][^{]*\{[^}]*color:\s*var\(--text-on-action\)/s);
+  assert.match(applicationCss, /tr\.duplicate-comparison-row[^}]+background:\s*var\(--bg-surface\)/s);
+  assert.doesNotMatch(applicationCss, /--text-inverse/);
+});
+
+test("overlapping card exports expose provisional transaction updates", () => {
+  assert.match(wizardSource, /check\.updatableTransactions === 0/);
+  assert.match(wizardSource, /vorläufige Kreditkartenbuchungen werden mit den endgültigen Abrechnungsdaten aktualisiert/);
+  assert.match(wizardSource, /vorläufige Kartenbuchungen aktualisiert/);
+  assert.match(wizardSource, /updatedTransactions/);
+});
+
+test("file warnings stay compact and the batch list avoids a second horizontal scroller", () => {
+  assert.match(wizardSource, /className="warning-chip"/);
+  assert.match(wizardSource, /className="batch-warning-status"/);
+  assert.doesNotMatch(wizardSource, /current\.parsed\.warnings\.map/);
+  assert.match(applicationCss, /@media \(max-width: 1280px\)[\s\S]+\.import-batch-card \.batch-table \{ overflow-x: hidden; \}/);
+  assert.match(wizardSource, /preview-description-column/);
+  assert.match(wizardSource, /preview-duplicate-column/);
+  assert.match(applicationCss, /\.transaction-preview table[^}]+min-width:\s*920px;[^}]+table-layout:\s*fixed;/s);
+  assert.match(applicationCss, /\.import-batch-card \.batch-table > table \{[^}]+table-layout:\s*fixed;/s);
+});
+
+test("failed PDF rows can open their exact source document", () => {
+  assert.doesNotMatch(wizardSource, /import \{ openPath \} from "@tauri-apps\/plugin-opener"/);
+  assert.match(wizardSource, /item\.error && item\.file\.extension === "pdf"/);
+  assert.match(wizardSource, /invoke<void>\("open_import_pdf", \{ path: item\.file\.path \}\)/);
+  assert.match(wizardSource, /t\("PDF anzeigen"\)/);
+  assert.match(wizardSource, /sourceOpenError/);
+  assert.ok(!desktopCapability.permissions.includes("opener:allow-open-path"));
+});
+
+test("an open PDF preview exposes its source beside the review status", () => {
+  assert.match(wizardSource, /className="review-header-actions"/);
+  assert.match(wizardSource, /current\.file\.extension === "pdf"/);
+  assert.match(wizardSource, /onClick=\{\(\) => void openSource\(current\)\}/);
+  assert.match(applicationCss, /\.review-header-actions[^}]+flex-wrap:\s*wrap/);
+});
+
+test("preview places unresolved and resolved duplicate candidates before clear rows", () => {
+  const ordered = {
+    ...item,
+    parsed: { ...parsed, transactions: [{ currency: "CHF" }, { currency: "CHF" }, { currency: "CHF" }, { currency: "CHF" }] },
+    duplicateCheck: { suspectedTransactions: [{ transactionIndex: 3 }, { transactionIndex: 1 }] },
+    duplicateResolutions: { 1: "keep" },
+  };
+  assert.deepEqual(orderedPreviewTransactionIndices(ordered), [3, 1, 0, 2]);
+});
+
+test("batch list places failures and unresolved duplicate reviews first", () => {
+  const clear = { ...item, file: { path: "clear" } };
+  const duplicate = { ...item, file: { path: "duplicate" }, duplicateCheck: { suspectedTransactions: [{ transactionIndex: 0 }] }, duplicateResolutions: {} };
+  const failed = { ...item, file: { path: "failed" }, error: "Invalid PDF" };
+  const resolved = { ...duplicate, file: { path: "resolved" }, duplicateResolutions: { 0: "keep" } };
+  assert.deepEqual(orderedBatchItems([clear, duplicate, failed, resolved]).map(candidate => candidate.file.path), ["failed", "duplicate", "clear", "resolved"]);
+});
+
 test("suggests only unambiguous matching accounts", () => {
   assert.deepEqual(suggestAccounts([account, usd], parsed), { CHF: 1, USD: 2 });
   assert.deepEqual(suggestAccounts([account, { ...account, id: 3 }, usd], parsed), { USD: 2 });
@@ -68,6 +134,11 @@ test("provider statements can select an account by canonical account reference",
   const matching = { ...account, provider: "ZKB", providerKey: "zkb", externalReference: "CH8300700113100012345" };
   const other = { ...matching, id: 3, externalReference: "CH8300700113100099999" };
   assert.deepEqual(suggestAccounts([other, matching], statement), { CHF: 1 });
+  assert.equal(hasAccounts({ ...item, parsed: statement, accountIds: { CHF: 1 } }, [matching]), true);
+  assert.equal(hasAccounts({ ...item, parsed: statement, accountIds: { CHF: 3 } }, [other]), false);
+  assert.equal(hasAccountReferenceMismatch([other], statement), true);
+  assert.equal(hasAccountReferenceMismatch([matching], statement), false);
+  assert.match(wizardSource, /kein aktives Konto mit derselben hinterlegten IBAN oder Kontoreferenz vorhanden/);
 });
 
 test("generic camt selects by IBAN across providers and supports balance-only files", () => {

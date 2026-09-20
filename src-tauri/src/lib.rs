@@ -21,14 +21,19 @@ fn lock_if_minimized(handle: &tauri::AppHandle, minimized: bool) {
 }
 
 #[tauri::command]
-fn parse_statement(
-    storage: tauri::State<'_, storage::Storage>,
+async fn parse_statement(
+    app: tauri::AppHandle,
     path: String,
     selected_provider: Option<String>,
     mapping: Option<importers::TabularMapping>,
 ) -> Result<importers::ParsedStatement, String> {
-    let _lease = storage.require_unlocked()?;
-    importers::parse_statement(path, selected_provider, mapping)
+    tauri::async_runtime::spawn_blocking(move || {
+        let storage = app.state::<storage::Storage>();
+        let _lease = storage.require_unlocked()?;
+        importers::parse_statement(path, selected_provider, mapping)
+    })
+    .await
+    .map_err(|_| "Die Datei konnte nicht verarbeitet werden. Die übrigen Dateien können weiterverarbeitet werden.".to_string())?
 }
 
 #[tauri::command]
@@ -109,6 +114,7 @@ pub fn run() {
             parse_statement,
             inspect_tabular_file,
             import_files::collect_import_files,
+            import_files::open_import_pdf,
             commands::imports::save_import,
             commands::imports::check_import_duplicates,
             commands::imports::is_file_imported,
@@ -120,6 +126,7 @@ pub fn run() {
             commands::reporting::database_status,
             commands::reporting::dashboard_data,
             commands::accounts::list_accounts,
+            commands::accounts::list_institutions,
             commands::reporting::wealth_data,
             commands::position_history::position_chart_data,
             commands::transactions::transaction_analysis,
@@ -147,7 +154,9 @@ pub fn run() {
             commands::categories::list_industry_rules,
             commands::categories::save_industry_rule,
             commands::accounts::create_account,
+            commands::accounts::create_institution,
             commands::accounts::update_account,
+            commands::accounts::update_institution,
             commands::accounts::delete_account,
             commands::positions::save_manual_valuation,
             commands::positions::list_manual_positions,

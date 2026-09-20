@@ -18,6 +18,7 @@ import { TransactionActions, type TransferType } from "./TransactionActions";
 import { SettlementRuleDialog } from "./SettlementRuleDialog";
 import { DuplicateRemovalDialog } from "./DuplicateRemovalDialog";
 import { reportPeriod } from "../../domain/reportPeriod";
+import { monthlySelectionContains, summarizeMonthlySelection, type MonthlyCell, type MonthlyCellSelection } from "./monthlyCellSelection";
 
 interface Category { key: string; label: string; color: string; amountMinor: number; transactionCount: number }
 interface CategoryBreakdownRow extends Category { keys: string[]; expandable?: boolean; nested?: boolean }
@@ -73,6 +74,9 @@ export function Transactions() {
   const [chartControls, setChartControls] = useState<HTMLDivElement | null>(null);
   const [comparisonYear, setComparisonYear] = useState(() => String(new Date().getFullYear()));
   const [monthlyDrilldown, setMonthlyDrilldown] = useState<{ categoryKey: string | null; year: string; month: number } | null>(null);
+  const [monthlySelections, setMonthlySelections] = useState<MonthlyCellSelection[]>([]);
+  const monthlySelectionDrag = useRef<{ anchor: MonthlyCell; base: MonthlyCellSelection[] } | null>(null);
+  const suppressMonthlyClick = useRef(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [categoryMessage, setCategoryMessage] = useState<string | null>(null);
@@ -119,7 +123,7 @@ export function Transactions() {
   useEffect(() => {
     if (comparisonYears.length && !comparisonYears.includes(comparisonYear)) setComparisonYear(comparisonYears[0]);
   }, [comparisonYear, comparisonYears]);
-  useEffect(() => { setMonthlyDrilldown(null); }, [comparisonYear]);
+  useEffect(() => { setMonthlyDrilldown(null); setMonthlySelections([]); }, [comparisonYear]);
   const contribution = (item: Transaction) => detailMode === "income" ? item.incomeMinor : item.expenseMinor;
   const comparisonMonths = useMemo(() => {
     const rows = new Map<string, { key: string; label: string; color: string; months: number[]; total: number }>();
@@ -154,6 +158,33 @@ export function Transactions() {
     () => Array.from({ length: 12 }, (_, month) => comparisonMonths.reduce((sum, row) => sum + row.months[month], 0)),
     [comparisonMonths],
   );
+  const monthlySelectionSummary = useMemo(
+    () => summarizeMonthlySelection(monthlySelections, comparisonMonths.map(row => row.months)),
+    [comparisonMonths, monthlySelections],
+  );
+  useEffect(() => {
+    setMonthlySelections([]); monthlySelectionDrag.current = null;
+  }, [analysisView, detailMode, provider, account, from, to, category]);
+  useEffect(() => {
+    const move = (event: MouseEvent) => {
+      const drag = monthlySelectionDrag.current;
+      if (!drag) return;
+      if (!(event.buttons & 1)) { monthlySelectionDrag.current = null; return; }
+      const cell = document.elementFromPoint(event.clientX, event.clientY)?.closest<HTMLElement>("[data-monthly-row][data-monthly-month]");
+      if (!cell) return;
+      const focus = { row: Number(cell.dataset.monthlyRow), month: Number(cell.dataset.monthlyMonth) };
+      if (focus.row !== drag.anchor.row || focus.month !== drag.anchor.month) {
+        suppressMonthlyClick.current = true;
+      }
+      event.preventDefault();
+      setMonthlySelections([...drag.base, { anchor: drag.anchor, focus }]);
+    };
+    const stop = () => { monthlySelectionDrag.current = null; };
+    window.addEventListener("mousemove", move);
+    window.addEventListener("mouseup", stop);
+    window.addEventListener("blur", stop);
+    return () => { stop(); window.removeEventListener("mousemove", move); window.removeEventListener("mouseup", stop); window.removeEventListener("blur", stop); };
+  }, []);
   const monthlyDrilldownLabel = useMemo(() => {
     if (!monthlyDrilldown) return null;
     const selected = categorizedTransactions.find(item => item.categoryKey === monthlyDrilldown.categoryKey);
@@ -316,6 +347,14 @@ export function Transactions() {
     setMonthlyDrilldown({ categoryKey, year: comparisonYear, month });
     setSearch(""); setMinimum(""); setRowLimit(200);
     requestAnimationFrame(() => document.getElementById("transaction-details")?.scrollIntoView({ behavior: "smooth", block: "start" }));
+  }
+  function beginMonthlySelection(cell: MonthlyCell, event: React.MouseEvent) {
+    if (event.button !== 0) return;
+    const additive = event.ctrlKey || event.metaKey;
+    const base = additive ? monthlySelections : [];
+    suppressMonthlyClick.current = additive;
+    monthlySelectionDrag.current = { anchor: cell, base };
+    setMonthlySelections([...base, { anchor: cell, focus: cell }]);
   }
   function choosePeriod(period: typeof selectedPeriod) {
     setSelectedPeriod(period);
@@ -482,7 +521,7 @@ export function Transactions() {
             })}</div>
             </div>
           </> : <>
-            {comparisonMonths.length ? <div className="monthly-comparison-scroll">
+            {comparisonMonths.length ? <><div className="monthly-comparison-scroll" onKeyDown={event => { if (event.key === "Escape") setMonthlySelections([]); }}>
               <table>
                 <thead><tr>
                   <th scope="col">{t("Kategorie")}</th>
@@ -490,15 +529,19 @@ export function Transactions() {
                   <th scope="col">{t("Ø / Monat")}</th>
                 </tr></thead>
                 <tbody>
-                  {comparisonMonths.map(row => {
+                  {comparisonMonths.map((row, rowIndex) => {
                     const average = row.total / comparisonMonthCount;
                     return <tr key={row.key}>
                       <th scope="row"><span className="category-color" style={{ background: row.color }}/><span>{categoryName(row.key, row.label)}</span></th>
                       {row.months.map((amount, month) => {
                         const selected = monthlyDrilldown?.categoryKey === row.key && monthlyDrilldown.year === comparisonYear && monthlyDrilldown.month === month;
-                        const className = `${month < comparisonMonthRange.start || month > comparisonMonthRange.end ? "outside-range " : ""}${!amount ? "empty-month " : ""}${amount > 0 && average > 0 && amount > average * 1.35 ? "high-spend " : ""}${selected ? "selected-month-cell" : ""}`.trim();
-                        return <td className={className} key={month}>{amount
-                          ? <button className="monthly-value-button" aria-pressed={selected} onClick={() => showMonthlyTransactions(row.key, month)} aria-label={`${categoryName(row.key, row.label)} · ${monthNameLong(month)} ${comparisonYear}: ${money(amount)}`}>{amountNumber(amount)}</button>
+                        const rangeSelected = monthlySelectionContains(monthlySelections, rowIndex, month);
+                        const className = `${month < comparisonMonthRange.start || month > comparisonMonthRange.end ? "outside-range " : ""}${!amount ? "empty-month " : ""}${amount > 0 && average > 0 && amount > average * 1.35 ? "high-spend " : ""}${selected ? "selected-month-cell " : ""}${rangeSelected ? "range-selected-month-cell" : ""}`.trim();
+                        return <td className={className} key={month} data-monthly-row={rowIndex} data-monthly-month={month} onMouseDown={event => beginMonthlySelection({ row: rowIndex, month }, event)}>{amount
+                          ? <button className="monthly-value-button" aria-pressed={rangeSelected || selected} onClick={event => {
+                            if (suppressMonthlyClick.current && event.detail > 0) { suppressMonthlyClick.current = false; return; }
+                            showMonthlyTransactions(row.key, month);
+                          }} aria-label={`${categoryName(row.key, row.label)} · ${monthNameLong(month)} ${comparisonYear}: ${money(amount)}`}>{amountNumber(amount)}</button>
                           : "–"}</td>;
                       })}
                       <td className="row-average">{amountNumber(average)}</td>
@@ -516,7 +559,10 @@ export function Transactions() {
                   <td>{amountNumber(comparisonTotals.reduce((sum, amount) => sum + amount, 0) / comparisonMonthCount)}</td>
                 </tr></tfoot>
               </table>
-            </div> : <p className="intro monthly-comparison-empty">{t("Keine Buchungen für dieses Jahr vorhanden.")}</p>}
+            </div>{monthlySelections.length > 0 && <div className="monthly-selection-summary">
+              <div role="status" aria-live="polite"><span>{tr`${monthlySelectionSummary.count} Beträge ausgewählt`}</span><strong>{t("Summe der Auswahl")}: {money(monthlySelectionSummary.total)}</strong></div>
+              <button className="secondary-button" onClick={() => setMonthlySelections([])}>{t("Auswahl aufheben")}</button>
+            </div>}</> : <p className="intro monthly-comparison-empty">{t("Keine Buchungen für dieses Jahr vorhanden.")}</p>}
           </>}
         </div>
       </section>

@@ -112,8 +112,11 @@ mod tests {
         .unwrap();
         db.execute("UPDATE institutions SET name=?1", [secret])
             .unwrap();
-        db.execute("UPDATE transactions SET description=?1", ["Bolt ride · personal note"])
-            .unwrap();
+        db.execute(
+            "UPDATE transactions SET description=?1",
+            ["Bolt ride · personal note"],
+        )
+        .unwrap();
         let mut r = request();
         r.include_details = true;
         let data = snapshot(&db, &r).unwrap();
@@ -206,23 +209,39 @@ mod tests {
             INSERT INTO card_credit_decisions(transaction_id,kind) VALUES(103,'REFUND');").unwrap();
         crate::storage::banking::reporting_flags::set_settlement(&db, 104, true).unwrap();
         let mut r = request();
-        r.from = "2025-08-01".into(); r.to = "2025-09-30".into();
-        r.question = "Wie viel habe ich mit der Kreditkarte im August und September für Bolt ausgegeben?".into();
+        r.from = "2025-08-01".into();
+        r.to = "2025-09-30".into();
+        r.question =
+            "Wie viel habe ich mit der Kreditkarte im August und September für Bolt ausgegeben?"
+                .into();
         r.include_details = true;
         for scope in [AccountScope::Auto, AccountScope::All] {
             r.account_scope = scope;
             let data = snapshot(&db, &r).unwrap();
             let details = data["detailTransactions"].as_array().unwrap();
-            let total = |month: &str, currency: &str| details.iter().filter(|row|
-                row["isCard"] == true && row["currency"] == currency
-                && row["bookingDate"].as_str().unwrap().starts_with(month)
-                && row["description"].as_str().unwrap().to_lowercase().contains("bolt"))
-                .map(|row|row["expenseMinor"].as_i64().unwrap()).sum::<i64>();
+            let total = |month: &str, currency: &str| {
+                details
+                    .iter()
+                    .filter(|row| {
+                        row["isCard"] == true
+                            && row["currency"] == currency
+                            && row["bookingDate"].as_str().unwrap().starts_with(month)
+                            && row["description"]
+                                .as_str()
+                                .unwrap()
+                                .to_lowercase()
+                                .contains("bolt")
+                    })
+                    .map(|row| row["expenseMinor"].as_i64().unwrap())
+                    .sum::<i64>()
+            };
             assert_eq!(total("2025-08", "CHF"), 1000);
             assert_eq!(total("2025-09", "CHF"), 1700);
             assert_eq!(total("2025-09", "EUR"), 500);
             assert!(!data.to_string().contains("Bolt outside period"));
-            if scope == AccountScope::Auto { assert!(!data.to_string().contains("Bolt bank payment")); }
+            if scope == AccountScope::Auto {
+                assert!(!data.to_string().contains("Bolt bank payment"));
+            }
         }
     }
 

@@ -1,14 +1,15 @@
 //! Extrahiert PDF-Belegtexte und wendet Anbieterparser oder allgemeine Erkennungsregeln an.
 
 use crate::importers::*;
+use lopdf::Document;
 use regex::Regex;
+use std::panic::{catch_unwind, AssertUnwindSafe};
 
 pub(in crate::importers) fn parse(
     path: &Path,
     selected_provider: Option<&str>,
 ) -> Result<ParsedStatement, String> {
-    let text = pdf_extract::extract_text(path)
-        .map_err(|error| format!("PDF-Text konnte nicht gelesen werden: {error}"))?;
+    let text = extract_pdf_text(path)?;
     let provider = normalize_provider(
         selected_provider
             .filter(|value| *value != "unknown")
@@ -39,6 +40,116 @@ pub(in crate::importers) fn parse(
         .to_string();
     let (transactions, opening_balance, closing_balance) = parse_pdf_rows(&lines, &provider)?;
     Ok(ParsedStatement { currency_balances: Vec::new(), account_type: None, provider, format: "PDF".to_string(), account_name, transactions, opening_balance_minor: opening_balance, closing_balance_minor: closing_balance, warnings: vec!["PDF-Erkennung ist heuristisch. Bitte Datum, Betrag und Saldo vor dem Import kontrollieren.".to_string()], ..ParsedStatement::default() })
+}
+
+fn extract_pdf_text(path: &Path) -> Result<String, String> {
+    match guarded_pdf_extract(|| pdf_extract::extract_text(path)) {
+        Ok(text) => Ok(text),
+        Err(primary_error) => extract_text_without_inline_images(path).map_err(|fallback_error| {
+            format!("{primary_error} Alternativer PDF-Leser: {fallback_error}")
+        }),
+    }
+}
+
+/// Some older bank PDFs contain valid binary inline images that the text
+/// parser rejects as an invalid content stream. Text extraction does not need
+/// those images, so retry with only their BI..ID..EI blocks removed.
+fn extract_text_without_inline_images(path: &Path) -> Result<String, String> {
+    let mut document = Document::load(path)
+        .or_else(|_| Document::load_with_password(path, ""))
+        .map_err(|error| format!("PDF konnte nicht geöffnet werden: {error}"))?;
+    let pages = document.get_pages();
+    for page_id in pages.values() {
+        let content = document
+            .get_page_content(*page_id)
+            .map_err(|error| format!("PDF-Seiteninhalt ist unlesbar: {error}"))?;
+        let sanitized = strip_inline_images(&content)?;
+        document
+            .change_page_content(*page_id, sanitized)
+            .map_err(|error| {
+                format!("PDF-Seiteninhalt konnte nicht vorbereitet werden: {error}")
+            })?;
+    }
+    document
+        .extract_text(&pages.keys().copied().collect::<Vec<_>>())
+        .map_err(|error| format!("PDF-Text konnte nicht gelesen werden: {error}"))
+}
+
+fn strip_inline_images(content: &[u8]) -> Result<Vec<u8>, String> {
+    let mut sanitized = Vec::with_capacity(content.len());
+    let mut cursor = 0;
+    while let Some(start) = find_token(content, cursor, b"BI") {
+        sanitized.extend_from_slice(&content[cursor..start]);
+        let Some(data_marker) = find_token(content, start + 2, b"ID").filter(|marker| {
+            *marker <= start + 1024
+                && content[start + 2..*marker]
+                    .iter()
+                    .all(|byte| byte.is_ascii_graphic() || byte.is_ascii_whitespace())
+                && content[start + 2..*marker]
+                    .windows(2)
+                    .any(|value| value == b"/W" || value == b"/H")
+        }) else {
+            sanitized.extend_from_slice(b"BI");
+            cursor = start + 2;
+            continue;
+        };
+        let end_marker = find_inline_image_end(content, data_marker + 2)
+            .ok_or("Inline-Bild im PDF ist nicht vollständig.")?;
+        sanitized.extend_from_slice(b"\n");
+        cursor = end_marker + 2;
+    }
+    sanitized.extend_from_slice(&content[cursor..]);
+    Ok(sanitized)
+}
+
+fn find_inline_image_end(content: &[u8], start: usize) -> Option<usize> {
+    let mut cursor = start;
+    while let Some(candidate) = find_token(content, cursor, b"EI") {
+        let next = content[candidate + 2..]
+            .iter()
+            .position(|byte| !byte.is_ascii_whitespace())
+            .map(|offset| candidate + 2 + offset);
+        if next.is_none_or(|index| {
+            content[index] == b'Q'
+                && (index + 1 == content.len() || content[index + 1].is_ascii_whitespace())
+        }) {
+            return Some(candidate);
+        }
+        cursor = candidate + 2;
+    }
+    None
+}
+
+fn find_token(content: &[u8], start: usize, token: &[u8]) -> Option<usize> {
+    content
+        .windows(token.len())
+        .enumerate()
+        .skip(start)
+        .find_map(|(index, candidate)| {
+            let before = index == 0 || is_pdf_delimiter(content[index - 1]);
+            let after = index + token.len() == content.len()
+                || is_pdf_delimiter(content[index + token.len()]);
+            (candidate == token && before && after).then_some(index)
+        })
+}
+
+fn is_pdf_delimiter(byte: u8) -> bool {
+    byte.is_ascii_whitespace()
+        || matches!(
+            byte,
+            b'(' | b')' | b'<' | b'>' | b'[' | b']' | b'{' | b'}' | b'/' | b'%'
+        )
+}
+
+fn guarded_pdf_extract<E>(extract: impl FnOnce() -> Result<String, E>) -> Result<String, String>
+where
+    E: std::fmt::Display,
+{
+    match catch_unwind(AssertUnwindSafe(extract)) {
+        Ok(Ok(text)) => Ok(text),
+        Ok(Err(error)) => Err(format!("PDF-Text konnte nicht gelesen werden: {error}")),
+        Err(_) => Err("Der PDF-Text ist beschädigt oder verwendet ein nicht unterstütztes älteres Format. Die übrigen Dateien können weiterverarbeitet werden.".into()),
+    }
 }
 
 fn parse_pdf_rows(lines: &[String], provider: &str) -> Result<ParsedPdfRows, String> {
@@ -155,5 +266,27 @@ fn signed_pdf_amount(provider: &str, description: &str, amount: i64) -> i64 {
         amount
     } else {
         -amount
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{guarded_pdf_extract, strip_inline_images};
+
+    #[test]
+    fn pdf_extractor_panics_are_reported_as_file_errors() {
+        let error = guarded_pdf_extract(|| -> Result<String, &'static str> {
+            panic!("invalid content stream")
+        })
+        .unwrap_err();
+        assert!(error.contains("nicht unterstütztes älteres Format"));
+    }
+
+    #[test]
+    fn removes_binary_inline_images_without_touching_text_operations() {
+        let content = b"BT (before) Tj ET\nq\nBI\n/W 48 /H 2 /BPC 1 /IM true\nID \0\0\x01\x02\0\0 EI\nQ\nBT (after) Tj ET";
+        let sanitized = strip_inline_images(content).unwrap();
+        let text = String::from_utf8(sanitized).unwrap();
+        assert_eq!(text, "BT (before) Tj ET\nq\n\n\nQ\nBT (after) Tj ET");
     }
 }

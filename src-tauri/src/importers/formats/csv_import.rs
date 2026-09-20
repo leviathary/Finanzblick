@@ -2,6 +2,7 @@
 
 use crate::importers::*;
 use encoding_rs::{UTF_16BE, UTF_16LE, WINDOWS_1252};
+use sha2::{Digest, Sha256};
 use std::collections::BTreeMap;
 
 pub(in crate::importers) fn decode(bytes: &[u8]) -> Result<(String, Vec<String>), String> {
@@ -117,14 +118,14 @@ fn parse_bytes(bytes: &[u8], selected_provider: Option<&str>) -> Result<ParsedSt
     let purchase_index = column(&["einkaufsdatum"]);
     let value_index = column(&["valutadatum", "valuta"]);
     let industry_index = column(&["branche", "industry"]);
-    let card = column(&["kartennummer"]).is_some()
-        && purchase_index.is_some()
-        && column(&["buchung"]).is_some();
+    let card_index = column(&["kartennummer"]);
+    let card = card_index.is_some() && purchase_index.is_some() && column(&["buchung"]).is_some();
     if debit_index.is_none() && credit_index.is_none() && amount_index.is_none() {
         return Err("Benötigte Betragsspalte fehlt.".into());
     }
     // Merchant names must never be used to guess the issuing bank.
     let provider = normalize_provider(selected_provider.unwrap_or("unknown"));
+    let provisional_card_csv = card && supports_provisional_card_csv(&provider);
     if provider == "unknown" {
         warnings.push(
             "Anbieter nicht im CSV ausgewiesen. Er wird aus deiner Kontozuordnung übernommen."
@@ -134,6 +135,7 @@ fn parse_bytes(bytes: &[u8], selected_provider: Option<&str>) -> Result<ParsedSt
     let mut transactions = Vec::new();
     let mut openings = BTreeMap::<String, i64>::new();
     let mut totals = BTreeMap::<String, i64>::new();
+    let mut card_occurrences = BTreeMap::<String, usize>::new();
     for record in reader.records() {
         let record = record
             .map_err(|error| format!("CSV konnte nicht vollständig gelesen werden: {error}"))?;
@@ -168,7 +170,7 @@ fn parse_bytes(bytes: &[u8], selected_provider: Option<&str>) -> Result<ParsedSt
                 .map(Some)
                 .ok_or_else(|| format!("Zeile {row}: Ungültiger Geldbetrag."))
         };
-        let amount = if debit_index.is_some() || credit_index.is_some() {
+        let settled_amount = if debit_index.is_some() || credit_index.is_some() {
             let debit = number(debit_index)?;
             let credit = number(credit_index)?;
             if debit.is_none() && credit.is_none() {
@@ -189,9 +191,9 @@ fn parse_bytes(bytes: &[u8], selected_provider: Option<&str>) -> Result<ParsedSt
         }
         if is_opening_label(&normalized_description) {
             if let Some(balance) = if card {
-                amount
+                settled_amount
             } else {
-                number(balance_index)?.or(amount)
+                number(balance_index)?.or(settled_amount)
             } {
                 if openings.insert(currency, balance).is_some() {
                     return Err(format!(
@@ -201,9 +203,35 @@ fn parse_bytes(bytes: &[u8], selected_provider: Option<&str>) -> Result<ParsedSt
             }
             continue;
         }
-        let amount = amount.ok_or_else(|| format!("Zeile {row}: Abgerechneter Betrag fehlt."))?;
-        let booking_date = normalize_date(get(Some(date_index)))
-            .ok_or_else(|| format!("Zeile {row}: Ungültiges oder fehlendes Buchungsdatum."))?;
+        let booking_date_text = get(Some(date_index));
+        let open_card_transaction = provisional_card_csv
+            && settled_amount.is_none()
+            && booking_date_text.is_empty()
+            && !get(purchase_index).is_empty();
+        let amount = if open_card_transaction {
+            let original_currency = get(original_currency_index).to_uppercase();
+            if !original_currency.is_empty() && original_currency != currency {
+                return Err(format!(
+                    "Zeile {row}: Offene Fremdwährungsbuchung ohne abgerechneten Betrag kann noch nicht sicher in {currency} umgerechnet werden."
+                ));
+            }
+            let original_amount = number(amount_index)?.ok_or_else(|| {
+                format!("Zeile {row}: Betrag der offenen Kreditkartenbuchung fehlt.")
+            })?;
+            let warning = "Offener Kreditkartenmonat: Noch nicht abgerechnete Buchungen in Kontowährung werden vorläufig mit Einkaufsdatum und Originalbetrag übernommen. Der endgültige Betrag und das Buchungsdatum können nach der Abrechnung abweichen.";
+            if !warnings.iter().any(|item| item == warning) {
+                warnings.push(warning.into());
+            }
+            -original_amount
+        } else {
+            settled_amount.ok_or_else(|| format!("Zeile {row}: Abgerechneter Betrag fehlt."))?
+        };
+        let booking_date = normalize_date(if open_card_transaction {
+            get(purchase_index)
+        } else {
+            booking_date_text
+        })
+        .ok_or_else(|| format!("Zeile {row}: Ungültiges oder fehlendes Buchungsdatum."))?;
         let value_date = if get(value_index).is_empty() {
             None
         } else {
@@ -225,6 +253,39 @@ fn parse_bytes(bytes: &[u8], selected_provider: Option<&str>) -> Result<ParsedSt
         if card && !get(purchase_index).is_empty() {
             description.push_str(&format!(" · Einkauf: {}", get(purchase_index)));
         }
+        let (transaction_kind, reference_namespace, external_reference) = if provisional_card_csv {
+            let original_amount = number(amount_index)?.unwrap_or(amount);
+            let original_currency = get(original_currency_index).to_uppercase();
+            let identity_source = format!(
+                "{}\u{1f}{}\u{1f}{}\u{1f}{}\u{1f}{}",
+                normalized(get(card_index)),
+                normalize_date(get(purchase_index)).unwrap_or_else(|| booking_date.clone()),
+                normalized(get(Some(description_index))),
+                original_amount,
+                if original_currency.is_empty() {
+                    currency.as_str()
+                } else {
+                    original_currency.as_str()
+                }
+            );
+            let occurrence = card_occurrences.entry(identity_source.clone()).or_default();
+            let reference = format!(
+                "{:x}",
+                Sha256::digest(format!("{identity_source}\u{1f}{occurrence}").as_bytes())
+            );
+            *occurrence += 1;
+            (
+                if open_card_transaction {
+                    PROVISIONAL_CARD_TRANSACTION_KIND.into()
+                } else {
+                    default_transaction_kind()
+                },
+                Some(CARD_PURCHASE_REFERENCE_NAMESPACE.into()),
+                Some(reference),
+            )
+        } else {
+            (default_transaction_kind(), None, None)
+        };
         *totals.entry(currency.clone()).or_default() += amount;
         let industry = get(industry_index).trim();
         transactions.push(ParsedTransaction {
@@ -237,6 +298,9 @@ fn parse_bytes(bytes: &[u8], selected_provider: Option<&str>) -> Result<ParsedSt
             currency,
             confidence: 0.95,
             source_row: row,
+            transaction_kind,
+            reference_namespace,
+            external_reference,
             ..ParsedTransaction::default()
         });
     }
@@ -373,5 +437,69 @@ mod tests {
             parsed.transactions[0].industry.as_deref(),
             Some("Lebensmittelgeschäfte")
         );
+    }
+
+    #[test]
+    fn imports_open_credit_card_month_in_account_currency_provisionally() {
+        let csv = "Kontonummer;Kartennummer;Einkaufsdatum;Buchungstext;Betrag;Originalwährung;Währung;Belastung;Gutschrift;Buchung\n1;123;19.09.2026;Offener Einkauf;249.40;CHF;CHF;;;\n1;123;18.09.2026;Offene Rückerstattung;-10.00;CHF;CHF;;;\n1;123;16.09.2026;Abgerechneter Einkauf;9.99;CHF;CHF;9.99;;17.09.2026\n";
+
+        let parsed = parse_bytes(csv.as_bytes(), Some("ubs")).unwrap();
+
+        assert_eq!(parsed.transactions.len(), 3);
+        assert_eq!(parsed.transactions[0].booking_date, "2026-09-17");
+        assert_eq!(parsed.transactions[0].amount_minor, -999);
+        assert_eq!(parsed.transactions[1].booking_date, "2026-09-18");
+        assert_eq!(parsed.transactions[1].amount_minor, 1000);
+        assert_eq!(parsed.transactions[2].booking_date, "2026-09-19");
+        assert_eq!(parsed.transactions[2].amount_minor, -24940);
+        assert_eq!(
+            parsed.transactions[2].transaction_kind,
+            "provisional_card_transaction"
+        );
+        assert_eq!(
+            parsed.transactions[2].reference_namespace.as_deref(),
+            Some("credit-card-purchase")
+        );
+        let finalized = parse_bytes(
+            "Kontonummer;Kartennummer;Einkaufsdatum;Buchungstext;Betrag;Originalwährung;Währung;Belastung;Gutschrift;Buchung\n1;123;19.09.2026;Offener Einkauf;249.40;CHF;CHF;249.40;;21.09.2026\n"
+                .as_bytes(),
+            Some("ubs"),
+        )
+        .unwrap();
+        assert_eq!(
+            finalized.transactions[0].external_reference,
+            parsed.transactions[2].external_reference
+        );
+        assert_eq!(
+            finalized.transactions[0].transaction_kind,
+            "cash_transaction"
+        );
+        assert_eq!(
+            parsed
+                .warnings
+                .iter()
+                .filter(|warning| warning.starts_with("Offener Kreditkartenmonat:"))
+                .count(),
+            1
+        );
+    }
+
+    #[test]
+    fn rejects_open_foreign_currency_card_rows_without_settled_amount() {
+        let csv = "Kontonummer;Kartennummer;Einkaufsdatum;Buchungstext;Betrag;Originalwährung;Währung;Belastung;Gutschrift;Buchung\n1;123;19.09.2026;Offener Einkauf;20.00;EUR;CHF;;;\n";
+
+        let error = parse_bytes(csv.as_bytes(), Some("ubs")).unwrap_err();
+
+        assert!(error.contains("Offene Fremdwährungsbuchung"));
+        assert!(error.contains("CHF"));
+    }
+
+    #[test]
+    fn does_not_apply_ubs_open_card_rules_to_other_providers() {
+        let csv = "Kontonummer;Kartennummer;Einkaufsdatum;Buchungstext;Betrag;Originalwährung;Währung;Belastung;Gutschrift;Buchung\n1;123;19.09.2026;Offener Einkauf;20.00;CHF;CHF;;;\n";
+
+        let error = parse_bytes(csv.as_bytes(), Some("swissquote")).unwrap_err();
+
+        assert!(error.contains("Abgerechneter Betrag fehlt"));
     }
 }

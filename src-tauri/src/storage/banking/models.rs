@@ -26,9 +26,28 @@ pub struct ManagedAccount {
     pub logo_data_url: Option<String>,
 }
 
+#[derive(Clone, Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ManagedInstitution {
+    pub id: i64,
+    pub name: String,
+    pub provider_key: String,
+    pub institution_type: String,
+    pub logo_data_url: Option<String>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CreateInstitutionRequest {
+    pub name: String,
+    pub institution_type: String,
+    pub logo_data_url: Option<String>,
+}
+
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct CreateAccountRequest {
+    pub institution_id: Option<i64>,
     pub institution_name: String,
     pub institution_type: String,
     pub account_name: String,
@@ -41,13 +60,20 @@ pub struct CreateAccountRequest {
 #[serde(rename_all = "camelCase")]
 pub struct UpdateAccountRequest {
     pub id: i64,
-    pub institution_name: Option<String>,
     pub name: String,
     pub account_type: String,
     pub currency: String,
     pub external_reference: Option<String>,
     pub is_active: bool,
     pub include_in_net_worth: bool,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct UpdateInstitutionRequest {
+    pub id: i64,
+    pub name: String,
+    pub institution_type: String,
 }
 
 #[derive(Debug, Serialize)]

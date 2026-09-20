@@ -92,6 +92,10 @@ in `src/styles/application.css`; Feature-Styles verwenden dieselben Farbrollen.
 ## 3. Flächen, Abstände und Ausrichtung
 
 - Weiß auf hellem Slate; dezente Rahmen und Schatten statt vieler farbiger Kästen.
+- Das Desktopfenster startet mit 1520 × 900 px, damit die vollständige
+  Monatsvergleichstabelle einschließlich „Ø / Monat“ sichtbar ist. Die unterstützte
+  Mindestbreite bleibt 920 px; schmalere Layouts dürfen horizontal scrollbare
+  Datentabellen verwenden.
 - Standard-Card: `dashboard-card`, Radius `--radius-card` (12 px),
   Schatten `--shadow-card`, Innenabstand normalerweise 24 px.
 - Anmeldung: maximal 420 px breit, Radius 16 px, Innenabstand 32 px.
@@ -139,6 +143,14 @@ in `src/styles/application.css`; Feature-Styles verwenden dieselben Farbrollen.
   innerhalb eines Formulars eine einheitliche Variante verwenden.
 - Sichtbare Labels; bei kompakten Tabellencontrols zusätzlich passende zugängliche Namen.
 - Fehler am betroffenen Bereich erklären. Eingaben nicht stillschweigend verwerfen.
+- Noch nicht abgerechnete Kreditkartenbuchungen in Kontowährung dürfen in der
+  Importvorschau vorläufig mit Einkaufsdatum und Originalbetrag erscheinen. Ein
+  Warnhinweis erklärt die Vorläufigkeit. Fremdwährungen ohne endgültigen Betrag
+  in Kontowährung werden nicht geschätzt oder stillschweigend umgerechnet. Bei
+  später überlappend importierten Jahres- oder Monatsauszügen werden ausschließlich
+  stabil identifizierte vorläufige Kartenbuchungen atomar mit den endgültigen
+  Abrechnungsdaten aktualisiert. Die Importvorschau und Erfolgszusammenfassung
+  nennen die Anzahl dieser Aktualisierungen.
 - Tabellen standardmäßig kompakt halten. Keine großen Aktionsblöcke in jeder
   Zeile der Haupt-Transaktionsübersicht; dort das Drei-Punkte-Menü verwenden.
 - Dedizierte Einrichtungsansichten dürfen direkte Zeilenaktionen haben.
@@ -222,12 +234,26 @@ in `src/styles/application.css`; Feature-Styles verwenden dieselben Farbrollen.
   Ansichten untereinander. Ein Direktlink setzt den Fokus auf die Artikelüberschrift.
   Screenshots verwenden ausschließlich synthetische Demo-Daten. Kontexthilfen
   dürfen direkt in den passenden Hilfeartikel verlinken.
+  Der Import-Hilfeartikel enthält ein klares Privacy Statement: Quelldokumente
+  werden lokal verarbeitet, nicht hochgeladen oder in das Finanzprofil kopiert
+  und nach der Analyse aus dem Arbeitsspeicher verworfen. Der Text unterscheidet
+  dies ausdrücklich von den bestätigten Finanzdaten, dem Dateinamen und dem
+  technischen Fingerabdruck, die verschlüsselt im Profil gespeichert werden.
 - Banken & Konten: Zeilenaktionen im Drei-Punkte-Menü (Bearbeiten, Einbezug ins
   Gesamtvermögen, Archivieren/Aktivieren bzw. Löschen bei leeren Konten).
   Archivieren/Löschen absetzen und bestätigen lassen. Ausschluss vom Vermögen
-  und Archivstatus bleiben direkt in der Zeile sichtbar. „Konto hinzufügen“
-  bleibt die sichtbare Hauptaktion. Menü mit Tastatur, Escape/Fokusrückkehr
+  und Archivstatus bleiben direkt in der Zeile sichtbar. „Bank oder Anbieter
+  hinzufügen“ ist die sichtbare Hauptaktion der Seite und legt zunächst nur den
+  Anbieter an. Ein Konto wird anschließend über „Konto hinzufügen“ im Menü des
+  jeweiligen Anbieterkopfs ergänzt. Menü mit Tastatur, Escape/Fokusrückkehr
   und Schließen bei Außenklick bedienen können.
+  Anbieter sind eigenständige Stammdaten: Die Kontoanlage wählt einen bestehenden
+  Anbieter oder legt ausdrücklich einen neuen an; kein freies Anbietertextfeld für
+  jedes weitere Konto. Name, Typ und Logo werden ausschließlich im Drei-Punkte-Menü
+  des Anbieterkopfs bearbeitet und gelten für alle zugehörigen Konten. Bei der
+  erstmaligen Anlage kann das zentrale Logo bereits optional ausgewählt werden; es
+  wird zusammen mit dem Anbieter gespeichert. Dort steht
+  außerdem „Konto hinzufügen“ mit bereits vorausgewähltem Anbieter bereit.
   Keine dauerhafte Erklärung zu Archivierung und Löschung im Seitenkopf;
   solche allgemeinen Erläuterungen gehören in eine gemeinsame Hilfe. Konkrete
   Folgen werden weiterhin unmittelbar im jeweiligen Bestätigungsdialog erklärt.
@@ -325,7 +351,13 @@ in `src/styles/application.css`; Feature-Styles verwenden dieselben Farbrollen.
   Einleitungstext. Die Vergleichstabelle verwendet 6–8 px vertikales Zellpadding,
   kompakte Monatsspalten und kleine Kategorie-Farbpunkte. Leere Monate treten
   optisch zurück. Hohe Ausgaben, Hover und Auswahl werden neutral in Slate statt
-  positivem Grün gekennzeichnet. Saldochart und Buchungsdetails bleiben separat.
+  positivem Grün gekennzeichnet. In der Monatsmatrix markiert Ziehen mit der linken
+  Maustaste einen rechteckigen Zellbereich; eine neutrale Statuszeile zeigt Anzahl
+  und Summe der darin enthaltenen Beträge. Strg-Ziehen oder Strg-Klick ergänzt unter
+  Windows weitere getrennte Bereiche beziehungsweise Zellen; auf macOS übernimmt
+  Cmd dieselbe Funktion. Überlappende Bereiche zählen Werte nur einmal. Ein normaler
+  Werteklick öffnet weiterhin den Monats-Drilldown, Escape hebt die Bereichsauswahl
+  auf. Saldochart und Buchungsdetails bleiben separat.
 
 - Unter „Alle Transaktionen“ keinen allgemeinen Banner zu neutralisierten
   Kartenabrechnungen anzeigen; konkrete Hinweise auf ungeklärte Gutschriften bleiben.
@@ -466,17 +498,61 @@ am jeweiligen Bereich die Abweichung kontrolliert beheben und Regressionen prüf
 ### Importliste als gemeinsamer Arbeitsbereich
 
 - Importübersicht, Dateiliste, Inline-Vorschau und Importaktion bilden eine gemeinsame Card.
+- Enthält ein Dokument eine IBAN oder Kontoreferenz, werden nur aktive Konten mit
+  exakt derselben normalisierten Kennung angeboten. Eine fehlende oder abweichende
+  hinterlegte Kennung blockiert den Import mit einem konkreten Warnhinweis und
+  einem Link zur Kontoverwaltung. Nur Dokumente ohne Kontokennung dürfen auf die
+  Zuordnung über Anbieter, Währung und Kontotyp zurückfallen.
 - Im Kopf stehen Dateistatus, Buchungsanzahl und Kontozuordnungen kompakt; keine wiederholte Bereitschaftsmeldung oder allgemeine Bedienerklärung.
 - Die Vorschau öffnet direkt unter der zugehörigen Datei. Warnungen und Duplikathinweise bleiben der Datei zugeordnet.
+- Eine geöffnete PDF-Vorschau bietet im Kopf neben ihren Statusangaben direkt
+  „PDF anzeigen“ an. So bleibt das Quelldokument auch während der
+  Duplikatentscheidung ohne Rücksprung in die Dateizeile erreichbar.
+- In der Dateiliste stehen fehlgeschlagene Analysen zuerst, danach Dateien mit
+  ungeklärten Duplikatverdachtsfällen und anschließend alle übrigen Dateien.
+  Innerhalb derselben Statusgruppe bleibt die Reihenfolge der Dateiauswahl erhalten.
+  Die geöffnete Vorschau bleibt stets mit ihrer Dateizeile verbunden.
 - Die Duplikatprüfung unterscheidet eindeutige bereits vorhandene Buchungen von
   möglichen Dubletten. Eindeutige Treffer werden automatisch übersprungen.
   Mögliche Dubletten werden in der Transaktionsvorschau mit Vergleichsbuchung
   markiert und blockieren den Import, bis jede einzeln als neue Buchung bestätigt
-  oder als Duplikat übersprungen wurde. Als Verdachtsfall gilt mindestens derselbe
-  Betrag in derselben Währung auf demselben Konto und Buchungstag; bei ähnlichem
-  Buchungstext wird zusätzlich ein Toleranzfenster von zwei Tagen geprüft. Der
+  oder als Duplikat übersprungen wurde. Als Verdachtsfall gilt derselbe Betrag
+  in derselben Währung auf demselben Konto und dasselbe vollständige Kommentarfeld
+  innerhalb eines Toleranzfensters von zwei Tagen. Beim Vergleich werden nur
+  technisch bedingte Unterschiede bei Leerzeichen vereinheitlicht; Referenzen oder
+  andere Bestandteile werden nicht aus dem Kommentar herausgelöst. Fehlt eines der
+  beiden Kommentarfelder, bleibt der Fall aus Sicherheitsgründen ein manueller
+  Verdachtsfall. Nur zwei vorhandene, eindeutig unterschiedliche vollständige
+  Kommentare schließen den Verdacht aus. Der
   Backend-Speichervorgang wiederholt die Prüfung atomar und verweigert Importe mit
-  ungeklärten Treffern.
+  ungeklärten Treffern. Gleicher Tag und Betrag allein erzeugen keinen Verdacht:
+  Das normalisierte Kommentarfeld muss vollständig übereinstimmen; unterschiedliche
+  Kommentare bleiben eigenständige Buchungen. Gewählte Entscheidungen
+  zeigen ihren Zustand mit Häkchen und sichtbarer Beschriftung, die Zusammenfassung
+  nennt die verbleibende Anzahl. Während des eigentlichen Speicherns benennt die
+  Hauptaktion den laufenden Import unmittelbar. In der Vorschautabelle stehen
+  ungeklärte Verdachtsfälle zuerst, danach bereits entschiedene Verdachtsfälle und
+  zuletzt unauffällige Buchungen; diese Sortierung verändert weder Quellzeilen noch
+  die gespeicherte Buchungsreihenfolge. Der kompakte Restzähler muss auch in
+  schmalen Ansichten vollständig sichtbar bleiben. Unterschiedliche Kommentarfelder
+  schließen einen Verdachtsfall aus. Bei einem echten Verdachtsfall
+  steht die vollständige Vergleichsbuchung als eigene helle Tabellenzeile unmittelbar
+  unter der zu prüfenden Buchung; Datum, Beschreibung und Betrag verwenden dieselben
+  Spalten, damit Abweichungen ohne gekürzten Hilfetext direkt vergleichbar sind.
+- Nicht interaktiv lösbare Dateiwarnungen wie eine erkannte ältere Zeichenkodierung
+  erscheinen kompakt als Warnstatus an Datei und Vorschau, nicht als dauerhaftes
+  gelbes Textband. Der technische Wortlaut bleibt als zugängliche Zusatzinformation
+  erhalten. Die Importliste wechselt bei begrenzter Inhaltsbreite rechtzeitig in
+  ein zweispaltiges und auf schmalen Fenstern einspaltiges Zeilenlayout; sie erzeugt
+  keine zweite horizontale Scrollleiste außerhalb der eigentlichen Buchungsvorschau.
+  In der Buchungsvorschau erhält die Beschreibung ausreichend, aber nicht den gesamten
+  Restplatz. Branche, Beträge, Erkennung und Duplikatentscheidung behalten definierte
+  Anteile, sodass die Aktionsspalte innerhalb der sichtbaren Card liegt. Erst unterhalb
+  der kompakten Mindestbreite scrollt ausschließlich diese innere Buchungstabelle.
 - Der gemeinsame Footer ist nur durch eine Linie getrennt; „Importieren“ bleibt die dunkelblaue Hauptaktion. Kontoprüfungen und deaktivierte Zustände bleiben erhalten.
+- Fehlgeschlagene PDF-Analysen bieten direkt in ihrer Dateizeile „PDF anzeigen“
+  an. Die Aktion öffnet exakt die gewählte Quelldatei mit der auf dem System
+  hinterlegten PDF-Anwendung; ein Öffnungsfehler wird an derselben Datei angezeigt
+  und ersetzt nicht die eigentliche Importfehlermeldung.
 
 Architektur und Modulverantwortlichkeiten: [architecture.md](architecture.md).

@@ -82,6 +82,29 @@ gegen bereits gespeicherte Referenzen gehört zur Importpersistenz, nicht zum
 Formatparser. `identity.rs` erzeugt Fingerabdrücke; `deduplication.rs`
 gleicht sie gegen gespeicherte Buchungen ab.
 
+Erkennt ein Format- oder Providerparser eine IBAN beziehungsweise Kontoreferenz,
+liefert er sie kanonisch in `ParsedStatement.account_reference`. Das Frontend darf
+damit Konten vorauswählen und ungeeignete Ziele ausblenden; die verbindliche
+Übereinstimmungsprüfung erfolgt zusätzlich anbieterneutral und atomar in
+`storage/imports/`. Ein Rückfall auf Anbieter, Währung und Kontotyp ist nur ohne
+erkannte Kontokennung zulässig.
+
+Anbieterspezifische Erkennung und Fachlogik gehört ausschließlich nach
+`importers/providers/<anbieter>.rs` und wird über `ProviderImporter` aktiviert.
+Ein generischer Formatparser unter `importers/formats/` darf Bankverhalten nicht
+allein aufgrund gefundener Spalten, Texte oder Dateinamen einschalten. Er liest
+und normalisiert lediglich das Dateiformat und fragt für Sonderverhalten eine
+explizite Provider-Fähigkeit ab. Anbieterunabhängige technische Schutzmaßnahmen
+wie Größenlimits, Zeichencodierung, PDF-Fehlerisolation und Hintergrundausführung
+bleiben dagegen im Format-, Pipeline- oder Infrastruktur-Rand.
+
+Persistenzregeln, die normalisierte Importmerkmale verarbeiten – beispielsweise
+Duplikatabgleich oder das atomare Ersetzen einer vorläufigen Buchung – bleiben
+anbieterneutral in `storage/imports/`. Sie dürfen keine Banknamen, UBS-Texte
+oder konkrete Quellspalten auswerten. Jede neue Provider-Fähigkeit erhält einen
+Regressionstest, der belegt, dass sie bei mindestens einem anderen Provider
+nicht versehentlich aktiv wird.
+
 Die nachträgliche Bestandsprüfung liegt im Banking-Repository `duplicates.rs`.
 Sie liest Buchungen und Importquellen, gruppiert Verdachtsfälle und persistiert
 nur explizite Prüfentscheidungen. Buchungen werden dabei nicht gelöscht:
@@ -150,6 +173,8 @@ Event-Listener beim Verlassen.
 - Externe Rust-Integrationstests gehören nach `src-tauri/tests/`.
 - `scripts/test-card-architecture.mjs` prüft Command-Payloads,
   Modulgrenzen, DB-freie Parser/Domäne und getrennte Frontend-Workflows.
+- Provider-spezifische Importtests prüfen zusätzlich die negative Grenze:
+  Sonderregeln eines Anbieters dürfen bei einem anderen Provider nicht greifen.
 - Keine Migration ist für diese reine Code-Neuordnung erforderlich.
 
 ## Bewusst verbleibende Grenzen

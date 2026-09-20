@@ -1,7 +1,7 @@
 //! Speichert Positionen und berechnet ihre täglichen Bewertungen.
+use crate::infrastructure::market_data;
 use crate::storage::database::errors::db_error;
 use crate::storage::database::Storage;
-use crate::infrastructure::market_data;
 use crate::storage::securities::models::{ManualPosition, ManualValuationRequest};
 use chrono::{Duration, Local, NaiveDate, Utc};
 use rusqlite::params;

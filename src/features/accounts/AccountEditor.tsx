@@ -9,8 +9,6 @@ export function AccountEditor({
   saving,
   onCancel,
   onSave,
-  onSetLogo,
-  onRemoveLogo,
   onValue,
 }: {
   account: Account;
@@ -18,8 +16,6 @@ export function AccountEditor({
   saving: boolean;
   onCancel: () => void;
   onSave: () => void;
-  onSetLogo: (file: File | null) => void;
-  onRemoveLogo: () => void;
   onValue: () => void;
 }) {
   return (
@@ -118,38 +114,6 @@ export function AccountEditor({
           }
         />
       </label>
-      <div className="account-logo-editor">
-        <div className="form-grid institution-name-field">
-          <label>
-            {t("Bank / Anbieter")}
-            <input maxLength={120} disabled={saving} value={account.provider} onChange={(event) => setAccount({ ...account, provider: event.target.value })} />
-          </label>
-        </div>
-        <small>{t("Der Name gilt für alle Konten dieser Bank oder dieses Anbieters.")}</small>
-        <span>{t("Logo der Bank oder des Anbieters")}</span>
-        <label className="secondary-button">
-          {t("Eigenes Logo hochladen")}
-          <input
-            type="file"
-            accept="image/png,image/jpeg,image/webp,image/svg+xml"
-            disabled={saving}
-            onChange={(event) => {
-              onSetLogo(event.target.files?.[0] ?? null);
-              event.currentTarget.value = "";
-            }}
-          />
-        </label>
-        {account.logoDataUrl && (
-          <button
-            className="text-button danger"
-            disabled={saving}
-            onClick={onRemoveLogo}
-          >
-            {t("Logo entfernen")}
-          </button>
-        )}
-        <small>{t("PNG, JPEG, WebP oder SVG · maximal 2 MB")}</small>
-      </div>
       <div className="form-actions">
         <button className="secondary-button" onClick={onCancel}>
           {t("Abbrechen")}

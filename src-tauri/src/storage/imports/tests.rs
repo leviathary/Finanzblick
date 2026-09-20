@@ -59,10 +59,109 @@ fn suspicious_duplicates_block_saving_until_explicitly_kept_or_skipped() {
         }
     };
 
-    let skipped = request("skip.xml", "BANK-2");
+    let same_comment_distinct_reference = request("distinct-stored.xml", "BANK-2");
+    let check = duplicate_check(
+        &storage.connect().unwrap(),
+        &same_comment_distinct_reference,
+        "distinct-stored",
+    )
+    .unwrap();
+    assert_eq!(check.suspected_transactions.len(), 1);
+
+    let mut skipped = request("skip.xml", "BANK-2");
+    skipped.statement.transactions[0].booking_date = "2026-08-25".into();
+    skipped.statement.transactions[0].value_date = Some("2026-08-25".into());
+    skipped.statement.transactions[0].reference_namespace = None;
+    skipped.statement.transactions[0].external_reference = None;
     let check = duplicate_check(&storage.connect().unwrap(), &skipped, "skip").unwrap();
     assert_eq!(check.suspected_transactions.len(), 1);
     assert_eq!(check.suspected_transactions[0].match_source, "stored");
+
+    let mut missing_comment = request("missing-comment.xml", "NO-COMMENT");
+    missing_comment.statement.transactions[0].description = String::new();
+    let check = duplicate_check(
+        &storage.connect().unwrap(),
+        &missing_comment,
+        "missing-comment",
+    )
+    .unwrap();
+    assert_eq!(check.suspected_transactions.len(), 1);
+
+    let mut sibling_payments = request("siblings.xml", "SIBLING-1");
+    sibling_payments.statement.transactions = vec![
+        crate::importers::ParsedTransaction {
+            booking_date: "2026-01-03".into(),
+            value_date: Some("2026-01-03".into()),
+            description: "Nils Wüthrich Dauerauftrag Referenz: NONREF//9992503LK6809612".into(),
+            amount_minor: -3_000,
+            currency: "CHF".into(),
+            confidence: 1.0,
+            source_row: 12,
+            reference_namespace: Some("ubs-csv".into()),
+            external_reference: Some("9992503LK6809612".into()),
+            ..Default::default()
+        },
+        crate::importers::ParsedTransaction {
+            booking_date: "2026-01-03".into(),
+            value_date: Some("2026-01-03".into()),
+            description: "Jasper Wüthrich Dauerauftrag Referenz: NONREF//9992503LK6809618".into(),
+            amount_minor: -3_000,
+            currency: "CHF".into(),
+            confidence: 1.0,
+            source_row: 13,
+            reference_namespace: Some("ubs-csv".into()),
+            external_reference: Some("9992503LK6809618".into()),
+            ..Default::default()
+        },
+    ];
+    assert!(
+        duplicate_check(&storage.connect().unwrap(), &sibling_payments, "siblings")
+            .unwrap()
+            .suspected_transactions
+            .is_empty()
+    );
+
+    let mut distinct_references = request("sbb.xml", "SBB-1");
+    distinct_references.statement.transactions = vec![
+        crate::importers::ParsedTransaction {
+            booking_date: "2024-02-21".into(),
+            description: "SBB Contact Center Swiss Pass E-BILL PayNet-Auftrag · Referenz: NONREF//3892052DJ4905339".into(),
+            amount_minor: -7_500,
+            currency: "CHF".into(),
+            ..Default::default()
+        },
+        crate::importers::ParsedTransaction {
+            booking_date: "2024-02-21".into(),
+            description: "SBB Contact Center Swiss Pass E-BILL PayNet-Auftrag · Referenz: NONREF//3792052DJ4905335".into(),
+            amount_minor: -7_500,
+            currency: "CHF".into(),
+            ..Default::default()
+        },
+    ];
+    assert!(duplicate_check(
+        &storage.connect().unwrap(),
+        &distinct_references,
+        "distinct-references",
+    )
+    .unwrap()
+    .suspected_transactions
+    .is_empty());
+    let mut matching_text_references = distinct_references.clone();
+    matching_text_references.statement.transactions[1].description =
+        matching_text_references.statement.transactions[0]
+            .description
+            .clone();
+    assert_eq!(
+        duplicate_check(
+            &storage.connect().unwrap(),
+            &matching_text_references,
+            "matching-text-references",
+        )
+        .unwrap()
+        .suspected_transactions
+        .len(),
+        1
+    );
     assert!(save_import_to(&storage, skipped.clone())
         .unwrap_err()
         .contains("vollständig geprüft"));
@@ -81,6 +180,10 @@ fn suspicious_duplicates_block_saving_until_explicitly_kept_or_skipped() {
     );
 
     let mut kept = request("keep.xml", "BANK-3");
+    kept.statement.transactions[0].booking_date = "2026-08-25".into();
+    kept.statement.transactions[0].value_date = Some("2026-08-25".into());
+    kept.statement.transactions[0].reference_namespace = None;
+    kept.statement.transactions[0].external_reference = None;
     kept.duplicate_resolutions
         .push(crate::storage::imports::models::DuplicateResolution {
             transaction_index: 0,
@@ -110,7 +213,7 @@ fn suspicious_duplicates_block_saving_until_explicitly_kept_or_skipped() {
         "same-amount",
     )
     .unwrap();
-    assert_eq!(check.suspected_transactions.len(), 1);
+    assert!(check.suspected_transactions.is_empty());
 
     let mut stale_decision = request("stale.xml", "BANK-5");
     stale_decision.statement.transactions[0].amount_minor = -58_000;
@@ -660,4 +763,93 @@ fn checks_hash_account_and_transaction_multiplicity() {
             .matching_transactions,
         0
     );
+}
+
+#[test]
+fn finalized_card_export_atomically_replaces_matching_provisional_purchase() {
+    let directory = tempfile::tempdir().unwrap();
+    let storage = Storage::test_storage(directory.path().join("card-overlay.sqlite3"));
+    initialize_schema(&storage.connect().unwrap()).unwrap();
+    let source_open = directory.path().join("card-open.csv");
+    let source_final = directory.path().join("card-final.csv");
+    fs::write(&source_open, b"open").unwrap();
+    fs::write(&source_final, b"final").unwrap();
+    let statement = |provisional: bool| crate::importers::ParsedStatement {
+        provider: "ubs".into(),
+        format: "CSV".into(),
+        account_name: "Mastercard".into(),
+        account_type: Some("credit_card".into()),
+        transactions: vec![crate::importers::ParsedTransaction {
+            booking_date: if provisional {
+                "2026-09-19".into()
+            } else {
+                "2026-09-22".into()
+            },
+            description: "Karteneinkauf · Einkauf: 19.09.2026".into(),
+            amount_minor: if provisional { -24_940 } else { -25_105 },
+            currency: "CHF".into(),
+            confidence: 0.95,
+            source_row: 3,
+            transaction_kind: if provisional {
+                "provisional_card_transaction".into()
+            } else {
+                "cash_transaction".into()
+            },
+            reference_namespace: Some("credit-card-purchase".into()),
+            external_reference: Some("stable-purchase-id".into()),
+            ..Default::default()
+        }],
+        warnings: vec![],
+        ..Default::default()
+    };
+    let first = save_import_to(
+        &storage,
+        SaveImportRequest {
+            account_ids: BTreeMap::new(),
+            source_path: source_open.to_string_lossy().into(),
+            account_name: "Mastercard".into(),
+            statement: statement(true),
+            duplicate_resolutions: vec![],
+        },
+    )
+    .unwrap();
+    assert_eq!(first.inserted_transactions, 1);
+    assert_eq!(first.updated_transactions, 0);
+
+    let request = SaveImportRequest {
+        account_ids: BTreeMap::from([("CHF".into(), first.account_id)]),
+        source_path: source_final.to_string_lossy().into(),
+        account_name: "Mastercard".into(),
+        statement: statement(false),
+        duplicate_resolutions: vec![],
+    };
+    let check = duplicate_check(&storage.connect().unwrap(), &request, "final").unwrap();
+    assert_eq!(check.matching_transactions, 1);
+    assert_eq!(check.updatable_transactions, 1);
+    assert!(check.suspected_transactions.is_empty());
+
+    let second = save_import_to(&storage, request).unwrap();
+    assert_eq!(second.inserted_transactions, 0);
+    assert_eq!(second.updated_transactions, 1);
+    assert!(!second.duplicate);
+    let connection = storage.connect().unwrap();
+    let stored = connection
+        .query_row(
+            "SELECT t.booking_date,t.amount_minor,m.transaction_kind
+             FROM transactions t JOIN transaction_metadata m ON m.transaction_id=t.id",
+            [],
+            |row| {
+                Ok((
+                    row.get::<_, String>(0)?,
+                    row.get::<_, i64>(1)?,
+                    row.get::<_, String>(2)?,
+                ))
+            },
+        )
+        .unwrap();
+    assert_eq!(
+        stored,
+        ("2026-09-22".into(), -25_105, "cash_transaction".into())
+    );
+    assert_eq!(count(&connection, "transactions").unwrap(), 1);
 }

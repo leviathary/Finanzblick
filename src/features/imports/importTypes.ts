@@ -100,6 +100,7 @@ export interface SaveImportResult {
   importId: number;
   accountId: number;
   insertedTransactions: number;
+  updatedTransactions: number;
   duplicate: boolean;
 }
 
@@ -120,6 +121,7 @@ export interface SuspectedDuplicate {
 export interface DuplicateCheck {
   exactFile: boolean;
   matchingTransactions: number;
+  updatableTransactions: number;
   totalTransactions: number;
   suspectedTransactions: SuspectedDuplicate[];
 }

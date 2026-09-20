@@ -1,7 +1,7 @@
 //! Kapselt Datenbankverbindungen, Sitzungen, Profile, Schema und Backups.
+mod anonymized_copy;
 pub(crate) mod connection;
 mod handle;
-mod anonymized_copy;
 pub use handle::Storage;
 pub mod backups;
 pub mod demo;
