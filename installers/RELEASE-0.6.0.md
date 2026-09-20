@@ -22,4 +22,5 @@ Back up your financial profile before updating.
 - Windows x64 release build completed, license inventory regenerated and personal build-path check passed.
 - Installer version metadata and SHA-256 checksum verified.
 - UI checks covered light/dark appearance, narrow layouts and keyboard interactions.
-- A clean-machine installation test and a macOS build are not part of this release verification.
+- Manual Windows installation testing will be performed by the project maintainer; results are pending.
+- A clean-machine installation test has not yet been verified. A macOS build is not part of this release verification.
