@@ -19,5 +19,7 @@ Back up your financial profile before updating.
 
 - 55 frontend tests passed.
 - 118 Rust tests passed; one test intentionally ignored.
+- Windows x64 release build completed, license inventory regenerated and personal build-path check passed.
+- Installer version metadata and SHA-256 checksum verified.
 - UI checks covered light/dark appearance, narrow layouts and keyboard interactions.
 - A clean-machine installation test and a macOS build are not part of this release verification.
