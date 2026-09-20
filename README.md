@@ -43,26 +43,26 @@ fresh installation after downloading from GitHub have not yet been tested.
 
 ## Screenshots
 
-The overview shows version 0.6.0; the other screenshots show version 0.5.10, all with fictional sample data.
-Accounts, providers and price histories are invented. The screenshots use the
+All screenshots show version 0.6.1 with fictional sample data. Accounts,
+providers, transactions and price histories are invented. The screenshots use the
 German interface; English, French and Italian are also available in the app.
 
 ### Net worth overview
 
-![Net worth overview with provider allocation donut and account balances](docs/screenshots/uebersicht-light-0.6.0.png)
+![Net worth overview with provider allocation donut and account balances](docs/screenshots/uebersicht-light-0.6.1.png)
 
 ### Interactive net worth history
 
 Choose a date range, zoom with the mouse wheel, pan through the chart or use the
 measurement tool to explore changes. Contextual help explains the controls.
 
-![Net worth history with an interactive chart and compact toolbar](docs/screenshots/vermoegensentwicklung-light-0.5.10.png)
+![Net worth history with an interactive chart and compact toolbar](docs/screenshots/vermoegensentwicklung-light-0.6.1.png)
 
 ### Dark mode
 
 Choose a light, dark or system appearance in Settings.
 
-![Net worth history in dark mode](docs/screenshots/dark-mode.png)
+![Income and expenses with balance history in dark mode](docs/screenshots/transaktionen-dark-0.6.1.png)
 
 ## Features
 
