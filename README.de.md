@@ -8,10 +8,10 @@ gemeinsamen Sicht bündelt. Ohne Benutzerkonto oder Cloud-Synchronisierung.
 
 ## Windows installieren
 
-[Windows-Installer 0.6.2 herunterladen (64 Bit)](https://github.com/leviathary/Finanzblick/releases/download/v0.6.2/Finanzblick_0.6.2_x64-setup.exe)
+[Windows-Installer 0.6.3 herunterladen (64 Bit)](https://github.com/leviathary/Finanzblick/releases/download/v0.6.3/Finanzblick_0.6.3_x64-setup.exe)
 
-[Release-Notizen](https://github.com/leviathary/Finanzblick/releases/tag/v0.6.2)
-· [SHA-256-Prüfsumme](https://github.com/leviathary/Finanzblick/releases/download/v0.6.2/Finanzblick_0.6.2_x64-setup.exe.sha256)
+[Release-Notizen](https://github.com/leviathary/Finanzblick/releases/tag/v0.6.3)
+· [SHA-256-Prüfsumme](https://github.com/leviathary/Finanzblick/releases/download/v0.6.3/Finanzblick_0.6.3_x64-setup.exe.sha256)
 
 Die heruntergeladene Datei ausführen. Ein Windows-Entwicklermodus ist nicht nötig.
 Der Installer ist nicht signiert; Windows kann deshalb eine Sicherheitswarnung anzeigen.
