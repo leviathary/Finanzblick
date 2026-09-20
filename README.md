@@ -2,8 +2,9 @@
 
 **English** | [Deutsch](README.de.md)
 
-Your finances at a glance: a local desktop app for bank accounts, investment
-portfolios, net worth and spending. No app account or cloud sync required.
+Your finances at a glance: a local desktop app that brings accounts, investment
+portfolios, net worth and spending from multiple banks and other financial
+sources into one view. No app account or cloud sync required.
 
 ## Install on Windows
 

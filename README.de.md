@@ -2,8 +2,9 @@
 
 [English](README.md) | **Deutsch**
 
-Deine Finanzen auf einen Blick: eine lokale Desktop-App für Konten, Depots,
-Vermögen und Ausgaben. Ohne Benutzerkonto oder Cloud-Synchronisierung.
+Deine Finanzen auf einen Blick: eine lokale Desktop-App, die Konten, Depots,
+Vermögen und Ausgaben aus mehreren Banken und weiteren Finanzquellen in einer
+gemeinsamen Sicht bündelt. Ohne Benutzerkonto oder Cloud-Synchronisierung.
 
 ## Windows installieren
 
