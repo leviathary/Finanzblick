@@ -7,10 +7,10 @@ Vermögen und Ausgaben. Ohne Benutzerkonto oder Cloud-Synchronisierung.
 
 ## Windows installieren
 
-[Windows-Installer 0.6.0 herunterladen (64 Bit)](https://github.com/leviathary/Finanzblick/releases/download/v0.6.0/Finanzblick_0.6.0_x64-setup.exe)
+[Windows-Installer 0.6.1 herunterladen (64 Bit)](https://github.com/leviathary/Finanzblick/releases/download/v0.6.1/Finanzblick_0.6.1_x64-setup.exe)
 
-[Release-Notizen](https://github.com/leviathary/Finanzblick/releases/tag/v0.6.0)
-· [SHA-256-Prüfsumme](https://github.com/leviathary/Finanzblick/releases/download/v0.6.0/Finanzblick_0.6.0_x64-setup.exe.sha256)
+[Release-Notizen](https://github.com/leviathary/Finanzblick/releases/tag/v0.6.1)
+· [SHA-256-Prüfsumme](https://github.com/leviathary/Finanzblick/releases/download/v0.6.1/Finanzblick_0.6.1_x64-setup.exe.sha256)
 
 Die heruntergeladene Datei ausführen. Ein Windows-Entwicklermodus ist nicht nötig.
 Der Installer ist nicht signiert; Windows kann deshalb eine Sicherheitswarnung anzeigen.

@@ -10,6 +10,14 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 if (process.env.RUSTFLAGS && !process.env.CARGO_ENCODED_RUSTFLAGS) {
   throw new Error("Use CARGO_ENCODED_RUSTFLAGS instead of RUSTFLAGS for release builds.");
 }
+// Vendored native libraries can embed their build directory independently of
+// rustc's path remapping. Keep the default release target outside personal paths
+// on every supported platform so those strings remain distributable.
+const targetDirectory = path.resolve(process.env.CARGO_TARGET_DIR ?? (
+  process.platform === "win32"
+    ? path.join(path.parse(root).root, "build", "finanzblick-release")
+    : path.join(os.tmpdir(), "finanzblick-release")
+));
 const flags = (process.env.CARGO_ENCODED_RUSTFLAGS ?? "").split("\x1f").filter(Boolean);
 const prefixes = [
   [os.homedir(), "/build/user"],
@@ -22,7 +30,11 @@ for (const [source, destination] of prefixes) {
     flags.push(`--remap-path-prefix=${variant}=${destination}`);
   }
 }
-const env = { ...process.env, CARGO_ENCODED_RUSTFLAGS: flags.join("\x1f") };
+const env = {
+  ...process.env,
+  CARGO_ENCODED_RUSTFLAGS: flags.join("\x1f"),
+  CARGO_TARGET_DIR: targetDirectory,
+};
 delete env.RUSTFLAGS;
 const run = (command, args) => {
   const result = spawnSync(command, args, { cwd: root, env, stdio: "inherit" });
@@ -31,7 +43,6 @@ const run = (command, args) => {
 };
 run(process.execPath, [path.join(root, "scripts/collect-licenses.mjs")]);
 run(process.execPath, [path.join(root, "node_modules/@tauri-apps/cli/tauri.js"), "build", ...process.argv.slice(2)]);
-const targetDirectory = path.resolve(root, process.env.CARGO_TARGET_DIR ?? "src-tauri/target");
 const binary = path.join(targetDirectory, "release", process.platform === "win32" ? "finanzblick.exe" : "finanzblick");
 const content = fs.readFileSync(binary);
 for (const [prefix] of prefixes) {
