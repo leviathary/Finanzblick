@@ -47,6 +47,17 @@ pub(crate) fn initialize_schema(connection: &Connection) -> Result<(), rusqlite:
            category_source TEXT NOT NULL DEFAULT 'description', UNIQUE(import_id,source_row)
          );
          CREATE INDEX IF NOT EXISTS idx_transactions_account_date ON transactions(account_id,booking_date);
+         CREATE TABLE IF NOT EXISTS ignored_duplicate_transactions (
+           transaction_id INTEGER PRIMARY KEY REFERENCES transactions(id) ON DELETE CASCADE,
+           ignored_at TEXT NOT NULL DEFAULT (datetime('now'))
+         );
+         CREATE TABLE IF NOT EXISTS duplicate_review_exclusions (
+           left_transaction_id INTEGER NOT NULL REFERENCES transactions(id) ON DELETE CASCADE,
+           right_transaction_id INTEGER NOT NULL REFERENCES transactions(id) ON DELETE CASCADE,
+           reviewed_at TEXT NOT NULL DEFAULT (datetime('now')),
+           PRIMARY KEY(left_transaction_id,right_transaction_id),
+           CHECK(left_transaction_id < right_transaction_id)
+         );
          CREATE TABLE IF NOT EXISTS import_document_metadata (
            import_id INTEGER PRIMARY KEY REFERENCES import_runs(id) ON DELETE CASCADE,
            source_type TEXT NOT NULL, provider TEXT NOT NULL, document_type TEXT,

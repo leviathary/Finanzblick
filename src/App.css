@@ -2,6 +2,7 @@
 @import "./styles/theme.css";
 @import "./styles/application.css";
 @import "./features/auth/auth.css";
+@import "./features/help/help.css";
 @import "./styles/management.css";
 @import "./features/cards/cards.css";
 @import "./features/transactions/cardCreditNotice.css";

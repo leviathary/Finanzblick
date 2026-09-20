@@ -25,6 +25,7 @@ fn ubs_csv_import_persists_payment_without_counting_it_as_income_or_refund() {
             source_path: source.to_string_lossy().into(),
             account_name: "Card".into(),
             statement: parsed,
+            duplicate_resolutions: vec![],
         },
     )
     .unwrap();

@@ -7,7 +7,7 @@ import ts from "typescript";
 
 const source = await readFile(new URL("../src/features/imports/importBatch.ts", import.meta.url), "utf8");
 const js = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.ESNext } }).outputText;
-const { canRelease, displayedProvider, suggestAccounts, hasAccounts, readyToSave, saveBatch } = await import(`data:text/javascript;base64,${Buffer.from(js).toString("base64")}`);
+const { canRelease, displayedProvider, suggestAccounts, hasAccounts, readyToSave, saveBatch, unresolvedDuplicateCount } = await import(`data:text/javascript;base64,${Buffer.from(js).toString("base64")}`);
 const account = { id: 1, name: "Privat", provider: "UBS", providerKey: "ubs", currency: "CHF", accountType: "checking", isActive: true };
 const parsed = { format: "CSV", accountName: "", provider: "ubs", accountType: "checking", transactions: [{ currency: "CHF" }], currencyBalances: [{ currency: "USD" }] };
 const usd = { ...account, id: 2, currency: "USD" };
@@ -31,6 +31,19 @@ test("requires valid accounts for every currency without a separate release", ()
     assert.equal(hasAccounts(item, [account, { ...usd, ...changed }]), false);
   }
   assert.equal(readyToSave({ ...item, result: { duplicate: true } }, [account, usd]), false);
+});
+
+test("potential duplicates block import until every row has an explicit decision", () => {
+  const duplicateCheck = { suspectedTransactions: [{ transactionIndex: 0 }, { transactionIndex: 2 }] };
+  const blocked = { ...item, duplicateCheck, duplicateResolutions: {} };
+  assert.equal(unresolvedDuplicateCount(blocked), 2);
+  assert.equal(readyToSave(blocked, [account, usd]), false);
+  const partial = { ...blocked, duplicateResolutions: { 0: "skip" } };
+  assert.equal(unresolvedDuplicateCount(partial), 1);
+  assert.equal(readyToSave(partial, [account, usd]), false);
+  const reviewed = { ...blocked, duplicateResolutions: { 0: "skip", 2: "keep" } };
+  assert.equal(unresolvedDuplicateCount(reviewed), 0);
+  assert.equal(readyToSave(reviewed, [account, usd]), true);
 });
 
 test("suggests only unambiguous matching accounts", () => {

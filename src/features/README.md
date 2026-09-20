@@ -12,6 +12,7 @@ Die Benutzeroberfläche wird fachlich nach Features organisiert:
 - `tax-history`: Steuerhistorie
 - `settings`: Einstellungen, Profile und Backups
 - `chat`: Finanzassistent
+- `help`: lokale, durchsuchbare Hilfe und Themenartikel
 - `auth`: Anmeldung und Anmeldestyles
 - `positions`: Positionsverwaltung, typisierte API und Bewertungsformular
 

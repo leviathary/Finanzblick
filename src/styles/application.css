@@ -729,6 +729,8 @@ a {
 .transaction-action-menu strong { font-size: 12px; padding: 4px; }
 .transaction-action-menu button, .transaction-action-menu a { padding: 9px 8px; border: 0; text-align: left; background: transparent; color: inherit; font-size: 13px; text-decoration: none; cursor: pointer; border-radius: 5px; }
 .transaction-action-menu button:hover, .transaction-action-menu a:hover { background: var(--bg-positive); }
+.transaction-action-menu .destructive-menu-action { color: var(--text-negative); border-top: 1px solid var(--border-subtle); border-radius: 0 0 5px 5px; margin-top: 3px; padding-top: 12px; }
+.transaction-action-menu .destructive-menu-action:hover { background: var(--bg-negative); }
 .transfer-badge { display: inline-block; border-radius: 4px; background: var(--bg-muted); color: var(--text-secondary); font-size: 10px; padding: 2px 5px; white-space: nowrap; }
 .transfer-help { padding: 18px 22px; background: var(--bg-positive); border: 1px solid var(--border-positive); border-radius: 12px; margin-bottom: 22px; line-height: 1.6; }
 .transfer-help h2 { font-size: 17px; margin: 0; }
@@ -751,6 +753,12 @@ a {
 .settlement-preview td, .settlement-preview th { text-align: left; padding: 8px; border-bottom: 1px solid var(--border-subtle); }
 .settlement-preview td:last-child { white-space: nowrap; }
 .settlement-dialog-actions { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
+.duplicate-removal-dialog { width: min(620px, calc(100vw - 32px)); }
+.duplicate-removal-details { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 20px; margin: 20px 0; }
+.duplicate-removal-details div { min-width: 0; }
+.duplicate-removal-details dt { color: var(--text-secondary); font-size: 12px; font-weight: 600; }
+.duplicate-removal-details dd { margin: 4px 0 0; overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }
+@media (max-width: 560px) { .duplicate-removal-details { grid-template-columns: 1fr; } }
 .settlement-future { display: flex; align-items: center; gap: 10px; }
 .settlement-rules { margin-bottom: 22px; }
 .settlement-rule { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 0; border-top: 1px solid var(--border-subtle); }
@@ -2231,6 +2239,16 @@ p {
   color: var(--text-positive);
   font-weight: 700;
 }
+.duplicate-review-summary { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px 16px; margin: 14px 0; padding: 12px 14px; border: 1px solid var(--border-warning); border-radius: 10px; background: var(--bg-warning); color: var(--text-warning); }
+.transaction-preview tr.suspected-duplicate.unresolved { background: var(--bg-warning); }
+.transaction-preview tr.suspected-duplicate.resolved { background: var(--bg-muted); }
+.transaction-preview .duplicate-review-cell { min-width: 310px; white-space: normal; }
+.duplicate-review-cell > strong { display: block; color: var(--text-warning); }
+.duplicate-review-cell > small { display: block; margin-top: 5px; color: var(--text-secondary); line-height: 1.45; overflow-wrap: anywhere; }
+.duplicate-review-actions { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 9px; }
+.duplicate-review-actions .secondary-button { min-height: 36px; padding: 7px 10px; font-size: 12px; }
+.duplicate-review-actions .secondary-button[aria-pressed="true"] { border-color: var(--interactive); background: var(--interactive); color: var(--text-inverse); }
+.duplicate-clear { color: var(--text-secondary); }
 .import-history {
   max-width: 1280px;
   margin: 0 auto;
@@ -2317,6 +2335,37 @@ p {
   display: block;
   margin-top: 5px;
   color: var(--text-secondary);
+}
+.history-row-actions { display: flex; align-items: center; justify-content: flex-end; flex-wrap: wrap; gap: 8px; }
+.history-row-actions button { min-height: 40px; white-space: nowrap; }
+.duplicate-audit { margin: 22px 0; padding: 22px; }
+.duplicate-audit-heading { display: flex; align-items: center; justify-content: space-between; gap: 18px; }
+.duplicate-audit-heading h2 { margin: 2px 0 6px; }
+.duplicate-audit-heading p:last-child { margin: 0; color: var(--text-secondary); }
+.duplicate-audit-summary { display: flex; justify-content: space-between; gap: 12px; margin-top: 18px; padding: 12px 14px; border: 1px solid var(--border-warning); border-radius: 10px; background: var(--bg-warning); color: var(--text-warning); }
+.duplicate-audit-groups { display: grid; gap: 12px; margin-top: 12px; }
+.duplicate-audit-group { border: 1px solid var(--border-subtle); border-radius: 10px; overflow: hidden; }
+.duplicate-audit-group > summary { display: flex; align-items: center; justify-content: space-between; gap: 18px; min-height: 48px; padding: 10px 14px; cursor: pointer; background: var(--bg-muted); font-variant-numeric: tabular-nums; }
+.duplicate-audit-group.exact > summary { border-left: 4px solid var(--accent-negative); }
+.duplicate-audit-group.possible > summary { border-left: 4px solid var(--border-warning); }
+.duplicate-audit-group > summary span { display: flex; align-items: baseline; gap: 8px; }
+.duplicate-audit-group > summary small { color: var(--text-secondary); }
+.duplicate-audit-table { overflow-x: auto; }
+.duplicate-audit-table table { width: 100%; border-collapse: collapse; }
+.duplicate-audit-table th, .duplicate-audit-table td { padding: 9px 12px; border-top: 1px solid var(--border-subtle); text-align: left; vertical-align: middle; }
+.duplicate-audit-table th { color: var(--text-secondary); font-size: 11px; }
+.duplicate-audit-table td strong, .duplicate-audit-table td small { display: block; }
+.duplicate-audit-table td small { margin-top: 3px; color: var(--text-secondary); }
+.duplicate-audit-table .amount-cell { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.duplicate-audit-table td:last-child { text-align: right; }
+.duplicate-audit-table .danger-button { min-height: 38px; white-space: nowrap; }
+.duplicate-audit-footer { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 12px 14px; border-top: 1px solid var(--border-subtle); }
+.duplicate-audit-footer p { margin: 0; color: var(--text-secondary); font-size: 12px; }
+.duplicate-audit-footer button { min-height: 40px; white-space: nowrap; }
+@media (max-width: 720px) {
+  .duplicate-audit-heading, .duplicate-audit-footer { align-items: stretch; flex-direction: column; }
+  .duplicate-audit-group > summary { align-items: flex-start; flex-direction: column; }
+  .duplicate-audit-group > summary span { align-items: flex-start; flex-direction: column; gap: 2px; }
 }
 .history-group-controls {
   display: flex;

@@ -6,8 +6,8 @@ import { invoke, isTauri } from "@tauri-apps/api/core";
 import { getCurrentWebview } from "@tauri-apps/api/webview";
 import { open } from "@tauri-apps/plugin-dialog";
 import { CUSTOM_EXCEL_PROVIDER, detectProvider, formatFileSize, getSupportedExtension, providers, type ProviderId } from "./fileDetection";
-import type { ImportAccount, ImportMappingProfile, ParsedStatement, SaveImportResult, TabularInspection, TabularMapping } from "./importTypes";
-import { displayedProvider, currencies, hasAccounts, matchingAccounts, readyToSave, saveBatch, suggestAccounts, type BatchItem } from "./importBatch";
+import type { DuplicateCheck, DuplicateResolutionAction, ImportAccount, ImportMappingProfile, ParsedStatement, SaveImportResult, TabularInspection, TabularMapping } from "./importTypes";
+import { displayedProvider, currencies, hasAccounts, matchingAccounts, readyToSave, saveBatch, suggestAccounts, unresolvedDuplicateCount, type BatchItem } from "./importBatch";
 import { ExcelMappingDialog, headerFingerprint } from "./ExcelMappingDialog";
 
 interface FileSelection {
@@ -100,7 +100,7 @@ export function ImportWizard({ enabled = true }: { enabled?: boolean }) {
       const known = new Set(current.map(item => item.file.path));
       return [...current, ...added.filter(item => !known.has(item.file.path))];
     });
-    if (!selection.files.length) setError(t("Keine unterstützten Dateien gefunden. Unterstützt werden XLSX, XLS, CSV, PDF, MT940 und camt.053 (XML) bis 25 MB pro Datei."));
+    if (!selection.files.length) setError(t("Keine unterstützten Dateien gefunden. Unterstützt werden XLSX, XLS, CSV, PDF, MT940 sowie camt.053 und camt.054 (ISO 20022 XML) bis 25 MB pro Datei."));
     await analyzeFiles(added);
   }
 
@@ -147,7 +147,7 @@ export function ImportWizard({ enabled = true }: { enabled?: boolean }) {
             continue;
           }
           const parsed = await invoke<ParsedStatement>("parse_statement", { path: item.file.path, selectedProvider: selectedProviderForImport(item.file.provider), mapping: null });
-          const next = { ...item, parsed, file: { ...item.file, provider: parsed.provider }, accountIds: suggestAccounts(accountsRef.current, parsed), reviewed: false };
+          const next = { ...item, parsed, file: { ...item.file, provider: parsed.provider }, accountIds: suggestAccounts(accountsRef.current, parsed), reviewed: false, duplicateCheck: undefined, duplicateResolutions: {} };
           update(item.file.path, { ...next, ...await checkDuplicates(next) });
         } catch (reason) {
           const message = String(reason);
@@ -183,7 +183,7 @@ export function ImportWizard({ enabled = true }: { enabled?: boolean }) {
       const headers = sheet?.preview[mapping.headerRow - 1] ?? [];
       await invoke<number>("save_import_mapping_profile", { profile: { name: profileName, headerFingerprint: headerFingerprint(headers), mapping } });
     }
-    const next = { ...item, parsed, mapping, file: { ...item.file, provider: item.file.provider === CUSTOM_EXCEL_PROVIDER ? CUSTOM_EXCEL_PROVIDER : parsed.provider }, accountIds: suggestAccounts(accountsRef.current, parsed), reviewed: false, error: undefined };
+    const next = { ...item, parsed, mapping, file: { ...item.file, provider: item.file.provider === CUSTOM_EXCEL_PROVIDER ? CUSTOM_EXCEL_PROVIDER : parsed.provider }, accountIds: suggestAccounts(accountsRef.current, parsed), reviewed: false, error: undefined, duplicateCheck: undefined, duplicateResolutions: {} };
     update(item.file.path, { ...next, ...await checkDuplicates(next) });
     setMappingEditor(null);
     setActive(item.file.path);
@@ -199,10 +199,14 @@ export function ImportWizard({ enabled = true }: { enabled?: boolean }) {
       await saveBatch(targets, async item => {
         setProgress(tr`Import ${++count} von ${targets.length}: ${item.file.name}`);
         const duplicate = await checkDuplicates(item);
-        if (duplicate.alreadyImported) { update(item.file.path, duplicate); throw new Error(duplicate.duplicateNotice); }
+        const checkedItem = { ...item, ...duplicate };
+        update(item.file.path, duplicate);
+        if (duplicate.alreadyImported) throw new Error(duplicate.duplicateNotice);
+        if (unresolvedDuplicateCount(checkedItem) > 0) throw new Error(t("Mögliche Duplikate müssen vor dem Import vollständig geprüft werden."));
         const account = accounts.find(account => Object.values(item.accountIds).includes(account.id));
         const statement = item.parsed?.provider === "unknown" ? { ...item.parsed, provider: account?.providerKey } : item.parsed;
-        return invoke<SaveImportResult>("save_import", { request: { sourcePath: item.file.path, accountName: account?.name ?? "", accountIds: item.accountIds, statement } });
+        const duplicateResolutions = Object.entries(checkedItem.duplicateResolutions ?? {}).map(([transactionIndex, action]) => ({ transactionIndex: Number(transactionIndex), action }));
+        return invoke<SaveImportResult>("save_import", { request: { sourcePath: item.file.path, accountName: account?.name ?? "", accountIds: item.accountIds, statement, duplicateResolutions } });
       }, (path, change) => {
         update(path, change);
         if (change.result) {
@@ -221,14 +225,18 @@ export function ImportWizard({ enabled = true }: { enabled?: boolean }) {
 
   async function checkDuplicates(item: BatchItem) {
     if (!item.parsed) return { alreadyImported: false, duplicateNotice: undefined };
-    const check = await invoke<{ exactFile: boolean; matchingTransactions: number; totalTransactions: number }>("check_import_duplicates", { request: { sourcePath: item.file.path, accountName: "", accountIds: item.accountIds, statement: item.parsed } });
+    const check = await invoke<DuplicateCheck>("check_import_duplicates", { request: { sourcePath: item.file.path, accountName: "", accountIds: item.accountIds, statement: item.parsed, duplicateResolutions: [] } });
     const all = check.totalTransactions > 0 && check.matchingTransactions === check.totalTransactions;
-    return { alreadyImported: check.exactFile || all, duplicateNotice: check.exactFile ? t("Datei bereits vorhanden. Diese Datei wurde schon importiert.") : all ? t("Datei schon importiert: Alle Transaktionen sind auf dem gewählten Konto bereits vorhanden.") : check.matchingTransactions > 0 ? tr`${check.matchingTransactions} von ${check.totalTransactions} Transaktionen sind auf dem gewählten Konto bereits vorhanden und werden beim Import übersprungen.` : undefined };
+    const valid = new Set(check.suspectedTransactions.map(match => match.transactionIndex));
+    const duplicateResolutions = Object.fromEntries(Object.entries(item.duplicateResolutions ?? {}).filter(([index]) => valid.has(Number(index)))) as Record<number, DuplicateResolutionAction>;
+    const existing = check.matchingTransactions > 0 ? tr`${check.matchingTransactions} von ${check.totalTransactions} Transaktionen sind auf dem gewählten Konto bereits vorhanden und werden beim Import übersprungen.` : undefined;
+    const suspected = check.suspectedTransactions.length > 0 ? tr`${check.suspectedTransactions.length} mögliche Duplikate müssen vor dem Import geprüft werden.` : undefined;
+    return { alreadyImported: check.exactFile || all, duplicateCheck: check, duplicateResolutions, duplicateNotice: check.exactFile ? t("Datei bereits vorhanden. Diese Datei wurde schon importiert.") : all ? t("Datei schon importiert: Alle Transaktionen sind auf dem gewählten Konto bereits vorhanden.") : [existing, suspected].filter(Boolean).join(" ") || undefined };
   }
 
   async function changeAccounts(item: BatchItem, accountIds: Record<string, number>) {
     if (!begin()) return;
-    const next = { ...item, accountIds, reviewed: false };
+    const next = { ...item, accountIds, reviewed: false, duplicateCheck: undefined, duplicateResolutions: {} };
     update(item.file.path, next);
     try { update(item.file.path, { ...await checkDuplicates(next), error: undefined }); }
     catch (reason) { update(item.file.path, { error: String(reason) }); }
@@ -244,6 +252,7 @@ export function ImportWizard({ enabled = true }: { enabled?: boolean }) {
     : undefined;
   const pending = items.filter(item => !item.parsed && !item.result && !item.alreadyImported && item.file.provider !== CUSTOM_EXCEL_PROVIDER);
   const ready = items.filter(item => readyToSave(item, accounts));
+  const awaitingDuplicateReview = items.reduce((sum, item) => sum + unresolvedDuplicateCount(item), 0);
   const noAccounts = accountsLoaded && accounts.length === 0;
   const releaseAccounts = new Map<string, number>();
   for (const item of ready) {
@@ -258,11 +267,16 @@ export function ImportWizard({ enabled = true }: { enabled?: boolean }) {
   function status(item: BatchItem) {
     if (item.alreadyImported) return t("Datei bereits vorhanden");
     if (item.result) return item.result.duplicate ? t("Bereits importiert") : t("Importiert");
-    if (item.error) return t("Fehler – erneut versuchen");
     if (!item.parsed && item.file.provider === CUSTOM_EXCEL_PROVIDER) return t("Spaltenzuordnung fehlt");
     if (!item.parsed) return t("Noch nicht analysiert");
     if (!hasAccounts(item, accounts)) return t("Kontozuordnung fehlt");
+    if (unresolvedDuplicateCount(item) > 0) return t("Duplikate prüfen");
+    if (item.error) return t("Fehler – erneut versuchen");
     return t("Bereit zum Import");
+  }
+
+  function setDuplicateResolution(item: BatchItem, transactionIndex: number, action: DuplicateResolutionAction) {
+    update(item.file.path, { duplicateResolutions: { ...(item.duplicateResolutions ?? {}), [transactionIndex]: action }, error: undefined });
   }
 
   return <section className="import-wizard" aria-labelledby="import-title">
@@ -271,14 +285,14 @@ export function ImportWizard({ enabled = true }: { enabled?: boolean }) {
       <h2>{t("Dateien oder Ordner hierher ziehen")}</h2>
       <div className="batch-buttons"><button className="primary-button" disabled={busy} onClick={() => void choose(false)}>{t("Dateien auswählen")}</button><button className="secondary-button" disabled={busy} onClick={() => void choose(true)}>{t("Ordner auswählen")}</button></div>
       <label className="batch-check"><input type="checkbox" checked={recursive} disabled={busy} onChange={event => setRecursive(event.target.checked)} />  {t("Unterordner einbeziehen")}</label>
-      <small>{t("XLSX, XLS, CSV, PDF, MT940 und camt.053 (XML) · maximal 25 MB pro Datei")}</small>
+      <small>{t("XLSX, XLS, CSV, PDF, MT940 sowie camt.053 und camt.054 (ISO 20022 XML) · maximal 25 MB pro Datei")}</small>
     </div>
     {error && <p className="error-message" role="alert">{t(error)}</p>}
     {completed && <div className="batch-complete" role="status" ref={completedRef}><span className="batch-complete-icon" aria-hidden="true">✓</span><div><h2>{t("Import erfolgreich abgeschlossen")}</h2><p>{completed.imported}  {t("Dateien importiert")}{completed.duplicates > 0 ? tr` · ${completed.duplicates} bereits vorhanden` : ""}.</p><p>{items.length ? t("Offene oder fehlgeschlagene Dateien stehen weiterhin unten in der Liste.") : t("Die importierten Dateien findest du im Reiter „Importierte Dateien“.")}</p></div><a className="secondary-button" href={`#import-history?ids=${completed.ids.join(",")}`}>{t("Importierte Dateien ansehen")}</a></div>}
     {warnings.length > 0 && <details className="warning-message"><summary>{warnings.length}  {t("Hinweise zur Dateiauswahl")}</summary><ul>{warnings.map((warning, index) => <li key={index}>{warning}</li>)}</ul></details>}
     {busy && <div className="info-panel" role="status"><p>{progress || t("Dateiauswahl geöffnet…")}</p>{(progress.startsWith("Analyse ") || progress.startsWith("Import ")) && <button className="secondary-button" disabled={stopRef.current} onClick={() => { stopRef.current = true; setProgress(value => tr`${value} · Stopp angefordert`); }}>{t("Nach aktueller Datei stoppen")}</button>}</div>}
     {items.length > 0 && <section className="dashboard-card import-batch-card" aria-label={t("Deine Importliste")}>
-      <div className="batch-toolbar"><div><h2>{t("Deine Importliste")}</h2><p role="status">{items.length}  {t("Dateien")}{failed > 0 ? tr` · ${failed} Fehler` : ""}{ready.length > 0 ? tr` · ${ready.length} bereit zum Import` : ""}</p></div><div className="batch-buttons">{pending.length > 0 && <button className="secondary-button" disabled={busy} onClick={() => void analyze(pending)}>{t("Offene Dateien analysieren (")}{pending.length})</button>}<button className="text-button" disabled={busy} onClick={() => { setItems([]); setActive(null); setWarnings([]); setError(null); }}>{t("Liste leeren")}</button></div></div>
+      <div className="batch-toolbar"><div><h2>{t("Deine Importliste")}</h2><p role="status">{items.length}  {t("Dateien")}{failed > 0 ? tr` · ${failed} Fehler` : ""}{awaitingDuplicateReview > 0 ? tr` · ${awaitingDuplicateReview} mögliche Duplikate ungeklärt` : ""}{ready.length > 0 ? tr` · ${ready.length} bereit zum Import` : ""}</p></div><div className="batch-buttons">{pending.length > 0 && <button className="secondary-button" disabled={busy} onClick={() => void analyze(pending)}>{t("Offene Dateien analysieren (")}{pending.length})</button>}<button className="text-button" disabled={busy} onClick={() => { setItems([]); setActive(null); setWarnings([]); setError(null); }}>{t("Liste leeren")}</button></div></div>
       {ready.length > 0 && <div className="batch-summary" aria-label={t("Importübersicht")}>
         <p>{ready.reduce((sum, item) => sum + (item.parsed?.transactions.length ?? 0), 0)} {t("Buchungen · Kontozuordnung:")}</p>
         <ul>{[...releaseAccounts].map(([name, count]) => <li key={name}>{name} · {count} {t("Dateien")}</li>)}</ul>
@@ -305,9 +319,14 @@ export function ImportWizard({ enabled = true }: { enabled?: boolean }) {
         {!current.result && <p className="intro"><a href="#banks">{t("Banken &amp; Konten verwalten")}</a> · <button className="text-button" disabled={busy} onClick={() => void loadAccounts()}>{t("Konten aktualisieren")}</button></p>}
         <dl className="review-list">{current.parsed.currencyBalances.length ? current.parsed.currencyBalances.flatMap(balance => [balance.openingDate && <div key={`${balance.currency}-opening`}><dt>{t("Anfangssaldo")} {balance.currency}</dt><dd>{money(balance.openingBalanceMinor, balance.currency)} · {date(balance.openingDate)}</dd></div>, <div key={`${balance.currency}-closing`}><dt>{t("Schlusssaldo")} {balance.currency}</dt><dd>{money(balance.closingBalanceMinor, balance.currency)} · {date(balance.closingDate)}</dd></div>]) : <div><dt>{t("Schlusssaldo")}</dt><dd>{money(current.parsed.closingBalanceMinor, current.parsed.transactions[0]?.currency ?? "CHF")}</dd></div>}</dl>
         {current.duplicateNotice && <p className="warning-message">{current.duplicateNotice}</p>}{current.parsed.warnings.map((warning, index) => <p className="warning-message" key={index}>{warning}</p>)}
-        <div className="transaction-preview"><table><thead><tr><th>{t("Datum")}</th><th>{t("Beschreibung")}</th><th>{t("Branche")}</th><th>{t("Betrag")}</th><th>{t("Saldo")}</th><th>{t("Erkennung")}</th></tr></thead><tbody>{current.parsed.transactions.map((row, index) => <tr key={index}><td>{date(row.bookingDate)}</td><td>{row.description}</td><td>{row.industry ?? "–"}</td><td className={row.amountMinor < 0 ? "negative" : "positive"}>{money(row.amountMinor, row.currency)}</td><td>{money(row.balanceMinor, row.currency)}</td><td><span className={row.confidence >= .95 ? "confidence high" : "confidence review"}>{Math.round(row.confidence * 100)}%</span></td></tr>)}</tbody></table></div>
+        {current.duplicateCheck?.suspectedTransactions.length ? <div className="duplicate-review-summary" role="status"><strong>{current.duplicateCheck.suspectedTransactions.length} {t("mögliche Duplikate")}</strong><span>{unresolvedDuplicateCount(current) > 0 ? t("Entscheide bei jeder markierten Buchung, ob sie importiert oder übersprungen werden soll.") : t("Duplikatprüfung vollständig abgeschlossen.")}</span></div> : null}
+        <div className="transaction-preview"><table><thead><tr><th>{t("Datum")}</th><th>{t("Beschreibung")}</th><th>{t("Branche")}</th><th>{t("Betrag")}</th><th>{t("Saldo")}</th><th>{t("Erkennung")}</th><th>{t("Duplikatprüfung")}</th></tr></thead><tbody>{current.parsed.transactions.map((row, index) => {
+          const match = current.duplicateCheck?.suspectedTransactions.find(candidate => candidate.transactionIndex === index);
+          const resolution = current.duplicateResolutions?.[index];
+          return <tr key={index} className={match ? `suspected-duplicate ${resolution ? "resolved" : "unresolved"}` : ""}><td>{date(row.bookingDate)}</td><td>{row.description}</td><td>{row.industry ?? "–"}</td><td className={row.amountMinor < 0 ? "negative" : "positive"}>{money(row.amountMinor, row.currency)}</td><td>{money(row.balanceMinor, row.currency)}</td><td><span className={row.confidence >= .95 ? "confidence high" : "confidence review"}>{Math.round(row.confidence * 100)}%</span></td><td className="duplicate-review-cell">{match ? <><strong>{t("Mögliches Duplikat")}</strong><small>{match.matchSource === "stored" ? t("Ähnliche Buchung bereits gespeichert") : t("Ähnliche Buchung in dieser Datei")} · {date(match.bookingDate)} · {money(match.amountMinor, match.currency)}<br/>{match.description}</small><div className="duplicate-review-actions" role="group" aria-label={`${t("Duplikatentscheidung")}: ${row.description}`}><button type="button" className="secondary-button" disabled={busy} aria-pressed={resolution === "keep"} onClick={() => setDuplicateResolution(current, index, "keep")}>{t("Als neue Buchung importieren")}</button><button type="button" className="secondary-button" disabled={busy} aria-pressed={resolution === "skip"} onClick={() => setDuplicateResolution(current, index, "skip")}>{t("Als Duplikat überspringen")}</button></div></> : <span className="duplicate-clear">{t("Kein verdächtiger Treffer")}</span>}</td></tr>;
+        })}</tbody></table></div>
         {!current.result && !hasAccounts(current, accounts) && <p className="warning-message">{t("Bitte für jede Währung ein passendes aktives Konto auswählen.")}</p>}
-        {!current.result && hasAccounts(current, accounts) && <p className="mapping-ready-notice">{t("Kontozuordnung vollständig. Die Datei ist jetzt bereit zum Import.")}</p>}
+        {!current.result && hasAccounts(current, accounts) && unresolvedDuplicateCount(current) === 0 && <p className="mapping-ready-notice">{t("Kontozuordnung und Duplikatprüfung vollständig. Die Datei ist jetzt bereit zum Import.")}</p>}
         {nextOpenPreview && <div className="batch-buttons"><button className="secondary-button" disabled={busy} onClick={() => setActive(nextOpenPreview.file.path)}>{t("Nächste offene Vorschau")}</button></div>}
       </div></td></tr>}
       </Fragment>)}</tbody></table></div>
@@ -316,6 +335,7 @@ export function ImportWizard({ enabled = true }: { enabled?: boolean }) {
           {noAccounts && <strong>{t("Noch kein Konto vorhanden.")}</strong>}
           {noAccounts
             ? <small>{t("Lege zuerst unter Banken & Konten ein Konto an. Deine Importliste bleibt dabei erhalten.")}</small>
+            : awaitingDuplicateReview > 0 ? <small>{t("Prüfe zuerst alle möglichen Duplikate in den Dateivorschauen.")}</small>
             : ready.length === 0 && <small>{t("Ordne zuerst für jede Datei alle benötigten Konten zu.")}</small>}
         </div>
         <div className="batch-buttons">

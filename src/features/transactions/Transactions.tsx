@@ -16,6 +16,7 @@ import { BalanceChartHelp } from "./BalanceChartHelp";
 import { selectAmountRange } from "./amountSelection";
 import { TransactionActions, type TransferType } from "./TransactionActions";
 import { SettlementRuleDialog } from "./SettlementRuleDialog";
+import { DuplicateRemovalDialog } from "./DuplicateRemovalDialog";
 import { reportPeriod } from "../../domain/reportPeriod";
 
 interface Category { key: string; label: string; color: string; amountMinor: number; transactionCount: number }
@@ -29,6 +30,9 @@ interface Analysis { incomeTransactions: Transaction[]; totalIncomeMinor: number
 
 export function Transactions() {
   const [ruleTransaction, setRuleTransaction] = useState<Transaction | null>(null);
+  const [duplicateTransaction, setDuplicateTransaction] = useState<Transaction | null>(null);
+  const [duplicateError, setDuplicateError] = useState<string | null>(null);
+  const [savingDuplicate, setSavingDuplicate] = useState(false);
   const [savingSettlement, setSavingSettlement] = useState(false);
   const [detailMode, setDetailMode] = useState<"income" | "expense">("expense");
   const [analysisView, setAnalysisView] = useState<"category" | "month">("category");
@@ -354,9 +358,36 @@ export function Transactions() {
     await load();
   }
 
+  function closeDuplicateDialog() {
+    const id = duplicateTransaction?.id;
+    setDuplicateTransaction(null); setDuplicateError(null);
+    requestAnimationFrame(() => {
+      const trigger = id ? document.querySelector<HTMLButtonElement>(`[data-amount-row="${id}"] .transaction-more`) : null;
+      (trigger ?? document.querySelector<HTMLElement>("#transaction-details"))?.focus();
+    });
+  }
+
+  async function removeDuplicate() {
+    if (!duplicateTransaction) return;
+    const id = duplicateTransaction.id;
+    setSavingDuplicate(true); setDuplicateError(null);
+    try {
+      await invoke("ignore_duplicate_transaction", { transactionId: id });
+      setSelectedAmounts(current => current.filter(transactionId => transactionId !== id));
+      setDuplicateTransaction(null);
+      setCategoryMessage(t("Die doppelte Buchung wurde entfernt. Du kannst sie unter „Importierte Dateien“ wiederherstellen."));
+      await load();
+      requestAnimationFrame(() => document.querySelector<HTMLElement>("#transaction-details")?.focus());
+    } catch (reason) { setDuplicateError(String(reason)); }
+    finally { setSavingDuplicate(false); }
+  }
+
   if (!data && loading) return <section className="transactions-page transaction-analysis-page"><h1>{t("Deine Einnahmen und Ausgaben")}</h1><TransactionTabs active="all" /><p className="intro">{t("Transaktionen werden ausgewertet…")}</p></section>;
   return <section className="transactions-page transaction-analysis-page">
     {ruleTransaction && <SettlementRuleDialog transaction={ruleTransaction} onClose={() => setRuleTransaction(null)} onSaved={load} />}
+    {duplicateTransaction && <DuplicateRemovalDialog description={duplicateTransaction.description} date={shortDate(duplicateTransaction.bookingDate)}
+      account={duplicateTransaction.accountName} amount={money(duplicateTransaction.amountMinor)} busy={savingDuplicate} error={duplicateError}
+      onCancel={closeDuplicateDialog} onConfirm={() => void removeDuplicate()} />}
     <div className="overview-heading"><div><p className="eyebrow">{t("Transaktionen")}</p><h1>{t("Deine Einnahmen und Ausgaben")}</h1></div></div>
     <TransactionTabs active="all" />
     {error && <p className="error-message">{t(error)}</p>}{categoryMessage && <p className="import-result" role="status">{categoryMessage}</p>}
@@ -504,7 +535,7 @@ export function Transactions() {
             const selecting = !selectedAmounts.includes(item.id);
             amountDrag.current = { start: item.id, base: selectedAmounts, selecting };
             setSelectedAmounts(selectAmountRange(selectedAmounts, amountRows.map(row => row.id), item.id, item.id, selecting));
-          }} onClick={event => { if (event.detail === 0) setSelectedAmounts(current => current.includes(item.id) ? current.filter(id => id !== item.id) : [...current, item.id]); }}>{money(item.excludedFromTotals ? item.amountMinor : contribution(item))}</button><TransactionActions neutral={item.excludedFromTotals} description={item.description} disabled={savingSettlement} onChange={kind => changeSettlement(item, kind)} onEditCategory={() => { setCategoryMessage(null); setEditingCategory(item.id); }} />
+          }} onClick={event => { if (event.detail === 0) setSelectedAmounts(current => current.includes(item.id) ? current.filter(id => id !== item.id) : [...current, item.id]); }}>{money(item.excludedFromTotals ? item.amountMinor : contribution(item))}</button><TransactionActions neutral={item.excludedFromTotals} description={item.description} disabled={savingSettlement || savingDuplicate} onChange={kind => changeSettlement(item, kind)} onEditCategory={() => { setCategoryMessage(null); setEditingCategory(item.id); }} onRemoveDuplicate={() => { setDuplicateError(null); setDuplicateTransaction(item); }} />
             {editingCategory === item.id && <InlineCategoryEditor description={item.description} initialKey={item.categoryKey} options={categoryOptions} onSave={key => changeCategory(item.id,key)} onClose={() => closeCategoryEditor(item.id)}/>}</div>)}
           {!filteredTransactions.length && <p className="intro">{t("Keine Buchungen für diese Auswahl gefunden.")}</p>}
           {filteredTransactions.length > rowLimit && <button className="secondary-button" onClick={() => setRowLimit(limit => limit + 200)}>{t("Weitere Buchungen anzeigen (")}{rowLimit}  {t("von")} {filteredTransactions.length})</button>}

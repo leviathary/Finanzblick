@@ -18,6 +18,14 @@ pub fn delete_imports(storage: State<'_, Storage>, ids: Vec<i64>) -> Result<usiz
 }
 
 #[tauri::command]
+pub fn restore_import_duplicates(
+    storage: State<'_, Storage>,
+    import_id: i64,
+) -> Result<usize, String> {
+    storage::imports::restore_import_duplicates(&storage, import_id)
+}
+
+#[tauri::command]
 pub fn list_import_mapping_profiles(
     storage: State<'_, Storage>,
 ) -> Result<Vec<ImportMappingProfile>, String> {

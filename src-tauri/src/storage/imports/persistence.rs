@@ -1,5 +1,5 @@
 //! Speichert freigegebene Importe, Buchungen und Salden gemeinsam.
-use super::deduplication::transaction_indices_to_insert;
+use super::deduplication::{suspected_duplicates, transaction_indices_to_insert};
 use crate::storage::banking::cards;
 use crate::storage::database::errors::db_error;
 use crate::storage::database::Storage;
@@ -131,6 +131,38 @@ pub(crate) fn save_import_to(
     }
     let account_id = account_ids[currency];
     let transaction_indices = transaction_indices_to_insert(&transaction, &request, &account_ids)?;
+    let suspected =
+        suspected_duplicates(&transaction, &request, &account_ids, &transaction_indices)?;
+    let suspected_indices = suspected
+        .iter()
+        .map(|item| item.transaction_index)
+        .collect::<std::collections::BTreeSet<_>>();
+    let mut resolutions = std::collections::BTreeMap::new();
+    for resolution in &request.duplicate_resolutions {
+        if !matches!(resolution.action.as_str(), "keep" | "skip")
+            || !suspected_indices.contains(&resolution.transaction_index)
+        {
+            return Err(
+                "Eine Duplikatentscheidung ist ungültig. Bitte die Vorschau erneut prüfen.".into(),
+            );
+        }
+        if resolutions
+            .insert(resolution.transaction_index, resolution.action.as_str())
+            .is_some()
+        {
+            return Err("Eine verdächtige Buchung wurde mehrfach entschieden. Bitte die Vorschau erneut prüfen.".into());
+        }
+    }
+    if suspected
+        .iter()
+        .any(|item| !resolutions.contains_key(&item.transaction_index))
+    {
+        return Err("Mögliche Duplikate müssen vor dem Import vollständig geprüft werden.".into());
+    }
+    let transaction_indices = transaction_indices
+        .into_iter()
+        .filter(|(index, _)| resolutions.get(index).copied() != Some("skip"))
+        .collect::<Vec<_>>();
     let inserted_transactions = transaction_indices.len();
     let source_name = source
         .file_name()

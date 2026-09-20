@@ -155,6 +155,19 @@ in `src/styles/application.css`; Feature-Styles verwenden dieselben Farbrollen.
   „Als Kartenausgleich markieren“ und „Als Übertrag zwischen eigenen Konten markieren“
   benennen. Das Drei-Punkte-Menü enthält nur Aktionen für die jeweilige Buchung;
   kein Navigationslink zu „Umbuchungen & Ausgleiche“ (über den Reiter erreichbar).
+- „Als Duplikat entfernen …“ ist eine destruktiv dargestellte, aber reversible
+  Zeilenaktion. Ein Bestätigungsdialog zeigt Beschreibung, Datum, Konto und Betrag
+  und erklärt die Auswirkung. Die Buchung bleibt mit ihrer Importspur gespeichert,
+  wird aber aus Salden und Auswertungen ausgeschlossen; ein erneuter Import aktiviert
+  sie nicht wieder. Unter „Importierte Dateien“ werden entfernte Dubletten je Import
+  ausgewiesen und wiederhergestellt. Einen vollständig falschen Import entfernt
+  weiterhin die Importverwaltung.
+- Unter „Importierte Dateien“ steht eine manuell ausgelöste Bestandsprüfung für
+  ältere Importe. Sie gruppiert eindeutige und mögliche Dubletten mit Importquelle,
+  verändert keine Buchung automatisch und verwendet für eine Entfernung denselben
+  reversiblen Bestätigungsdialog. „Kein Duplikat“ speichert die geprüfte Gruppe
+  dauerhaft, damit legitime Mehrfachzahlungen bei späteren Läufen nicht erneut
+  erscheinen. Neue oder veränderte Kandidaten bleiben weiterhin sichtbar.
 - Tabellensortierung direkt an den Spaltenüberschriften mit `expense-sort`,
   Richtungspfeilen und Tastaturbedienung anbieten, nicht als separates Dropdown.
   Dies ist der Standard für datenreiche Tabellen, insbesondere mit Geldbeträgen:
@@ -202,6 +215,13 @@ in `src/styles/application.css`; Feature-Styles verwenden dieselben Farbrollen.
   Steuerhistorie und Finanzchat; danach Import, Banken & Konten und Kategorien.
   Dezente Trennlinien mit kompaktem Abstand kennzeichnen die Gruppen. Für
   assistive Technologien bleiben die Bereiche als benannte Gruppen erkennbar.
+- Die globale „Hilfe“ steht im unteren Navigationsbereich direkt oberhalb von
+  „Daten & Sicherheit“. Sie öffnet eine vollständig lokal verfügbare Hilfeseite
+  mit Suche, eigener benannter Themennavigation und direkten Artikelankern. Auf
+  breiten Ansichten stehen Themenindex und Artikel nebeneinander, auf schmalen
+  Ansichten untereinander. Ein Direktlink setzt den Fokus auf die Artikelüberschrift.
+  Screenshots verwenden ausschließlich synthetische Demo-Daten. Kontexthilfen
+  dürfen direkt in den passenden Hilfeartikel verlinken.
 - Banken & Konten: Zeilenaktionen im Drei-Punkte-Menü (Bearbeiten, Einbezug ins
   Gesamtvermögen, Archivieren/Aktivieren bzw. Löschen bei leeren Konten).
   Archivieren/Löschen absetzen und bestätigen lassen. Ausschluss vom Vermögen
@@ -448,6 +468,15 @@ am jeweiligen Bereich die Abweichung kontrolliert beheben und Regressionen prüf
 - Importübersicht, Dateiliste, Inline-Vorschau und Importaktion bilden eine gemeinsame Card.
 - Im Kopf stehen Dateistatus, Buchungsanzahl und Kontozuordnungen kompakt; keine wiederholte Bereitschaftsmeldung oder allgemeine Bedienerklärung.
 - Die Vorschau öffnet direkt unter der zugehörigen Datei. Warnungen und Duplikathinweise bleiben der Datei zugeordnet.
+- Die Duplikatprüfung unterscheidet eindeutige bereits vorhandene Buchungen von
+  möglichen Dubletten. Eindeutige Treffer werden automatisch übersprungen.
+  Mögliche Dubletten werden in der Transaktionsvorschau mit Vergleichsbuchung
+  markiert und blockieren den Import, bis jede einzeln als neue Buchung bestätigt
+  oder als Duplikat übersprungen wurde. Als Verdachtsfall gilt mindestens derselbe
+  Betrag in derselben Währung auf demselben Konto und Buchungstag; bei ähnlichem
+  Buchungstext wird zusätzlich ein Toleranzfenster von zwei Tagen geprüft. Der
+  Backend-Speichervorgang wiederholt die Prüfung atomar und verweigert Importe mit
+  ungeklärten Treffern.
 - Der gemeinsame Footer ist nur durch eine Linie getrennt; „Importieren“ bleibt die dunkelblaue Hauptaktion. Kontoprüfungen und deaktivierte Zustände bleiben erhalten.
 
 Architektur und Modulverantwortlichkeiten: [architecture.md](architecture.md).

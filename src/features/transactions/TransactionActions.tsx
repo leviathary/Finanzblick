@@ -5,9 +5,10 @@ import { t, tr } from "../../i18n";
 
 export type TransferType = "NONE" | "CREDIT_CARD_SETTLEMENT" | "INTERNAL_TRANSFER";
 
-export function TransactionActions({ neutral, description, disabled, onChange, onEditCategory }: {
+export function TransactionActions({ neutral, description, disabled, onChange, onEditCategory, onRemoveDuplicate }: {
   neutral: boolean; description: string; disabled: boolean; onChange: (type: TransferType) => Promise<void>;
   onEditCategory?: () => void;
+  onRemoveDuplicate?: () => void;
 }) {
   const trigger = useRef<HTMLButtonElement>(null);
   const menu = useRef<HTMLDivElement>(null);
@@ -37,7 +38,8 @@ export function TransactionActions({ neutral, description, disabled, onChange, o
       onClick={() => {
         if (position) { close(); return; }
         const rect = trigger.current!.getBoundingClientRect();
-        setPosition({ left: Math.max(8, Math.min(rect.right - 300, window.innerWidth - 308)), top: Math.max(8, Math.min(rect.bottom + 4, window.innerHeight - (onEditCategory ? 280 : 230))) });
+        const menuHeight = 230 + (onEditCategory ? 50 : 0) + (onRemoveDuplicate ? 50 : 0);
+        setPosition({ left: Math.max(8, Math.min(rect.right - 300, window.innerWidth - 308)), top: Math.max(8, Math.min(rect.bottom + 4, window.innerHeight - menuHeight)) });
       }}>···</button>
     {position && createPortal(<div className="transaction-action-menu" role="dialog" aria-label={t("Buchungsaktionen")} ref={menu}
       style={position} onBlur={event => { if (!event.currentTarget.contains(event.relatedTarget)) setPosition(null); }}>
@@ -46,6 +48,7 @@ export function TransactionActions({ neutral, description, disabled, onChange, o
         <button type="button" onClick={() => choose("CREDIT_CARD_SETTLEMENT")}>{t("Als Kartenausgleich markieren")}</button>
         <button type="button" onClick={() => choose("INTERNAL_TRANSFER")}>{t("Als Übertrag zwischen eigenen Konten markieren")}</button>
       </>}
+      {onRemoveDuplicate && <button type="button" className="destructive-menu-action" onClick={() => { close(); onRemoveDuplicate(); }}>{t("Als Duplikat entfernen …")}</button>}
     </div>, document.body)}
   </>;
 }

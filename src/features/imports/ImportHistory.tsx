@@ -4,10 +4,12 @@ import { t, tr, locale } from "../../i18n";
 import { useEffect, useMemo, useState } from "react";
 import { invoke, isTauri } from "@tauri-apps/api/core";
 import { filenameFilter } from "./filenameFilter";
+import { DuplicateAudit } from "./DuplicateAudit";
 
 interface ImportRun {
   id: number; sourceName: string; sourceFormat: string; provider: string; accounts: string;
   importedAt: string; transactionCount: number; firstDate: string | null; lastDate: string | null;
+  ignoredDuplicateCount: number;
 }
 
 interface WealthDataBasis {
@@ -31,6 +33,7 @@ export function ImportHistory() {
   const [pending, setPending] = useState<ImportRun[]>([]);
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState(false);
+  const [restoringImportId, setRestoringImportId] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [search, setSearch] = useState("");
@@ -69,7 +72,17 @@ export function ImportHistory() {
     finally { setDeleting(false); }
   }
 
-  const locked = loading || deleting || pending.length > 0;
+  async function restoreDuplicates(row: ImportRun) {
+    setRestoringImportId(row.id); setError(null); setMessage(null);
+    try {
+      const count = await invoke<number>("restore_import_duplicates", { importId: row.id });
+      setMessage(`${count} ${count === 1 ? t("Buchung wiederhergestellt") : t("Buchungen wiederhergestellt")}.`);
+      await refresh();
+    } catch (reason) { setError(String(reason)); }
+    finally { setRestoringImportId(null); }
+  }
+
+  const locked = loading || deleting || restoringImportId !== null || pending.length > 0;
   const groups = new Map<string, ImportRun[]>();
   for (const row of visibleImports) {
     const period = row.lastDate ?? row.importedAt.slice(0, 10);
@@ -91,7 +104,7 @@ export function ImportHistory() {
   function table(rows: ImportRun[]) {
     return <div className="history-table"><table>
       <thead><tr><th><input type="checkbox" aria-label={t("Alle Importe in dieser Gruppe auswählen")} disabled={locked} checked={rows.every(row => selected.includes(row.id))} ref={element => { if (element) element.indeterminate = rows.some(row => selected.includes(row.id)) && !rows.every(row => selected.includes(row.id)); }} onChange={event => selectGroup(rows, event.target.checked)} /></th><th>{t("Datei / Anbieter")}</th><th>{t("Konten")}</th><th>{t("Buchungszeitraum")}</th><th>{t("Importiert am")}</th><th>{t("Buchungen")}</th><th>{t("Aktion")}</th></tr></thead>
-      <tbody>{rows.map(row => <tr key={row.id}><td><input type="checkbox" aria-label={tr`Import ${row.id}: ${row.sourceName} auswählen`} checked={selected.includes(row.id)} disabled={locked} onChange={event => selectGroup([row], event.target.checked)} /></td><td><strong>{row.sourceName}</strong><small>#{row.id} · {row.provider} · {row.sourceFormat}</small></td><td>{row.accounts}</td><td>{date(row.firstDate)} – {date(row.lastDate)}</td><td>{new Date(row.importedAt).toLocaleString(locale())}</td><td>{row.transactionCount}</td><td><button className="danger-button" disabled={locked} onClick={() => { setError(null); setPending([row]); }}>{t("Löschen")}</button></td></tr>)}</tbody>
+      <tbody>{rows.map(row => <tr key={row.id}><td><input type="checkbox" aria-label={tr`Import ${row.id}: ${row.sourceName} auswählen`} checked={selected.includes(row.id)} disabled={locked} onChange={event => selectGroup([row], event.target.checked)} /></td><td><strong>{row.sourceName}</strong><small>#{row.id} · {row.provider} · {row.sourceFormat}</small></td><td>{row.accounts}</td><td>{date(row.firstDate)} – {date(row.lastDate)}</td><td>{new Date(row.importedAt).toLocaleString(locale())}</td><td>{row.transactionCount}{row.ignoredDuplicateCount > 0 && <small>{row.ignoredDuplicateCount} {row.ignoredDuplicateCount === 1 ? t("entfernte Dublette") : t("entfernte Dubletten")}</small>}</td><td><div className="history-row-actions">{row.ignoredDuplicateCount > 0 && <button className="secondary-button" disabled={locked} onClick={() => void restoreDuplicates(row)}>{restoringImportId === row.id ? t("Bitte warten …") : t("Dubletten wiederherstellen")}</button>}<button className="danger-button" disabled={locked} onClick={() => { setError(null); setPending([row]); }}>{t("Löschen")}</button></div></td></tr>)}</tbody>
     </table></div>;
   }
   return <section className="import-history">
@@ -123,10 +136,11 @@ export function ImportHistory() {
         <small>{recentImport.transactionCount} {t("Buchungen, importiert am")} {formatDateTime(recentImport.importedAt)}</small>
       </article>
     </div>}
+    {imports.length > 0 && <DuplicateAudit onChanged={() => void refresh()} />}
     <div className="history-search">
       <label className="history-search-field" htmlFor="import-filename-search">{t("Dateiname durchsuchen")}<input id="import-filename-search" type="search" value={search} disabled={locked} placeholder={regex ? "UBS|Kontoauszug" : t("z. B. UBS oder *Kontoauszug*")} aria-describedby={filter.error ? "import-search-help import-search-error" : "import-search-help"} aria-invalid={Boolean(filter.error)} onChange={event => { setSearch(event.target.value); setSelected([]); }} />
       </label>
-      <label className="history-type-filter">{t("Dateityp")}<select value={fileType} disabled={locked} onChange={event => { setFileType(event.target.value); setSelected([]); }}><option value="">{t("Alle Dateitypen")}</option><option value="CAMT053">camt.053 (XML)</option><option value="MT940">MT940 (.mt940 / .sta)</option><option value="PDF">PDF</option><option value="CSV">CSV</option><option value="excel">Excel (XLS / XLSX)</option><option value="XLS">XLS</option><option value="XLSX">XLSX</option></select></label>
+      <label className="history-type-filter">{t("Dateityp")}<select value={fileType} disabled={locked} onChange={event => { setFileType(event.target.value); setSelected([]); }}><option value="">{t("Alle Dateitypen")}</option><option value="CAMT053">camt.053 (ISO 20022 XML)</option><option value="CAMT054">camt.054 (ISO 20022 XML)</option><option value="MT940">MT940 (.mt940 / .sta)</option><option value="PDF">PDF</option><option value="CSV">CSV</option><option value="excel">Excel (XLS / XLSX)</option><option value="XLS">XLS</option><option value="XLSX">XLSX</option></select></label>
       <label className="history-search-mode"><input type="checkbox" checked={regex} disabled={locked} onChange={event => { setRegex(event.target.checked); setSelected([]); }} />  {t("Regulärer Ausdruck (Regex)")}</label>
       {(search || fileType) && <button className="secondary-button" disabled={locked} onClick={() => { setSearch(""); setFileType(""); setSelected([]); }}>{t("Filter zurücksetzen")}</button>}
     </div>

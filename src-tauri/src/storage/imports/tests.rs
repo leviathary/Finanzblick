@@ -4,6 +4,230 @@ use super::*;
 use crate::storage::*;
 
 #[test]
+fn suspicious_duplicates_block_saving_until_explicitly_kept_or_skipped() {
+    let directory = tempfile::tempdir().unwrap();
+    let storage = Storage::test_storage(directory.path().join("suspects.sqlite3"));
+    initialize_schema(&storage.connect().unwrap()).unwrap();
+    let transaction = |reference: &str| crate::importers::ParsedTransaction {
+        booking_date: "2026-08-24".into(),
+        value_date: Some("2026-08-24".into()),
+        description: "Steuerverwaltung des Kantons Bern".into(),
+        amount_minor: -59_000,
+        currency: "CHF".into(),
+        confidence: 1.0,
+        source_row: 1,
+        reference_namespace: Some("camt-entry".into()),
+        external_reference: Some(reference.into()),
+        ..Default::default()
+    };
+    let statement = |reference: &str| crate::importers::ParsedStatement {
+        provider: "ubs".into(),
+        format: "CAMT053".into(),
+        account_name: "Privatkonto".into(),
+        transactions: vec![transaction(reference)],
+        ..Default::default()
+    };
+    let first_source = directory.path().join("first.xml");
+    fs::write(&first_source, b"first").unwrap();
+    save_import_to(
+        &storage,
+        SaveImportRequest {
+            account_ids: BTreeMap::new(),
+            source_path: first_source.to_string_lossy().into(),
+            account_name: "Privatkonto".into(),
+            statement: statement("BANK-1"),
+            duplicate_resolutions: vec![],
+        },
+    )
+    .unwrap();
+    let account_id = storage
+        .connect()
+        .unwrap()
+        .query_row("SELECT id FROM accounts LIMIT 1", [], |row| {
+            row.get::<_, i64>(0)
+        })
+        .unwrap();
+    let request = |name: &str, reference: &str| {
+        let source = directory.path().join(name);
+        fs::write(&source, name.as_bytes()).unwrap();
+        SaveImportRequest {
+            account_ids: BTreeMap::from([("CHF".into(), account_id)]),
+            source_path: source.to_string_lossy().into(),
+            account_name: "Privatkonto".into(),
+            statement: statement(reference),
+            duplicate_resolutions: vec![],
+        }
+    };
+
+    let skipped = request("skip.xml", "BANK-2");
+    let check = duplicate_check(&storage.connect().unwrap(), &skipped, "skip").unwrap();
+    assert_eq!(check.suspected_transactions.len(), 1);
+    assert_eq!(check.suspected_transactions[0].match_source, "stored");
+    assert!(save_import_to(&storage, skipped.clone())
+        .unwrap_err()
+        .contains("vollständig geprüft"));
+    let mut skipped = skipped;
+    skipped
+        .duplicate_resolutions
+        .push(crate::storage::imports::models::DuplicateResolution {
+            transaction_index: 0,
+            action: "skip".into(),
+        });
+    assert_eq!(
+        save_import_to(&storage, skipped)
+            .unwrap()
+            .inserted_transactions,
+        0
+    );
+
+    let mut kept = request("keep.xml", "BANK-3");
+    kept.duplicate_resolutions
+        .push(crate::storage::imports::models::DuplicateResolution {
+            transaction_index: 0,
+            action: "keep".into(),
+        });
+    assert_eq!(
+        save_import_to(&storage, kept)
+            .unwrap()
+            .inserted_transactions,
+        1
+    );
+    assert_eq!(
+        storage
+            .connect()
+            .unwrap()
+            .query_row("SELECT COUNT(*) FROM transactions", [], |row| row
+                .get::<_, i64>(0))
+            .unwrap(),
+        2
+    );
+
+    let mut same_day_same_amount = request("same-amount.xml", "BANK-4");
+    same_day_same_amount.statement.transactions[0].description = "Andere Gegenpartei".into();
+    let check = duplicate_check(
+        &storage.connect().unwrap(),
+        &same_day_same_amount,
+        "same-amount",
+    )
+    .unwrap();
+    assert_eq!(check.suspected_transactions.len(), 1);
+
+    let mut stale_decision = request("stale.xml", "BANK-5");
+    stale_decision.statement.transactions[0].amount_minor = -58_000;
+    stale_decision.duplicate_resolutions.push(
+        crate::storage::imports::models::DuplicateResolution {
+            transaction_index: 0,
+            action: "skip".into(),
+        },
+    );
+    assert!(save_import_to(&storage, stale_decision)
+        .unwrap_err()
+        .contains("ungültig"));
+}
+
+#[test]
+fn ignored_duplicate_stays_deduplicated_and_can_be_restored_from_its_import() {
+    let directory = tempfile::tempdir().unwrap();
+    let storage = Storage::test_storage(directory.path().join("ignored-duplicate.sqlite3"));
+    initialize_schema(&storage.connect().unwrap()).unwrap();
+    let source = directory.path().join("statement.xml");
+    fs::write(
+        &source,
+        include_str!("../../importers/fixtures/camt053.xml"),
+    )
+    .unwrap();
+    let parsed = crate::importers::parse_statement(
+        source.to_string_lossy().into(),
+        Some("zkb".into()),
+        None,
+    )
+    .unwrap();
+    let request = SaveImportRequest {
+        account_ids: BTreeMap::new(),
+        source_path: source.to_string_lossy().into(),
+        account_name: "Testkonto".into(),
+        statement: parsed.clone(),
+        duplicate_resolutions: vec![],
+    };
+    let saved = save_import_to(&storage, request).unwrap();
+    let before = crate::storage::banking::transactions::transaction_analysis(
+        &storage,
+        None,
+        None,
+        None,
+        None,
+        vec![],
+        vec![],
+    )
+    .unwrap();
+    let transaction_id = before.transactions[0].id;
+
+    crate::storage::banking::duplicates::ignore(&storage, transaction_id).unwrap();
+    let analysis = crate::storage::banking::transactions::transaction_analysis(
+        &storage,
+        None,
+        None,
+        None,
+        None,
+        vec![],
+        vec![],
+    )
+    .unwrap();
+    assert_eq!(analysis.transactions.len() + 1, before.transactions.len());
+    assert_eq!(
+        storage
+            .connect()
+            .unwrap()
+            .query_row("SELECT COUNT(*) FROM transactions", [], |row| row
+                .get::<_, i64>(0))
+            .unwrap(),
+        2
+    );
+    let imports = imports_from(&storage).unwrap();
+    assert_eq!(imports[0].ignored_duplicate_count, 1);
+
+    let repeated = save_import_to(
+        &storage,
+        SaveImportRequest {
+            account_ids: BTreeMap::new(),
+            source_path: source.to_string_lossy().into(),
+            account_name: "Testkonto".into(),
+            statement: parsed,
+            duplicate_resolutions: vec![],
+        },
+    )
+    .unwrap();
+    assert!(repeated.duplicate);
+    assert_eq!(
+        restore_import_duplicates(&storage, saved.import_id).unwrap(),
+        1
+    );
+    assert_eq!(
+        storage
+            .connect()
+            .unwrap()
+            .query_row(
+                "SELECT COUNT(*) FROM ignored_duplicate_transactions",
+                [],
+                |row| row.get::<_, i64>(0)
+            )
+            .unwrap(),
+        0
+    );
+    let restored = crate::storage::banking::transactions::transaction_analysis(
+        &storage,
+        None,
+        None,
+        None,
+        None,
+        vec![],
+        vec![],
+    )
+    .unwrap();
+    assert_eq!(restored.transactions.len(), before.transactions.len());
+}
+
+#[test]
 fn camt_import_roundtrip_distinguishes_references_and_skips_overlap() {
     let directory = tempfile::tempdir().unwrap();
     let storage = Storage::test_storage(directory.path().join("camt.sqlite3"));
@@ -18,16 +242,32 @@ fn camt_import_roundtrip_distinguishes_references_and_skips_overlap() {
             None,
         )
         .unwrap();
-        save_import_to(
-            &storage,
-            SaveImportRequest {
-                account_ids: BTreeMap::new(),
-                source_path: source.to_string_lossy().into(),
-                account_name: "Testkonto".into(),
-                statement: parsed,
-            },
-        )
-        .unwrap()
+        let mut request = SaveImportRequest {
+            account_ids: BTreeMap::new(),
+            source_path: source.to_string_lossy().into(),
+            account_name: "Testkonto".into(),
+            statement: parsed,
+            duplicate_resolutions: vec![],
+        };
+        if let Ok(account_id) = storage.connect().unwrap().query_row(
+            "SELECT id FROM accounts WHERE currency='CHF' ORDER BY id LIMIT 1",
+            [],
+            |row| row.get::<_, i64>(0),
+        ) {
+            request.account_ids.insert("CHF".into(), account_id);
+        }
+        let check = duplicate_check(&storage.connect().unwrap(), &request, "test-check").unwrap();
+        request.duplicate_resolutions = check
+            .suspected_transactions
+            .into_iter()
+            .map(
+                |item| crate::storage::imports::models::DuplicateResolution {
+                    transaction_index: item.transaction_index,
+                    action: "keep".into(),
+                },
+            )
+            .collect();
+        save_import_to(&storage, request).unwrap()
     };
     let first = save("one.xml", xml);
     assert_eq!(first.inserted_transactions, 2);
@@ -93,6 +333,7 @@ fn camt_import_roundtrip_distinguishes_references_and_skips_overlap() {
             source_path: conflicting_source.to_string_lossy().into(),
             account_name: "Testkonto".into(),
             statement: conflicting,
+            duplicate_resolutions: vec![],
         },
     )
     .unwrap_err();
@@ -170,6 +411,7 @@ fn balance_backed_import_skips_exact_duplicate_but_keeps_repeated_payments() {
                 warnings: Vec::new(),
                 ..crate::importers::ParsedStatement::default()
             },
+            duplicate_resolutions: vec![],
         },
     )
     .unwrap();

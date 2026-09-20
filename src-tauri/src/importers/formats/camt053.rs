@@ -1,11 +1,21 @@
-//! Bank-independent camt.053 reader. One Ntry remains one ledger posting:
-//! TxDtls enrich that posting, never add a second cash movement.
+//! Bank-independent camt.053 and camt.054 reader. One Ntry remains one ledger
+//! posting: TxDtls enrich that posting, never add a second cash movement.
 use crate::importers::{CurrencyBalance, ParsedStatement, ParsedTransaction};
 use chrono::NaiveDate;
 use roxmltree::{Document, Node, ParsingOptions};
 use std::{fs, path::Path};
 
 type XmlNode<'a> = Node<'a, 'a>;
+
+#[derive(Clone, Copy)]
+struct CamtSpec {
+    label: &'static str,
+    message: &'static str,
+    record: &'static str,
+    format: &'static str,
+    document_type: &'static str,
+    has_balances: bool,
+}
 
 fn child<'a>(node: XmlNode<'a>, name: &str) -> Option<XmlNode<'a>> {
     node.children().find(|item| {
@@ -123,7 +133,7 @@ pub(in crate::importers) fn parse(
     path: &Path,
     provider: Option<&str>,
 ) -> Result<ParsedStatement, String> {
-    let bytes = fs::read(path).map_err(|_| "camt.053: Datei konnte nicht gelesen werden.")?;
+    let bytes = fs::read(path).map_err(|_| "camt-XML: Datei konnte nicht gelesen werden.")?;
     let source = if bytes.starts_with(&[0xff, 0xfe]) || bytes.starts_with(&[0xfe, 0xff]) {
         let encoding = if bytes[0] == 0xff {
             encoding_rs::UTF_16LE
@@ -132,12 +142,12 @@ pub(in crate::importers) fn parse(
         };
         let (decoded, _, errors) = encoding.decode(&bytes);
         if errors {
-            return Err("camt.053: Ungültige UTF-16-Datei.".into());
+            return Err("camt-XML: Ungültige UTF-16-Datei.".into());
         }
         decoded.into_owned()
     } else {
         String::from_utf8(bytes)
-            .map_err(|_| "camt.053: Erwartet wird UTF-8 oder UTF-16 mit BOM.")?
+            .map_err(|_| "camt-XML: Erwartet wird UTF-8 oder UTF-16 mit BOM.")?
     };
     parse_xml(source.trim_start_matches('\u{feff}'), provider)
 }
@@ -151,29 +161,58 @@ fn parse_xml(source: &str, provider: Option<&str>) -> Result<ParsedStatement, St
             ..ParsingOptions::default()
         },
     )
-    .map_err(|_| "camt.053: Ungültiges XML oder nicht unterstützte DTD.")?;
+    .map_err(|_| "camt-XML: Ungültiges XML oder nicht unterstützte DTD.")?;
     let root = doc.root_element();
     let namespace = root.tag_name().namespace().unwrap_or("");
-    if root.tag_name().name() != "Document"
-        || !matches!(
-            namespace,
-            "urn:iso:std:iso:20022:tech:xsd:camt.053.001.02"
-                | "urn:iso:std:iso:20022:tech:xsd:camt.053.001.04"
-                | "urn:iso:std:iso:20022:tech:xsd:camt.053.001.08"
-                | "urn:iso:std:iso:20022:tech:xsd:camt.053.001.10"
-        )
-    {
-        return Err("Erwartet wird camt.053 XML in Version 02, 04, 08 oder 10.".into());
+    let supported_version = ["02", "04", "08", "10"]
+        .iter()
+        .any(|version| namespace.ends_with(&format!(".001.{version}")));
+    let spec = if namespace.contains(":camt.053.") && supported_version {
+        CamtSpec {
+            label: "camt.053",
+            message: "BkToCstmrStmt",
+            record: "Stmt",
+            format: "CAMT053",
+            document_type: "statement",
+            has_balances: true,
+        }
+    } else if namespace.contains(":camt.054.") && supported_version {
+        CamtSpec {
+            label: "camt.054",
+            message: "BkToCstmrDbtCdtNtfctn",
+            record: "Ntfctn",
+            format: "CAMT054",
+            document_type: "notification",
+            has_balances: false,
+        }
+    } else {
+        return Err(
+            "Erwartet wird camt.053- oder camt.054-XML in Version 02, 04, 08 oder 10.".into(),
+        );
+    };
+    if root.tag_name().name() != "Document" {
+        return Err("camt-XML: Document-Wurzelelement fehlt.".into());
     }
-    let message = child(root, "BkToCstmrStmt").ok_or("camt.053: BkToCstmrStmt fehlt.")?;
+    parse_document(root, namespace, provider, spec)
+        .map_err(|error| error.replace("camt.053", spec.label))
+}
+
+fn parse_document(
+    root: XmlNode<'_>,
+    namespace: &str,
+    provider: Option<&str>,
+    spec: CamtSpec,
+) -> Result<ParsedStatement, String> {
+    let message =
+        child(root, spec.message).ok_or_else(|| format!("camt.053: {} fehlt.", spec.message))?;
     let statements: Vec<_> = message
         .children()
-        .filter(|n| n.has_tag_name((namespace, "Stmt")))
+        .filter(|n| n.has_tag_name((namespace, spec.record)))
         .collect();
     // The current review maps one account per currency. Reject multiple statements
     // rather than mixing same-currency accounts or dropping any of their data.
     if statements.len() != 1 {
-        return Err("camt.053: Bitte genau einen Kontoauszug pro XML-Datei exportieren; mehrere Stmt-Abschnitte werden noch nicht unterstützt.".into());
+        return Err(format!("camt.053: Bitte genau einen Datensatz pro XML-Datei exportieren; mehrere {}-Abschnitte werden noch nicht unterstützt.", spec.record));
     }
     let stmt = statements[0];
     let account_reference = text(stmt, "Acct/Id/IBAN")
@@ -187,33 +226,38 @@ fn parse_xml(source: &str, provider: Option<&str>) -> Result<ParsedStatement, St
         .or_else(|| text(message, "GrpHdr/CreDtTm"))
         .map(|v| date(&v))
         .transpose()?;
-    let mut opening = None;
-    let mut closing = None;
-    for bal in stmt
-        .children()
-        .filter(|n| n.has_tag_name((namespace, "Bal")))
-    {
-        let code = text(bal, "Tp/CdOrPrtry/Cd").unwrap_or_default();
-        if code != "OPBD" && code != "CLBD" {
-            continue;
+    let balance_window = if spec.has_balances {
+        let mut opening = None;
+        let mut closing = None;
+        for bal in stmt
+            .children()
+            .filter(|n| n.has_tag_name((namespace, "Bal")))
+        {
+            let code = text(bal, "Tp/CdOrPrtry/Cd").unwrap_or_default();
+            if code != "OPBD" && code != "CLBD" {
+                continue;
+            }
+            let value = (choice_date(bal, "Dt")?, amount(bal, &currency)?);
+            let slot = if code == "OPBD" {
+                &mut opening
+            } else {
+                &mut closing
+            };
+            if slot.replace(value).is_some() {
+                return Err("camt.053: Mehrere OPBD-/CLBD-Salden sind nicht eindeutig.".into());
+            }
         }
-        let value = (choice_date(bal, "Dt")?, amount(bal, &currency)?);
-        let slot = if code == "OPBD" {
-            &mut opening
-        } else {
-            &mut closing
-        };
-        if slot.replace(value).is_some() {
-            return Err("camt.053: Mehrere OPBD-/CLBD-Salden sind nicht eindeutig.".into());
+        let (opening_date, opening_amount) =
+            opening.ok_or("camt.053: Gebuchter Anfangssaldo OPBD fehlt.")?;
+        let (closing_date, closing_amount) =
+            closing.ok_or("camt.053: Gebuchter Schlusssaldo CLBD fehlt.")?;
+        if closing_date < opening_date {
+            return Err("camt.053: Saldenzeitraum ist ungültig.".into());
         }
-    }
-    let (opening_date, opening_amount) =
-        opening.ok_or("camt.053: Gebuchter Anfangssaldo OPBD fehlt.")?;
-    let (closing_date, closing_amount) =
-        closing.ok_or("camt.053: Gebuchter Schlusssaldo CLBD fehlt.")?;
-    if closing_date < opening_date {
-        return Err("camt.053: Saldenzeitraum ist ungültig.".into());
-    }
+        Some((opening_date, opening_amount, closing_date, closing_amount))
+    } else {
+        None
+    };
     let mut warnings = Vec::new();
     let mut transactions = Vec::new();
     let mut entry_references = std::collections::HashSet::new();
@@ -243,7 +287,13 @@ fn parse_xml(source: &str, provider: Option<&str>) -> Result<ParsedStatement, St
         }
         let amount_minor = amount(entry, &currency)?;
         let booking_date = choice_date(entry, "BookgDt")?;
-        if booking_date < opening_date || booking_date > closing_date {
+        if balance_window
+            .as_ref()
+            .is_some_and(|(opening_date, _, closing_date, _)| {
+                booking_date.as_str() < opening_date.as_str()
+                    || booking_date.as_str() > closing_date.as_str()
+            })
+        {
             return Err("camt.053: Buchungsdatum liegt ausserhalb des Saldenzeitraums.".into());
         }
         let value_date = child(entry, "ValDt")
@@ -325,7 +375,7 @@ fn parse_xml(source: &str, provider: Option<&str>) -> Result<ParsedStatement, St
                 ),
         )
         .or_else(|| external_reference.clone())
-        .unwrap_or_else(|| "camt.053 Buchung".into());
+        .unwrap_or_else(|| format!("{} Buchung", spec.label));
         if details.len() > 1 {
             description = format!("Sammelbuchung ({}): {description}", details.len());
             if !warnings
@@ -353,52 +403,71 @@ fn parse_xml(source: &str, provider: Option<&str>) -> Result<ParsedStatement, St
             ..ParsedTransaction::default()
         });
     }
-    let computed = transactions
-        .iter()
-        .try_fold(opening_amount, |sum, row| sum.checked_add(row.amount_minor))
-        .ok_or("camt.053: Betragssumme ist zu gross.")?;
-    if computed != closing_amount {
-        return Err("camt.053: OPBD plus gebuchte Bewegungen stimmt nicht mit CLBD überein. Der Auszug wird nicht teilweise importiert.".into());
+    if let Some((_, opening_amount, _, closing_amount)) = &balance_window {
+        let computed = transactions
+            .iter()
+            .try_fold(*opening_amount, |sum, row| {
+                sum.checked_add(row.amount_minor)
+            })
+            .ok_or("camt.053: Betragssumme ist zu gross.")?;
+        if computed != *closing_amount {
+            return Err("camt.053: OPBD plus gebuchte Bewegungen stimmt nicht mit CLBD überein. Der Auszug wird nicht teilweise importiert.".into());
+        }
     }
     transactions.sort_by(|a, b| {
         a.booking_date
             .cmp(&b.booking_date)
             .then(a.source_row.cmp(&b.source_row))
     });
-    // OPBD is the balance before the reported period's postings, even when its
-    // date equals the first booking date. Store it at the previous day in that case.
-    let snapshot_opening_date = if transactions
-        .first()
-        .is_some_and(|row| row.booking_date == opening_date)
+    let (currency_balances, opening_balance_minor, closing_balance_minor) = if let Some((
+        opening_date,
+        opening_amount,
+        closing_date,
+        closing_amount,
+    )) = balance_window
     {
-        NaiveDate::parse_from_str(&opening_date, "%Y-%m-%d")
-            .unwrap()
-            .pred_opt()
-            .ok_or("camt.053: Anfangsdatum ausserhalb des unterstützten Bereichs.")?
-            .to_string()
+        // OPBD is the balance before the reported period's postings, even when its
+        // date equals the first booking date. Store it at the previous day in that case.
+        let snapshot_opening_date = if transactions
+            .first()
+            .is_some_and(|row| row.booking_date == opening_date)
+        {
+            NaiveDate::parse_from_str(&opening_date, "%Y-%m-%d")
+                .unwrap()
+                .pred_opt()
+                .ok_or("camt.053: Anfangsdatum ausserhalb des unterstützten Bereichs.")?
+                .to_string()
+        } else {
+            opening_date
+        };
+        (
+            vec![CurrencyBalance {
+                currency: currency.clone(),
+                opening_date: Some(snapshot_opening_date),
+                opening_balance_minor: opening_amount,
+                closing_balance_minor: closing_amount,
+                closing_date,
+            }],
+            Some(opening_amount),
+            Some(closing_amount),
+        )
     } else {
-        opening_date
+        (Vec::new(), None, None)
     };
     Ok(ParsedStatement {
         provider: provider
             .filter(|v| *v != "unknown")
             .unwrap_or("unknown")
             .into(),
-        format: "CAMT053".into(),
+        format: spec.format.into(),
         account_name: account_reference.clone(),
         account_reference: Some(account_reference),
-        document_type: Some("statement".into()),
+        document_type: Some(spec.document_type.into()),
         document_date,
         record_definition_id: Some(namespace.into()),
-        currency_balances: vec![CurrencyBalance {
-            currency,
-            opening_date: Some(snapshot_opening_date),
-            opening_balance_minor: opening_amount,
-            closing_balance_minor: closing_amount,
-            closing_date,
-        }],
-        opening_balance_minor: Some(opening_amount),
-        closing_balance_minor: Some(closing_amount),
+        currency_balances,
+        opening_balance_minor,
+        closing_balance_minor,
         transactions,
         warnings,
         ..ParsedStatement::default()
@@ -455,6 +524,35 @@ mod tests {
                 .transactions
                 .iter()
                 .all(|row| row.balance_minor.is_none()));
+        }
+    }
+
+    #[test]
+    fn imports_camt054_notifications_without_statement_balances() {
+        for version in ["02", "04", "08", "10"] {
+            let xml = FIXTURE
+                .replace("camt.053.001.08", &format!("camt.054.001.{version}"))
+                .replace("BkToCstmrStmt", "BkToCstmrDbtCdtNtfctn")
+                .replace("<Stmt>", "<Ntfctn>")
+                .replace("</Stmt>", "</Ntfctn>")
+                .replace("<Id>TEST-STATEMENT</Id>", "<Id>TEST-NOTIFICATION</Id>")
+                .replace("      <Bal><Tp><CdOrPrtry><Cd>OPBD</Cd></CdOrPrtry></Tp><Amt Ccy=\"CHF\">1000.00</Amt><CdtDbtInd>CRDT</CdtDbtInd><Dt><Dt>2026-09-01</Dt></Dt></Bal>\n", "")
+                .replace("      <Bal><Tp><CdOrPrtry><Cd>CLBD</Cd></CdOrPrtry></Tp><Amt Ccy=\"CHF\">1130.00</Amt><CdtDbtInd>CRDT</CdtDbtInd><Dt><Dt>2026-09-01</Dt></Dt></Bal>\n", "");
+            let result = parse_xml(&xml, None).unwrap();
+            assert_eq!(result.format, "CAMT054");
+            assert_eq!(result.document_type.as_deref(), Some("notification"));
+            assert_eq!(
+                result.account_reference.as_deref(),
+                Some("CH0000000000000000000")
+            );
+            assert_eq!(result.transactions.len(), 2);
+            assert!(result.currency_balances.is_empty());
+            assert_eq!(result.opening_balance_minor, None);
+            assert_eq!(result.closing_balance_minor, None);
+            assert_eq!(
+                result.transactions[0].external_reference.as_deref(),
+                Some("BANK-1")
+            );
         }
     }
 

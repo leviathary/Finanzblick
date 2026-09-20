@@ -55,7 +55,7 @@ src-tauri/src/
     database/              Verbindung, Sitzung, Profile, Backups, Schema und Fehler
     categories.rs          Kategorienpersistenz
   importers/
-    formats/               CSV, Excel, PDF, MT940, camt.053, Tabellenmapping
+    formats/               CSV, Excel, PDF, MT940, camt.053/.054, Tabellenmapping
     providers/             Bankabhängige Interpretation
     taxes/zurich.rs        Parser für Zürcher Steuererklärungen
     pipeline.rs            Datei lesen und normalisieren, ohne DB-Zugriff
@@ -81,6 +81,12 @@ Importer liefern normalisierte DTOs und kennen keine Datenbank. Der Abgleich
 gegen bereits gespeicherte Referenzen gehört zur Importpersistenz, nicht zum
 Formatparser. `identity.rs` erzeugt Fingerabdrücke; `deduplication.rs`
 gleicht sie gegen gespeicherte Buchungen ab.
+
+Die nachträgliche Bestandsprüfung liegt im Banking-Repository `duplicates.rs`.
+Sie liest Buchungen und Importquellen, gruppiert Verdachtsfälle und persistiert
+nur explizite Prüfentscheidungen. Buchungen werden dabei nicht gelöscht:
+bestätigte Dubletten werden reversibel aus Auswertungen ausgeblendet, bestätigte
+Mehrfachzahlungen als geprüfte Transaktionspaare gespeichert.
 
 Repository-Anfragen und Ergebnisprojektionen liegen beim jeweiligen Fachbereich
 in `models.rs`, nicht mehr in einer zentralen Sammeldatei.

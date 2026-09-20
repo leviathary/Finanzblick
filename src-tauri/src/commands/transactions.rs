@@ -82,3 +82,26 @@ pub fn set_transaction_category(
 ) -> Result<usize, String> {
     storage::banking::transactions::set_transaction_category(&storage, transaction_id, category_key)
 }
+
+#[tauri::command]
+pub fn ignore_duplicate_transaction(
+    storage: State<'_, Storage>,
+    transaction_id: i64,
+) -> Result<(), String> {
+    storage::banking::duplicates::ignore(&storage, transaction_id)
+}
+
+#[tauri::command]
+pub fn audit_duplicate_transactions(
+    storage: State<'_, Storage>,
+) -> Result<Vec<storage::banking::duplicates::DuplicateAuditGroup>, String> {
+    storage::banking::duplicates::audit(&storage)
+}
+
+#[tauri::command]
+pub fn dismiss_duplicate_candidate_group(
+    storage: State<'_, Storage>,
+    transaction_ids: Vec<i64>,
+) -> Result<(), String> {
+    storage::banking::duplicates::dismiss_candidate_group(&storage, transaction_ids)
+}

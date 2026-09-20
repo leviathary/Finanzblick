@@ -26,11 +26,11 @@ struct ExcelImporter;
 struct CsvImporter;
 struct Mt940Importer;
 struct PdfImporter;
-struct Camt053Importer;
+struct CamtXmlImporter;
 
-impl StatementImporter for Camt053Importer {
+impl StatementImporter for CamtXmlImporter {
     fn id(&self) -> &'static str {
-        "camt053"
+        "camt-xml"
     }
     fn supports(&self, path: &Path, _: Option<&str>, _: Option<&TabularMapping>) -> bool {
         extension(path) == "xml"
@@ -131,7 +131,7 @@ impl StatementImporter for PdfImporter {
 }
 
 static IMPORTERS: [&dyn StatementImporter; 6] = [
-    &Camt053Importer,
+    &CamtXmlImporter,
     &MappedTabularImporter,
     &ExcelImporter,
     &CsvImporter,
@@ -148,7 +148,7 @@ pub(super) fn parse(
         .iter()
         .find(|importer| importer.supports(path, provider, mapping))
         .ok_or_else(|| {
-            "Unterstützt werden XLSX, XLS, CSV, PDF, MT940 und camt.053 (XML).".to_string()
+            "Unterstützt werden XLSX, XLS, CSV, PDF, MT940 sowie camt.053 und camt.054 (ISO 20022 XML).".to_string()
         })?;
     debug_assert!(!importer.id().is_empty());
     importer.parse(path, provider, mapping)

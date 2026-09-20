@@ -70,6 +70,8 @@ fn initializes_only_the_current_normalized_valuation_schema() {
         "daily_valuations",
         "annual_tax_snapshots",
         "annual_tax_snapshot_breakdowns",
+        "ignored_duplicate_transactions",
+        "duplicate_review_exclusions",
     ] {
         assert!(tables.contains(required), "missing table {required}");
     }
@@ -542,6 +544,7 @@ fn request(source_path: String) -> SaveImportRequest {
             warnings: vec![],
             ..ParsedStatement::default()
         },
+        duplicate_resolutions: vec![],
     }
 }
 

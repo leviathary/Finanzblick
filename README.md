@@ -67,7 +67,7 @@ Choose a light, dark or system appearance in Settings.
 
 ## Features
 
-- Import bank statements from Excel, CSV, PDF and MT940, and review them before saving
+- Import bank statements from Excel, CSV, PDF, MT940, camt.053 and camt.054 (ISO 20022), and review them before saving
 - View bank accounts, stocks, ETFs, cryptocurrencies and retirement assets together
 - Visualize net worth, cash flow and tax history
 - Explore interactive net worth charts with zoom, measurement tools and optional index comparisons (SMI, S&P 500)

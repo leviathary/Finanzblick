@@ -67,7 +67,7 @@ Unter Einstellungen zwischen heller, dunkler und systemabhängiger Darstellung w
 
 ## Funktionen
 
-- Bankauszüge aus Excel, CSV, PDF und MT940 importieren und vor dem Speichern prüfen
+- Bankauszüge aus Excel, CSV, PDF, MT940 sowie camt.053 und camt.054 (ISO 20022) importieren und vor dem Speichern prüfen
 - Konten, Aktien, ETFs, Kryptowährungen und Vorsorgevermögen gemeinsam auswerten
 - Vermögensentwicklung, Geldfluss und Steuerhistorie visualisieren
 - Interaktive Vermögenscharts mit Zoom, Messwerkzeug und optionalem Indexvergleich (SMI, S&P 500)

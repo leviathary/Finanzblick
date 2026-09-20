@@ -103,6 +103,27 @@ export interface SaveImportResult {
   duplicate: boolean;
 }
 
+export type DuplicateResolutionAction = "keep" | "skip";
+
+export interface SuspectedDuplicate {
+  transactionIndex: number;
+  matchSource: "stored" | "current_file";
+  existingTransactionId: number | null;
+  comparedTransactionIndex: number | null;
+  bookingDate: string;
+  description: string;
+  amountMinor: number;
+  currency: string;
+  matchKind: "same_day" | "nearby_day";
+}
+
+export interface DuplicateCheck {
+  exactFile: boolean;
+  matchingTransactions: number;
+  totalTransactions: number;
+  suspectedTransactions: SuspectedDuplicate[];
+}
+
 export interface DatabaseStatus {
   path: string;
   accounts: number;

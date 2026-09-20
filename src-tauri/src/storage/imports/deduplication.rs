@@ -2,8 +2,11 @@
 use super::identity::transaction_identity;
 use crate::storage::database::errors::db_error;
 use crate::storage::database::Storage;
-use crate::storage::imports::models::{DuplicateCheck, SaveImportRequest, TransactionIdentity};
+use crate::storage::imports::models::{
+    DuplicateCheck, SaveImportRequest, SuspectedDuplicate, TransactionIdentity,
+};
 use crate::storage::rules::categorization::apply_categories;
+use chrono::NaiveDate;
 use rusqlite::OptionalExtension;
 use rusqlite::{params, Connection};
 use sha2::Digest;
@@ -93,10 +96,13 @@ pub(crate) fn duplicate_check(
             .map(|(currency, account_id)| (currency.as_str(), *account_id))
             .collect();
         let insertions = transaction_indices_to_insert(connection, request, &account_ids)?;
+        let suspected_transactions =
+            suspected_duplicates(connection, request, &account_ids, &insertions)?;
         return Ok(DuplicateCheck {
             exact_file,
             matching_transactions: request.statement.transactions.len() - insertions.len(),
             total_transactions: request.statement.transactions.len(),
+            suspected_transactions,
         });
     }
     let mut counts = BTreeMap::new();
@@ -140,7 +146,171 @@ pub(crate) fn duplicate_check(
         exact_file,
         matching_transactions,
         total_transactions: request.statement.transactions.len(),
+        suspected_transactions: Vec::new(),
     })
+}
+
+pub(crate) fn suspected_duplicates(
+    connection: &Connection,
+    request: &SaveImportRequest,
+    account_ids: &std::collections::BTreeMap<&str, i64>,
+    insertions: &[(usize, TransactionIdentity)],
+) -> Result<Vec<SuspectedDuplicate>, String> {
+    let candidate_indices = insertions
+        .iter()
+        .map(|(index, _)| *index)
+        .collect::<std::collections::BTreeSet<_>>();
+    let mut query = connection
+        .prepare(
+            "SELECT rowid,booking_date,description,amount_minor,currency FROM transactions
+             WHERE account_id=?1 AND amount_minor=?2 AND currency=?3
+               AND date(booking_date) BETWEEN date(?4,'-2 day') AND date(?4,'+2 day')
+             ORDER BY ABS(julianday(booking_date)-julianday(?4)), rowid DESC",
+        )
+        .map_err(db_error)?;
+    let mut result = Vec::new();
+    for index in candidate_indices.iter().copied() {
+        let row = &request.statement.transactions[index];
+        let account_id = account_ids[row.currency.as_str()];
+        let stored = query
+            .query_map(
+                params![account_id, row.amount_minor, row.currency, row.booking_date],
+                |stored| {
+                    Ok((
+                        stored.get::<_, i64>(0)?,
+                        stored.get::<_, String>(1)?,
+                        stored.get::<_, String>(2)?,
+                        stored.get::<_, i64>(3)?,
+                        stored.get::<_, String>(4)?,
+                    ))
+                },
+            )
+            .map_err(db_error)?
+            .collect::<Result<Vec<_>, _>>()
+            .map_err(db_error)?
+            .into_iter()
+            .find(|(_, date, description, _, _)| {
+                suspicious_match(&row.booking_date, &row.description, date, description)
+            });
+        if let Some((id, date, description, amount, currency)) = stored {
+            result.push(suspect(
+                index,
+                "stored",
+                Some(id),
+                None,
+                date,
+                description,
+                amount,
+                currency,
+                &row.booking_date,
+            ));
+            continue;
+        }
+        if let Some((compared_index, previous)) = request
+            .statement
+            .transactions
+            .iter()
+            .enumerate()
+            .take(index)
+            .rev()
+            .find(|(_, previous)| {
+                request.account_ids.get(&previous.currency) == Some(&account_id)
+                    && previous.amount_minor == row.amount_minor
+                    && previous.currency == row.currency
+                    && suspicious_match(
+                        &row.booking_date,
+                        &row.description,
+                        &previous.booking_date,
+                        &previous.description,
+                    )
+            })
+        {
+            result.push(suspect(
+                index,
+                "current_file",
+                None,
+                Some(compared_index),
+                previous.booking_date.clone(),
+                previous.description.clone(),
+                previous.amount_minor,
+                previous.currency.clone(),
+                &row.booking_date,
+            ));
+        }
+    }
+    Ok(result)
+}
+
+fn suspect(
+    transaction_index: usize,
+    match_source: &str,
+    existing_transaction_id: Option<i64>,
+    compared_transaction_index: Option<usize>,
+    booking_date: String,
+    description: String,
+    amount_minor: i64,
+    currency: String,
+    incoming_date: &str,
+) -> SuspectedDuplicate {
+    SuspectedDuplicate {
+        transaction_index,
+        match_source: match_source.into(),
+        existing_transaction_id,
+        compared_transaction_index,
+        match_kind: if booking_date == incoming_date {
+            "same_day"
+        } else {
+            "nearby_day"
+        }
+        .into(),
+        booking_date,
+        description,
+        amount_minor,
+        currency,
+    }
+}
+
+fn dates_are_close(left: &str, right: &str) -> bool {
+    let (Ok(left), Ok(right)) = (
+        NaiveDate::parse_from_str(left, "%Y-%m-%d"),
+        NaiveDate::parse_from_str(right, "%Y-%m-%d"),
+    ) else {
+        return left == right;
+    };
+    (left - right).num_days().abs() <= 2
+}
+
+fn suspicious_match(
+    incoming_date: &str,
+    incoming_description: &str,
+    compared_date: &str,
+    compared_description: &str,
+) -> bool {
+    incoming_date == compared_date
+        || (dates_are_close(incoming_date, compared_date)
+            && descriptions_are_similar(incoming_description, compared_description))
+}
+
+fn descriptions_are_similar(left: &str, right: &str) -> bool {
+    let left = similarity_tokens(left);
+    let right = similarity_tokens(right);
+    if left.is_empty() || right.is_empty() {
+        return false;
+    }
+    if left == right {
+        return true;
+    }
+    let common = left.intersection(&right).count();
+    common >= 2 && common * 4 >= left.len().max(right.len()) * 3
+}
+
+fn similarity_tokens(value: &str) -> std::collections::BTreeSet<String> {
+    value
+        .to_lowercase()
+        .split(|character: char| !character.is_alphanumeric())
+        .filter(|token| token.len() > 1)
+        .map(ToOwned::to_owned)
+        .collect()
 }
 
 pub(crate) fn stored_identity_exists(
@@ -241,7 +411,9 @@ pub(crate) fn transaction_indices_to_insert(
         let exceeds_legacy_count = *occurrence >= existing_counts[&key];
         *occurrence += 1;
         let identity = &identities[index];
-        if request.statement.format == "CAMT053" && identity.external_reference.is_some() {
+        if matches!(request.statement.format.as_str(), "CAMT053" | "CAMT054")
+            && identity.external_reference.is_some()
+        {
             let previous: Option<(i64, String, String)> = connection
                 .query_row(
                     "SELECT t.amount_minor,t.currency,t.booking_date FROM transaction_metadata m
@@ -255,7 +427,7 @@ pub(crate) fn transaction_indices_to_insert(
             if previous.is_some_and(|(amount, currency, date)| {
                 amount != row.amount_minor || currency != row.currency || date != row.booking_date
             }) {
-                return Err("camt.053: Eine bereits importierte Bankreferenz hat ein anderes Buchungsdatum, einen anderen Betrag oder eine andere Währung. Bitte die Auszüge prüfen.".into());
+                return Err("camt: Eine bereits importierte Bankreferenz hat ein anderes Buchungsdatum, einen anderen Betrag oder eine andere Währung. Bitte die Dateien prüfen.".into());
             }
         }
         let identity_key = if identity.external_reference.is_some() {

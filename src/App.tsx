@@ -22,15 +22,17 @@ import { TaxHistory } from "./features/tax-history/TaxHistory";
 
 import { FinanceChat } from "./features/chat/FinanceChat";
 import { Categories } from "./features/categories/Categories";
+import { Help } from "./features/help/Help";
 
-type Page = "chat" | "data-security" | "settings" | "categories" | "overview" | "accounts" | "assets" | "tax-history" | "transactions" | "transfers" | "cards" | "card-setup" | "imports" | "import-history";
+type Page = "chat" | "help" | "data-security" | "settings" | "categories" | "overview" | "accounts" | "assets" | "tax-history" | "transactions" | "transfers" | "cards" | "card-setup" | "imports" | "import-history";
 type ImportKind = "bank" | "tax";
 
-type NavIconName = "chat" | "home" | "bank" | "chart" | "tax" | "transactions" | "tag" | "import" | "history" | "settings" | "logout";
+type NavIconName = "chat" | "help" | "home" | "bank" | "chart" | "tax" | "transactions" | "tag" | "import" | "history" | "settings" | "logout";
 
 function NavIcon({ name }: { name: NavIconName }) {
   const paths: Record<NavIconName, ReactNode> = {
     chat: <><path d="M4 4h16v13H9l-5 4V4Z"/><path d="M8 8h8M8 12h5"/></>,
+    help: <><circle cx="12" cy="12" r="9"/><path d="M9.7 9a2.5 2.5 0 1 1 3.7 2.2c-.9.5-1.4 1-1.4 2.1M12 17h.01"/></>,
     home: <><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v10h13V10M9 20v-6h6v6"/></>,
     bank: <><path d="M3 9h18L12 4 3 9Z"/><path d="M5 9v8m4-8v8m6-8v8m4-8v8M3 20h18"/></>,
     chart: <><path d="M4 19V5"/><path d="M4 19h16"/><path d="m7 15 4-5 3 3 5-7"/></>,
@@ -54,6 +56,7 @@ function ImportKindTabs({ value, onChange }: { value: ImportKind; onChange: (val
 
 function pageFromHash(): Page {
   if (window.location.hash === "#chat") return "chat";
+  if (window.location.hash.startsWith("#help")) return "help";
   if (window.location.hash === "#data-security") return "data-security";
   if (window.location.hash === "#settings") return "settings";
   if (window.location.hash === "#categories") return "categories";
@@ -125,6 +128,7 @@ function App() {
           </div>
         </nav>
         <nav className="sidebar-secondary" aria-label={t("Kontonavigation")}>
+          <a className={page === "help" ? "active" : ""} href="#help/start"><NavIcon name="help"/><span>{t("Hilfe")}</span></a>
           <a className={page === "data-security" ? "active" : ""} href="#data-security"><NavIcon name="history"/><span>{t("Daten & Sicherheit")}</span></a>
           <a className={page === "settings" ? "active" : ""} href="#settings"><NavIcon name="settings"/><span>{t("Einstellungen")}</span></a>
           <button type="button" onClick={() => { void lockVault(); }}><NavIcon name="logout"/><span>{t("Abmelden")}</span></button>
@@ -135,7 +139,7 @@ function App() {
           <a href={ (page === "imports" ? importKind : managementKind) === "tax" ? "#imports/tax" : "#imports"} aria-current={page === "imports" ? "page" : undefined}>{t("Dateien importieren")}</a>
           <a href={(page === "imports" ? importKind : managementKind) === "tax" ? "#import-history/tax" : "#import-history"} aria-current={page === "import-history" ? "page" : undefined}>{t("Importierte Dateien")}</a>
         </nav>}
-        {page === "chat" ? <FinanceChat /> : page === "data-security" ? <DataSecurity /> : page === "settings" ? <Settings /> : page === "overview" ? <Overview onImport={() => navigate("imports")} /> : page === "accounts" ? <Accounts /> : page === "assets" ? <Assets onAccounts={() => navigate("accounts")} onImport={() => navigate("imports")} /> : page === "tax-history" ? <TaxHistory /> : page === "transactions" ? <Transactions /> : page === "transfers" ? <TransferManagement /> : page === "cards" ? <CreditCards /> : page === "card-setup" ? <CardSetupWizard /> : page === "categories" ? <Categories /> : null}
+        {page === "chat" ? <FinanceChat /> : page === "help" ? <Help /> : page === "data-security" ? <DataSecurity /> : page === "settings" ? <Settings /> : page === "overview" ? <Overview onImport={() => navigate("imports")} /> : page === "accounts" ? <Accounts /> : page === "assets" ? <Assets onAccounts={() => navigate("accounts")} onImport={() => navigate("imports")} /> : page === "tax-history" ? <TaxHistory /> : page === "transactions" ? <Transactions /> : page === "transfers" ? <TransferManagement /> : page === "cards" ? <CreditCards /> : page === "card-setup" ? <CardSetupWizard /> : page === "categories" ? <Categories /> : null}
         <div hidden={page !== "imports"}>
           <ImportKindTabs value={importKind} onChange={(kind) => { setImportKind(kind); window.location.hash = kind === "tax" ? "imports/tax" : "imports"; }} />
           <div hidden={importKind !== "bank"}><ImportWizard enabled={page === "imports" && importKind === "bank"} /></div>

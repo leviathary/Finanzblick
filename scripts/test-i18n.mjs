@@ -51,6 +51,27 @@ test('settlement actions and notices are available in English', () => {
   setLanguage('de');
 });
 
+test('duplicate removal is confirmed, reversible and fully translated', () => {
+  const actions = fs.readFileSync(new URL('../src/features/transactions/TransactionActions.tsx', import.meta.url), 'utf8');
+  const dialog = fs.readFileSync(new URL('../src/features/transactions/DuplicateRemovalDialog.tsx', import.meta.url), 'utf8');
+  const transactions = fs.readFileSync(new URL('../src/features/transactions/Transactions.tsx', import.meta.url), 'utf8');
+  const history = fs.readFileSync(new URL('../src/features/imports/ImportHistory.tsx', import.meta.url), 'utf8');
+  const audit = fs.readFileSync(new URL('../src/features/imports/DuplicateAudit.tsx', import.meta.url), 'utf8');
+  const wizard = fs.readFileSync(new URL('../src/features/imports/ImportWizard.tsx', import.meta.url), 'utf8');
+  for (const match of (actions + dialog + transactions + history + audit + wizard).matchAll(/\bt\("([^"\\]+)"\)/g)) {
+    assert.equal(messages[match[1]]?.length, 3, match[1]);
+  }
+  assert.match(actions, /Als Duplikat entfernen …/);
+  assert.match(dialog, /Die ursprüngliche Importspur bleibt erhalten/);
+  assert.match(transactions, /invoke\("ignore_duplicate_transaction"/);
+  assert.match(history, /invoke<number>\("restore_import_duplicates"/);
+  assert.match(history, /ignoredDuplicateCount/);
+  assert.match(audit, /audit_duplicate_transactions/);
+  assert.match(audit, /dismiss_duplicate_candidate_group/);
+  assert.match(wizard, /unresolvedDuplicateCount/);
+  assert.match(wizard, /Als Duplikat überspringen/);
+});
+
 test('unlock controls and security messages are translated', () => {
   const keys = ['Anmelden', 'Persönliche Finanzen', 'Lokale Daten prüfen …', 'Passwort anzeigen', 'Passwort verbergen',
     'Caps Lock ist aktiviert', 'Aus Backup wiederherstellen', 'Zurück zur Anmeldung', 'Sicherungsdatei auswählen …', 'Wechseln'];
@@ -178,6 +199,21 @@ test('translations retain every interpolation and provide all three languages', 
       assert.ok(value.trim().length, key);
       assert.deepEqual(placeholders(value), placeholders(key), key);
     }
+  }
+});
+
+test('local help is routed, searchable and fully translated', () => {
+  const app = fs.readFileSync(new URL('../src/App.tsx', import.meta.url), 'utf8');
+  const help = fs.readFileSync(new URL('../src/features/help/Help.tsx', import.meta.url), 'utf8');
+  const content = fs.readFileSync(new URL('../src/features/help/helpContent.ts', import.meta.url), 'utf8');
+  assert.match(app, /window\.location\.hash\.startsWith\("#help"\)/);
+  assert.match(app, /href="#help\/start"/);
+  assert.match(app, /page === "help" \? <Help/);
+  assert.match(help, /type="search"/);
+  assert.match(help, /aria-current=\{activeArticle\.id === article\.id \? "page"/);
+  assert.match(help, /headingRef\.current\?\.focus\(\)/);
+  for (const match of (help + content).matchAll(/\bt\("([^"\\]+)"\)/g)) {
+    assert.equal(messages[match[1]]?.length, 3, match[1]);
   }
 });
 

@@ -1,6 +1,6 @@
 // Koordiniert Kontovorschläge und das schrittweise Speichern eines Importstapels.
 
-import type { ImportAccount, ParsedStatement, SaveImportResult, TabularMapping } from "./importTypes";
+import type { DuplicateCheck, DuplicateResolutionAction, ImportAccount, ParsedStatement, SaveImportResult, TabularMapping } from "./importTypes";
 import type { SelectedStatement } from "./fileDetection";
 
 export interface BatchItem {
@@ -12,6 +12,8 @@ export interface BatchItem {
   error?: string;
   duplicateNotice?: string;
   alreadyImported?: boolean;
+  duplicateCheck?: DuplicateCheck;
+  duplicateResolutions?: Record<number, DuplicateResolutionAction>;
   mapping?: TabularMapping;
 }
 
@@ -46,7 +48,11 @@ export function hasAccounts(item: BatchItem, accounts: ImportAccount[]): boolean
 }
 
 export function readyToSave(item: BatchItem, accounts: ImportAccount[]): boolean {
-  return !item.result && !item.alreadyImported && hasAccounts(item, accounts);
+  return !item.result && !item.alreadyImported && hasAccounts(item, accounts) && unresolvedDuplicateCount(item) === 0;
+}
+
+export function unresolvedDuplicateCount(item: BatchItem): number {
+  return item.duplicateCheck?.suspectedTransactions.filter(match => !item.duplicateResolutions?.[match.transactionIndex]).length ?? 0;
 }
 
 export function canRelease(item: BatchItem, accounts: ImportAccount[]): boolean {

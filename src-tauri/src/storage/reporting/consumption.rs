@@ -18,6 +18,9 @@ pub(in crate::storage) fn prepare(db: &Connection) -> rusqlite::Result<()> {
         FROM transactions t JOIN accounts a ON a.id=t.account_id
         LEFT JOIN transaction_reporting_flags f ON f.transaction_id=t.id
         LEFT JOIN card_credit_decisions d ON d.transaction_id=t.id
-        LEFT JOIN transaction_metadata m ON m.transaction_id=t.id;",
+        LEFT JOIN transaction_metadata m ON m.transaction_id=t.id
+        WHERE NOT EXISTS (
+          SELECT 1 FROM ignored_duplicate_transactions ignored WHERE ignored.transaction_id=t.id
+        );",
     )
 }

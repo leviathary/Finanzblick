@@ -14,6 +14,7 @@ pub(crate) fn imports_from(storage: &Storage) -> Result<Vec<ImportRun>, String> 
           WHERE a.id = ir.account_id OR EXISTS(SELECT 1 FROM transactions t WHERE t.import_id = ir.id AND t.account_id = a.id)
           OR EXISTS(SELECT 1 FROM balance_snapshots b WHERE b.import_id = ir.id AND b.account_id = a.id)),
         ir.imported_at, (SELECT COUNT(*) FROM transactions t WHERE t.import_id = ir.id),
+        (SELECT COUNT(*) FROM ignored_duplicate_transactions ignored JOIN transactions t ON t.id=ignored.transaction_id WHERE t.import_id=ir.id),
         (SELECT MIN(booking_date) FROM transactions t WHERE t.import_id = ir.id),
         (SELECT MAX(booking_date) FROM transactions t WHERE t.import_id = ir.id)
         FROM import_runs ir JOIN accounts main ON main.id = ir.account_id
@@ -28,8 +29,9 @@ pub(crate) fn imports_from(storage: &Storage) -> Result<Vec<ImportRun>, String> 
                 accounts: row.get(4)?,
                 imported_at: row.get(5)?,
                 transaction_count: row.get(6)?,
-                first_date: row.get(7)?,
-                last_date: row.get(8)?,
+                ignored_duplicate_count: row.get(7)?,
+                first_date: row.get(8)?,
+                last_date: row.get(9)?,
             })
         })
         .map_err(db_error)?
@@ -62,4 +64,28 @@ pub(crate) fn delete_imports_from(storage: &Storage, ids: Vec<i64>) -> Result<us
     }
     transaction.commit().map_err(db_error)?;
     Ok(ids.len())
+}
+
+pub(crate) fn restore_import_duplicates(
+    storage: &Storage,
+    import_id: i64,
+) -> Result<usize, String> {
+    let connection = storage.connect().map_err(db_error)?;
+    let exists = connection
+        .query_row(
+            "SELECT EXISTS(SELECT 1 FROM import_runs WHERE id=?1)",
+            [import_id],
+            |row| row.get::<_, bool>(0),
+        )
+        .map_err(db_error)?;
+    if !exists {
+        return Err("Import nicht gefunden. Bitte die Liste aktualisieren.".into());
+    }
+    connection
+        .execute(
+            "DELETE FROM ignored_duplicate_transactions
+             WHERE transaction_id IN (SELECT id FROM transactions WHERE import_id=?1)",
+            [import_id],
+        )
+        .map_err(db_error)
 }

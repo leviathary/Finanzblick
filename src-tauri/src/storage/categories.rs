@@ -27,7 +27,8 @@ pub struct ManagedCategory {
 pub fn list_categories(storage: &Storage) -> Result<Vec<ManagedCategory>, String> {
     let db = storage.connect().map_err(db_error)?;
     let mut query=db.prepare("SELECT c.category_key,c.label,c.color,
-      (SELECT COUNT(*) FROM transactions WHERE category_id=c.id),
+      (SELECT COUNT(*) FROM transactions t WHERE category_id=c.id
+        AND NOT EXISTS (SELECT 1 FROM ignored_duplicate_transactions ignored WHERE ignored.transaction_id=t.id)),
       ((SELECT COUNT(*) FROM merchant_category_rules WHERE category_id=c.id) +
        (SELECT COUNT(*) FROM industry_category_rules WHERE category_id=c.id))
       FROM categories c WHERE c.id NOT IN (SELECT source_id FROM category_redirects) ORDER BY c.sort_order,c.label").map_err(db_error)?;
@@ -65,6 +66,7 @@ pub fn list_industry_rules(storage: &Storage) -> Result<Vec<IndustryRule>, Strin
          LEFT JOIN industry_category_rules r ON r.industry_key=lower(trim(t.industry))
          LEFT JOIN categories rc ON rc.id=r.category_id
          WHERE t.industry IS NOT NULL AND trim(t.industry)<>''
+         AND NOT EXISTS (SELECT 1 FROM ignored_duplicate_transactions ignored WHERE ignored.transaction_id=t.id)
          GROUP BY lower(trim(t.industry)) ORDER BY COUNT(*) DESC, trim(t.industry)",
         )
         .map_err(db_error)?;
