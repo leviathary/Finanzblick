@@ -19,8 +19,19 @@ The installer is unsigned, so Windows may display a security warning. Always
 create an encrypted backup before using real data. The demo is included:
 **Financial profile → Demo data**, password **`demo1234`**.
 
-A Saldonaut-branded macOS installer has not yet been published. The current code
-can be built locally using the steps under [Development](#development).
+## Install on macOS
+
+[Download Saldonaut 0.6.5 for macOS (Apple Silicon)](../../releases/download/v0.6.5/Saldonaut_0.6.5_aarch64.dmg)
+· [SHA-256 checksum](../../releases/download/v0.6.5/Saldonaut_0.6.5_aarch64.dmg.sha256)
+
+Open the DMG, drag **Saldonaut** to **Applications**, then launch it there.
+The app is ad-hoc signed and not notarized by Apple. If macOS blocks the downloaded
+app, use **System Settings → Privacy & Security → Open Anyway**.
+This image is for Apple Silicon, not Intel Macs.
+
+Build, DMG integrity, signature, product name, version and visible sign-in startup
+were checked on macOS 27.0. See [macOS build notes](installers/RELEASE-macOS-0.6.5.md)
+for validation details and limits.
 
 ## Features
 

@@ -20,9 +20,19 @@ anzeigen. Vor der Nutzung mit echten Daten immer ein verschlüsseltes Backup
 erstellen. Die Demo ist enthalten: **Finanzprofil → Demo-Daten**, Passwort
 **`demo1234`**.
 
-Ein macOS-Installer mit Saldonaut-Branding ist noch nicht veröffentlicht. Der
-aktuelle Stand lässt sich mit den Schritten unter [Entwicklung](#entwicklung)
-lokal bauen.
+## Installation unter macOS
+
+[Saldonaut 0.6.5 für macOS herunterladen (Apple Silicon)](../../releases/download/v0.6.5/Saldonaut_0.6.5_aarch64.dmg)
+· [SHA-256-Prüfsumme](../../releases/download/v0.6.5/Saldonaut_0.6.5_aarch64.dmg.sha256)
+
+DMG öffnen, **Saldonaut** auf **Applications** ziehen und anschließend dort starten.
+Die App ist ad-hoc signiert und nicht von Apple notarisiert. Bei einer Sperre nach
+dem Download: **Systemeinstellungen → Datenschutz & Sicherheit → Dennoch öffnen**.
+Dieses Image ist für Apple Silicon, nicht für Intel-Macs.
+
+Build, DMG-Integrität, Signatur, Produktname, Version und sichtbarer Start bis zur
+Anmeldung wurden auf macOS 27.0 geprüft. Details und Grenzen stehen in den
+[macOS-Buildnotizen](installers/RELEASE-macOS-0.6.5.md).
 
 ## Funktionen
 
