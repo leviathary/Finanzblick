@@ -10,6 +10,16 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 if (process.env.RUSTFLAGS && !process.env.CARGO_ENCODED_RUSTFLAGS) {
   throw new Error("Use CARGO_ENCODED_RUSTFLAGS instead of RUSTFLAGS for release builds.");
 }
+const perlCheck = spawnSync("perl", ["-MIPC::Cmd", "-MLocale::Maketext::Simple", "-e", "1"], {
+  encoding: "utf8",
+});
+if (perlCheck.error || perlCheck.status !== 0) {
+  const detail = perlCheck.error?.message ?? perlCheck.stderr.trim();
+  const recommendation = process.platform === "win32"
+    ? "Install or activate full Strawberry Perl and put perl\\bin and c\\bin before Git for Windows on PATH."
+    : "Install a complete native Perl distribution and put it on PATH.";
+  throw new Error(`Release builds require Perl with IPC::Cmd and Locale::Maketext::Simple. ${recommendation}\n${detail}`);
+}
 // Vendored native libraries can embed their build directory independently of
 // rustc's path remapping. Keep the default release target outside personal paths
 // on every supported platform so those strings remain distributable.

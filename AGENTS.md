@@ -44,3 +44,23 @@
 - Erforderliche Shebangs, Compiler-Direktiven und Lizenzhinweise erhalten und
   deren Platzierung beachten. Generierte Dateien, Fremdcode und reine Daten-
   oder Konfigurationsdateien ohne Kommentarsyntax sind ausgenommen.
+
+# Windows-Release-Build und OpenSSL
+
+- Vor jedem Windows-Release eine vollständige native Perl-Installation für den
+  vendorten OpenSSL-Build in den `PATH` aufnehmen. Empfohlen ist Strawberry Perl
+  (installiert oder portabel); das reduzierte Perl aus Git for Windows unter
+  `Git\usr\bin` reicht nicht aus und darf dafür nicht verwendet werden.
+- Vor dem Build mit
+  `perl -MIPC::Cmd -MLocale::Maketext::Simple -e 1` prüfen, dass Perl und die
+  benötigten Kernmodule erreichbar sind. Schlägt die Prüfung fehl, zuerst den
+  `PATH` korrigieren; nicht auf einen bereits gefüllten Cargo-Cache vertrauen.
+- Bei einer portablen Strawberry-Perl-Ausgabe deren Verzeichnisse `perl\bin`
+  und `c\bin` vor Git in den Prozess-`PATH` stellen. Beispiel in PowerShell:
+  `$perlRoot = 'C:\build\tools\strawberry-perl'; $env:PATH = "$perlRoot\perl\bin;$perlRoot\c\bin;$env:PATH"`.
+- Den Windows-Installer direkt mit
+  `node scripts/release.mjs --bundles nsis` bauen. Nicht über eine fehleranfällige
+  npm-Argumentweitergabe aufrufen.
+- Ein fehlgeschlagener OpenSSL-, Pfad- oder Bundle-Check erzeugt kein
+  veröffentlichungsfähiges Artefakt. Erst nach erfolgreichem Skriptabschluss
+  Produktname, Version, SHA-256-Prüfsumme und Signaturstatus kontrollieren.

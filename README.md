@@ -127,8 +127,12 @@ to the repository.
 
 Release build: `node scripts/release.mjs --bundles nsis` (Windows).
 Set `CARGO_TARGET_DIR` to a neutral directory outside the repository and user
-profile. A fresh OpenSSL build also requires Perl on the build PATH; this is
-not a requirement for the installed app.
+profile. A fresh OpenSSL build requires a complete native Perl distribution on
+the build PATH; Strawberry Perl is recommended. The reduced Perl bundled with
+Git for Windows is not sufficient. Verify the prerequisite with
+`perl -MIPC::Cmd -MLocale::Maketext::Simple -e 1` before building. For a portable
+Strawberry Perl distribution, place `perl\bin` and `c\bin` before Git on the
+`PATH`. Perl is not a requirement for the installed app.
 To build a native macOS DMG on a Mac:
 
 ```sh

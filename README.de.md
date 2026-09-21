@@ -128,7 +128,12 @@ nicht ins Repository.
 Veröffentlichungs-Build: `node scripts/release.mjs --bundles nsis` (Windows).
 `CARGO_TARGET_DIR` muss dabei auf ein neutrales Verzeichnis außerhalb des
 Repositories und Benutzerprofils zeigen. Ein frischer OpenSSL-Build benötigt
-zusätzlich Perl im Build-PATH; dies ist keine Voraussetzung für die fertige App.
+eine vollständige native Perl-Installation im Build-PATH, empfohlen wird
+Strawberry Perl. Das reduzierte Perl aus Git for Windows reicht nicht aus. Vor
+dem Build lässt sich die Voraussetzung mit
+`perl -MIPC::Cmd -MLocale::Maketext::Simple -e 1` prüfen. Bei einer portablen
+Strawberry-Perl-Ausgabe müssen `perl\bin` und `c\bin` vor Git im `PATH` stehen.
+Perl ist keine Voraussetzung für die fertige App.
 Für ein natives macOS-DMG auf einem Mac:
 
 ```sh
