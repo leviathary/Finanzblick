@@ -8,15 +8,21 @@ Deine Finanzen auf einen Blick: eine lokale Desktop-App, die Konten, Depots,
 Vermögen und Ausgaben aus mehreren Banken und weiteren Finanzquellen in einer
 gemeinsamen Sicht bündelt. Ohne Benutzerkonto oder Cloud-Synchronisierung.
 
-## Installation
+## Installation unter Windows
 
-Neue Installationspakete für Windows und macOS werden mit dem nächsten
-Saldonaut-Release veröffentlicht. Der aktuelle Stand lässt sich bis dahin mit
-den Schritten unter [Entwicklung](#entwicklung) lokal bauen. Ein lokaler Build
-veröffentlicht nichts automatisch.
+[Saldonaut 0.6.4 für Windows herunterladen (64 Bit)](../../releases/download/v0.6.4/Saldonaut_0.6.4_x64-setup.exe)
 
-Vor der Nutzung mit echten Daten immer ein verschlüsseltes Backup erstellen.
-Die Demo ist enthalten: **Finanzprofil → Demo-Daten**, Passwort **`demo1234`**.
+[Versionshinweise](../../releases/tag/v0.6.4)
+· [SHA-256-Prüfsumme](../../releases/download/v0.6.4/Saldonaut_0.6.4_x64-setup.exe.sha256)
+
+Der Installer ist nicht signiert; Windows kann deshalb eine Sicherheitswarnung
+anzeigen. Vor der Nutzung mit echten Daten immer ein verschlüsseltes Backup
+erstellen. Die Demo ist enthalten: **Finanzprofil → Demo-Daten**, Passwort
+**`demo1234`**.
+
+Ein macOS-Installer mit Saldonaut-Branding ist noch nicht veröffentlicht. Der
+aktuelle Stand lässt sich mit den Schritten unter [Entwicklung](#entwicklung)
+lokal bauen.
 
 ## Funktionen
 
