@@ -2,13 +2,16 @@
 
 import React from "react";
 import ReactDOM from "react-dom/client";
+import { flushSync } from "react-dom";
 import App from "./App";
 import { initializeAppearance, showApp } from "./shared/theme/appearance";
 
 await initializeAppearance();
-ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
+flushSync(() => ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
     <App />
   </React.StrictMode>,
-);
-requestAnimationFrame(() => requestAnimationFrame(showApp));
+));
+// Verborgene WebViews liefern nicht auf jeder Plattform Animationsframes.
+// Palette und erster React-Commit sind fertig, bevor das Fenster sichtbar wird.
+showApp();

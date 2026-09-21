@@ -23,7 +23,7 @@ If WebView2 is missing, its installation requires an internet connection.
 
 ## Install on macOS
 
-[Download the macOS DMG 0.5.7 (Apple Silicon)](https://github.com/leviathary/Finanzblick/releases/download/v0.5.7/Finanzblick_0.5.7_aarch64.dmg)
+[Download the macOS DMG 0.6.3 (Apple Silicon)](https://github.com/leviathary/Finanzblick/releases/download/v0.6.3/Finanzblick_0.6.3_aarch64.dmg)
 
 For Macs with Apple Silicon (M-series chips). Open the DMG, drag **Finanzblick**
 to **Applications**, then launch the app from Applications.
@@ -33,14 +33,13 @@ If macOS blocks it after downloading, allow it under
 **System Settings → Privacy & Security → Open Anyway**.
 The DMG does not include an Intel build.
 
-Version 0.5.7 includes Finance chat and the local German speech model.
-The build, DMG verification and launch with the demo overview were successfully
-tested on macOS 26.6.2 (Apple Silicon) on September 15, 2026.
-The 13 frontend tests, 81 active Rust tests and an additional local chat-runtime
-test passed on macOS. Keychain sign-in was tested with synthetic data for
-persistence, profile isolation and sign-out. Installation and operation of the
-earlier version 0.5.3 were confirmed by the user. Other macOS versions and a
-fresh installation after downloading from GitHub have not yet been tested.
+Version 0.6.3 includes Finance chat and the local German speech model.
+Build, DMG integrity, ad-hoc signature, demo startup and chat-runtime startup
+were checked on macOS 27.0 (Apple Silicon) on September 21, 2026.
+All 78 frontend tests, 140 active Rust tests and the local chat-runtime test passed.
+This Mac build also fixes an initially hidden window waiting for animation frames.
+Other macOS versions, Intel Macs and a fresh installation after a GitHub download
+have not been tested. See [macOS build notes](installers/RELEASE-macOS-0.6.3.md).
 
 ## Screenshots
 

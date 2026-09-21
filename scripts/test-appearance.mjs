@@ -33,6 +33,24 @@ test('startup respects explicit saved mode before showing native window', async 
   assert.equal(s.calls.at(-1).command, 'show_themed_window');
   assert.equal(s.calls.at(-1).args.dark, false);
 });
+test('hidden webview reveals after theme and committed render without animation frames', async () => {
+  const entry = fs.readFileSync(new URL('../src/main.tsx', import.meta.url), 'utf8');
+  const js = ts.transpileModule(entry, { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020, jsx: ts.JsxEmit.React, esModuleInterop: false } }).outputText;
+  const calls = [];
+  let pendingRender;
+  await vm.runInNewContext(`(async () => { ${js} })()`, {
+    exports: {}, document: { getElementById: () => ({}) },
+    requestAnimationFrame: () => {}, // A hidden WebView never delivers a frame.
+    require: name => {
+      if (name === 'react') return { default: { createElement: () => ({}), StrictMode: {} } };
+      if (name === 'react-dom/client') return { default: { createRoot: () => ({ render: () => { pendingRender = () => calls.push('commit'); } }) } };
+      if (name === 'react-dom') return { flushSync: callback => { callback(); pendingRender(); } };
+      if (name === './App') return { default: {} };
+      return { initializeAppearance: async () => { await Promise.resolve(); calls.push('theme'); }, showApp: () => calls.push('show') };
+    },
+  });
+  assert.deepEqual(calls, ['theme', 'commit', 'show']);
+});
 test('system changes follow OS only when selected', async () => {
   const s = setup(); await s.api.initializeAppearance();
   assert.equal(s.root.dataset.theme, 'dark');
