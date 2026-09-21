@@ -4,5 +4,5 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 fn main() {
-    finanzblick_lib::run()
+    saldonaut_lib::run()
 }

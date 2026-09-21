@@ -59,7 +59,7 @@ pub(crate) async fn refresh_market_data(
     let (marketstack_api_key, alpha_vantage_api_key, positions) =
         repository::refresh_inputs(storage)?;
     let client = reqwest::Client::builder()
-        .user_agent("Finanzblick/0.1")
+        .user_agent("Saldonaut/0.1")
         .build()
         .map_err(|_| "Die Kursverbindung konnte nicht vorbereitet werden.".to_string())?;
     let mut result = MarketRefreshResult {

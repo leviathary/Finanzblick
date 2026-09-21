@@ -1,4 +1,4 @@
-# Finanzblick – verbindlicher Design-Leitfaden
+# Saldonaut – verbindlicher Design-Leitfaden
 
 ## Geltung und Arbeitsweise
 
@@ -306,7 +306,7 @@ in `src/styles/application.css`; Feature-Styles verwenden dieselben Farbrollen.
   Branchenzuordnungen als kompakte Zweispaltenliste: Branche mit Buchungsanzahl
   links, Kategorieauswahl rechts; 8 px vertikaler Zeilenabstand und weiterhin
   mindestens 44 px hohe Auswahlfelder. Die Spalten heißen „Kreditkarten-Kategorie“
-  und „Finanzblick-Kategorie“, damit Quellwert und eigene Zuordnung eindeutig sind.
+  und „Saldonaut-Kategorie“, damit Quellwert und eigene Zuordnung eindeutig sind.
   Auf schmalen Ansichten stehen die Zeilen untereinander und die Zielbeschriftung
   wird direkt über dem Auswahlfeld wiederholt.
 
@@ -456,8 +456,20 @@ in `src/styles/application.css`; Feature-Styles verwenden dieselben Farbrollen.
   sofort, wird gerätebezogen außerhalb der Finanzprofile gespeichert und nach dem
   Entsperren als Sprache des gewählten Profils übernommen.
 - Kurze, konkrete Handlungsaufforderungen statt interner Begriffe wie Flags.
-- Logo-Master: `public/finanzblick.svg`. Header, Favicon und Plattform-Icons
+- Logo-Master: `public/saldonaut.svg`. Header, Favicon und Plattform-Icons
   daraus ableiten; keine abweichenden Inline-Logos neu zeichnen.
+- Die Anmeldung verwendet das ruhige Orbitmotiv `public/saldonaut-login.png` als
+  vollflächigen Hintergrund. Auf breiten Fenstern bleibt die Formularkarte rechts
+  und das Motiv links sichtbar; auf schmalen Fenstern wird die Karte zentriert.
+  Das Motiv enthält keinen Text und keine fremden Science-Fiction-Elemente.
+- Die README verwendet `docs/screenshots/saldonaut-readme-hero.png` als textfreies
+  Markenmotiv in derselben dunkelblau-smaragdgrünen Orbitwelt. Alte Screenshots
+  mit überholtem Branding werden nicht als aktuelle Produktansichten gezeigt.
+- Technische Altkennungen für Bundle-ID, Darstellungseinstellung, Datendatei und
+  bestehende Datenbankschemata bleiben aus Kompatibilitätsgründen unverändert und
+  sind nicht Teil der sichtbaren Marke. Neue Sicherungen verwenden
+  `.saldonaut-backup`; der Dateidialog akzeptiert weiterhin bestehende
+  `.finanzblick-backup`-Dateien zur Wiederherstellung.
 - `npm run icons` generiert Plattform-Assets. Asset-Erzeugung ist kein Nachweis
   eines getesteten Windows-/macOS-Pakets.
 - Gemeinsame Komponenten und Klassen zuerst prüfen, Feature-CSS auf das Feature

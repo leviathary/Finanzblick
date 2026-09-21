@@ -775,7 +775,7 @@ mod tests {
         }
         stage.as_file().sync_all().unwrap();
         let destination = directory.join(format!(
-            "Finanzblick-Demo-Kreditkarte-{today}.finanzblick-backup"
+            "Saldonaut-Demo-Kreditkarte-{today}.saldonaut-backup"
         ));
         stage.persist_noclobber(&destination).unwrap();
         println!("Demo: {} | Passwort: {PASSWORD}", destination.display());

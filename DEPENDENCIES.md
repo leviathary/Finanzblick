@@ -6,7 +6,7 @@ a conservative inventory, not a claim that every listed package is linked at run
 
 Full original license and copyright notices, including bundled native sources,
 are in [THIRD_PARTY_LICENSES.txt](THIRD_PARTY_LICENSES.txt). Upstream source links
-provide the exact versions; third-party code is not relicensed under Finanzblick's MIT license.
+provide the exact versions; third-party code is not relicensed under Saldonaut's MIT license.
 Regenerate for each release target after dependency changes.
 
 | Ecosystem | Package | Version | Declared license | Source archive |

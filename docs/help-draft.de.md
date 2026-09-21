@@ -1,6 +1,6 @@
 # Entwurf: Integrierte Hilfe
 
-Status: Inhalts- und Strukturentwurf für eine lokale, in Finanzblick integrierte
+Status: Inhalts- und Strukturentwurf für eine lokale, in Saldonaut integrierte
 Hilfe. Die Texte verwenden ausschliesslich fiktive Beispiele. Screenshots werden
 später mit dem Demo-Profil erstellt.
 
@@ -38,13 +38,13 @@ Kontexthilfen öffnen direkt den passenden Abschnitt, zum Beispiel
 
 ### Hilfe & erste Schritte
 
-Finanzblick bündelt Konten, Depots und weitere Finanzquellen in einer gemeinsamen
+Saldonaut bündelt Konten, Depots und weitere Finanzquellen in einer gemeinsamen
 lokalen Sicht. Deine Finanzdaten werden verschlüsselt auf diesem Gerät gespeichert.
 Ein Benutzerkonto oder eine Cloud-Synchronisierung ist nicht erforderlich.
 
 **Was möchtest du tun?**
 
-- **Finanzblick ausprobieren** – Demo-Profil öffnen und die wichtigsten Bereiche
+- **Saldonaut ausprobieren** – Demo-Profil öffnen und die wichtigsten Bereiche
   kennenlernen.
 - **Eigene Daten einrichten** – Finanzprofil, Konten und ersten Import anlegen.
 - **Vermögen auswerten** – Salden, Positionen und Entwicklung verstehen.
@@ -58,7 +58,7 @@ Ein Benutzerkonto oder eine Cloud-Synchronisierung ist nicht erforderlich.
 
 ## 3. Erste Schritte
 
-### Finanzblick mit Demo-Daten ausprobieren
+### Saldonaut mit Demo-Daten ausprobieren
 
 Das Demo-Profil enthält erfundene Banken, Konten, Wertpapierpositionen,
 Transaktionen und mehrjährige Verläufe. Es eignet sich, um alle Ansichten ohne
@@ -101,13 +101,13 @@ Sprache unter **Einstellungen → Allgemein** erneut ändern.
 
 ### Unterstützte Dateien
 
-Finanzblick verarbeitet Excel-, CSV-, PDF- und MT940-Dateien sowie camt.053 und
+Saldonaut verarbeitet Excel-, CSV-, PDF- und MT940-Dateien sowie camt.053 und
 camt.054 nach ISO 20022 lokal. Vor dem Speichern siehst du eine Vorschau und die
 vorgesehene Kontozuordnung. Vorlagen existieren unter anderem für UBS inklusive
 Mastercard, Swissquote, Migros Bank, Raiffeisen und Generali. Andere tabellarische
 Dateien lassen sich über eine Spaltenzuordnung einlesen.
 
-Enthält ein Auszug eine IBAN oder Kontoreferenz, ordnet Finanzblick ihn nur einem
+Enthält ein Auszug eine IBAN oder Kontoreferenz, ordnet Saldonaut ihn nur einem
 aktiven Konto mit derselben hinterlegten Kennung zu. Bei einer fehlenden oder
 abweichenden Kennung bleibt der Import gesperrt, bis die Kontodaten unter
 **Banken & Konten** korrigiert wurden. Nur Auszüge ohne Kontokennung werden über
@@ -117,9 +117,9 @@ Anbieter, Währung und Kontotyp zugeordnet.
 
 Bankauszüge, Kreditkartenabrechnungen und Steuererklärungen werden ausschliesslich
 lokal auf deinem Gerät verarbeitet. Die Importdateien werden weder hochgeladen
-noch an Finanzblick oder Dritte übertragen.
+noch an Saldonaut oder Dritte übertragen.
 
-Finanzblick kopiert die Quelldokumente nicht in dein Finanzprofil. Nach der Analyse
+Saldonaut kopiert die Quelldokumente nicht in dein Finanzprofil. Nach der Analyse
 werden die eingelesenen Dateiinhalte aus dem Arbeitsspeicher verworfen; die App
 benötigt die Dokumente danach nicht mehr. Deine Originaldateien bleiben an ihrem
 bisherigen Speicherort und werden weder verändert noch gelöscht.
@@ -143,7 +143,7 @@ verschlüsselt in deinem lokalen Finanzprofil.
 7. Öffne danach **Importierte Dateien**, um das Ergebnis nachzuvollziehen.
 
 Bereits importierte Dateien und vorhandene Buchungen werden erkannt. Sind nur
-einzelne Buchungen eindeutig bereits vorhanden, überspringt Finanzblick diese beim Import
+einzelne Buchungen eindeutig bereits vorhanden, überspringt Saldonaut diese beim Import
 und weist in der Vorschau darauf hin.
 
 Mögliche Duplikate mit gleichem Konto, Betrag, ähnlicher Beschreibung und nahem
@@ -162,14 +162,14 @@ werden bei späteren Prüfungen nicht erneut angezeigt; entfernte Dubletten blei
 ### Offene Kreditkartenmonate
 
 Noch nicht abgerechnete Kartenkäufe in der Kontowährung können bereits importiert
-werden. Finanzblick verwendet dafür vorläufig das Einkaufsdatum und den
+werden. Saldonaut verwendet dafür vorläufig das Einkaufsdatum und den
 Originalbetrag und zeigt in der Vorschau einen Warnhinweis. Der spätere
 Abrechnungsbetrag oder das endgültige Buchungsdatum kann davon abweichen.
 
 Offene Fremdwährungsbuchungen ohne abgerechneten Betrag werden nicht automatisch
 umgerechnet. Importiere sie erst, wenn der Kartenanbieter den endgültigen Betrag
 in der Kontowährung ausweist. Spätere vollständige Jahres- oder Monatsauszüge
-dürfen sich überlappen: Finanzblick erkennt zuvor offene Kartenkäufe wieder und
+dürfen sich überlappen: Saldonaut erkennt zuvor offene Kartenkäufe wieder und
 ersetzt Einkaufsdatum und Originalbetrag automatisch durch die endgültigen
 Abrechnungsdaten, statt eine zweite Buchung anzulegen.
 
@@ -350,12 +350,12 @@ Eigene Kategorien stehen auch bei der Zuordnung von Transaktionen zur Verfügung
 
 Im Bereich **Kartenkäufe automatisch kategorisieren** steht links die vom
 Kartenanbieter gelieferte **Kreditkarten-Kategorie** und rechts die zugehörige
-**Finanzblick-Kategorie**. Die Auswahl gilt für bestehende und künftig importierte
+**Saldonaut-Kategorie**. Die Auswahl gilt für bestehende und künftig importierte
 Kartenkäufe. Manuell gesetzte Kategorien und speziellere Händlerregeln bleiben
 erhalten.
 
 **Screenshot:** `category-mapping.png` – Zweispaltenliste mit Quellkategorie und
-Finanzblick-Kategorie.
+Saldonaut-Kategorie.
 
 ## 9. Steuerhistorie
 
@@ -387,7 +387,7 @@ Er ist rein lesend und verändert keine Konten, Buchungen oder Kategorien.
 3. Schliesse die Anmeldung im geöffneten Fenster ab.
 4. Prüfe vor dem Senden das vorbereitete Datenpaket.
 
-Standardmässig zeigt Finanzblick vor der Übermittlung, welche zusammengefassten
+Standardmässig zeigt Saldonaut vor der Übermittlung, welche zusammengefassten
 Daten gesendet werden. Bei reinen Kreditkartenfragen werden allgemeines Einkommen
 und Vermögen nicht automatisch mitgegeben.
 
@@ -408,7 +408,7 @@ Abmelden oder Sperren beendet den flüchtigen Gesprächskontext.
 
 1. Öffne **Daten & Sicherheit → Backup**.
 2. Wähle **Backup erstellen**.
-3. Speichere die Datei mit der Endung `.finanzblick-backup` an einem sicheren Ort.
+3. Speichere die Datei mit der Endung `.saldonaut-backup` an einem sicheren Ort.
 4. Bewahre mindestens eine Kopie auf einem anderen Datenträger auf.
 
 Backups bleiben verschlüsselt. Für die Wiederherstellung benötigst du das Passwort,
@@ -448,7 +448,7 @@ der Systemeinstellung auf Änderungen des Betriebssystems.
 
 ### Allgemein
 
-- **Automatisch sperren nach:** legt fest, nach welcher Inaktivität Finanzblick
+- **Automatisch sperren nach:** legt fest, nach welcher Inaktivität Saldonaut
   gesperrt wird. Auch beim Minimieren wird gesperrt.
 - **Sprache:** Deutsch, Englisch, Französisch oder Italienisch.
 - **Ländereinstellungen:** steuern die Darstellung von Datum und Zahlen, ohne
@@ -458,7 +458,7 @@ der Systemeinstellung auf Änderungen des Betriebssystems.
 
 ### Marktpreise
 
-Finanzblick kann Tageskurse und Wechselkurse automatisch beziehen. Optionale
+Saldonaut kann Tageskurse und Wechselkurse automatisch beziehen. Optionale
 Marketstack- und Alpha-Vantage-Schlüssel werden verschlüsselt im aktuellen Profil
 gespeichert. Ohne Schlüssel dient Yahoo Finance als Rückfall. Dabei werden
 Wertpapierkennungen, Zeiträume und Währungspaare übertragen, jedoch keine
@@ -476,7 +476,7 @@ als positives Donut-Segment.
 ### Warum erscheint eine Buchung doppelt?
 
 Öffne **Importierte Dateien** und prüfe, ob derselbe Zeitraum aus mehreren Dateien
-oder demselben Auszug importiert wurde. Finanzblick erkennt identische Dateien und
+oder demselben Auszug importiert wurde. Saldonaut erkennt identische Dateien und
 bereits vorhandene Transaktionen; abweichende Beschreibungen, Daten oder
 Quellformate können eine eindeutige Erkennung jedoch erschweren. Lösche nicht
 vorschnell einzelne Datensätze, sondern kläre zuerst den betroffenen Import.
@@ -500,7 +500,7 @@ jeweils gültigen Passwort geöffnet werden.
 
 ### Wo liegen meine Daten?
 
-Finanzblick speichert Finanzprofile lokal und verschlüsselt im von Tauri für die
+Saldonaut speichert Finanzprofile lokal und verschlüsselt im von Tauri für die
 Anwendung vorgesehenen Datenverzeichnis des Betriebssystems. Verwende für Zugriff
 und Sicherung die Funktionen in **Daten & Sicherheit**, statt interne Dateien
 manuell zu verändern.

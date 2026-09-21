@@ -26,7 +26,7 @@ export const SettingsContext = createContext<{
 }>({
   settings: defaultSettings,
   saveSettings: async () => {
-    throw new Error("Finanzblick ist gesperrt.");
+    throw new Error("Saldonaut ist gesperrt.");
   },
 });
 export const useSettings = () => useContext(SettingsContext);

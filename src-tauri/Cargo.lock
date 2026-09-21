@@ -1180,34 +1180,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "finanzblick"
-version = "0.6.3"
-dependencies = [
- "calamine",
- "chrono",
- "csv",
- "dunce",
- "encoding_rs",
- "fs2",
- "lopdf",
- "pdf-extract",
- "regex",
- "reqwest 0.12.28",
- "roxmltree",
- "rusqlite",
- "serde",
- "serde_json",
- "sha2",
- "tauri",
- "tauri-build",
- "tauri-plugin-dialog",
- "tauri-plugin-opener",
- "tempfile",
- "urlencoding",
- "zeroize",
-]
-
-[[package]]
 name = "find-msvc-tools"
 version = "0.1.12"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3506,6 +3478,34 @@ name = "ryu"
 version = "1.0.23"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9774ba4a74de5f7b1c1451ed6cd5285a32eddb5cccb8cc655a4e50009e06477f"
+
+[[package]]
+name = "saldonaut"
+version = "0.6.3"
+dependencies = [
+ "calamine",
+ "chrono",
+ "csv",
+ "dunce",
+ "encoding_rs",
+ "fs2",
+ "lopdf",
+ "pdf-extract",
+ "regex",
+ "reqwest 0.12.28",
+ "roxmltree",
+ "rusqlite",
+ "serde",
+ "serde_json",
+ "sha2",
+ "tauri",
+ "tauri-build",
+ "tauri-plugin-dialog",
+ "tauri-plugin-opener",
+ "tempfile",
+ "urlencoding",
+ "zeroize",
+]
 
 [[package]]
 name = "same-file"

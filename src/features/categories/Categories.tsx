@@ -86,8 +86,8 @@ export function Categories() {
    <h2>{t("Kartenkäufe automatisch kategorisieren")}</h2>
    <p className="intro">{t("Wähle für jede Branche die passende Ausgabenkategorie – zum Beispiel „Lebensmittel & Haushalt“ für Lebensmittelgeschäfte. Deine Auswahl gilt für bestehende und künftig importierte Kartenkäufe.")}</p>
    <p className="settings-hint">{t("Selbst zugewiesene Kategorien und Regeln für einzelne Händler bleiben erhalten.")}</p>
-   <div className="industry-rules-header" aria-hidden="true"><span>{t("Kreditkarten-Kategorie")}</span><span>{t("Finanzblick-Kategorie")}</span></div>
-   {industries.map(rule=><label key={rule.industry}><span><strong>{rule.industry}</strong><small>{rule.transactionCount} {t("Buchungen")}</small></span><span className="industry-category-control"><span>{t("Finanzblick-Kategorie")}</span><select aria-label={`${t("Finanzblick-Kategorie")}: ${rule.industry}`} disabled={busy} value={rule.categoryKey} onChange={event=>void assignIndustry(rule.industry,event.target.value)}>{items.map(item=><option key={item.key} value={item.key}>{categoryName(item.key,item.label)}</option>)}</select></span></label>)}
+   <div className="industry-rules-header" aria-hidden="true"><span>{t("Kreditkarten-Kategorie")}</span><span>{t("Saldonaut-Kategorie")}</span></div>
+   {industries.map(rule=><label key={rule.industry}><span><strong>{rule.industry}</strong><small>{rule.transactionCount} {t("Buchungen")}</small></span><span className="industry-category-control"><span>{t("Saldonaut-Kategorie")}</span><select aria-label={`${t("Saldonaut-Kategorie")}: ${rule.industry}`} disabled={busy} value={rule.categoryKey} onChange={event=>void assignIndustry(rule.industry,event.target.value)}>{items.map(item=><option key={item.key} value={item.key}>{categoryName(item.key,item.label)}</option>)}</select></span></label>)}
   </div>}
  </section>;
 }

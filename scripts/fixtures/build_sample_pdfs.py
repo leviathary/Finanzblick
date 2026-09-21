@@ -73,7 +73,7 @@ def footer(canvas, doc):
 
 for sample in samples:
     path = OUT / sample["file"]
-    doc = SimpleDocTemplate(str(path), pagesize=A4, rightMargin=18*mm, leftMargin=18*mm, topMargin=18*mm, bottomMargin=20*mm, title=sample["kind"], author="Finanzblick Test Fixtures")
+    doc = SimpleDocTemplate(str(path), pagesize=A4, rightMargin=18*mm, leftMargin=18*mm, topMargin=18*mm, bottomMargin=20*mm, title=sample["kind"], author="Saldonaut Test Fixtures")
     story = [
         Paragraph(sample["provider"], title_style),
         Paragraph(sample["kind"], ParagraphStyle("Kind", parent=title_style, fontSize=12, textColor=GREEN)),
@@ -99,6 +99,6 @@ for sample in samples:
     widths = [value * mm for value in widths_by_provider[sample["provider"]]]
     table = Table(data, colWidths=widths, repeatRows=1)
     table.setStyle(TableStyle([("BACKGROUND", (0,0), (-1,0), NAVY), ("FONTNAME", (0,0), (-1,0), BOLD), ("GRID", (0,0), (-1,-1), 0.35, GRID), ("VALIGN", (0,0), (-1,-1), "TOP"), ("ALIGN", (2,1), (-1,-1), "RIGHT"), ("ROWBACKGROUNDS", (0,1), (-1,-1), [colors.white, colors.HexColor("#F7F9FB")]), ("PADDING", (0,0), (-1,-1), 5)]))
-    story += [table, Spacer(1, 8*mm), Paragraph("Dieses Dokument wurde für automatisierte Importtests von Finanzblick erzeugt. Sämtliche Personen, Konten, Referenzen und Beträge sind synthetisch.", small)]
+    story += [table, Spacer(1, 8*mm), Paragraph("Dieses Dokument wurde für automatisierte Importtests von Saldonaut erzeugt. Sämtliche Personen, Konten, Referenzen und Beträge sind synthetisch.", small)]
     doc.build(story, onFirstPage=footer, onLaterPages=footer)
     print(path)

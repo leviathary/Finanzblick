@@ -11,7 +11,7 @@ export function DataSecurity() {
   const [revision, setRevision] = useState(0);
   const [tab, setTab] = useState("profiles");
   return <section className="settings-page">
-    <div className="overview-heading"><div><p className="eyebrow">Finanzblick</p><h1>{t("Daten & Sicherheit")}</h1></div></div>
+    <div className="overview-heading"><div><p className="eyebrow">Saldonaut</p><h1>{t("Daten & Sicherheit")}</h1></div></div>
     <SectionTabs id="security" label={t("Daten & Sicherheit")} value={tab} onChange={setTab} tabs={[
       { value: "profiles", label: t("Finanzprofile") }, { value: "backup", label: t("Backup") }, { value: "password", label: t("Passwort ändern") },
     ]} />

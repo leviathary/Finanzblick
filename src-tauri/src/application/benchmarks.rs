@@ -35,7 +35,7 @@ pub(crate) async fn load(
         return Err("Ungültiger Vergleichszeitraum.".into());
     }
     let client = reqwest::Client::builder()
-        .user_agent("Finanzblick/0.5")
+        .user_agent("Saldonaut/0.5")
         .timeout(std::time::Duration::from_secs(20))
         .build()
         .map_err(|_| "Die Kursverbindung konnte nicht vorbereitet werden.")?;

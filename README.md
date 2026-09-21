@@ -1,68 +1,21 @@
-# Finanzblick
+# Saldonaut
 
 **English** | [Deutsch](README.de.md)
+
+![Abstract orbits bringing financial data onto one clear course](docs/screenshots/saldonaut-readme-hero.png)
 
 Your finances at a glance: a local desktop app that brings accounts, investment
 portfolios, net worth and spending from multiple banks and other financial
 sources into one view. No app account or cloud sync required.
 
-## Install on Windows
+## Installation
 
-[Download the Windows installer 0.6.3 (64-bit)](https://github.com/leviathary/Finanzblick/releases/download/v0.6.3/Finanzblick_0.6.3_x64-setup.exe)
+New Windows and macOS installers will be published with the next Saldonaut
+release. Until then, the current code can be built locally using the steps under
+[Development](#development). A local build does not publish anything automatically.
 
-[Release notes](https://github.com/leviathary/Finanzblick/releases/tag/v0.6.3)
-· [SHA-256 checksum](https://github.com/leviathary/Finanzblick/releases/download/v0.6.3/Finanzblick_0.6.3_x64-setup.exe.sha256)
-
-Run the downloaded file. Windows Developer Mode is not required.
-The installer is unsigned, so Windows may display a security warning.
-This is an early test version: create a backup before using it with real data.
-
-The demo is included: **Financial profile → Demo data**, password **`demo1234`**.
-It is created locally on first use; no additional download is needed.
-If WebView2 is missing, its installation requires an internet connection.
-
-## Install on macOS
-
-[Download the macOS DMG 0.6.3 (Apple Silicon)](https://github.com/leviathary/Finanzblick/releases/download/v0.6.3/Finanzblick_0.6.3_aarch64.dmg)
-
-For Macs with Apple Silicon (M-series chips). Open the DMG, drag **Finanzblick**
-to **Applications**, then launch the app from Applications.
-
-This test version is ad-hoc signed, but not notarized by Apple.
-If macOS blocks it after downloading, allow it under
-**System Settings → Privacy & Security → Open Anyway**.
-The DMG does not include an Intel build.
-
-Version 0.6.3 includes Finance chat and the local German speech model.
-Build, DMG integrity, ad-hoc signature, demo startup and chat-runtime startup
-were checked on macOS 27.0 (Apple Silicon) on September 21, 2026.
-All 78 frontend tests, 140 active Rust tests and the local chat-runtime test passed.
-This Mac build also fixes an initially hidden window waiting for animation frames.
-Other macOS versions, Intel Macs and a fresh installation after a GitHub download
-have not been tested. See [macOS build notes](installers/RELEASE-macOS-0.6.3.md).
-
-## Screenshots
-
-All screenshots show version 0.6.1 with fictional sample data. Accounts,
-providers, transactions and price histories are invented. The screenshots use the
-German interface; English, French and Italian are also available in the app.
-
-### Net worth overview
-
-![Net worth overview with provider allocation donut and account balances](docs/screenshots/uebersicht-light-0.6.1.png)
-
-### Interactive net worth history
-
-Choose a date range, zoom with the mouse wheel, pan through the chart or use the
-measurement tool to explore changes. Contextual help explains the controls.
-
-![Net worth history with an interactive chart and compact toolbar](docs/screenshots/vermoegensentwicklung-light-0.6.1.png)
-
-### Dark mode
-
-Choose a light, dark or system appearance in Settings.
-
-![Income and expenses with balance history in dark mode](docs/screenshots/transaktionen-dark-0.6.1.png)
+Always create an encrypted backup before using real data. The demo is included:
+**Financial profile → Demo data**, password **`demo1234`**.
 
 ## Features
 
@@ -93,7 +46,7 @@ Demo prices are not historical market data or investment advice.
 
 ## Optional Finance chat
 
-Under **Finance chat → Sign in with ChatGPT**, Finanzblick connects to a supported
+Under **Finance chat → Sign in with ChatGPT**, Saldonaut connects to a supported
 ChatGPT account using the bundled Codex runtime. No API key or separate API
 credit is required. Sign-in is stored per financial profile in the device's
 protected credential store and can be removed in Finance chat. The microphone
@@ -175,10 +128,10 @@ To build a native macOS DMG on a Mac:
 
 ```sh
 cargo fetch --manifest-path src-tauri/Cargo.toml --locked
-CARGO_TARGET_DIR=/tmp/finanzblick-build npm run release:mac
+CARGO_TARGET_DIR=/tmp/saldonaut-build npm run release:mac
 ```
 
-The DMG is generated under `/tmp/finanzblick-build/release/bundle/dmg/`.
+The DMG is generated under `/tmp/saldonaut-build/release/bundle/dmg/`.
 Its architecture matches the build Mac: Apple Silicon produces `aarch64`, Intel
 produces `x64`. The DMG can be uploaded as a GitHub Release asset. The build does
 not publish anything automatically. Since 0.5.7, the larger DMG with the chat

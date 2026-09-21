@@ -1,67 +1,22 @@
-# Finanzblick
+# Saldonaut
 
 [English](README.md) | **Deutsch**
+
+![Abstrakte Umlaufbahnen bündeln Finanzdaten zu einem klaren Kurs](docs/screenshots/saldonaut-readme-hero.png)
 
 Deine Finanzen auf einen Blick: eine lokale Desktop-App, die Konten, Depots,
 Vermögen und Ausgaben aus mehreren Banken und weiteren Finanzquellen in einer
 gemeinsamen Sicht bündelt. Ohne Benutzerkonto oder Cloud-Synchronisierung.
 
-## Windows installieren
+## Installation
 
-[Windows-Installer 0.6.3 herunterladen (64 Bit)](https://github.com/leviathary/Finanzblick/releases/download/v0.6.3/Finanzblick_0.6.3_x64-setup.exe)
+Neue Installationspakete für Windows und macOS werden mit dem nächsten
+Saldonaut-Release veröffentlicht. Der aktuelle Stand lässt sich bis dahin mit
+den Schritten unter [Entwicklung](#entwicklung) lokal bauen. Ein lokaler Build
+veröffentlicht nichts automatisch.
 
-[Release-Notizen](https://github.com/leviathary/Finanzblick/releases/tag/v0.6.3)
-· [SHA-256-Prüfsumme](https://github.com/leviathary/Finanzblick/releases/download/v0.6.3/Finanzblick_0.6.3_x64-setup.exe.sha256)
-
-Die heruntergeladene Datei ausführen. Ein Windows-Entwicklermodus ist nicht nötig.
-Der Installer ist nicht signiert; Windows kann deshalb eine Sicherheitswarnung anzeigen.
-Frühe Testversion: vor der Nutzung mit echten Daten ein Backup erstellen.
-
-Die Demo ist bereits enthalten: **Finanzprofil → Demo-Daten**, Passwort **`demo1234`**.
-Sie wird beim ersten Öffnen lokal erzeugt; es ist kein zusätzlicher Download nötig.
-Falls WebView2 fehlt, benötigt dessen Einrichtung eine Internetverbindung.
-
-## macOS installieren
-
-[macOS-DMG 0.6.3 herunterladen (Apple Silicon)](https://github.com/leviathary/Finanzblick/releases/download/v0.6.3/Finanzblick_0.6.3_aarch64.dmg)
-
-Für Macs mit Apple Silicon (M-Chips). DMG öffnen und **Finanzblick** auf **Applications**
-ziehen, danach die App aus dem Programme-Ordner starten.
-
-Diese Testversion ist ad-hoc signiert, aber nicht von Apple notarisiert.
-Bei einer Sperre nach dem Download lässt sich der Start unter
-**Systemeinstellungen → Datenschutz & Sicherheit → Dennoch öffnen** freigeben.
-Eine Intel-Version ist in diesem DMG nicht enthalten.
-
-Version 0.6.3 enthält Finanzchat und das lokale deutsche Sprachmodell.
-Build, DMG-Integrität, Ad-hoc-Signatur, Demo-Start und Start der Chat-Runtime
-wurden am 21.09.2026 auf macOS 27.0 (Apple Silicon) geprüft.
-Alle 78 Frontend-Tests, 140 aktiven Rust-Tests und der lokale Chat-Runtime-Test bestehen.
-Dieser Mac-Build korrigiert außerdem ein verborgenes Startfenster, das auf Animationsframes wartete.
-Andere macOS-Versionen, Intel-Macs und eine frische Installation nach einem GitHub-Download
-sind nicht getestet. Details: [macOS-Buildnotizen](installers/RELEASE-macOS-0.6.3.md).
-
-## Einblick
-
-Alle Screenshots zeigen Version 0.6.1 mit ausschliesslich fiktiven Beispieldaten.
-Konten, Anbieter, Transaktionen und Kursverläufe sind erfunden.
-
-### Vermögensübersicht
-
-![Vermögensübersicht mit Donut zur Anbieterverteilung und Kontosalden](docs/screenshots/uebersicht-light-0.6.1.png)
-
-### Interaktive Vermögensentwicklung
-
-Zeitraum wählen, mit dem Mausrad zoomen, den Verlauf verschieben oder mit dem
-Messwerkzeug Veränderungen untersuchen. Die Kontexthilfe erklärt die Bedienung.
-
-![Vermögensentwicklung mit interaktivem Chart und kompakter Werkzeugleiste](docs/screenshots/vermoegensentwicklung-light-0.6.1.png)
-
-### Dark Mode
-
-Unter Einstellungen zwischen heller, dunkler und systemabhängiger Darstellung wechseln.
-
-![Einnahmen und Ausgaben mit Saldoverlauf im Dark Mode](docs/screenshots/transaktionen-dark-0.6.1.png)
+Vor der Nutzung mit echten Daten immer ein verschlüsseltes Backup erstellen.
+Die Demo ist enthalten: **Finanzprofil → Demo-Daten**, Passwort **`demo1234`**.
 
 ## Funktionen
 
@@ -92,7 +47,7 @@ Demo-Kurse sind keine historischen Börsendaten oder Anlageempfehlungen.
 
 ## Optionaler Finanzchat
 
-Unter **Finanzchat → Mit ChatGPT anmelden** verbindet sich Finanzblick über die
+Unter **Finanzchat → Mit ChatGPT anmelden** verbindet sich Saldonaut über die
 mitgelieferte Codex-Laufzeit mit einem unterstützten ChatGPT-Konto. Kein API-Schlüssel
 und kein separates API-Guthaben erforderlich. Die Anmeldung wird pro Finanzprofil im geschützten Anmeldespeicher des Geräts
 behalten und lässt sich im Finanzchat entfernen. Der Mikrofonknopf erkennt deutsche
@@ -172,10 +127,10 @@ Für ein natives macOS-DMG auf einem Mac:
 
 ```sh
 cargo fetch --manifest-path src-tauri/Cargo.toml --locked
-CARGO_TARGET_DIR=/tmp/finanzblick-build npm run release:mac
+CARGO_TARGET_DIR=/tmp/saldonaut-build npm run release:mac
 ```
 
-Das DMG liegt danach unter `/tmp/finanzblick-build/release/bundle/dmg/`.
+Das DMG liegt danach unter `/tmp/saldonaut-build/release/bundle/dmg/`.
 Die Architektur entspricht dem Build-Mac: Apple Silicon erzeugt `aarch64`,
 Intel erzeugt `x64`. Das DMG kann als Asset eines GitHub-Releases hochgeladen
 werden. Der Build veröffentlicht nichts automatisch.

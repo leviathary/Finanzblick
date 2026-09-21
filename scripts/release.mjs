@@ -15,15 +15,15 @@ if (process.env.RUSTFLAGS && !process.env.CARGO_ENCODED_RUSTFLAGS) {
 // on every supported platform so those strings remain distributable.
 const targetDirectory = path.resolve(process.env.CARGO_TARGET_DIR ?? (
   process.platform === "win32"
-    ? path.join(path.parse(root).root, "build", "finanzblick-release")
-    : path.join(os.tmpdir(), "finanzblick-release")
+    ? path.join(path.parse(root).root, "build", "saldonaut-release")
+    : path.join(os.tmpdir(), "saldonaut-release")
 ));
 const flags = (process.env.CARGO_ENCODED_RUSTFLAGS ?? "").split("\x1f").filter(Boolean);
 const prefixes = [
   [os.homedir(), "/build/user"],
   [process.env.CARGO_HOME ?? path.join(os.homedir(), ".cargo"), "/build/cargo"],
   [execFileSync("rustc", ["--print", "sysroot"], { encoding: "utf8" }).trim(), "/build/rust"],
-  [root, "/build/finanzblick"],
+  [root, "/build/saldonaut"],
 ];
 for (const [source, destination] of prefixes) {
   for (const variant of new Set([source, source.replaceAll("\\", "/")])) {
@@ -43,7 +43,7 @@ const run = (command, args) => {
 };
 run(process.execPath, [path.join(root, "scripts/collect-licenses.mjs")]);
 run(process.execPath, [path.join(root, "node_modules/@tauri-apps/cli/tauri.js"), "build", ...process.argv.slice(2)]);
-const binary = path.join(targetDirectory, "release", process.platform === "win32" ? "finanzblick.exe" : "finanzblick");
+const binary = path.join(targetDirectory, "release", process.platform === "win32" ? "saldonaut.exe" : "saldonaut");
 const content = fs.readFileSync(binary);
 for (const [prefix] of prefixes) {
   for (const variant of new Set([prefix, prefix.replaceAll("\\", "/")])) {

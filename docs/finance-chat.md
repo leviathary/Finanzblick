@@ -135,7 +135,7 @@ Auf macOS bestehen seit dem 15.09.2026 die Tests der nativen Apple-Silicon-Runti
 einschliesslich Schlüsselbund-Speicherung, Profiltrennung und Abmeldung mit
 synthetischen Zugangsdaten. Dafür bleibt das Betriebssystem-Benutzerverzeichnis
 erhalten: Ein temporäres `HOME` verhindert auf macOS das Finden des Standardschlüsselbunds.
-`CODEX_HOME` und Arbeitsverzeichnis bleiben Finanzblick-eigen, die Suche nach
+`CODEX_HOME` und Arbeitsverzeichnis bleiben Saldonaut-eigen, die Suche nach
 Host-Skills bleibt deaktiviert.
 
 ## Validierung und Grenzen

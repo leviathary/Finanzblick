@@ -8,7 +8,7 @@ import readline from "node:readline";
 import assert from "node:assert/strict";
 
 const temporaryRoot = await fs.realpath(os.tmpdir());
-const probeHome = await fs.mkdtemp(path.join(temporaryRoot, "finanzblick-codex-probe-"));
+const probeHome = await fs.mkdtemp(path.join(temporaryRoot, "saldonaut-codex-probe-"));
 const env = Object.fromEntries(Object.entries(process.env).filter(([key]) => !/^(CODEX_|OPENAI_|ANTHROPIC_|GEMINI_|GOOGLE_API_KEY)/i.test(key)));
 env.CODEX_HOME = probeHome;
 let child;
@@ -45,7 +45,7 @@ try {
     waiting.set(id, { method, resolve: value => { clearTimeout(timer); resolve(value); }, reject: error => { clearTimeout(timer); reject(error); } });
     child.stdin.write(JSON.stringify({ id, method, params }) + "\n");
   });
-  const initialized = await rpc("initialize", { clientInfo: { name: "finanzblick_login_probe", title: "Finanzblick login probe", version: "0.1.0" }, capabilities: { experimentalApi: false } });
+  const initialized = await rpc("initialize", { clientInfo: { name: "saldonaut_login_probe", title: "Saldonaut login probe", version: "0.1.0" }, capabilities: { experimentalApi: false } });
   assert.ok(initialized);
   child.stdin.write(JSON.stringify({ method: "initialized" }) + "\n");
   const account = await rpc("account/read", { refreshToken: false });
@@ -74,7 +74,7 @@ try {
   }
   // Delete only the exact temporary directory created above, never a computed user home.
   const resolved = await fs.realpath(probeHome);
-  if (path.dirname(resolved) !== temporaryRoot || !path.basename(resolved).startsWith("finanzblick-codex-probe-")) {
+  if (path.dirname(resolved) !== temporaryRoot || !path.basename(resolved).startsWith("saldonaut-codex-probe-")) {
     throw new Error("Unexpected probe directory; refusing cleanup.");
   }
   await fs.rm(resolved, { recursive: true, force: true, maxRetries: 5, retryDelay: 200 });

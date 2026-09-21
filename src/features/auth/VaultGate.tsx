@@ -81,7 +81,7 @@ export function VaultGate({ children }: { children: ReactNode }) {
         setStatus(null);
         setError(
           t(
-            "Die lokalen Daten sind nicht erreichbar. Bitte Finanzblick als Desktop-App öffnen.",
+            "Die lokalen Daten sind nicht erreichbar. Bitte Saldonaut als Desktop-App öffnen.",
           ),
         );
       }
@@ -254,8 +254,8 @@ export function VaultGate({ children }: { children: ReactNode }) {
       <section className="vault-card" aria-labelledby="vault-heading">
         <header className="vault-brand">
           <div className="vault-brand-identity">
-            <img className="vault-brand-icon" src="/finanzblick.svg" width="40" height="40" alt="" />
-            <div><strong>Finanzblick</strong><span>{t("Persönliche Finanzen")}</span></div>
+            <img className="vault-brand-icon" src="/saldonaut.svg" width="40" height="40" alt="" />
+            <div><strong>Saldonaut</strong><span>{t("Dein Vermögen. Klar auf Kurs.")}</span></div>
           </div>
           <label className="vault-language">
             <span className="visually-hidden">{t("Sprache")}</span>

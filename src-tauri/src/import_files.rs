@@ -184,7 +184,7 @@ mod tests {
     #[test]
     fn collects_folders_filters_deduplicates_and_reports_failures() {
         let root =
-            std::env::temp_dir().join(format!("finanzblick-file-selection-{}", std::process::id()));
+            std::env::temp_dir().join(format!("saldonaut-file-selection-{}", std::process::id()));
         fs::create_dir_all(root.join("nested")).unwrap();
         fs::write(root.join("a.PDF"), b"test").unwrap();
         fs::write(root.join("ignore.txt"), b"test").unwrap();
@@ -218,7 +218,7 @@ mod tests {
     #[test]
     fn validates_only_existing_pdfs_for_native_opening() {
         let root = std::env::temp_dir().join(format!(
-            "finanzblick-open-import-pdf-{}",
+            "saldonaut-open-import-pdf-{}",
             std::process::id()
         ));
         fs::create_dir_all(&root).unwrap();

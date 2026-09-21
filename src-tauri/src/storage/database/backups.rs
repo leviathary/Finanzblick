@@ -16,8 +16,8 @@ use zeroize::Zeroizing;
 
 impl Storage {
     pub(crate) fn create_backup_file(&self, destination: &Path) -> Result<(), String> {
-        if destination.extension().and_then(|value| value.to_str()) != Some("finanzblick-backup") {
-            return Err("Bitte eine Datei mit der Endung .finanzblick-backup wählen.".into());
+        if destination.extension().and_then(|value| value.to_str()) != Some("saldonaut-backup") {
+            return Err("Bitte eine Datei mit der Endung .saldonaut-backup wählen.".into());
         }
         let session = self.session.write().map_err(|_| LOCKED)?;
         let password = session
@@ -117,9 +117,9 @@ fn validate_backup(path: &Path, password: &str) -> Result<(), String> {
                 [table],
                 |row| row.get(0),
             )
-            .map_err(|_| "Ungültiges Finanzblick-Backup.")?;
+            .map_err(|_| "Ungültiges Saldonaut-Backup.")?;
         if !exists {
-            return Err("Ungültiges Finanzblick-Backup.".into());
+            return Err("Ungültiges Saldonaut-Backup.".into());
         }
     }
     read_settings(&db)?;
@@ -153,7 +153,7 @@ mod tests {
             .unwrap()
         };
         seed(&storage.connect().unwrap());
-        let backup = directory.path().join("chat.finanzblick-backup");
+        let backup = directory.path().join("chat.saldonaut-backup");
         storage.create_backup_file(&backup).unwrap();
         assert_eq!(count(&storage.connect().unwrap()), 1);
         {
@@ -201,7 +201,7 @@ mod tests {
         let selected = directory.path().join("selected.vault.sqlite3");
         let writer = open(&selected, "selected-password", false).unwrap();
         writer.execute_batch("PRAGMA journal_mode=WAL; PRAGMA wal_autocheckpoint=0; CREATE TABLE wal_fixture(value TEXT); INSERT INTO wal_fixture VALUES('committed');").unwrap();
-        let backup = directory.path().join("wal.finanzblick-backup");
+        let backup = directory.path().join("wal.saldonaut-backup");
         storage.create_backup_file(&backup).unwrap();
         let restored = open(&backup, "selected-password", false).unwrap();
         assert_eq!(
@@ -223,7 +223,7 @@ mod tests {
             session: RwLock::new(Session::default()),
             _lock: None,
         };
-        let backup = directory.path().join("test.finanzblick-backup");
+        let backup = directory.path().join("test.saldonaut-backup");
         assert!(storage.create_backup_file(&backup).is_err());
         storage.unlock("test-password".into(), true).unwrap();
         storage.connect().unwrap().execute_batch("CREATE TABLE backup_fixture(value TEXT); INSERT INTO backup_fixture VALUES('private-data');").unwrap();
@@ -265,7 +265,7 @@ mod tests {
             .unwrap();
         assert!(open(&backup, "test-password", false).is_ok());
         assert!(open(&backup, "new-password", false).is_err());
-        let corrupt = directory.path().join("broken.finanzblick-backup");
+        let corrupt = directory.path().join("broken.saldonaut-backup");
         fs::write(&corrupt, b"not a database").unwrap();
         assert!(storage
             .restore_backup_file(&corrupt, "broken", "test-password".into())

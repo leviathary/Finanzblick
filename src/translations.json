@@ -1,7 +1,8 @@
 {
+"Dein Vermögen. Klar auf Kurs.": ["Your finances. Clearly on course.","Ton patrimoine. Clairement sur la bonne voie.","Il tuo patrimonio. Chiaramente sulla rotta giusta."],
 "Datenschutz beim Import": ["Privacy during import","Confidentialité lors de l’importation","Privacy durante l’importazione"],
-"Bankauszüge, Kreditkartenabrechnungen und Steuererklärungen werden ausschliesslich lokal auf deinem Gerät verarbeitet. Die Importdateien werden weder hochgeladen noch an Finanzblick oder Dritte übertragen.": ["Bank statements, credit card statements and tax returns are processed exclusively locally on your device. Import files are neither uploaded nor transferred to Finanzblick or third parties.","Les relevés bancaires, relevés de carte de crédit et déclarations fiscales sont traités exclusivement en local sur ton appareil. Les fichiers importés ne sont ni téléversés ni transmis à Finanzblick ou à des tiers.","Estratti conto, estratti della carta di credito e dichiarazioni fiscali vengono elaborati esclusivamente in locale sul tuo dispositivo. I file importati non vengono caricati né trasmessi a Finanzblick o a terzi."],
-"Finanzblick kopiert die Quelldokumente nicht in dein Finanzprofil. Nach der Analyse werden die eingelesenen Dateiinhalte aus dem Arbeitsspeicher verworfen; die App benötigt die Dokumente danach nicht mehr. Deine Originaldateien bleiben an ihrem bisherigen Speicherort und werden weder verändert noch gelöscht.": ["Finanzblick does not copy source documents into your financial profile. After analysis, the file contents read into memory are discarded; the app no longer needs the documents. Your original files remain in their existing location and are neither modified nor deleted.","Finanzblick ne copie pas les documents sources dans ton profil financier. Après l’analyse, le contenu des fichiers lu en mémoire est supprimé ; l’application n’a ensuite plus besoin des documents. Tes fichiers originaux restent à leur emplacement et ne sont ni modifiés ni supprimés.","Finanzblick non copia i documenti sorgente nel tuo profilo finanziario. Dopo l’analisi, i contenuti letti in memoria vengono scartati; l’app non ha più bisogno dei documenti. I file originali rimangono nella loro posizione e non vengono né modificati né eliminati."],
+"Bankauszüge, Kreditkartenabrechnungen und Steuererklärungen werden ausschliesslich lokal auf deinem Gerät verarbeitet. Die Importdateien werden weder hochgeladen noch an Saldonaut oder Dritte übertragen.": ["Bank statements, credit card statements and tax returns are processed exclusively locally on your device. Import files are neither uploaded nor transferred to Saldonaut or third parties.","Les relevés bancaires, relevés de carte de crédit et déclarations fiscales sont traités exclusivement en local sur ton appareil. Les fichiers importés ne sont ni téléversés ni transmis à Saldonaut ou à des tiers.","Estratti conto, estratti della carta di credito e dichiarazioni fiscali vengono elaborati esclusivamente in locale sul tuo dispositivo. I file importati non vengono caricati né trasmessi a Saldonaut o a terzi."],
+"Saldonaut kopiert die Quelldokumente nicht in dein Finanzprofil. Nach der Analyse werden die eingelesenen Dateiinhalte aus dem Arbeitsspeicher verworfen; die App benötigt die Dokumente danach nicht mehr. Deine Originaldateien bleiben an ihrem bisherigen Speicherort und werden weder verändert noch gelöscht.": ["Saldonaut does not copy source documents into your financial profile. After analysis, the file contents read into memory are discarded; the app no longer needs the documents. Your original files remain in their existing location and are neither modified nor deleted.","Saldonaut ne copie pas les documents sources dans ton profil financier. Après l’analyse, le contenu des fichiers lu en mémoire est supprimé ; l’application n’a ensuite plus besoin des documents. Tes fichiers originaux restent à leur emplacement et ne sont ni modifiés ni supprimés.","Saldonaut non copia i documenti sorgente nel tuo profilo finanziario. Dopo l’analisi, i contenuti letti in memoria vengono scartati; l’app non ha più bisogno dei documenti. I file originali rimangono nella loro posizione e non vengono né modificati né eliminati."],
 "Gespeichert werden nur die von dir bestätigten Finanzdaten, der Dateiname und ein technischer Fingerabdruck zur Duplikaterkennung. Diese Informationen liegen verschlüsselt in deinem lokalen Finanzprofil.": ["Only the financial data you confirm, the file name and a technical fingerprint for duplicate detection are stored. This information is encrypted in your local financial profile.","Seules les données financières que tu confirmes, le nom du fichier et une empreinte technique destinée à la détection des doublons sont enregistrés. Ces informations sont chiffrées dans ton profil financier local.","Vengono salvati solo i dati finanziari da te confermati, il nome del file e un’impronta tecnica per il rilevamento dei duplicati. Queste informazioni sono cifrate nel tuo profilo finanziario locale."],
 "Nur wenn du im Finanzchat ausdrücklich ein Datenpaket freigibst, werden die darin angezeigten Informationen an den gewählten Chat-Dienst übertragen. Die ursprünglichen Importdokumente gehören nicht zu diesem Datenpaket.": ["Only when you explicitly approve a data package in Finance Chat is the information shown in it transferred to the selected chat service. The original import documents are not part of this data package.","Ce n’est que si tu autorises explicitement un paquet de données dans le chat financier que les informations qui y sont affichées sont transmises au service de chat choisi. Les documents importés d’origine ne font pas partie de ce paquet.","Solo quando autorizzi esplicitamente un pacchetto di dati nella chat finanziaria, le informazioni mostrate vengono trasmesse al servizio di chat selezionato. I documenti importati originali non fanno parte di questo pacchetto."],
 "PDF anzeigen": ["View PDF","Afficher le PDF","Visualizza PDF"],
@@ -90,7 +91,7 @@
 "Shift + Ziehen misst die Veränderung zwischen zwei Tageswerten. Alternativ aktivierst du das Lineal und klickst Start und Ende an. Die Messung zeigt Betrag, Prozentänderung und Kalendertage.": ["Shift + drag measures the change between two daily values. Alternatively, activate the ruler and click the start and end points. The measurement shows the amount, percentage change and calendar days.", "Maj + glisser mesure la variation entre deux valeurs journalières. Tu peux aussi activer la règle et cliquer sur le début et la fin. La mesure indique le montant, la variation en pourcentage et les jours calendaires.", "Maiusc + trascina misura la variazione tra due valori giornalieri. In alternativa, attiva il righello e fai clic sui punti iniziale e finale. La misura mostra importo, variazione percentuale e giorni di calendario."],
 "Kartenkäufe automatisch kategorisieren": ["Automatically categorize card purchases", "Catégoriser automatiquement les achats par carte", "Categorizza automaticamente gli acquisti con carta"],
 "Kreditkarten-Kategorie": ["Card category", "Catégorie de la carte", "Categoria della carta"],
-"Finanzblick-Kategorie": ["Finanzblick category", "Catégorie Finanzblick", "Categoria Finanzblick"],
+"Saldonaut-Kategorie": ["Saldonaut category", "Catégorie Saldonaut", "Categoria Saldonaut"],
 "Wähle für jede Branche die passende Ausgabenkategorie – zum Beispiel „Lebensmittel & Haushalt“ für Lebensmittelgeschäfte. Deine Auswahl gilt für bestehende und künftig importierte Kartenkäufe.": ["Choose the appropriate expense category for each industry – for example, “Groceries & Household” for grocery stores. Your selection applies to existing and future imported card purchases.", "Choisis la catégorie de dépenses adaptée à chaque secteur – par exemple « Alimentation & Ménage » pour les magasins alimentaires. Ton choix s’applique aux achats par carte déjà importés et aux futurs imports.", "Scegli la categoria di spesa adatta a ogni settore – ad esempio « Alimentari & Casa » per i negozi alimentari. La scelta si applica agli acquisti con carta già importati e a quelli importati in futuro."],
 "Selbst zugewiesene Kategorien und Regeln für einzelne Händler bleiben erhalten.": ["Manually assigned categories and rules for individual merchants are preserved.", "Les catégories attribuées manuellement et les règles propres à chaque commerçant sont conservées.", "Le categorie assegnate manualmente e le regole per i singoli esercenti restano invariate."],
 "Kategorie zusammenführen": ["Merge category", "Fusionner la catégorie", "Unisci categoria"],
@@ -253,7 +254,7 @@
 "Anmelden": ["Sign in", "Se connecter", "Accedi"],
 "Persönliche Finanzen": ["Personal finances", "Finances personnelles", "Finanze personali"],
 "Lokale Daten prüfen …": ["Checking local data …", "Vérification des données locales …", "Verifica dei dati locali …"],
-"Die lokalen Daten sind nicht erreichbar. Bitte Finanzblick als Desktop-App öffnen.": ["Local data is unavailable. Please open Finanzblick as a desktop app.", "Les données locales sont inaccessibles. Veuillez ouvrir Finanzblick comme application de bureau.", "I dati locali non sono accessibili. Apri Finanzblick come applicazione desktop."],
+"Die lokalen Daten sind nicht erreichbar. Bitte Saldonaut als Desktop-App öffnen.": ["Local data is unavailable. Please open Saldonaut as a desktop app.", "Les données locales sont inaccessibles. Veuillez ouvrir Saldonaut comme application de bureau.", "I dati locali non sono accessibili. Apri Saldonaut come applicazione desktop."],
 "Auf diesem Gerät verschlüsselt": ["Encrypted on this device", "Chiffré sur cet appareil", "Crittografato su questo dispositivo"],
 "Passwort anzeigen": ["Show password", "Afficher le mot de passe", "Mostra password"],
 "Passwort verbergen": ["Hide password", "Masquer le mot de passe", "Nascondi password"],
@@ -551,10 +552,10 @@
     "Mot de passe de la sauvegarde",
     "Password del backup"
   ],
-  "Bitte eine Datei mit der Endung .finanzblick-backup wählen.": [
-    "Choose a file ending in .finanzblick-backup.",
-    "Choisissez un fichier avec l’extension .finanzblick-backup.",
-    "Scegli un file con estensione .finanzblick-backup."
+  "Bitte eine Datei mit der Endung .saldonaut-backup wählen.": [
+    "Choose a file ending in .saldonaut-backup.",
+    "Choisissez un fichier avec l’extension .saldonaut-backup.",
+    "Scegli un file con estensione .saldonaut-backup."
   ],
   "Backup konnte nicht erstellt werden.": [
     "Could not create backup.",
@@ -596,10 +597,10 @@
     "La sauvegarde est endommagée.",
     "Il backup è danneggiato."
   ],
-  "Ungültiges Finanzblick-Backup.": [
-    "Invalid Finanzblick backup.",
-    "Sauvegarde Finanzblick invalide.",
-    "Backup Finanzblick non valido."
+  "Ungültiges Saldonaut-Backup.": [
+    "Invalid Saldonaut backup.",
+    "Sauvegarde Saldonaut invalide.",
+    "Backup Saldonaut non valido."
   ],
   "Steuererklärungen als PDF auslesen oder Jahreswerte ohne Datei manuell erfassen.": [
     "Read tax returns from PDF or enter annual values manually without a file.",
@@ -1021,20 +1022,20 @@
     "Aucune connexion au cloud",
     "Nessuna connessione cloud"
   ],
-  "FINANZBLICK · NUR AUF DIESEM GERÄT": [
-    "FINANZBLICK · ONLY ON THIS DEVICE",
-    "FINANZBLICK · SUR CET APPAREIL UNIQUEMENT",
-    "FINANZBLICK · SOLO SU QUESTO DISPOSITIVO"
+  "SALDONAUT · NUR AUF DIESEM GERÄT": [
+    "SALDONAUT · ONLY ON THIS DEVICE",
+    "SALDONAUT · SUR CET APPAREIL UNIQUEMENT",
+    "SALDONAUT · SOLO SU QUESTO DISPOSITIVO"
   ],
   "Deine Finanzen sicher verwahren": [
     "Keep your finances safe",
     "Protégez vos finances",
     "Proteggi le tue finanze"
   ],
-  "Finanzblick entsperren": [
-    "Unlock Finanzblick",
-    "Déverrouiller Finanzblick",
-    "Sblocca Finanzblick"
+  "Saldonaut entsperren": [
+    "Unlock Saldonaut",
+    "Déverrouiller Saldonaut",
+    "Sblocca Saldonaut"
   ],
   "Gib dein Passwort ein, um deine Finanzen zu öffnen.": [
     "Enter your password to open your finances.",
@@ -1116,10 +1117,10 @@
     "Veuillez confirmer l’avertissement sur la récupération.",
     "Conferma l’avviso sul recupero dei dati."
   ],
-  "Der lokale Datentresor ist nicht erreichbar. Bitte Finanzblick als Desktop-App öffnen.": [
-    "The local vault is unavailable. Please open the Finanzblick desktop app.",
-    "Le coffre local est inaccessible. Ouvrez l’application de bureau Finanzblick.",
-    "L’archivio locale non è disponibile. Apri l’app desktop Finanzblick."
+  "Der lokale Datentresor ist nicht erreichbar. Bitte Saldonaut als Desktop-App öffnen.": [
+    "The local vault is unavailable. Please open the Saldonaut desktop app.",
+    "Le coffre local est inaccessible. Ouvrez l’application de bureau Saldonaut.",
+    "L’archivio locale non è disponibile. Apri l’app desktop Saldonaut."
   ],
   "Sperren konnte nicht bestätigt werden. Bitte die Anwendung schliessen.": [
     "Locking could not be confirmed. Please close the app.",
@@ -1256,15 +1257,15 @@
     "Impossible de modifier le mot de passe.",
     "Impossibile cambiare la password."
   ],
-  "Finanzblick ist gesperrt. Bitte erneut entsperren.": [
-    "Finanzblick is locked. Please unlock it again.",
-    "Finanzblick est verrouillé. Déverrouillez-le à nouveau.",
-    "Finanzblick è bloccato. Sbloccalo di nuovo."
+  "Saldonaut ist gesperrt. Bitte erneut entsperren.": [
+    "Saldonaut is locked. Please unlock it again.",
+    "Saldonaut est verrouillé. Déverrouillez-le à nouveau.",
+    "Saldonaut è bloccato. Sbloccalo di nuovo."
   ],
-  "Finanzblick ist gesperrt.": [
-    "Finanzblick is locked.",
-    "Finanzblick est verrouillé.",
-    "Finanzblick è bloccato."
+  "Saldonaut ist gesperrt.": [
+    "Saldonaut is locked.",
+    "Saldonaut est verrouillé.",
+    "Saldonaut è bloccato."
   ],
   "Passwort falsch oder Finanzprofil nicht lesbar.": [
     "Incorrect password or financial profile unreadable.",
@@ -4111,15 +4112,15 @@
     "Saisir la clé API",
     "Inserisci la chiave API"
   ],
-  "Der Schlüssel wird verschlüsselt in diesem Finanzprofil gespeichert. Damit lädt Finanzblick Tageskurse und FX-Wechselkurse automatisch.": [
-    "The key is stored encrypted in this financial profile. Finanzblick uses it to load daily prices and FX rates automatically.",
-    "La clé est chiffrée dans ce profil financier. Finanzblick l’utilise pour charger automatiquement les cours quotidiens et les taux de change.",
-    "La chiave viene salvata cifrata in questo profilo finanziario. Finanzblick la usa per caricare automaticamente prezzi giornalieri e tassi di cambio."
+  "Der Schlüssel wird verschlüsselt in diesem Finanzprofil gespeichert. Damit lädt Saldonaut Tageskurse und FX-Wechselkurse automatisch.": [
+    "The key is stored encrypted in this financial profile. Saldonaut uses it to load daily prices and FX rates automatically.",
+    "La clé est chiffrée dans ce profil financier. Saldonaut l’utilise pour charger automatiquement les cours quotidiens et les taux de change.",
+    "La chiave viene salvata cifrata in questo profilo finanziario. Saldonaut la usa per caricare automaticamente prezzi giornalieri e tassi di cambio."
   ],
-  "Optionale API-Schlüssel werden verschlüsselt in diesem Finanzprofil gespeichert. Ohne Schlüssel verwendet Finanzblick Yahoo Finance als Rückfall für Tageskurse und FX-Wechselkurse.": [
-    "Optional API keys are stored encrypted in this financial profile. Without a key, Finanzblick uses Yahoo Finance as a fallback for daily prices and FX rates.",
-    "Les clés API facultatives sont chiffrées dans ce profil financier. Sans clé, Finanzblick utilise Yahoo Finance comme solution de repli pour les cours quotidiens et les taux de change.",
-    "Le chiavi API facoltative vengono salvate cifrate in questo profilo finanziario. Senza una chiave, Finanzblick usa Yahoo Finance come fonte di riserva per prezzi giornalieri e tassi di cambio."
+  "Optionale API-Schlüssel werden verschlüsselt in diesem Finanzprofil gespeichert. Ohne Schlüssel verwendet Saldonaut Yahoo Finance als Rückfall für Tageskurse und FX-Wechselkurse.": [
+    "Optional API keys are stored encrypted in this financial profile. Without a key, Saldonaut uses Yahoo Finance as a fallback for daily prices and FX rates.",
+    "Les clés API facultatives sont chiffrées dans ce profil financier. Sans clé, Saldonaut utilise Yahoo Finance comme solution de repli pour les cours quotidiens et les taux de change.",
+    "Le chiavi API facoltative vengono salvate cifrate in questo profilo finanziario. Senza una chiave, Saldonaut usa Yahoo Finance come fonte di riserva per prezzi giornalieri e tassi di cambio."
   ],
   "Automatische Tagesbewertung": [
     "Automatic daily valuation",
@@ -4386,10 +4387,10 @@
     "Connectez-vous à votre compte ChatGPT dans le navigateur. Votre compte doit avoir accès à Codex. Les limites d'utilisation de votre compte s'appliquent ; aucune clé API n'est nécessaire.",
     "Accedi al tuo account ChatGPT nel browser. Il tuo account deve avere accesso a Codex. Si applicano i limiti di utilizzo del tuo account; non serve una chiave API."
   ],
-  "Die Anmeldung gilt für diese entsperrte Sitzung in Finanzblick. Beim Sperren oder Schliessen endet sie. Deine Anmeldung in anderen Apps bleibt unberührt.": [
-    "Sign-in lasts for this unlocked Finanzblick session. Locking or closing ends it. Sign-ins in other apps are unaffected.",
-    "La connexion reste active pendant cette session déverrouillée de Finanzblick. Elle se termine au verrouillage ou à la fermeture. Les connexions dans les autres applications restent inchangées.",
-    "L'accesso vale per questa sessione sbloccata di Finanzblick. Termina al blocco o alla chiusura. Gli accessi nelle altre app restano invariati."
+  "Die Anmeldung gilt für diese entsperrte Sitzung in Saldonaut. Beim Sperren oder Schliessen endet sie. Deine Anmeldung in anderen Apps bleibt unberührt.": [
+    "Sign-in lasts for this unlocked Saldonaut session. Locking or closing ends it. Sign-ins in other apps are unaffected.",
+    "La connexion reste active pendant cette session déverrouillée de Saldonaut. Elle se termine au verrouillage ou à la fermeture. Les connexions dans les autres applications restent inchangées.",
+    "L'accesso vale per questa sessione sbloccata di Saldonaut. Termina al blocco o alla chiusura. Gli accessi nelle altre app restano invariati."
   ],
   "OpenAI erhält erst nach deiner Sendefreigabe die angezeigten Zusammenfassungen, deine Frage und den bisherigen Chat. Es gelten die Datenverwendungs- und Speicherregeln deines ChatGPT-Kontos.": [
     "Only after you approve sending does OpenAI receive the displayed summaries, your question and the previous chat. Your ChatGPT account's data use and retention rules apply.",
@@ -4556,20 +4557,20 @@
     "Composant ChatGPT indisponible.",
     "Componente ChatGPT non disponibile."
   ],
-  "Die ChatGPT-Komponente fehlt. Bitte Finanzblick neu installieren.": [
-    "The ChatGPT component is missing. Please reinstall Finanzblick.",
-    "Le composant ChatGPT est absent. Veuillez réinstaller Finanzblick.",
-    "Il componente ChatGPT manca. Reinstalla Finanzblick."
+  "Die ChatGPT-Komponente fehlt. Bitte Saldonaut neu installieren.": [
+    "The ChatGPT component is missing. Please reinstall Saldonaut.",
+    "Le composant ChatGPT est absent. Veuillez réinstaller Saldonaut.",
+    "Il componente ChatGPT manca. Reinstalla Saldonaut."
   ],
-  "Die ChatGPT-Komponente konnte nicht gestartet werden. Bitte Finanzblick neu installieren.": [
-    "The ChatGPT component could not be started. Please reinstall Finanzblick.",
-    "Le composant ChatGPT n'a pas pu démarrer. Veuillez réinstaller Finanzblick.",
-    "Impossibile avviare il componente ChatGPT. Reinstalla Finanzblick."
+  "Die ChatGPT-Komponente konnte nicht gestartet werden. Bitte Saldonaut neu installieren.": [
+    "The ChatGPT component could not be started. Please reinstall Saldonaut.",
+    "Le composant ChatGPT n'a pas pu démarrer. Veuillez réinstaller Saldonaut.",
+    "Impossibile avviare il componente ChatGPT. Reinstalla Saldonaut."
   ],
-  "Die ChatGPT-Komponente stimmt nicht mit dieser App-Version überein. Bitte Finanzblick neu installieren.": [
-    "The ChatGPT component does not match this app version. Please reinstall Finanzblick.",
-    "Le composant ChatGPT ne correspond pas à cette version de l'application. Veuillez réinstaller Finanzblick.",
-    "Il componente ChatGPT non corrisponde a questa versione dell'app. Reinstalla Finanzblick."
+  "Die ChatGPT-Komponente stimmt nicht mit dieser App-Version überein. Bitte Saldonaut neu installieren.": [
+    "The ChatGPT component does not match this app version. Please reinstall Saldonaut.",
+    "Le composant ChatGPT ne correspond pas à cette version de l'application. Veuillez réinstaller Saldonaut.",
+    "Il componente ChatGPT non corrisponde a questa versione dell'app. Reinstalla Saldonaut."
   ],
   "Die Datenvorschau konnte nicht erstellt werden.": [
     "The data preview could not be prepared.",
@@ -4840,7 +4841,7 @@
   "Eigene Excel-Datei": ["Custom Excel file", "Fichier Excel personnalisé", "File Excel personalizzato"],
   "Spaltenzuordnung fehlt": ["Column mapping required", "Association des colonnes requise", "Associazione delle colonne richiesta"],
   "Excel-Spalten zuordnen": ["Map Excel columns", "Associer les colonnes Excel", "Associa colonne Excel"],
-  "Wähle die Buchungsspalten aus. Finanzblick prüft jede Zeile, bevor Daten gespeichert werden.": ["Select the transaction columns. Finanzblick checks every row before saving data.", "Sélectionnez les colonnes de transaction. Finanzblick vérifie chaque ligne avant d’enregistrer les données.", "Seleziona le colonne delle transazioni. Finanzblick controlla ogni riga prima di salvare i dati."],
+  "Wähle die Buchungsspalten aus. Saldonaut prüft jede Zeile, bevor Daten gespeichert werden.": ["Select the transaction columns. Saldonaut checks every row before saving data.", "Sélectionnez les colonnes de transaction. Saldonaut vérifie chaque ligne avant d’enregistrer les données.", "Seleziona le colonne delle transazioni. Saldonaut controlla ogni riga prima di salvare i dati."],
   "Tabellenblatt": ["Worksheet", "Feuille de calcul", "Foglio di lavoro"],
   "Kopfzeile": ["Header row", "Ligne d’en-tête", "Riga di intestazione"],
   "Erste Datenzeile": ["First data row", "Première ligne de données", "Prima riga di dati"],
@@ -4916,8 +4917,8 @@
   "Keine passenden Hilfethemen gefunden.": ["No matching help topics found.", "Aucune rubrique d’aide correspondante.", "Nessun argomento della guida corrispondente."],
   "Anleitungen und Antworten zu den wichtigsten Funktionen – lokal und jederzeit verfügbar.": ["Guides and answers for the most important features – available locally at any time.", "Guides et réponses sur les principales fonctions, disponibles localement à tout moment.", "Guide e risposte sulle funzioni principali, disponibili localmente in qualsiasi momento."],
   "Demo-Daten ausprobieren oder ein eigenes Finanzprofil sicher einrichten.": ["Try the demo data or securely set up your own financial profile.", "Essayer les données de démonstration ou configurer son propre profil financier en toute sécurité.", "Prova i dati demo o configura in modo sicuro il tuo profilo finanziario."],
-  "Finanzblick kennenlernen": ["Explore Finanzblick", "Découvrir Finanzblick", "Scopri Finanzblick"],
-  "Finanzblick bündelt Konten, Depots und weitere Finanzquellen in einer gemeinsamen lokalen Sicht. Deine Finanzdaten werden verschlüsselt auf diesem Gerät gespeichert.": ["Finanzblick combines accounts, portfolios and other financial sources in one local view. Your financial data is stored encrypted on this device.", "Finanzblick réunit comptes, portefeuilles et autres sources financières dans une vue locale unique. Tes données financières sont chiffrées sur cet appareil.", "Finanzblick riunisce conti, portafogli e altre fonti finanziarie in un’unica vista locale. I tuoi dati finanziari sono archiviati in forma cifrata su questo dispositivo."],
+  "Saldonaut kennenlernen": ["Explore Saldonaut", "Découvrir Saldonaut", "Scopri Saldonaut"],
+  "Saldonaut bündelt Konten, Depots und weitere Finanzquellen in einer gemeinsamen lokalen Sicht. Deine Finanzdaten werden verschlüsselt auf diesem Gerät gespeichert.": ["Saldonaut combines accounts, portfolios and other financial sources in one local view. Your financial data is stored encrypted on this device.", "Saldonaut réunit comptes, portefeuilles et autres sources financières dans une vue locale unique. Tes données financières sont chiffrées sur cet appareil.", "Saldonaut riunisce conti, portafogli e altre fonti finanziarie in un’unica vista locale. I tuoi dati finanziari sono archiviati in forma cifrata su questo dispositivo."],
   "Wähle auf der Anmeldung unter Finanzprofil den Eintrag Demo-Daten.": ["On the sign-in screen, select Demo data under Financial profile.", "Sur l’écran de connexion, sélectionne Données de démonstration sous Profil financier.", "Nella schermata di accesso, seleziona Dati demo in Profilo finanziario."],
   "Gib das Passwort demo1234 ein und wähle Anmelden.": ["Enter the password demo1234 and select Sign in.", "Saisis le mot de passe demo1234 et sélectionne Se connecter.", "Inserisci la password demo1234 e seleziona Accedi."],
   "Öffne nacheinander Übersicht, Vermögen, Transaktionen und Banken & Konten.": ["Open Overview, Assets, Transactions and Banks & accounts in turn.", "Ouvre successivement Vue d’ensemble, Patrimoine, Transactions et Banques et comptes.", "Apri in sequenza Panoramica, Patrimonio, Transazioni e Banche e conti."],
@@ -4930,7 +4931,7 @@
   "Es gibt keinen Passwort-Reset. Bewahre dein Passwort sicher auf und erstelle regelmässig ein Backup.": ["There is no password reset. Keep your password safe and create backups regularly.", "Il n’existe pas de réinitialisation du mot de passe. Conserve-le en lieu sûr et crée régulièrement une sauvegarde.", "Non è possibile reimpostare la password. Conservala in modo sicuro e crea regolarmente un backup."],
   "Dateien prüfen, Konten zuordnen und doppelte Buchungen vermeiden.": ["Review files, assign accounts and avoid duplicate transactions.", "Vérifier les fichiers, attribuer les comptes et éviter les transactions en double.", "Controlla i file, assegna i conti ed evita transazioni duplicate."],
   "Dateien vorbereiten und prüfen": ["Prepare and review files", "Préparer et vérifier les fichiers", "Prepara e controlla i file"],
-  "Finanzblick verarbeitet Excel-, CSV-, PDF- und MT940-Dateien sowie camt.053 und camt.054 nach ISO 20022 lokal. Vor dem Speichern siehst du eine Vorschau und die vorgesehene Kontozuordnung.": ["Finanzblick processes Excel, CSV, PDF and MT940 files as well as ISO 20022 camt.053 and camt.054 locally. Before saving, you see a preview and the intended account assignment.", "Finanzblick traite localement les fichiers Excel, CSV, PDF et MT940 ainsi que camt.053 et camt.054 selon ISO 20022. Avant l’enregistrement, un aperçu et l’attribution prévue au compte sont affichés.", "Finanzblick elabora localmente file Excel, CSV, PDF e MT940, nonché camt.053 e camt.054 secondo ISO 20022. Prima del salvataggio mostra un’anteprima e l’assegnazione prevista al conto."],
+  "Saldonaut verarbeitet Excel-, CSV-, PDF- und MT940-Dateien sowie camt.053 und camt.054 nach ISO 20022 lokal. Vor dem Speichern siehst du eine Vorschau und die vorgesehene Kontozuordnung.": ["Saldonaut processes Excel, CSV, PDF and MT940 files as well as ISO 20022 camt.053 and camt.054 locally. Before saving, you see a preview and the intended account assignment.", "Saldonaut traite localement les fichiers Excel, CSV, PDF et MT940 ainsi que camt.053 et camt.054 selon ISO 20022. Avant l’enregistrement, un aperçu et l’attribution prévue au compte sont affichés.", "Saldonaut elabora localmente file Excel, CSV, PDF e MT940, nonché camt.053 e camt.054 secondo ISO 20022. Prima del salvataggio mostra un’anteprima e l’assegnazione prevista al conto."],
   "Öffne Import, Dateien importieren und danach Bankauszüge.": ["Open Import, Import files and then Bank statements.", "Ouvre Importation, Importer des fichiers, puis Relevés bancaires.", "Apri Importazione, Importa file e quindi Estratti conto."],
   "Wähle einzelne Dateien oder einen ganzen Ordner und lass sie analysieren.": ["Select individual files or an entire folder and have them analyzed.", "Sélectionne des fichiers individuels ou un dossier entier et lance leur analyse.", "Seleziona singoli file o un’intera cartella e avvia l’analisi."],
   "Prüfe Anbieter, Zielkonto, Zeitraum, Währung und Buchungsvorschau.": ["Check the provider, destination account, period, currency and transaction preview.", "Vérifie le prestataire, le compte de destination, la période, la devise et l’aperçu des transactions.", "Controlla fornitore, conto di destinazione, periodo, valuta e anteprima delle transazioni."],
@@ -4940,9 +4941,9 @@
   "Unter Importierte Dateien kannst du später nachvollziehen, welche Quelle welchem Konto zugeordnet wurde.": ["Under Imported files you can later see which source was assigned to which account.", "Sous Fichiers importés, tu peux ensuite vérifier quelle source a été attribuée à quel compte.", "In File importati puoi verificare in seguito quale fonte è stata assegnata a quale conto."],
   "Lösche einen Import erst, nachdem du die im Bestätigungsdialog beschriebene Wirkung geprüft hast.": ["Delete an import only after reviewing the effect described in the confirmation dialog.", "Ne supprime une importation qu’après avoir vérifié l’effet décrit dans la boîte de confirmation.", "Elimina un’importazione solo dopo aver verificato l’effetto descritto nella finestra di conferma."],
   "Offene Kreditkartenmonate": ["Open credit card months", "Mois de carte de crédit ouverts", "Mesi aperti della carta di credito"],
-  "Noch nicht abgerechnete Kartenkäufe in der Kontowährung können bereits importiert werden. Bis zur Abrechnung verwendet Finanzblick dafür vorläufig das Einkaufsdatum und den Originalbetrag; die Vorschau weist darauf hin.": ["Card purchases that have not yet been settled can already be imported when they are in the account currency. Until settlement, Finanzblick provisionally uses the purchase date and original amount; the preview indicates this.", "Les achats par carte non encore décomptés peuvent déjà être importés s’ils sont dans la devise du compte. Jusqu’au décompte, Finanzblick utilise provisoirement la date d’achat et le montant d’origine ; l’aperçu le signale.", "Gli acquisti con carta non ancora contabilizzati possono già essere importati se sono nella valuta del conto. Fino alla contabilizzazione, Finanzblick usa provvisoriamente la data di acquisto e l’importo originale; l’anteprima lo segnala."],
+  "Noch nicht abgerechnete Kartenkäufe in der Kontowährung können bereits importiert werden. Bis zur Abrechnung verwendet Saldonaut dafür vorläufig das Einkaufsdatum und den Originalbetrag; die Vorschau weist darauf hin.": ["Card purchases that have not yet been settled can already be imported when they are in the account currency. Until settlement, Saldonaut provisionally uses the purchase date and original amount; the preview indicates this.", "Les achats par carte non encore décomptés peuvent déjà être importés s’ils sont dans la devise du compte. Jusqu’au décompte, Saldonaut utilise provisoirement la date d’achat et le montant d’origine ; l’aperçu le signale.", "Gli acquisti con carta non ancora contabilizzati possono già essere importati se sono nella valuta del conto. Fino alla contabilizzazione, Saldonaut usa provvisoriamente la data di acquisto e l’importo originale; l’anteprima lo segnala."],
   "Offene Fremdwährungsbuchungen ohne abgerechneten Betrag werden nicht umgerechnet. Importiere sie erst, wenn der Kartenanbieter den endgültigen Betrag in der Kontowährung ausweist.": ["Open foreign-currency transactions without a settled amount are not converted. Import them only when the card provider shows the final amount in the account currency.", "Les opérations ouvertes en devise étrangère sans montant décompté ne sont pas converties. Importe-les seulement lorsque l’émetteur de la carte indique le montant final dans la devise du compte.", "Le transazioni aperte in valuta estera senza importo contabilizzato non vengono convertite. Importale solo quando l’emittente della carta mostra l’importo finale nella valuta del conto."],
-  "Importiere spätere vollständige Jahres- oder Monatsauszüge wie gewohnt. Finanzblick erkennt zuvor offene Kartenkäufe wieder und ersetzt Einkaufsdatum und Originalbetrag automatisch durch die endgültigen Abrechnungsdaten, statt eine zweite Buchung anzulegen.": ["Import later complete annual or monthly statements as usual. Finanzblick recognizes previously open card purchases and automatically replaces the purchase date and original amount with the final settlement data instead of creating a second transaction.", "Importe normalement les relevés annuels ou mensuels complets ultérieurs. Finanzblick reconnaît les achats par carte précédemment ouverts et remplace automatiquement la date d’achat et le montant d’origine par les données de décompte définitives au lieu de créer une seconde écriture.", "Importa normalmente i successivi estratti annuali o mensili completi. Finanzblick riconosce gli acquisti con carta precedentemente aperti e sostituisce automaticamente la data di acquisto e l’importo originale con i dati definitivi di contabilizzazione, invece di creare una seconda transazione."],
+  "Importiere spätere vollständige Jahres- oder Monatsauszüge wie gewohnt. Saldonaut erkennt zuvor offene Kartenkäufe wieder und ersetzt Einkaufsdatum und Originalbetrag automatisch durch die endgültigen Abrechnungsdaten, statt eine zweite Buchung anzulegen.": ["Import later complete annual or monthly statements as usual. Saldonaut recognizes previously open card purchases and automatically replaces the purchase date and original amount with the final settlement data instead of creating a second transaction.", "Importe normalement les relevés annuels ou mensuels complets ultérieurs. Saldonaut reconnaît les achats par carte précédemment ouverts et remplace automatiquement la date d’achat et le montant d’origine par les données de décompte définitives au lieu de créer une seconde écriture.", "Importa normalmente i successivi estratti annuali o mensili completi. Saldonaut riconosce gli acquisti con carta precedentemente aperti e sostituisce automaticamente la data di acquisto e l’importo originale con i dati definitivi di contabilizzazione, invece di creare una seconda transazione."],
   "{0} vorläufige Kreditkartenbuchungen werden mit den endgültigen Abrechnungsdaten aktualisiert.": ["{0} provisional credit card transactions will be updated with the final settlement data.", "{0} opérations provisoires de carte de crédit seront mises à jour avec les données de décompte définitives.", "{0} transazioni provvisorie della carta di credito verranno aggiornate con i dati definitivi di contabilizzazione."],
   "{0} vorläufige Kartenbuchungen aktualisiert": ["{0} provisional card transactions updated", "{0} opérations provisoires de carte mises à jour", "{0} transazioni provvisorie della carta aggiornate"],
   "Konten, Anbieter und manuelle Vermögenspositionen verwalten.": ["Manage accounts, providers and manual asset positions.", "Gérer les comptes, les prestataires et les positions patrimoniales manuelles.", "Gestisci conti, fornitori e posizioni patrimoniali manuali."],
@@ -4990,7 +4991,7 @@
   "Kategorien verwalten": ["Manage categories", "Gérer les catégories", "Gestisci categorie"],
   "Du kannst Kategorien anlegen sowie Namen und Farben direkt in der Liste bearbeiten. Zusammenführen und Löschen zeigen vor dem Speichern die betroffenen Buchungen und Regeln.": ["You can create categories and edit names and colors directly in the list. Merge and Delete show the affected transactions and rules before saving.", "Tu peux créer des catégories et modifier leurs noms et couleurs directement dans la liste. Fusionner et Supprimer affichent les transactions et règles concernées avant l’enregistrement.", "Puoi creare categorie e modificare nomi e colori direttamente nell’elenco. Unisci ed Elimina mostrano le transazioni e le regole interessate prima del salvataggio."],
   "Kartenkäufe automatisch zuordnen": ["Automatically assign card purchases", "Attribuer automatiquement les achats par carte", "Assegna automaticamente gli acquisti con carta"],
-  "Links steht die vom Kartenanbieter gelieferte Kreditkarten-Kategorie, rechts deine Finanzblick-Kategorie.": ["The credit card category supplied by the card provider is on the left, and your Finanzblick category is on the right.", "La catégorie fournie par l’émetteur de la carte se trouve à gauche, et ta catégorie Finanzblick à droite.", "A sinistra è indicata la categoria fornita dall’emittente della carta, a destra la tua categoria Finanzblick."],
+  "Links steht die vom Kartenanbieter gelieferte Kreditkarten-Kategorie, rechts deine Saldonaut-Kategorie.": ["The credit card category supplied by the card provider is on the left, and your Saldonaut category is on the right.", "La catégorie fournie par l’émetteur de la carte se trouve à gauche, et ta catégorie Saldonaut à droite.", "A sinistra è indicata la categoria fornita dall’emittente della carta, a destra la tua categoria Saldonaut."],
   "Die Auswahl gilt für bestehende und künftig importierte Kartenkäufe. Manuelle Zuordnungen und speziellere Händlerregeln bleiben erhalten.": ["The selection applies to existing and future imported card purchases. Manual assignments and more specific merchant rules are preserved.", "La sélection s’applique aux achats par carte existants et futurs. Les attributions manuelles et les règles plus spécifiques aux commerçants sont conservées.", "La selezione si applica agli acquisti con carta esistenti e futuri. Le assegnazioni manuali e le regole più specifiche per gli esercenti restano invariate."],
   "Jährliche Steuerwerte importieren und unabhängig von Bankständen vergleichen.": ["Import annual tax values and compare them independently of bank balances.", "Importer les valeurs fiscales annuelles et les comparer indépendamment des soldes bancaires.", "Importa i valori fiscali annuali e confrontali indipendentemente dai saldi bancari."],
   "Steuerwerte übernehmen": ["Import tax values", "Reprendre les valeurs fiscales", "Importa valori fiscali"],
@@ -5021,10 +5022,10 @@
   "Darstellung und Allgemein": ["Appearance and general", "Apparence et général", "Aspetto e generali"],
   "Wähle eine helle, dunkle oder systemabhängige Darstellung.": ["Choose a light, dark or system appearance.", "Choisis une apparence claire, sombre ou adaptée au système.", "Scegli un aspetto chiaro, scuro o basato sul sistema."],
   "Lege Sprache, Ländereinstellungen und die Standardwährung für neue Konten fest.": ["Set the language, regional settings and default currency for new accounts.", "Définis la langue, les paramètres régionaux et la devise par défaut des nouveaux comptes.", "Imposta lingua, impostazioni regionali e valuta predefinita per i nuovi conti."],
-  "Bestimme, nach welcher Inaktivität Finanzblick automatisch gesperrt wird.": ["Choose after how much inactivity Finanzblick locks automatically.", "Définis après quelle durée d’inactivité Finanzblick se verrouille automatiquement.", "Scegli dopo quanto tempo di inattività Finanzblick si blocca automaticamente."],
+  "Bestimme, nach welcher Inaktivität Saldonaut automatisch gesperrt wird.": ["Choose after how much inactivity Saldonaut locks automatically.", "Définis après quelle durée d’inactivité Saldonaut se verrouille automatiquement.", "Scegli dopo quanto tempo di inattività Saldonaut si blocca automaticamente."],
   "Ländereinstellungen ändern nur die Darstellung. Gespeicherte Werte werden nicht umgerechnet.": ["Regional settings change only the display. Stored values are not converted.", "Les paramètres régionaux ne modifient que l’affichage. Les valeurs enregistrées ne sont pas converties.", "Le impostazioni regionali modificano solo la visualizzazione. I valori salvati non vengono convertiti."],
   "Automatische Marktpreise": ["Automatic market prices", "Cours de marché automatiques", "Prezzi di mercato automatici"],
-  "Optionale API-Schlüssel werden verschlüsselt im aktuellen Profil gespeichert. Ohne Schlüssel verwendet Finanzblick Yahoo Finance als Rückfall.": ["Optional API keys are stored encrypted in the current profile. Without a key, Finanzblick uses Yahoo Finance as a fallback.", "Les clés API facultatives sont stockées chiffrées dans le profil actuel. Sans clé, Finanzblick utilise Yahoo Finance comme solution de repli.", "Le chiavi API opzionali sono archiviate in forma cifrata nel profilo corrente. Senza chiave, Finanzblick usa Yahoo Finance come alternativa."],
+  "Optionale API-Schlüssel werden verschlüsselt im aktuellen Profil gespeichert. Ohne Schlüssel verwendet Saldonaut Yahoo Finance als Rückfall.": ["Optional API keys are stored encrypted in the current profile. Without a key, Saldonaut uses Yahoo Finance as a fallback.", "Les clés API facultatives sont stockées chiffrées dans le profil actuel. Sans clé, Saldonaut utilise Yahoo Finance comme solution de repli.", "Le chiavi API opzionali sono archiviate in forma cifrata nel profilo corrente. Senza chiave, Saldonaut usa Yahoo Finance come alternativa."],
   "An Kursanbieter werden Wertpapierkennungen, Zeiträume und Währungspaare übertragen, jedoch keine Kontostände oder Buchungen.": ["Security identifiers, periods and currency pairs are sent to market data providers, but no account balances or transactions.", "Les identifiants de titres, les périodes et les paires de devises sont transmis aux fournisseurs de cours, mais pas les soldes de comptes ni les transactions.", "Ai fornitori di dati di mercato vengono trasmessi identificativi dei titoli, periodi e coppie di valute, ma non saldi dei conti o transazioni."],
   "Antworten zu Summen, Duplikaten, Währungen, Marktwerten und Passwörtern.": ["Answers about totals, duplicates, currencies, market values and passwords.", "Réponses sur les totaux, les doublons, les devises, les valeurs de marché et les mots de passe.", "Risposte su totali, duplicati, valute, valori di mercato e password."],
   "Warum stimmt mein Gesamtvermögen nicht mit allen sichtbaren Konten überein?": ["Why does my total wealth not match all visible accounts?", "Pourquoi mon patrimoine total ne correspond-il pas à tous les comptes visibles ?", "Perché il patrimonio totale non corrisponde a tutti i conti visibili?"],

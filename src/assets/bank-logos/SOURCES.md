@@ -1,6 +1,6 @@
 # Bankkennzeichnung
 
-Finanzblick liefert keine Banklogos mehr aus. Anbieter werden standardmässig
+Saldonaut liefert keine Banklogos mehr aus. Anbieter werden standardmässig
 durch neutrale Textkürzel dargestellt. Die bisherigen Bilddateien wurden auch
 aus der veröffentlichten Git-Historie entfernt.
 

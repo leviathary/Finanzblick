@@ -86,7 +86,7 @@ impl Storage {
             .write(true)
             .open(directory.join("vault.lock"))?;
         lock.try_lock_exclusive()
-            .map_err(|_| "Finanzblick läuft bereits. Bitte die andere Instanz schliessen.")?;
+            .map_err(|_| "Saldonaut läuft bereits. Bitte die andere Instanz schliessen.")?;
         let mut session = Session::default();
         // Only the display language is available before unlocking. No financial
         // information or password is written to this small local preference.

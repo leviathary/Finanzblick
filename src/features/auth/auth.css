@@ -2,18 +2,24 @@
 .vault-screen {
   min-height: 100vh;
   display: grid;
-  place-items: center;
-  padding: 40px 24px;
-  background: var(--bg-muted);
+  align-items: center;
+  justify-items: end;
+  box-sizing: border-box;
+  padding: 40px clamp(40px, 7vw, 112px);
+  background:
+    linear-gradient(90deg, rgba(2, 6, 23, 0.08) 0%, rgba(2, 6, 23, 0.2) 46%, rgba(2, 6, 23, 0.82) 100%),
+    url("/saldonaut-login.png") center / cover no-repeat,
+    #07111f;
 }
 .vault-card {
+  position: relative;
   width: min(100%, 420px);
   box-sizing: border-box;
   padding: 32px;
   background: var(--bg-surface);
   border: 1px solid var(--border-subtle);
   border-radius: 16px;
-  box-shadow: var(--shadow-login);
+  box-shadow: 0 24px 70px rgba(2, 6, 23, 0.4);
 }
 .vault-brand { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-bottom: 20px; margin-bottom: 24px; border-bottom: 1px solid var(--border-subtle); }
 .vault-brand-identity { display: flex; align-items: center; gap: 12px; min-width: 0; }
@@ -132,7 +138,11 @@
 .vault-card .vault-profile button, .vault-card .vault-restore-link { background: transparent; color: var(--text-secondary); font-size: 12px; padding: 8px; }
 .vault-card .vault-profile button:hover:not(:disabled), .vault-card .vault-restore-link:hover:not(:disabled) { background: transparent; color: var(--text-primary); text-decoration: underline; }
 @media (max-width: 480px) {
-  .vault-screen { padding: 24px 16px; }
+  .vault-screen {
+    justify-items: center;
+    padding: 24px 16px;
+    background-position: 32% center;
+  }
   .vault-card { padding: 24px; }
   .vault-brand { align-items: flex-start; flex-wrap: wrap; }
   .vault-language { margin-left: 52px; }

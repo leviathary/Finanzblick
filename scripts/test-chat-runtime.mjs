@@ -8,7 +8,7 @@ import { spawn } from "node:child_process";
 import assert from "node:assert/strict";
 
 const root = path.resolve(import.meta.dirname, "..");
-const home = await fs.mkdtemp(path.join(os.tmpdir(), "finanzblick-runtime-test-"));
+const home = await fs.mkdtemp(path.join(os.tmpdir(), "saldonaut-runtime-test-"));
 const requests = [];
 let pending = new Map(), next = 0, proc;
 let complete;
@@ -20,8 +20,8 @@ const server = http.createServer(async (req, res) => {
   event("response.created", { response: { id: "resp_test" } });
   if (requests.length === 1) {
     const attacks = [
-      { type: "function_call", id: "tool_shell", call_id: "call_shell", name: "exec_command", arguments: JSON.stringify({ cmd: "echo FINANZBLICK_TOOL_EXECUTED" }) },
-      { type: "custom_tool_call", id: "tool_patch", call_id: "call_patch", name: "apply_patch", input: "*** Begin Patch\n*** Add File: must-not-exist.txt\n+FINANZBLICK_TOOL_EXECUTED\n*** End Patch" },
+      { type: "function_call", id: "tool_shell", call_id: "call_shell", name: "exec_command", arguments: JSON.stringify({ cmd: "echo SALDONAUT_TOOL_EXECUTED" }) },
+      { type: "custom_tool_call", id: "tool_patch", call_id: "call_patch", name: "apply_patch", input: "*** Begin Patch\n*** Add File: must-not-exist.txt\n+SALDONAUT_TOOL_EXECUTED\n*** End Patch" },
       { type: "function_call", id: "tool_image", call_id: "call_image", name: "view_image", arguments: JSON.stringify({ path: path.join(home, "private-test.png") }) },
     ];
     attacks.forEach((item, output_index) => { event("response.output_item.added", { output_index, item }); event("response.output_item.done", { output_index, item }); });
@@ -59,7 +59,7 @@ try {
     pending.set(id, { resolve: value => { clearTimeout(timer); resolve(value); }, reject: error => { clearTimeout(timer); reject(error); } });
     proc.stdin.write(JSON.stringify({ id, method, params }) + "\n");
   });
-  await rpc("initialize", { clientInfo: { name: "finanzblick_test", version: "1" }, capabilities: { experimentalApi: false } });
+  await rpc("initialize", { clientInfo: { name: "saldonaut_test", version: "1" }, capabilities: { experimentalApi: false } });
   proc.stdin.write('{"method":"initialized"}\n');
   const effective = await rpc("config/read", { includeLayers: false });
   for (const line of config.split("[features]")[1].split("\n[model_providers")[0].split("\n")) {

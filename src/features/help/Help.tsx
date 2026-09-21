@@ -47,7 +47,7 @@ export function Help() {
   return <section className="help-page">
     <div className="overview-heading help-heading">
       <div>
-        <p className="eyebrow">Finanzblick</p>
+        <p className="eyebrow">Saldonaut</p>
         <h1>{t("Hilfe")}</h1>
         <p className="intro">{t("Anleitungen und Antworten zu den wichtigsten Funktionen – lokal und jederzeit verfügbar.")}</p>
       </div>

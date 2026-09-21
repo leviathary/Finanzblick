@@ -35,7 +35,7 @@ impl Runtime {
         credentials_home: Option<&Path>,
     ) -> Result<Self, String> {
         let home = tempfile::Builder::new()
-            .prefix("finanzblick-chat-")
+            .prefix("saldonaut-chat-")
             .tempdir()
             .map_err(|_| FAILED)?;
         let codex_home = credentials_home.unwrap_or(home.path());
@@ -94,7 +94,7 @@ impl Runtime {
             use std::os::windows::process::CommandExt;
             command.creation_flags(0x08000000); // No console window for the embedded runtime.
         }
-        let mut child = command.spawn().map_err(|_| "Die ChatGPT-Komponente konnte nicht gestartet werden. Bitte Finanzblick neu installieren.")?;
+        let mut child = command.spawn().map_err(|_| "Die ChatGPT-Komponente konnte nicht gestartet werden. Bitte Saldonaut neu installieren.")?;
         let input = child.stdin.take().ok_or(FAILED)?;
         let output = child.stdout.take().ok_or(FAILED)?;
         let process = Arc::new(Mutex::new(child));
@@ -132,7 +132,7 @@ impl Runtime {
             home,
             thread_id: None,
         };
-        runtime.rpc("initialize", json!({"clientInfo":{"name":"finanzblick","title":"Finanzblick","version":env!("CARGO_PKG_VERSION")},"capabilities":{"experimentalApi":false}}))?;
+        runtime.rpc("initialize", json!({"clientInfo":{"name":"saldonaut","title":"Saldonaut","version":env!("CARGO_PKG_VERSION")},"capabilities":{"experimentalApi":false}}))?;
         runtime.write(json!({"method":"initialized"}))?;
         let effective = runtime.rpc("config/read", json!({"includeLayers":false}))?;
         validate_config(&effective["config"], &models, auth_store)?;
@@ -153,7 +153,7 @@ impl Runtime {
             .ok_or("ChatGPT antwortet nicht rechtzeitig. Bitte später erneut versuchen.")?;
         let message = self.output.recv_timeout(remaining).map_err(|_| FAILED)?;
         if message.get("id").is_some() && message.get("method").is_some() {
-            self.write(json!({"id":message["id"],"error":{"code":-32601,"message":"Tools are unavailable in Finanzblick"}}))?;
+            self.write(json!({"id":message["id"],"error":{"code":-32601,"message":"Tools are unavailable in Saldonaut"}}))?;
             return Err("ChatGPT hat eine nicht erlaubte Aktion angefordert. Die Anfrage wurde abgebrochen.".into());
         }
         Ok(message)
@@ -385,7 +385,7 @@ mod tests {
         first
             .rpc(
                 "account/login/start",
-                json!({"type":"apiKey","apiKey":"synthetic-finanzblick-test-not-a-real-key"}),
+                json!({"type":"apiKey","apiKey":"synthetic-saldonaut-test-not-a-real-key"}),
             )
             .unwrap();
         drop(first);

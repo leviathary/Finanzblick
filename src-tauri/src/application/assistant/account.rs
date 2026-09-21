@@ -143,11 +143,11 @@ fn binary(_app: &tauri::AppHandle) -> Result<std::path::PathBuf, String> {
         .join("chat-runtime")
         .join(name);
     let bytes = std::fs::read(&path)
-        .map_err(|_| "Die ChatGPT-Komponente fehlt. Bitte Finanzblick neu installieren.")?;
+        .map_err(|_| "Die ChatGPT-Komponente fehlt. Bitte Saldonaut neu installieren.")?;
     if manifest["version"] != "0.154.0"
         || manifest["sha256"] != format!("{:x}", Sha256::digest(&bytes))
     {
-        return Err("Die ChatGPT-Komponente stimmt nicht mit dieser App-Version überein. Bitte Finanzblick neu installieren.".into());
+        return Err("Die ChatGPT-Komponente stimmt nicht mit dieser App-Version überein. Bitte Saldonaut neu installieren.".into());
     }
     Ok(path)
 }

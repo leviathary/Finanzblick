@@ -1,10 +1,10 @@
-Third-party licenses for Finanzblick
+Third-party licenses for Saldonaut
 Target: aarch64-apple-darwin
 
 Original license and notice files follow. Each dependency retains its own terms.
 The inventory includes build dependencies and nested native-library notices.
 Source links identify the exact upstream packages, including MPL-covered sources.
-Finanzblick's MIT license does not replace these licenses.
+Saldonaut's MIT license does not replace these licenses.
 
 ================================================================================
 Bundled runtime: OpenAI Codex 0.154.0

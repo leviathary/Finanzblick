@@ -13,4 +13,4 @@ mod session;
 mod settings;
 pub(crate) use connection::VaultStatus;
 pub(crate) use settings::{read_settings, AppSettings};
-const LOCKED: &str = "Finanzblick ist gesperrt. Bitte erneut entsperren.";
+const LOCKED: &str = "Saldonaut ist gesperrt. Bitte erneut entsperren.";

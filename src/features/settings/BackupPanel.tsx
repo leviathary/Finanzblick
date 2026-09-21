@@ -12,14 +12,14 @@ export function BackupPanel({ onRestored, restoreOnly = false, hideHeading = fal
   const [source, setSource] = useState("");
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
-  const filters = [{ name: "Finanzblick Backup", extensions: ["finanzblick-backup"] }];
+  const filters = [{ name: "Saldonaut Backup", extensions: ["saldonaut-backup", "finanzblick-backup"] }];
 
   async function createBackup() {
     setBusy(true);
     setError("");
     setNotice("");
     try {
-      const path = await save({ title: t("Backup erstellen"), defaultPath: `Finanzblick-${new Date().toISOString().replace(/[:.]/g, "-")}.finanzblick-backup`, filters });
+      const path = await save({ title: t("Backup erstellen"), defaultPath: `Saldonaut-${new Date().toISOString().replace(/[:.]/g, "-")}.saldonaut-backup`, filters });
       if (!path) return;
       await invoke("create_backup", { path });
       setNotice(t("Backup erfolgreich gespeichert.") + " " + path);

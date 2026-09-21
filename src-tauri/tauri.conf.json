@@ -1,6 +1,6 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "Finanzblick",
+  "productName": "Saldonaut",
   "version": "0.6.3",
   "identifier": "ch.finanzblick.desktop",
   "build": {
@@ -12,7 +12,7 @@
   "app": {
     "windows": [
       {
-        "title": "Finanzblick",
+        "title": "Saldonaut",
         "visible": false,
         "width": 1520,
         "height": 900,

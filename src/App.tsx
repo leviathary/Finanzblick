@@ -82,11 +82,11 @@ function App() {
       document.title = title;
       if (isTauri()) void getCurrentWindow().setTitle(title).catch(() => {});
     };
-    setTitle("Finanzblick");
+    setTitle("Saldonaut");
     void invoke<boolean>("demo_status").then(demo => {
-      if (active) setTitle(demo ? "Finanzblick - Demo" : "Finanzblick");
+      if (active) setTitle(demo ? "Saldonaut - Demo" : "Saldonaut");
     }).catch(() => {});
-    return () => { active = false; setTitle("Finanzblick"); };
+    return () => { active = false; setTitle("Saldonaut"); };
   }, []);
   const [importKind, setImportKind] = useState<ImportKind>(window.location.hash === "#imports/tax" ? "tax" : "bank");
   const [managementKind, setManagementKind] = useState<ImportKind>(window.location.hash === "#import-history/tax" ? "tax" : "bank");
@@ -110,7 +110,7 @@ function App() {
   return (
     <main className="app-shell">
       <aside className="sidebar">
-        <strong className="brand">Finanzblick</strong>
+        <strong className="brand">Saldonaut</strong>
         <nav className="sidebar-primary" aria-label={t("Hauptnavigation")}>
           <div className="sidebar-nav-group" role="group" aria-label={t("Analyse")}>
             <a className={page === "overview" ? "active" : ""} href="#overview"><NavIcon name="home"/><span>{t("Übersicht")}</span></a>

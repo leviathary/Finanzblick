@@ -66,7 +66,7 @@ export function Settings() {
     <section className="settings-page">
       <div className="overview-heading">
         <div>
-          <p className="eyebrow">Finanzblick</p>
+          <p className="eyebrow">Saldonaut</p>
           <h1>{t("Einstellungen")}</h1>
         </div>
       </div>
@@ -210,7 +210,7 @@ export function Settings() {
         </label>
         <p className="settings-hint">
           {t(
-            "Optionale API-Schlüssel werden verschlüsselt in diesem Finanzprofil gespeichert. Ohne Schlüssel verwendet Finanzblick Yahoo Finance als Rückfall für Tageskurse und FX-Wechselkurse.",
+            "Optionale API-Schlüssel werden verschlüsselt in diesem Finanzprofil gespeichert. Ohne Schlüssel verwendet Saldonaut Yahoo Finance als Rückfall für Tageskurse und FX-Wechselkurse.",
           )}
         </p>
         <div className="settings-actions">
@@ -252,7 +252,7 @@ export function Settings() {
         )}
       </form>
       </SectionPanel>
-      <p className="settings-version">Finanzblick · Version {packageInfo.version}</p>
+      <p className="settings-version">Saldonaut · Version {packageInfo.version}</p>
     </section>
   );
 }

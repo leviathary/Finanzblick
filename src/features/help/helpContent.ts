@@ -25,8 +25,8 @@ export function getHelpArticles(): HelpArticle[] {
       summary: t("Demo-Daten ausprobieren oder ein eigenes Finanzprofil sicher einrichten."),
       sections: [
         {
-          title: t("Finanzblick kennenlernen"),
-          paragraphs: [t("Finanzblick bündelt Konten, Depots und weitere Finanzquellen in einer gemeinsamen lokalen Sicht. Deine Finanzdaten werden verschlüsselt auf diesem Gerät gespeichert.")],
+          title: t("Saldonaut kennenlernen"),
+          paragraphs: [t("Saldonaut bündelt Konten, Depots und weitere Finanzquellen in einer gemeinsamen lokalen Sicht. Deine Finanzdaten werden verschlüsselt auf diesem Gerät gespeichert.")],
           steps: [
             t("Wähle auf der Anmeldung unter Finanzprofil den Eintrag Demo-Daten."),
             t("Gib das Passwort demo1234 ein und wähle Anmelden."),
@@ -54,7 +54,7 @@ export function getHelpArticles(): HelpArticle[] {
         {
           title: t("Dateien vorbereiten und prüfen"),
           paragraphs: [
-            t("Finanzblick verarbeitet Excel-, CSV-, PDF- und MT940-Dateien sowie camt.053 und camt.054 nach ISO 20022 lokal. Vor dem Speichern siehst du eine Vorschau und die vorgesehene Kontozuordnung."),
+            t("Saldonaut verarbeitet Excel-, CSV-, PDF- und MT940-Dateien sowie camt.053 und camt.054 nach ISO 20022 lokal. Vor dem Speichern siehst du eine Vorschau und die vorgesehene Kontozuordnung."),
             t("Enthält der Auszug eine IBAN oder Kontoreferenz, wird er nur einem aktiven Konto mit derselben hinterlegten Kennung zugeordnet. Bei einer Abweichung bleibt der Import gesperrt, bis du die Kontodaten korrigiert hast."),
           ],
           steps: [
@@ -67,8 +67,8 @@ export function getHelpArticles(): HelpArticle[] {
         {
           title: t("Datenschutz beim Import"),
           paragraphs: [
-            t("Bankauszüge, Kreditkartenabrechnungen und Steuererklärungen werden ausschliesslich lokal auf deinem Gerät verarbeitet. Die Importdateien werden weder hochgeladen noch an Finanzblick oder Dritte übertragen."),
-            t("Finanzblick kopiert die Quelldokumente nicht in dein Finanzprofil. Nach der Analyse werden die eingelesenen Dateiinhalte aus dem Arbeitsspeicher verworfen; die App benötigt die Dokumente danach nicht mehr. Deine Originaldateien bleiben an ihrem bisherigen Speicherort und werden weder verändert noch gelöscht."),
+            t("Bankauszüge, Kreditkartenabrechnungen und Steuererklärungen werden ausschliesslich lokal auf deinem Gerät verarbeitet. Die Importdateien werden weder hochgeladen noch an Saldonaut oder Dritte übertragen."),
+            t("Saldonaut kopiert die Quelldokumente nicht in dein Finanzprofil. Nach der Analyse werden die eingelesenen Dateiinhalte aus dem Arbeitsspeicher verworfen; die App benötigt die Dokumente danach nicht mehr. Deine Originaldateien bleiben an ihrem bisherigen Speicherort und werden weder verändert noch gelöscht."),
             t("Gespeichert werden nur die von dir bestätigten Finanzdaten, der Dateiname und ein technischer Fingerabdruck zur Duplikaterkennung. Diese Informationen liegen verschlüsselt in deinem lokalen Finanzprofil."),
           ],
           note: t("Nur wenn du im Finanzchat ausdrücklich ein Datenpaket freigibst, werden die darin angezeigten Informationen an den gewählten Chat-Dienst übertragen. Die ursprünglichen Importdokumente gehören nicht zu diesem Datenpaket."),
@@ -80,8 +80,8 @@ export function getHelpArticles(): HelpArticle[] {
         },
         {
           title: t("Offene Kreditkartenmonate"),
-          paragraphs: [t("Noch nicht abgerechnete Kartenkäufe in der Kontowährung können bereits importiert werden. Bis zur Abrechnung verwendet Finanzblick dafür vorläufig das Einkaufsdatum und den Originalbetrag; die Vorschau weist darauf hin."), t("Offene Fremdwährungsbuchungen ohne abgerechneten Betrag werden nicht umgerechnet. Importiere sie erst, wenn der Kartenanbieter den endgültigen Betrag in der Kontowährung ausweist.")],
-          note: t("Importiere spätere vollständige Jahres- oder Monatsauszüge wie gewohnt. Finanzblick erkennt zuvor offene Kartenkäufe wieder und ersetzt Einkaufsdatum und Originalbetrag automatisch durch die endgültigen Abrechnungsdaten, statt eine zweite Buchung anzulegen."),
+          paragraphs: [t("Noch nicht abgerechnete Kartenkäufe in der Kontowährung können bereits importiert werden. Bis zur Abrechnung verwendet Saldonaut dafür vorläufig das Einkaufsdatum und den Originalbetrag; die Vorschau weist darauf hin."), t("Offene Fremdwährungsbuchungen ohne abgerechneten Betrag werden nicht umgerechnet. Importiere sie erst, wenn der Kartenanbieter den endgültigen Betrag in der Kontowährung ausweist.")],
+          note: t("Importiere spätere vollständige Jahres- oder Monatsauszüge wie gewohnt. Saldonaut erkennt zuvor offene Kartenkäufe wieder und ersetzt Einkaufsdatum und Originalbetrag automatisch durch die endgültigen Abrechnungsdaten, statt eine zweite Buchung anzulegen."),
         },
       ],
     },
@@ -172,7 +172,7 @@ export function getHelpArticles(): HelpArticle[] {
         },
         {
           title: t("Kartenkäufe automatisch zuordnen"),
-          paragraphs: [t("Links steht die vom Kartenanbieter gelieferte Kreditkarten-Kategorie, rechts deine Finanzblick-Kategorie."), t("Die Auswahl gilt für bestehende und künftig importierte Kartenkäufe. Manuelle Zuordnungen und speziellere Händlerregeln bleiben erhalten.")],
+          paragraphs: [t("Links steht die vom Kartenanbieter gelieferte Kreditkarten-Kategorie, rechts deine Saldonaut-Kategorie."), t("Die Auswahl gilt für bestehende und künftig importierte Kartenkäufe. Manuelle Zuordnungen und speziellere Händlerregeln bleiben erhalten.")],
         },
       ],
     },
@@ -242,13 +242,13 @@ export function getHelpArticles(): HelpArticle[] {
           bullets: [
             t("Wähle eine helle, dunkle oder systemabhängige Darstellung."),
             t("Lege Sprache, Ländereinstellungen und die Standardwährung für neue Konten fest."),
-            t("Bestimme, nach welcher Inaktivität Finanzblick automatisch gesperrt wird."),
+            t("Bestimme, nach welcher Inaktivität Saldonaut automatisch gesperrt wird."),
           ],
           note: t("Ländereinstellungen ändern nur die Darstellung. Gespeicherte Werte werden nicht umgerechnet."),
         },
         {
           title: t("Automatische Marktpreise"),
-          paragraphs: [t("Optionale API-Schlüssel werden verschlüsselt im aktuellen Profil gespeichert. Ohne Schlüssel verwendet Finanzblick Yahoo Finance als Rückfall."), t("An Kursanbieter werden Wertpapierkennungen, Zeiträume und Währungspaare übertragen, jedoch keine Kontostände oder Buchungen.")],
+          paragraphs: [t("Optionale API-Schlüssel werden verschlüsselt im aktuellen Profil gespeichert. Ohne Schlüssel verwendet Saldonaut Yahoo Finance als Rückfall."), t("An Kursanbieter werden Wertpapierkennungen, Zeiträume und Währungspaare übertragen, jedoch keine Kontostände oder Buchungen.")],
         },
       ],
     },

@@ -1,5 +1,5 @@
 {
-  "name": "finanzblick",
+  "name": "saldonaut",
   "private": true,
   "version": "0.6.3",
   "license": "MIT",
@@ -13,7 +13,7 @@
     "build": "tsc && vite build",
     "preview": "vite preview",
     "tauri": "tauri",
-    "icons": "tauri icon public/finanzblick.svg --output src-tauri/icons",
+    "icons": "tauri icon public/saldonaut.svg --output src-tauri/icons",
     "chat:stage": "node scripts/stage-chat-runtime.mjs",
     "predev": "npm run chat:stage && npm run speech:stage",
     "prebuild": "npm run chat:stage && npm run speech:stage",

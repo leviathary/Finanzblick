@@ -122,8 +122,8 @@ test('category inline actions are translated and do not scroll to a distant edit
   assert.match(styles, /\.managed-category\s*\{[\s\S]*gap: 12px;[\s\S]*padding: 8px 0;/);
   assert.match(styles, /\.managed-category \.category-color\s*\{[\s\S]*width: 9px;[\s\S]*height: 9px;[\s\S]*border-radius: 50%/);
   assert.match(styles, /\.transactions-page > \.industry-rules > label\s*\{[\s\S]*grid-template-columns:[\s\S]*padding: 8px 0;/);
-  assert.match(code, /className="industry-rules-header"[\s\S]*t\("Kreditkarten-Kategorie"\)[\s\S]*t\("Finanzblick-Kategorie"\)/);
-  assert.match(code, /aria-label=\{`\$\{t\("Finanzblick-Kategorie"\)\}: \$\{rule\.industry\}`\}/);
+  assert.match(code, /className="industry-rules-header"[\s\S]*t\("Kreditkarten-Kategorie"\)[\s\S]*t\("Saldonaut-Kategorie"\)/);
+  assert.match(code, /aria-label=\{`\$\{t\("Saldonaut-Kategorie"\)\}: \$\{rule\.industry\}`\}/);
   assert.match(styles, /\.transactions-page > \.industry-rules > label select\s*\{[\s\S]*min-height: 44px/);
   assert.match(styles, /@media \(max-width: 700px\)[\s\S]*\.industry-rules-header\s*\{[\s\S]*display: none/);
 });
@@ -213,7 +213,7 @@ test('local help is routed, searchable and fully translated', () => {
   assert.match(help, /aria-current=\{activeArticle\.id === article\.id \? "page"/);
   assert.match(help, /headingRef\.current\?\.focus\(\)/);
   assert.match(content, /t\("Datenschutz beim Import"\)/);
-  assert.match(content, /Finanzblick kopiert die Quelldokumente nicht in dein Finanzprofil/);
+  assert.match(content, /Saldonaut kopiert die Quelldokumente nicht in dein Finanzprofil/);
   assert.match(content, /Gespeichert werden nur die von dir bestätigten Finanzdaten, der Dateiname und ein technischer Fingerabdruck/);
   for (const match of (help + content).matchAll(/\bt\("([^"\\]+)"\)/g)) {
     assert.equal(messages[match[1]]?.length, 3, match[1]);
