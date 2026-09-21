@@ -22,8 +22,11 @@ in `src/styles/application.css`; Feature-Styles verwenden dieselben Farbrollen.
 
 ### Helle und dunkle Darstellung
 
-- Unter Einstellungen → Darstellung stehen Hell, Dunkel und Systemeinstellung zur
-  Verfügung. Standard ist Systemeinstellung; Systemwechsel wirken sofort.
+- Unter Einstellungen → Darstellung stehen Hell, Dunkel, Kosmisch (dunkel) und
+  Systemeinstellung zur Verfügung. Standard ist Systemeinstellung; Systemwechsel
+  wirken sofort. Kosmisch verwendet die dunkle Palette und zeigt das gebündelte
+  Orbitmotiv hinter den weitgehend deckenden Inhaltsflächen. Nur in dieser Variante
+  lautet die Überschrift der gefüllten Übersicht „Dein Vermögen – astronomisch“.
 - Die Auswahl wird gerätebezogen außerhalb der verschlüsselten Finanzprofile
   gespeichert und gilt bereits für Anmeldung und Wiederherstellung. Die native
   App zeigt ihr Fenster erst nach dem Anwenden der Palette; der private WebView

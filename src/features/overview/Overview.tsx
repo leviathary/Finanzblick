@@ -2,8 +2,9 @@
 import type { AccountType } from "../../domain/finance";
 
 import { t, tr, locale } from "../../i18n";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import { invoke, isTauri } from "@tauri-apps/api/core";
+import { getAppearance, subscribeAppearance } from "../../shared/theme/appearance";
 import { ProviderLogo } from "../accounts/ProviderLogo";
 import { ProviderDistribution } from "./ProviderDistribution";
 
@@ -39,6 +40,7 @@ interface DashboardData {
 export function Overview({ onImport }: { onImport: () => void }) {
   const [data, setData] = useState<DashboardData | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const appearance = useSyncExternalStore(subscribeAppearance, getAppearance);
 
   useEffect(() => {
     if (!isTauri()) {
@@ -101,7 +103,7 @@ export function Overview({ onImport }: { onImport: () => void }) {
       <div className="overview-heading">
         <div>
           <p className="eyebrow">{t("Übersicht")}</p>
-          <h1>{t("Dein Vermögen")}</h1>
+          <h1>{t(appearance === "cosmic" ? "Dein Vermögen – astronomisch" : "Dein Vermögen")}</h1>
         </div>
       </div>
 

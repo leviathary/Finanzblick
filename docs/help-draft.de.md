@@ -442,9 +442,10 @@ Prüfe eine solche Kopie immer selbst, bevor du sie weitergibst.
 
 ### Darstellung
 
-Wähle unter **Einstellungen → Darstellung** zwischen **Hell**, **Dunkel** und
-**Systemeinstellung**. Die Auswahl gilt bereits für die Anmeldung und reagiert bei
-der Systemeinstellung auf Änderungen des Betriebssystems.
+Wähle unter **Einstellungen → Darstellung** zwischen **Hell**, **Dunkel**,
+**Kosmisch (dunkel)** und **Systemeinstellung**. Kosmisch ergänzt die dunkle
+Darstellung um das Orbitmotiv. Die Auswahl gilt bereits für die Anmeldung und
+reagiert bei der Systemeinstellung auf Änderungen des Betriebssystems.
 
 ### Allgemein
 

@@ -18,8 +18,9 @@ export function AppearanceSettings() {
       <option value="system">{t("Systemeinstellung")}</option>
       <option value="light">{t("Hell")}</option>
       <option value="dark">{t("Dunkel")}</option>
+      <option value="cosmic">{t("Kosmisch (dunkel)")}</option>
     </select>
-    <p className="settings-hint">{t("Wird sofort auf diesem Gerät gespeichert und gilt auch für die Anmeldung. Systemeinstellung folgt dem Farbschema des Betriebssystems.")}</p>
+    <p className="settings-hint">{t("Wird sofort auf diesem Gerät gespeichert und gilt auch für die Anmeldung. Systemeinstellung folgt dem Farbschema des Betriebssystems; Kosmisch ergänzt die dunkle Darstellung um das Orbitmotiv.")}</p>
     {error && <p role="alert" className="error-message">{t("Die Darstellung konnte nicht gespeichert werden. Bitte versuche es erneut.")}</p>}
   </section>;
 }

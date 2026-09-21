@@ -27,11 +27,21 @@ test('startup respects explicit saved mode before showing native window', async 
   const s = setup({ stored: 'light' });
   await s.api.initializeAppearance();
   assert.equal(s.root.dataset.theme, 'light');
+  assert.equal(s.root.dataset.appearance, 'light');
   assert.equal(s.root.style.colorScheme, 'light');
   assert.equal(s.calls.length, 1);
   s.api.showApp();
   assert.equal(s.calls.at(-1).command, 'show_themed_window');
   assert.equal(s.calls.at(-1).args.dark, false);
+});
+test('cosmic mode uses the dark palette and keeps its distinct background preference', async () => {
+  const s = setup({ stored: 'cosmic', dark: false });
+  await s.api.initializeAppearance();
+  assert.equal(s.api.getAppearance(), 'cosmic');
+  assert.equal(s.root.dataset.theme, 'dark');
+  assert.equal(s.root.dataset.appearance, 'cosmic');
+  s.api.showApp();
+  assert.equal(s.calls.at(-1).args.dark, true);
 });
 test('hidden webview reveals after theme and committed render without animation frames', async () => {
   const entry = fs.readFileSync(new URL('../src/main.tsx', import.meta.url), 'utf8');
@@ -74,6 +84,9 @@ test('invalid preference falls back to system; browser storage updates synchroni
   assert.equal(s.api.getAppearance(), 'system');
   s.listeners.storage({ key: 'finanzblick.appearance', newValue: 'light' });
   assert.equal(s.root.dataset.theme, 'light');
+  s.listeners.storage({ key: 'finanzblick.appearance', newValue: 'cosmic' });
+  assert.equal(s.root.dataset.theme, 'dark');
+  assert.equal(s.root.dataset.appearance, 'cosmic');
   s.listeners.storage({ key: null, newValue: null });
   assert.equal(s.root.dataset.theme, 'dark');
 });
@@ -89,4 +102,13 @@ test('appearance strings have all translations', () => {
   const messages = JSON.parse(fs.readFileSync(new URL('../src/translations.json', import.meta.url), 'utf8'));
   const ui = fs.readFileSync(new URL('../src/shared/theme/AppearanceSettings.tsx', import.meta.url), 'utf8');
   for (const match of ui.matchAll(/\bt\("([^"]+)"\)/g)) assert.equal(messages[match[1]]?.length, 3, match[1]);
+});
+test('cosmic appearance is exposed in the selector and styled with the bundled motif', () => {
+  const ui = fs.readFileSync(new URL('../src/shared/theme/AppearanceSettings.tsx', import.meta.url), 'utf8');
+  const overview = fs.readFileSync(new URL('../src/features/overview/Overview.tsx', import.meta.url), 'utf8');
+  const css = fs.readFileSync(new URL('../src/styles/theme.css', import.meta.url), 'utf8');
+  assert.match(ui, /<option value="cosmic">/);
+  assert.match(overview, /appearance === "cosmic" \? "Dein Vermögen – astronomisch"/);
+  assert.match(css, /data-appearance="cosmic"/);
+  assert.match(css, /url\("\/saldonaut-login\.png"\)/);
 });

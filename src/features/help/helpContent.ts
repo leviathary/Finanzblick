@@ -240,7 +240,7 @@ export function getHelpArticles(): HelpArticle[] {
         {
           title: t("Darstellung und Allgemein"),
           bullets: [
-            t("Wähle eine helle, dunkle oder systemabhängige Darstellung."),
+            t("Wähle eine helle, dunkle, kosmische oder systemabhängige Darstellung."),
             t("Lege Sprache, Ländereinstellungen und die Standardwährung für neue Konten fest."),
             t("Bestimme, nach welcher Inaktivität Saldonaut automatisch gesperrt wird."),
           ],

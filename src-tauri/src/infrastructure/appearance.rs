@@ -1,4 +1,4 @@
-//! Persistiert ausschließlich das lokale Farbschema, ohne Datenbank- oder Profilzugriff.
+//! Persistiert ausschließlich die lokale Darstellung, ohne Datenbank- oder Profilzugriff.
 use serde::{Deserialize, Serialize};
 use std::path::Path;
 
@@ -7,6 +7,7 @@ use std::path::Path;
 pub enum Appearance {
     Light,
     Dark,
+    Cosmic,
     #[default]
     System,
 }
@@ -36,7 +37,12 @@ mod tests {
         let directory = tempfile::tempdir().unwrap();
         let path = directory.path().join("config").join("appearance.json");
         assert_eq!(load(&path), Appearance::System);
-        for mode in [Appearance::Light, Appearance::Dark, Appearance::System] {
+        for mode in [
+            Appearance::Light,
+            Appearance::Dark,
+            Appearance::Cosmic,
+            Appearance::System,
+        ] {
             save(&path, mode).unwrap();
             assert_eq!(load(&path), mode);
         }
