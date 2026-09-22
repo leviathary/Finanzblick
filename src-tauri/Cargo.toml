@@ -1,6 +1,6 @@
 [package]
 name = "saldonaut"
-version = "0.6.5"
+version = "0.6.6"
 license = "MIT"
 description = "Lokaler Multi-Bank-Aggregator für persönliche Finanzen"
 edition = "2021"

@@ -10,10 +10,10 @@ gemeinsamen Sicht bündelt. Ohne Benutzerkonto oder Cloud-Synchronisierung.
 
 ## Installation unter Windows
 
-[Saldonaut 0.6.5 für Windows herunterladen (64 Bit)](../../releases/download/v0.6.5/Saldonaut_0.6.5_x64-setup.exe)
+[Saldonaut 0.6.6 für Windows herunterladen (64 Bit)](../../releases/download/v0.6.6/Saldonaut_0.6.6_x64-setup.exe)
 
-[Versionshinweise](../../releases/tag/v0.6.5)
-· [SHA-256-Prüfsumme](../../releases/download/v0.6.5/Saldonaut_0.6.5_x64-setup.exe.sha256)
+[Versionshinweise](../../releases/tag/v0.6.6)
+· [SHA-256-Prüfsumme](../../releases/download/v0.6.6/Saldonaut_0.6.6_x64-setup.exe.sha256)
 
 Der Installer ist nicht signiert; Windows kann deshalb eine Sicherheitswarnung
 anzeigen. Vor der Nutzung mit echten Daten immer ein verschlüsseltes Backup
@@ -42,6 +42,8 @@ Anmeldung wurden auf macOS 27.0 geprüft. Details und Grenzen stehen in den
 - Interaktive Vermögenscharts mit Zoom, Messwerkzeug und optionalem Indexvergleich (SMI, S&P 500)
 - Helle, dunkle oder systemabhängige Darstellung wählen
 - Depotpositionen einzeln oder gemeinsam im Verlauf anzeigen; bei einer Position zwischen Wert und Kurs wechseln
+- Konten und Depots in einer eigenen Leseansicht anschauen, getrennt von der Kontenverwaltung
+- Positionsbestände zu einem Stichtag anbieterneutral importieren; Swissquote ist der erste unterstützte Anbieter
 - Transaktionen kategorisieren und Kreditkartenzahlungen ohne Doppelzählung erfassen
 - Unabhängige Finanzprofile erstellen, kopieren, anonymisieren und sichern
 - Deutsch, Englisch, Französisch und Italienisch mit regionalen Zahlenformaten
@@ -49,6 +51,14 @@ Anmeldung wurden auf macOS 27.0 geprüft. Details und Grenzen stehen in den
 Importvorlagen gibt es unter anderem für UBS inklusive Mastercard, Swissquote,
 Migros Bank, Raiffeisen und Generali. [Testauszüge](fixtures/bank-statements)
 enthalten nur erfundene Daten.
+
+## Screenshots
+
+### Vermögensentwicklung
+
+Das Demo-Profil zeigt Vermögensverlauf und Aufteilung in der optionalen kosmischen Darstellung.
+
+![Saldonaut-Demo: Vermögensentwicklung und Vermögensaufteilung](docs/screenshots/saldonaut-wealth-demo.png)
 
 ## Einfach ausprobieren
 

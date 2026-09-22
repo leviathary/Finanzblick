@@ -10,10 +10,10 @@ sources into one view. No app account or cloud sync required.
 
 ## Install on Windows
 
-[Download Saldonaut 0.6.5 for Windows (64-bit)](../../releases/download/v0.6.5/Saldonaut_0.6.5_x64-setup.exe)
+[Download Saldonaut 0.6.6 for Windows (64-bit)](../../releases/download/v0.6.6/Saldonaut_0.6.6_x64-setup.exe)
 
-[Release notes](../../releases/tag/v0.6.5)
-· [SHA-256 checksum](../../releases/download/v0.6.5/Saldonaut_0.6.5_x64-setup.exe.sha256)
+[Release notes](../../releases/tag/v0.6.6)
+· [SHA-256 checksum](../../releases/download/v0.6.6/Saldonaut_0.6.6_x64-setup.exe.sha256)
 
 The installer is unsigned, so Windows may display a security warning. Always
 create an encrypted backup before using real data. The demo is included:
@@ -41,6 +41,8 @@ for validation details and limits.
 - Explore interactive net worth charts with zoom, measurement tools and optional index comparisons (SMI, S&P 500)
 - Choose a light, dark or system appearance
 - View portfolio positions individually or together over time; switch between position value and price for a single position
+- Browse accounts and portfolios in a dedicated read-only view, separate from account management
+- Import dated position snapshots through a provider-independent workflow, with Swissquote as the first supported provider
 - Categorize transactions and account for credit card payments without double-counting
 - Create, copy, anonymize and back up independent financial profiles
 - Use German, English, French or Italian with regional number formats
@@ -48,6 +50,14 @@ for validation details and limits.
 Import templates include UBS (including Mastercard), Swissquote, Migros Bank,
 Raiffeisen and Generali. [Sample statements](fixtures/bank-statements) contain
 fictional data only.
+
+## Screenshots
+
+### Net worth over time
+
+The demo profile shows the wealth chart and breakdowns in the optional Cosmic appearance.
+
+![Saldonaut demo: net worth history and asset allocation](docs/screenshots/saldonaut-wealth-demo.png)
 
 ## Try the demo
 
