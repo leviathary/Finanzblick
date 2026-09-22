@@ -53,6 +53,12 @@ fictional data only.
 
 ## Screenshots
 
+### Overview
+
+The demo overview brings total wealth, providers and account balances together.
+
+![Saldonaut demo: overview with total wealth, provider breakdown and account balances](docs/screenshots/saldonaut-overview-demo.png)
+
 ### Net worth over time
 
 The demo profile shows the wealth chart and breakdowns in the optional Cosmic appearance.

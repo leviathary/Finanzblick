@@ -54,6 +54,12 @@ enthalten nur erfundene Daten.
 
 ## Screenshots
 
+### Übersicht
+
+Die Demo-Übersicht bündelt Gesamtvermögen, Anbieter und aktuelle Kontosalden.
+
+![Saldonaut-Demo: Übersicht mit Gesamtvermögen, Anbieteraufteilung und Kontosalden](docs/screenshots/saldonaut-overview-demo.png)
+
 ### Vermögensentwicklung
 
 Das Demo-Profil zeigt Vermögensverlauf und Aufteilung in der optionalen kosmischen Darstellung.
