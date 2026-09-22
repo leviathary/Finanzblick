@@ -141,6 +141,57 @@ a {
   width: 100%;
   margin: 0 auto;
 }
+.position-snapshot-meta {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.position-snapshot-meta > div {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+  padding: 12px;
+  border-radius: 10px;
+  background: var(--bg-muted);
+}
+.position-snapshot-meta span {
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+.position-snapshot-meta strong { overflow-wrap: anywhere; }
+.position-snapshot-account-field {
+  display: grid;
+  gap: 8px;
+  max-width: 520px;
+  margin: 20px 0;
+  font-weight: 600;
+}
+.position-snapshot-account-field select,
+.position-snapshot-account-field input {
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 10px;
+  color: var(--text-primary);
+  background: var(--bg-surface);
+  font: inherit;
+}
+.position-snapshot-preview td:nth-child(n+3) {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.transaction-preview.position-snapshot-preview table { min-width: 640px; }
+.position-snapshot-preview td:last-child,
+.position-snapshot-preview th:last-child { text-align: left; }
+.batch-position-summary {
+  display: grid;
+  gap: 4px;
+  margin-top: 20px;
+}
+@media (max-width: 900px) {
+  .position-snapshot-meta { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
 .institution-name-field {
   width: 100%;
 }

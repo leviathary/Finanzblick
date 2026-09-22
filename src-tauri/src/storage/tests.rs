@@ -93,6 +93,53 @@ fn institution_details_are_shared_and_duplicate_names_are_rejected() {
 }
 
 #[test]
+fn depot_positions_support_manual_management_and_consistent_reporting() {
+    use crate::storage::securities::models::ManualValuationRequest;
+    use crate::storage::securities::positions::{save_manual_valuation, list_manual_positions, delete_manual_position};
+    let directory = std::env::temp_dir().join(format!("saldonaut-depot-test-{}-{}", std::process::id(), chrono::Utc::now().timestamp_nanos_opt().unwrap()));
+    fs::create_dir_all(&directory).unwrap();
+    let storage = Storage::test_storage(directory.join("test.sqlite3"));
+    let connection = storage.connect().unwrap();
+    initialize_schema(&connection).unwrap();
+    connection.execute_batch("INSERT INTO institutions(id,provider_key,name,institution_type,created_at) VALUES(1,'broker','Broker','broker','now');
+        INSERT INTO accounts(id,institution_id,name,account_type,currency,created_at) VALUES(1,1,'Depot','portfolio','CHF','now');
+        INSERT INTO import_runs(id,account_id,source_format,source_name,source_hash,imported_at,transaction_count,warnings_json) VALUES(1,1,'test','test','test','now',0,'[]');
+        INSERT INTO balance_snapshots(account_id,import_id,balance_date,amount_minor,currency) VALUES(1,1,'2026-01-01',999999,'CHF');").unwrap();
+    drop(connection);
+    let request = |id, end: Option<&str>| ManualValuationRequest {
+        id, account_id: 1, label: "Testanlage".into(), valuation_date: "2026-01-02".into(),
+        amount_minor: 123400, quantity: None, unit_price_minor: None, quote_currency: None,
+        exchange_rate: None, asset_type: Some("stock".into()), identifier_type: None,
+        identifier: None, holding_start_date: Some("2026-01-02".into()), holding_end_date: end.map(str::to_string),
+    };
+    save_manual_valuation(&storage, request(None, None)).unwrap();
+    let positions = list_manual_positions(&storage, 1).unwrap();
+    assert_eq!(positions.len(), 1);
+    assert_eq!(accounts_from(&storage).unwrap()[0].balance_minor, Some(123400));
+    let wealth = wealth_from(&storage, None).unwrap();
+    assert_eq!(wealth.current_total_minor, 123400);
+    assert_eq!(wealth.by_type.iter().map(|item| item.amount_minor).sum::<i64>(), 123400);
+    assert_eq!(wealth.history.first().unwrap().date, "2026-01-02");
+    assert_eq!(wealth.history.last().unwrap().total_minor, 123400);
+    let dashboard = dashboard_from(&storage).unwrap();
+    assert_eq!(dashboard.accounts[0].balance_minor, Some(123400));
+    assert_eq!(securities::position_history::position_chart_data(&storage, 1).unwrap().len(), 1);
+    assert!(delete_manual_position(&storage, positions[0].id).is_err());
+    save_manual_valuation(&storage, request(Some(positions[0].id), Some("2026-01-03"))).unwrap();
+    let wealth = wealth_from(&storage, None).unwrap();
+    assert_eq!(wealth.current_total_minor, 0);
+    assert_eq!(wealth.history.last().unwrap().total_minor, 0);
+    let connection = storage.connect().unwrap();
+    connection.execute("INSERT INTO portfolio_positions(account_id,label,asset_type,holding_start_date,created_at,updated_at) VALUES(1,'Entwurf','other','2026-01-02','now','now')", []).unwrap();
+    let draft_id = connection.last_insert_rowid();
+    drop(connection);
+    delete_manual_position(&storage, draft_id).unwrap();
+    assert_eq!(list_manual_positions(&storage, 1).unwrap().len(), 1);
+    drop(storage);
+    fs::remove_dir_all(directory).unwrap();
+}
+
+#[test]
 fn pillar3a_is_manually_valued_and_excluded_from_assets_by_default() {
     assert!(!default_include_in_net_worth("pillar3a"));
     assert!(default_include_in_net_worth("cash"));

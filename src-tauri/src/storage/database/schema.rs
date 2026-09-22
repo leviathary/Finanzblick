@@ -138,6 +138,38 @@ pub(crate) fn initialize_schema(connection: &Connection) -> Result<(), rusqlite:
            quantity_scale INTEGER NOT NULL CHECK(quantity_scale BETWEEN 0 AND 9),
            source TEXT NOT NULL, recorded_at TEXT NOT NULL, UNIQUE(position_id,valid_from)
          );
+         CREATE TABLE IF NOT EXISTS position_snapshot_imports (
+           id INTEGER PRIMARY KEY, account_id INTEGER NOT NULL REFERENCES accounts(id) ON DELETE CASCADE,
+           provider TEXT NOT NULL, source_name TEXT NOT NULL, source_format TEXT NOT NULL,
+           source_hash TEXT NOT NULL, snapshot_date TEXT NOT NULL, scope TEXT NOT NULL,
+           account_reference TEXT, imported_at TEXT NOT NULL,
+           UNIQUE(account_id,source_hash)
+         );
+         CREATE INDEX IF NOT EXISTS idx_position_snapshot_imports_account_date
+           ON position_snapshot_imports(account_id,snapshot_date);
+         CREATE TABLE IF NOT EXISTS position_snapshot_import_rows (
+           import_id INTEGER NOT NULL REFERENCES position_snapshot_imports(id) ON DELETE CASCADE,
+           position_id INTEGER NOT NULL REFERENCES portfolio_positions(id) ON DELETE CASCADE,
+           symbol TEXT NOT NULL, quantity_amount INTEGER NOT NULL,
+           quantity_scale INTEGER NOT NULL CHECK(quantity_scale BETWEEN 0 AND 9),
+           action TEXT NOT NULL CHECK(action IN ('new','update','zero','unchanged')),
+           PRIMARY KEY(import_id,position_id)
+         );
+         CREATE TABLE IF NOT EXISTS swissquote_position_imports (
+           id INTEGER PRIMARY KEY, account_id INTEGER NOT NULL REFERENCES accounts(id) ON DELETE CASCADE,
+           source_name TEXT NOT NULL, source_format TEXT NOT NULL, source_hash TEXT NOT NULL UNIQUE,
+           snapshot_date TEXT NOT NULL, account_reference TEXT, imported_at TEXT NOT NULL
+         );
+         CREATE INDEX IF NOT EXISTS idx_swissquote_position_imports_account_date
+           ON swissquote_position_imports(account_id,snapshot_date);
+         CREATE TABLE IF NOT EXISTS swissquote_position_import_rows (
+           import_id INTEGER NOT NULL REFERENCES swissquote_position_imports(id) ON DELETE CASCADE,
+           position_id INTEGER NOT NULL REFERENCES portfolio_positions(id) ON DELETE CASCADE,
+           symbol TEXT NOT NULL, quantity_amount INTEGER NOT NULL,
+           quantity_scale INTEGER NOT NULL CHECK(quantity_scale BETWEEN 0 AND 9),
+           action TEXT NOT NULL CHECK(action IN ('new','update','zero','unchanged')),
+           PRIMARY KEY(import_id,position_id)
+         );
          CREATE TABLE IF NOT EXISTS manual_position_values (
            id INTEGER PRIMARY KEY, position_id INTEGER NOT NULL REFERENCES portfolio_positions(id) ON DELETE CASCADE,
            value_date TEXT NOT NULL, amount_minor INTEGER NOT NULL,

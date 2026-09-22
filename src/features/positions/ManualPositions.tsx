@@ -241,7 +241,7 @@ export function ManualPositions({ account: valuing, onClose, onChanged, onError:
         <article className="dashboard-card manual-valuation-form">
           <div className="card-heading">
             <div>
-              <p className="eyebrow">{t("Manuelle Positionen")}</p>
+              <p className="eyebrow">{t("Positionen")}</p>
               <h2>
                 {valuing.provider} · {valuing.name}
               </h2>

@@ -1,7 +1,7 @@
 // Verwaltet Banken, Konten, Vermögenseinbezug und manuell gepflegte Positionen.
 
 import { t, locale } from "../../i18n";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 
 import { useSettings } from "../../settings";
@@ -50,6 +50,16 @@ function accountMetadata(account: Account) {
 export function Accounts() {
   const { settings } = useSettings();
   const [accounts, setAccounts] = useState<Account[]>([]);
+  const openedAccount = useRef<string | null>(null);
+  useEffect(() => {
+    const open = () => {
+      const value = new URLSearchParams(window.location.hash.split("?")[1]).get("account");
+      const account = accounts.find(a => a.id === Number(value));
+      if (value && account && openedAccount.current !== value) { openedAccount.current = value; setEditing({ ...account }); }
+    };
+    open(); window.addEventListener("hashchange", open);
+    return () => window.removeEventListener("hashchange", open);
+  }, [accounts]);
   const [institutions, setInstitutions] = useState<ManagedInstitution[]>([]);
   const [editing, setEditing] = useState<Account | null>(null);
   const [editingInstitution, setEditingInstitution] = useState<Omit<InstitutionGroup, "accounts"> | null>(null);
@@ -381,21 +391,19 @@ export function Accounts() {
                 }
               />
             </label>
-            {!supportsManualValuation(draft.accountType) && (
-              <label>
-                {t("IBAN / Vertragsnummer")}
-                <input
-                  value={draft.externalReference}
-                  onChange={(event) =>
-                    setDraft({
-                      ...draft,
-                      externalReference: event.target.value,
-                    })
-                  }
-                  placeholder="optional"
-                />
-              </label>
-            )}
+            <label>
+              {t("IBAN / Vertragsnummer")}
+              <input
+                value={draft.externalReference}
+                onChange={(event) =>
+                  setDraft({
+                    ...draft,
+                    externalReference: event.target.value,
+                  })
+                }
+                placeholder="optional"
+              />
+            </label>
           </div>
           <div className="form-actions">
             <button

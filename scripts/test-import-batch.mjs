@@ -7,14 +7,26 @@ import ts from "typescript";
 
 const source = await readFile(new URL("../src/features/imports/importBatch.ts", import.meta.url), "utf8");
 const wizardSource = await readFile(new URL("../src/features/imports/ImportWizard.tsx", import.meta.url), "utf8");
+const appSource = await readFile(new URL("../src/App.tsx", import.meta.url), "utf8");
+const swissquoteReviewSource = await readFile(new URL("../src/features/imports/PositionSnapshotImport.tsx", import.meta.url), "utf8");
 const applicationCss = await readFile(new URL("../src/styles/application.css", import.meta.url), "utf8");
 const desktopCapability = JSON.parse(await readFile(new URL("../src-tauri/capabilities/default.json", import.meta.url), "utf8"));
 const js = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.ESNext } }).outputText;
-const { canRelease, displayedProvider, suggestAccounts, hasAccountReferenceMismatch, hasAccounts, orderedBatchItems, orderedPreviewTransactionIndices, readyToSave, saveBatch, unresolvedDuplicateCount } = await import(`data:text/javascript;base64,${Buffer.from(js).toString("base64")}`);
+const { canRelease, displayedProvider, suggestAccounts, hasAccountReferenceMismatch, hasAccounts, orderedBatchItems, orderedPreviewTransactionIndices, readyPositionSnapshot, readyToSave, saveBatch, unresolvedDuplicateCount } = await import(`data:text/javascript;base64,${Buffer.from(js).toString("base64")}`);
 const account = { id: 1, name: "Privat", provider: "UBS", providerKey: "ubs", currency: "CHF", accountType: "checking", isActive: true };
 const parsed = { format: "CSV", accountName: "", provider: "ubs", accountType: "checking", transactions: [{ currency: "CHF" }], currencyBalances: [{ currency: "USD" }] };
 const usd = { ...account, id: 2, currency: "USD" };
 const item = { file: { path: "/statements/a.pdf" }, parsed, accountIds: { CHF: 1, USD: 2 }, reviewed: true };
+
+test("snapshot release needs a date and eligible active account, including unchanged and empty snapshots", () => {
+  const ready = { positionSnapshot: { snapshotDate: "2026-01-01", eligibleAccountIds: [1], positions: [], changes: [] }, positionAccountId: 1 };
+  assert.equal(readyPositionSnapshot(ready, [account]), true);
+  assert.equal(readyPositionSnapshot({ ...ready, positionSnapshot: { ...ready.positionSnapshot, snapshotDate: null } }, [account]), false);
+  assert.equal(readyPositionSnapshot(ready, [{ ...account, isActive: false }]), false);
+  for (const change of [{ positionAccountId: 2 }, { alreadyImported: true }, { error: "invalid" }, { positionResult: {} }]) {
+    assert.equal(readyPositionSnapshot({ ...ready, ...change }, [account]), false);
+  }
+});
 
 test("bulk release excludes failed, saved, ambiguous and incomplete files", () => {
   const candidate = { ...item, reviewed: false };
@@ -58,6 +70,18 @@ test("duplicate decisions and the actual import expose distinct visible states",
   assert.match(applicationCss, /\.duplicate-review-actions[^}]+\[aria-pressed="true"\][^{]*\{[^}]*color:\s*var\(--text-on-action\)/s);
   assert.match(applicationCss, /tr\.duplicate-comparison-row[^}]+background:\s*var\(--bg-surface\)/s);
   assert.doesNotMatch(applicationCss, /--text-inverse/);
+});
+
+test("position snapshots use the shared picker, drag-and-drop list and automatic preview", () => {
+  assert.equal((wizardSource.match(/className=\{`drop-zone batch-drop/g) ?? []).length, 1);
+  assert.match(wizardSource, /onDragDropEvent/);
+  assert.match(wizardSource, /await analyzePositionSnapshots\(item\)/);
+  assert.match(wizardSource, /preview_position_snapshot/);
+  assert.match(wizardSource, /PositionSnapshotReview/);
+  assert.match(swissquoteReviewSource, /Positionsbestand/);
+  assert.doesNotMatch(wizardSource + swissquoteReviewSource, /swissquote/i);
+  assert.doesNotMatch(appSource, /<PositionSnapshotImport/);
+  assert.doesNotMatch(swissquoteReviewSource, /plugin-dialog/);
 });
 
 test("overlapping card exports expose provisional transaction updates", () => {

@@ -262,19 +262,19 @@ pub(crate) fn accounts_on(connection: &Connection) -> Result<Vec<ManagedAccount>
     let mut statement = connection.prepare(
         "SELECT a.id, i.id, i.name, i.provider_key, i.institution_type, a.name, a.account_type,
                 a.currency, a.external_reference, a.is_active, a.include_in_net_worth,
-                CASE WHEN a.account_type IN ('manual_asset','pillar3a') THEN (SELECT SUM(d.value_minor) FROM portfolio_positions p JOIN daily_valuations d ON d.id=(SELECT latest.id FROM daily_valuations latest WHERE latest.position_id=p.id AND date(latest.valuation_date)<=date('now','localtime') ORDER BY latest.valuation_date DESC LIMIT 1) WHERE p.account_id=a.id AND date(p.holding_start_date)<=date('now','localtime') AND (p.holding_end_date IS NULL OR date(p.holding_end_date)>=date('now','localtime'))) WHEN bs.id IS NULL THEN NULL ELSE bs.amount_minor + COALESCE((
+                CASE WHEN a.account_type IN ('portfolio','manual_asset','pillar3a') THEN (SELECT SUM(d.value_minor) FROM portfolio_positions p JOIN daily_valuations d ON d.id=(SELECT latest.id FROM daily_valuations latest WHERE latest.position_id=p.id AND date(latest.valuation_date)<=date('now','localtime') ORDER BY latest.valuation_date DESC LIMIT 1) WHERE p.account_id=a.id AND date(p.holding_start_date)<=date('now','localtime') AND (p.holding_end_date IS NULL OR date(p.holding_end_date)>=date('now','localtime'))) WHEN bs.id IS NULL THEN NULL ELSE bs.amount_minor + COALESCE((
                   SELECT SUM(t.amount_minor) FROM transactions t
                   WHERE t.account_id = a.id AND date(t.booking_date) > date(bs.balance_date)
                     AND date(t.booking_date) <= date('now', 'localtime')
                     AND NOT EXISTS (SELECT 1 FROM ignored_duplicate_transactions ignored WHERE ignored.transaction_id=t.id)
                 ), 0) END,
-                CASE WHEN a.account_type IN ('manual_asset','pillar3a') THEN (SELECT MAX(d.valuation_date) FROM portfolio_positions p JOIN daily_valuations d ON d.position_id=p.id WHERE p.account_id=a.id AND date(d.valuation_date)<=date('now','localtime')) WHEN bs.id IS NULL THEN NULL ELSE COALESCE((
+                CASE WHEN a.account_type IN ('portfolio','manual_asset','pillar3a') THEN (SELECT MAX(d.valuation_date) FROM portfolio_positions p JOIN daily_valuations d ON d.position_id=p.id WHERE p.account_id=a.id AND date(d.valuation_date)<=date('now','localtime')) WHEN bs.id IS NULL THEN NULL ELSE COALESCE((
                   SELECT MAX(t.booking_date) FROM transactions t
                   WHERE t.account_id = a.id AND date(t.booking_date) > date(bs.balance_date)
                     AND date(t.booking_date) <= date('now', 'localtime')
                     AND NOT EXISTS (SELECT 1 FROM ignored_duplicate_transactions ignored WHERE ignored.transaction_id=t.id)
                 ), bs.balance_date) END,
-                CASE WHEN a.account_type IN ('manual_asset','pillar3a') THEN COALESCE((SELECT d.currency FROM portfolio_positions p JOIN daily_valuations d ON d.id=(SELECT latest.id FROM daily_valuations latest WHERE latest.position_id=p.id AND date(latest.valuation_date)<=date('now','localtime') ORDER BY latest.valuation_date DESC LIMIT 1) WHERE p.account_id=a.id LIMIT 1),a.currency) ELSE a.currency END,
+                CASE WHEN a.account_type IN ('portfolio','manual_asset','pillar3a') THEN COALESCE((SELECT d.currency FROM portfolio_positions p JOIN daily_valuations d ON d.id=(SELECT latest.id FROM daily_valuations latest WHERE latest.position_id=p.id AND date(latest.valuation_date)<=date('now','localtime') ORDER BY latest.valuation_date DESC LIMIT 1) WHERE p.account_id=a.id LIMIT 1),a.currency) ELSE a.currency END,
                 (SELECT COUNT(*) FROM import_runs ir WHERE ir.account_id = a.id OR EXISTS(SELECT 1 FROM balance_snapshots s WHERE s.import_id = ir.id AND s.account_id = a.id)),
                 (SELECT COUNT(*) FROM portfolio_positions p WHERE p.account_id = a.id),
                 NULL, NULL, NULL, NULL, i.logo_data_url

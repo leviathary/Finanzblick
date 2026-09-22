@@ -13,6 +13,7 @@ import { ImportWizard } from "./features/imports/ImportWizard";
 import { ImportHistory } from "./features/imports/ImportHistory";
 import { Overview } from "./features/overview/Overview";
 import { Accounts } from "./features/accounts/Accounts";
+import { AccountExplorer } from "./features/account-details/AccountExplorer";
 import { Assets } from "./features/assets/Assets";
 import { CreditCards } from "./features/cards/CreditCards";
 import { CardSetupWizard } from "./features/cards/setup/CardSetupWizard";
@@ -24,7 +25,7 @@ import { FinanceChat } from "./features/chat/FinanceChat";
 import { Categories } from "./features/categories/Categories";
 import { Help } from "./features/help/Help";
 
-type Page = "chat" | "help" | "data-security" | "settings" | "categories" | "overview" | "accounts" | "assets" | "tax-history" | "transactions" | "transfers" | "cards" | "card-setup" | "imports" | "import-history";
+type Page = "holdings" | "chat" | "help" | "data-security" | "settings" | "categories" | "overview" | "accounts" | "assets" | "tax-history" | "transactions" | "transfers" | "cards" | "card-setup" | "imports" | "import-history";
 type ImportKind = "bank" | "tax";
 
 type NavIconName = "chat" | "help" | "home" | "bank" | "chart" | "tax" | "transactions" | "tag" | "import" | "history" | "settings" | "logout";
@@ -62,7 +63,8 @@ function pageFromHash(): Page {
   if (window.location.hash === "#categories") return "categories";
   if (window.location.hash.startsWith("#import-history")) return "import-history";
   if (window.location.hash.startsWith("#imports")) return "imports";
-  if (window.location.hash === "#banks") return "accounts";
+  if (window.location.hash.split("?")[0] === "#holdings") return "holdings";
+  if (window.location.hash.split("?")[0] === "#banks") return "accounts";
   if (window.location.hash.split("?")[0] === "#assets") return "assets";
   if (window.location.hash === "#tax-history") return "tax-history";
   if (window.location.hash.split("?")[0] === "#transactions/cards/setup") return "card-setup";
@@ -115,6 +117,7 @@ function App() {
           <div className="sidebar-nav-group" role="group" aria-label={t("Analyse")}>
             <a className={page === "overview" ? "active" : ""} href="#overview"><NavIcon name="home"/><span>{t("Übersicht")}</span></a>
             <a className={page === "assets" ? "active" : ""} href="#assets"><NavIcon name="chart"/><span>{t("Vermögen")}</span></a>
+            <a className={page === "holdings" ? "active" : ""} aria-current={page === "holdings" ? "page" : undefined} href="#holdings"><NavIcon name="bank"/><span>{t("Konten & Depots")}</span></a>
             <a className={page === "transactions" || page === "transfers" || page === "cards" || page === "card-setup" ? "active" : ""} href="#transactions"><NavIcon name="transactions"/><span>{t("Transaktionen")}</span></a>
           </div>
           <div className="sidebar-nav-group" role="group" aria-label={t("Weitere Auswertungen und Werkzeuge")}>
@@ -123,7 +126,7 @@ function App() {
           </div>
           <div className="sidebar-nav-group" role="group" aria-label={t("Verwaltung")}>
             <a className={page === "imports" || page === "import-history" ? "active" : ""} aria-current={page === "imports" || page === "import-history" ? "page" : undefined} href="#imports"><NavIcon name="import"/><span>{t("Import")}</span></a>
-            <a className={page === "accounts" ? "active" : ""} href="#banks"><NavIcon name="bank"/><span>{t("Banken & Konten")}</span></a>
+            <a className={page === "accounts" ? "active" : ""} href="#banks"><NavIcon name="bank"/><span>{t("Kontenverwaltung")}</span></a>
             <a className={page === "categories" ? "active" : ""} href="#categories"><NavIcon name="tag"/><span>{t("Kategorien")}</span></a>
           </div>
         </nav>
@@ -139,7 +142,7 @@ function App() {
           <a href={ (page === "imports" ? importKind : managementKind) === "tax" ? "#imports/tax" : "#imports"} aria-current={page === "imports" ? "page" : undefined}>{t("Dateien importieren")}</a>
           <a href={(page === "imports" ? importKind : managementKind) === "tax" ? "#import-history/tax" : "#import-history"} aria-current={page === "import-history" ? "page" : undefined}>{t("Importierte Dateien")}</a>
         </nav>}
-        {page === "chat" ? <FinanceChat /> : page === "help" ? <Help /> : page === "data-security" ? <DataSecurity /> : page === "settings" ? <Settings /> : page === "overview" ? <Overview onImport={() => navigate("imports")} /> : page === "accounts" ? <Accounts /> : page === "assets" ? <Assets onAccounts={() => navigate("accounts")} onImport={() => navigate("imports")} /> : page === "tax-history" ? <TaxHistory /> : page === "transactions" ? <Transactions /> : page === "transfers" ? <TransferManagement /> : page === "cards" ? <CreditCards /> : page === "card-setup" ? <CardSetupWizard /> : page === "categories" ? <Categories /> : null}
+        {page === "chat" ? <FinanceChat /> : page === "help" ? <Help /> : page === "data-security" ? <DataSecurity /> : page === "settings" ? <Settings /> : page === "overview" ? <Overview onImport={() => navigate("imports")} /> : page === "holdings" ? <AccountExplorer /> : page === "accounts" ? <Accounts /> : page === "assets" ? <Assets onAccounts={() => navigate("accounts")} onImport={() => navigate("imports")} /> : page === "tax-history" ? <TaxHistory /> : page === "transactions" ? <Transactions /> : page === "transfers" ? <TransferManagement /> : page === "cards" ? <CreditCards /> : page === "card-setup" ? <CardSetupWizard /> : page === "categories" ? <Categories /> : null}
         <div hidden={page !== "imports"}>
           <ImportKindTabs value={importKind} onChange={(kind) => { setImportKind(kind); window.location.hash = kind === "tax" ? "imports/tax" : "imports"; }} />
           <div hidden={importKind !== "bank"}><ImportWizard enabled={page === "imports" && importKind === "bank"} /></div>

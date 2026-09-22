@@ -167,6 +167,59 @@ Event-Listener beim Verlassen.
 
 ## Tests und Erweiterungsregeln
 
+### Depotbestände zum Stichtag
+
+Der Positionsimport ist ein eigener, anbieterneutraler Ablauf:
+Provider-Registry → `PositionSnapshot` → Anwendung → gemeinsamer Mengenabgleich.
+Swissquote implementiert als erster Provider `ProviderImporter::parse_positions`
+unter `importers/providers/swissquote_positions.rs`. Weitere Provider liefern
+denselben Vertrag, ohne Commands, UI oder Persistenz pro Bank zu duplizieren.
+Nicht erkannte Dokumente liefern `None`; Fehler eines erkannten Dokuments bleiben
+Fehler. Die Oberfläche unterscheidet Dokumenttypen nicht anhand von Fehlertexten.
+
+- `domain/securities/position_snapshots.rs`: DB-freier Vertrag mit Provider,
+  optional erkanntem Stichtag, Referenz, Voll-/Teilbestand, Instrumentkennungen
+  (ISIN, Valor, Kurssymbol) und exakten Mengen bis neun Nachkommastellen.
+  Der Adapter liefert ein aufgelöstes Kurssymbol; die Kursquelle ist separat.
+- `application/position_snapshots.rs`: Quelle prüfen, Provider wählen, fehlenden
+  Stichtag übernehmen und Kontoreferenzen über den Provider normalisieren.
+  Ein erkanntes Datum darf nicht durch ein abweichendes Eingabedatum ersetzt werden.
+- `storage/securities/position_snapshots.rs`: passende Konten, Vorschau,
+  Dublettennachweis und atomarer Abgleich. Kontoprüfung und zeitliche Prüfung
+  erfolgen innerhalb derselben Schreibtransaktion wie Mengen und Importnachweis.
+- `commands/position_snapshots.rs` und `PositionSnapshotImport.tsx`:
+  gemeinsame API und Vorschau; passende Konto-IDs kommen vom Backend.
+
+Die bestehenden Tabellen `portfolio_positions`, `position_quantities` und
+`daily_valuations` bleiben die allgemeine Grundlage. Neue Positionen beginnen
+am Stichtag; Mengen gelten ab `valid_from` bis zum nächsten Stand. Kurse und
+Wechselkurse sind für Geldbewertungen erforderlich. Es entstehen keine
+synthetischen Kauf-/Verkaufsbuchungen. Vollbestände schließen fehlende Positionen
+unabhängig von Anlageklassen; Teilbestände ändern ausschließlich gelieferte Positionen.
+Unveränderte und leere Vollbestände sind ebenfalls datierte Importnachweise.
+Rückdatierungen vor vorhandene Mengenstände werden abgewiesen; am selben Tag
+ersetzt ein neuer Stand den bisherigen. Manuelle ältere Historie wird nicht
+aus einem späteren Snapshot rückgerechnet.
+
+Die Kontotypen `portfolio`, `manual_asset` und `pillar3a` unterstützen dieselbe
+Positionsverwaltung und denselben Import. `supports_positions` kapselt die
+Backend-Berechtigung; `supportsManualValuation` die gemeinsame UI-Freigabe.
+Ihre Salden, Vermögensaufteilung und Verläufe basieren auf Positionsbewertungen;
+Kontosnapshots werden nicht zusätzlich gezählt. Anbieter- und Referenzprüfungen
+sowie der Ausschluss archivierter Importziele bleiben unabhängig vom Kontotyp.
+Bestehende Konten werden nicht automatisch umklassifiziert.
+
+Neue Importnachweise liegen in `position_snapshot_imports` und
+`position_snapshot_import_rows`; Provider ist ein Datenfeld. Die alten
+`swissquote_position_imports`-/`swissquote_position_import_rows`-Tabellen bleiben
+ausschließlich für lesende Kompatibilität bei Duplikat- und Reihenfolgeprüfung
+erhalten. Es gibt keine automatische Datenübernahme, Löschung oder Umklassifizierung
+persönlicher Bestände. Der bisherige Bankimport-Verlauf bleibt separat.
+
+Regressionen prüfen denselben Abgleich mit Swissquote und einem synthetischen
+zweiten Provider, Stichtagsbewertungen, Teil-/Voll-/Leerbestände, wiederholte
+Importe, Kontogrenzen, ISIN-Zuordnung und Rollback.
+
 - Rust-Unit-Tests bleiben beim verantwortlichen Modul.
 - Karten-Workflowtests liegen in `application/cards/tests.rs`.
 - Gemeinsame Storage-Regressionstests liegen in `storage/tests.rs`.
@@ -178,6 +231,15 @@ Event-Listener beim Verlassen.
 - Keine Migration ist für diese reine Code-Neuordnung erforderlich.
 
 ## Bewusst verbleibende Grenzen
+
+Die Leseansicht `features/account-details` verwendet `account_details` als
+read-only Projektion, unabhängig vom Vermögenseinbezug und Archivstatus.
+Das Repository `storage/reporting/account_details.rs` liest Mengen ausschließlich
+bis heute, kennzeichnet fehlende Bewertungen und liefert kontobezogene Buchungen
+ohne entfernte Dubletten. Depotverläufe verwenden CHF-Bewertungen ab Einstand;
+Kontoverläufe verwenden datierte Salden plus Folgebuchungen in Kontowährung.
+`#holdings?account=…` ist die Detailroute, `#banks?account=…` öffnet die Verwaltung.
+Beide verwenden bestehende Konten und Positionen ohne Migration oder Kopien.
 
 Dies ist eine schrittweise Modularisierung, keine Neuschreibung.
 Einige bestehende Repository-Operationen enthalten weiterhin lokale Validierung

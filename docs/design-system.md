@@ -226,8 +226,8 @@ in `src/styles/application.css`; Feature-Styles verwenden dieselben Farbrollen.
 ## 6. Navigation und Einrichtungsassistenten
 
 - Die Hauptnavigation der Seitenleiste ist ohne sichtbare Gruppenüberschriften in
-  drei Bereiche gegliedert: Übersicht, Vermögen und Transaktionen; danach
-  Steuerhistorie und Finanzchat; danach Import, Banken & Konten und Kategorien.
+  drei Bereiche gegliedert: Übersicht, Vermögen, Konten & Depots und Transaktionen;
+  danach Steuerhistorie und Finanzchat; danach Import, Kontenverwaltung und Kategorien.
   Dezente Trennlinien mit kompaktem Abstand kennzeichnen die Gruppen. Für
   assistive Technologien bleiben die Bereiche als benannte Gruppen erkennbar.
 - Die globale „Hilfe“ steht im unteren Navigationsbereich direkt oberhalb von
@@ -271,7 +271,11 @@ in `src/styles/application.css`; Feature-Styles verwenden dieselben Farbrollen.
   Kontotyp, Referenz und Positions-/Importanzahl stehen in einer gemeinsamen
   Metadatenzeile. Zwischen Institutskarten liegen 10 px; die 44-px-Aktionsfläche
   und ein kontrollierter Umbruch langer Metadaten bleiben erhalten.
-  Die Verwaltung manueller Positionen ist eine eigene Detailansicht. Oberhalb
+  Depots, manuell verwaltete Positionskonten und Vorsorgekonten verwenden dieselbe
+  Positionsverwaltung (Hinzufügen, Bearbeiten und Beenden bzw. Löschen ohne Historie).
+  Alle drei Kontotypen sind Ziele für passende Positionsimporte. Salden und
+  Vermögensverläufe ergeben sich aus den Positionen, nicht zusätzlich aus Kontosalden.
+  Die Positionsverwaltung ist eine eigene Detailansicht. Oberhalb
   ihrer Card steht ein lokalisierter sekundärer Button „← Zurück zu Banken &
   Konten“; kein „Abbrechen“ im Card-Header. Beim Öffnen erhält die Rückkehraktion
   den Fokus. Formular-Abbrechen bleibt unten neben der Speicheraktion; Escape
@@ -294,6 +298,26 @@ in `src/styles/application.css`; Feature-Styles verwenden dieselben Farbrollen.
   Nullsaldo erscheint konsistent als `CHF 0.00` in Sekundärtextfarbe. Kontotypen
   werden lokalisiert und niemals als interne Schlüssel angezeigt. Ein Stichtag
   wird nur dargestellt, wenn ein Saldo- oder Bewertungsdatum vorliegt.
+  Die Kontenzeilen verlinken auf dieselbe Leseansicht wie „Konten & Depots“.
+
+- „Konten & Depots“ ist eine rein lesende Übersicht mit Suche, optionalen
+  archivierten Konten und verlinkten Detailansichten. Vom Gesamtvermögen
+  ausgeschlossene Konten bleiben sichtbar und entsprechend gekennzeichnet.
+  Die Detailansicht zeigt Anbieter, Wert mit Bewertungswährung und Datum sowie
+  den gemeinsamen interaktiven Chart mit 1M, 6M, YTD, 1J und Gesamt.
+  Bei Depots heißt der Chart „Depotwert im Zeitverlauf“, nicht Performance;
+  Bestandsänderungen sind keine Rendite, vor dem Stichtag entstehen keine Werte.
+  Eine sortierbare Positionstabelle zeigt Bezeichnung, Symbol, Menge, Kurs, Wert
+  und Anteil. Fehlende Bewertungen bleiben erkennbar; bei unvollständigen oder
+  gemischten Bewertungswährungen werden keine irreführenden Anteile berechnet.
+  Beendete/zukünftige Positionen sind optional; Auswahl öffnet Wert-/Kursverlauf.
+  Zwischen Positionsname mit Umschaltaktionen und der zugehörigen Chart-Karte
+  bleiben 16 px Abstand, auch wenn die Aktionen in schmalen Ansichten umbrechen.
+  Normale Konten zeigen Saldoverlauf in Kontowährung und Buchungen, zunächst 50;
+  Sortierung betrifft die geladenen Buchungen. „Weitere laden“ erweitert die Liste.
+  „Verwalten“ öffnet gezielt das Konto in der bestehenden Verwaltung unter `#banks`.
+  Unter dem Detailtitel steht links „← Zurück zu Konten & Depots“ als Navigationslink
+  im gemeinsamen sekundären Button-Stil (mindestens 44 px, Rahmen, sichtbarer Fokus).
 
 - Kategorien: Drei-Punkte-Aktionen pro Zeile; Name und Farbe direkt inline
   bearbeiten, jeweils nur eine Kategorie. Speichern/Abbrechen bleiben in der
@@ -434,6 +458,27 @@ in `src/styles/application.css`; Feature-Styles verwenden dieselben Farbrollen.
   Reitern „Dateien importieren“ und „Importierte Dateien“. Darunter bleibt die
   Auswahl Bankauszüge/Steuererklärungen beim Reiterwechsel erhalten. Bestehende
   Direktlinks bleiben erreichbar; erfolgreiche Bankimporte verlinken ihre Einträge.
+- Depotbestände verwenden dieselbe Dateiauswahl, Drag-and-drop-Zone,
+  Importliste und Vorschau wie Bankauszüge. Der Dokumenttyp wird automatisch
+  erkannt; es gibt keine separate Provider-Karte oder zweite Dateiauswahl.
+  Swissquote ist der erste unterstützte Positionsparser. Vorschau, Abgleich,
+  Stichtagsregeln und Speicherung sind anbieterneutral und vom Buchungsimport getrennt.
+  Die Vorschau zeigt Symbol, Kurssymbol, bisherigen und neuen Mengenstand sowie
+  neue, geänderte, unveränderte und auf null gesetzte Positionen. Das Backend
+  liefert passende aktive Depot-/Anlage-/Vorsorgekonten anhand von Anbieter und
+  Kontoreferenz. Nur bei ausdrücklich gemeinsamer Depot-/Verrechnungskontoreferenz
+  darf ein aktives Konto desselben Anbieters die Referenz liefern (Swissquote).
+  „IBAN / Vertragsnummer“ bleibt für manuelle Positionskonten editierbar.
+  Ein erkanntes Dokumentdatum ist verbindlich. Ohne erkanntes Datum ist ein
+  beschriftetes Datumsfeld erforderlich; keine automatische Annahme „heute“.
+  Ohne Stichtag bleibt der Import gesperrt. Auch unveränderte Bestände können
+  als datierter Nachweis gespeichert werden.
+  Neue Positionen gelten ab dem Stichtag; frühere Mengen bleiben erhalten.
+  Vollständige Bestände setzen fehlende Positionen aller Anlageklassen auf null,
+  auch bei einem sicher erkannten leeren Depot. Teilbestände lassen andere
+  Positionen unverändert. Den Umfang vor dem Import verständlich anzeigen.
+  Kurse und Dokumentbewertungen werden nicht übernommen; Kursquellen bleiben
+  unabhängig vom Depotanbieter. Mengenänderungen erfinden keine Kauf-/Verkaufsbuchungen.
 - Aktiver Tab: Text und Unterstrich Dunkelblau, Gewicht 600, `aria-current="page"`.
 - Aktueller Schritt: Dunkelblau mit Weiß, `aria-current="step"`.
 - Vergangene Schritte: dezentes Slate 200; zukünftige Schritte: Slate 100.

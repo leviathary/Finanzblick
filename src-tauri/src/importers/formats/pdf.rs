@@ -42,7 +42,7 @@ pub(in crate::importers) fn parse(
     Ok(ParsedStatement { currency_balances: Vec::new(), account_type: None, provider, format: "PDF".to_string(), account_name, transactions, opening_balance_minor: opening_balance, closing_balance_minor: closing_balance, warnings: vec!["PDF-Erkennung ist heuristisch. Bitte Datum, Betrag und Saldo vor dem Import kontrollieren.".to_string()], ..ParsedStatement::default() })
 }
 
-fn extract_pdf_text(path: &Path) -> Result<String, String> {
+pub(in crate::importers) fn extract_pdf_text(path: &Path) -> Result<String, String> {
     match guarded_pdf_extract(|| pdf_extract::extract_text(path)) {
         Ok(text) => Ok(text),
         Err(primary_error) => extract_text_without_inline_images(path).map_err(|fallback_error| {

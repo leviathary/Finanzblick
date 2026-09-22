@@ -71,9 +71,9 @@ pub(crate) fn save_manual_valuation(
             rusqlite::Error::QueryReturnedNoRows => "Das Konto wurde nicht gefunden.".into(),
             other => db_error(other),
         })?;
-    if !["manual_asset", "pillar3a"].contains(&account_type.as_str()) {
+    if !crate::domain::banking::accounts::supports_positions(&account_type) {
         return Err(
-            "Manuelle Bewertungen sind nur für manuell verwaltete Positionen und Vorsorgekonten möglich.".into(),
+            "Positionen sind nur für Depots, manuell verwaltete Positionen und Vorsorgekonten möglich.".into(),
         );
     }
 

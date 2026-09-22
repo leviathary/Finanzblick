@@ -5,6 +5,11 @@ use crate::storage::reporting::models::{DashboardData, DatabaseStatus, WealthDat
 use tauri::State;
 
 #[tauri::command]
+pub fn account_details(storage: State<'_, Storage>, account_id: i64, limit: usize) -> Result<storage::reporting::account_details::AccountDetails, String> {
+    storage::reporting::account_details::account_details(&storage, account_id, limit)
+}
+
+#[tauri::command]
 pub fn database_status(storage: State<'_, Storage>) -> Result<DatabaseStatus, String> {
     storage::reporting::database_status(&storage)
 }

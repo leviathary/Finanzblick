@@ -1,4 +1,4 @@
-//! Registriert Swissquote und liest dessen PDF-Kontoauszüge mit getrennten Währungssalden.
+//! Registriert Swissquote, liest PDF-Kontoauszüge mit getrennten Währungssalden und delegiert Depotbestände an den Positionsparser.
 
 use super::ProviderImporter;
 use crate::importers::{
@@ -12,6 +12,17 @@ pub(super) static IMPORTER: SwissquoteImporter = SwissquoteImporter;
 pub(super) struct SwissquoteImporter;
 
 impl ProviderImporter for SwissquoteImporter {
+    fn parse_positions(
+        &self,
+        path: &std::path::Path,
+    ) -> Result<Option<crate::domain::securities::position_snapshots::PositionSnapshot>, String>
+    {
+        super::swissquote_positions::parse(path)
+    }
+
+    fn position_reference(&self, value: &str) -> String {
+        super::swissquote_positions::canonical_account_reference(value).unwrap_or_default()
+    }
     fn id(&self) -> &'static str {
         "swissquote"
     }

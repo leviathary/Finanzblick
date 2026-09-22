@@ -7,6 +7,7 @@ mod generali;
 mod migros_bank;
 mod raiffeisen;
 mod swissquote;
+mod swissquote_positions;
 pub(super) mod ubs;
 mod zkb;
 
@@ -15,6 +16,16 @@ mod zkb;
 pub(super) trait ProviderImporter: Sync {
     fn id(&self) -> &'static str;
     fn aliases(&self) -> &'static [&'static str];
+    fn parse_positions(
+        &self,
+        _path: &Path,
+    ) -> Result<Option<crate::domain::securities::position_snapshots::PositionSnapshot>, String>
+    {
+        Ok(None)
+    }
+    fn position_reference(&self, value: &str) -> String {
+        crate::domain::securities::position_snapshots::normalize_reference(value)
+    }
     fn supports_provisional_card_csv(&self) -> bool {
         false
     }
@@ -39,6 +50,10 @@ static PROVIDERS: [&dyn ProviderImporter; 6] = [
     &swissquote::IMPORTER,
     &generali::IMPORTER,
 ];
+
+pub(super) fn position_providers() -> &'static [&'static dyn ProviderImporter] {
+    &PROVIDERS
+}
 
 pub(super) fn by_id(id: &str) -> Option<&'static dyn ProviderImporter> {
     let normalized = super::normalized(id);
@@ -99,6 +114,12 @@ mod tests {
 
     #[test]
     fn resolves_every_registered_provider() {
+        let path = Path::new("positions.xlsx");
+        assert!(by_id("ubs")
+            .unwrap()
+            .parse_positions(path)
+            .unwrap()
+            .is_none());
         for provider in PROVIDERS {
             assert_eq!(by_id(provider.id()).unwrap().id(), provider.id());
         }

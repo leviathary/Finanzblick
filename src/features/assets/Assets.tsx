@@ -4,6 +4,7 @@ import { t, tr, locale } from "../../i18n";
 import { useEffect, useRef, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { ProviderLogo } from "../accounts/ProviderLogo";
+import { supportsManualValuation } from "../accounts/presentation";
 import { sumPositionHistory, type PositionChart } from "./positionHistory";
 import { reportPeriod } from "../../domain/reportPeriod";
 
@@ -38,7 +39,7 @@ export function Assets({
   const [positionError, setPositionError] = useState("");
   const [positionIds, setPositionIds] = useState<number[] | null>(null);
   const [chartMode, setChartMode] = useState<"value" | "price">("value");
-  const manualAccountId = selectedAccountIds.length === 1 && data?.accounts.some(account => account.id === selectedAccountIds[0] && (account.accountType === "manual_asset" || account.accountType === "pillar3a")) ? selectedAccountIds[0] : null;
+  const manualAccountId = selectedAccountIds.length === 1 && data?.accounts.some(account => account.id === selectedAccountIds[0] && supportsManualValuation(account.accountType)) ? selectedAccountIds[0] : null;
   useEffect(() => {
     let cancelled = false;
     setPositionIds(null);
@@ -377,7 +378,7 @@ export function Assets({
           </span>
         </div>
         {sortedAccounts.map((account) => (
-          <div className="asset-account" key={account.id}>
+          <a className="asset-account" key={account.id} href={`#holdings?account=${account.id}`} style={{ color: "inherit", textDecoration: "none" }}>
             <ProviderLogo
               name={account.provider}
               providerKey={account.providerKey}
@@ -403,7 +404,7 @@ export function Assets({
             >
               {money(account.balanceMinor ?? 0, account.balanceCurrency)}
             </b>
-          </div>
+          </a>
         ))}
       </article>
     </section>

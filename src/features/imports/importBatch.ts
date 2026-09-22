@@ -1,6 +1,6 @@
 // Koordiniert Kontovorschläge und das schrittweise Speichern eines Importstapels.
 
-import type { DuplicateCheck, DuplicateResolutionAction, ImportAccount, ParsedStatement, SaveImportResult, TabularMapping } from "./importTypes";
+import type { DuplicateCheck, DuplicateResolutionAction, ImportAccount, ParsedStatement, SaveImportResult, SavePositionSnapshotResult, PositionSnapshotPreview, TabularMapping } from "./importTypes";
 import type { SelectedStatement } from "./fileDetection";
 
 export interface BatchItem {
@@ -16,6 +16,19 @@ export interface BatchItem {
   duplicateCheck?: DuplicateCheck;
   duplicateResolutions?: Record<number, DuplicateResolutionAction>;
   mapping?: TabularMapping;
+  positionSnapshot?: PositionSnapshotPreview;
+  positionAccountId?: number | null;
+  positionDateEditable?: boolean;
+  positionResult?: SavePositionSnapshotResult;
+}
+
+export function readyPositionSnapshot(item: BatchItem, accounts: ImportAccount[]): boolean {
+  const preview = item.positionSnapshot;
+  return Boolean(preview?.snapshotDate
+    && item.positionAccountId
+    && preview.eligibleAccountIds.includes(item.positionAccountId)
+    && accounts.some(account => account.id === item.positionAccountId && account.isActive)
+    && !item.positionResult && !item.alreadyImported && !item.error);
 }
 
 export function currencies(statement: ParsedStatement): string[] {

@@ -55,6 +55,11 @@ pub(crate) fn default_include_in_net_worth(account_type: &str) -> bool {
     account_type != "pillar3a"
 }
 
+/// Positionen werden unabhängig von Anbieter und Erfassungsweg gleich verwaltet.
+pub(crate) fn supports_positions(account_type: &str) -> bool {
+    matches!(account_type, "portfolio" | "manual_asset" | "pillar3a")
+}
+
 pub(crate) fn clean_optional(value: Option<String>) -> Option<String> {
     value
         .map(|item| item.trim().to_string())

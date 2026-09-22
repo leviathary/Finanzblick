@@ -11,5 +11,6 @@ pub(crate) mod position_history;
 pub(crate) mod positions;
 pub(crate) mod reporting;
 pub(crate) mod rules;
+pub(crate) mod position_snapshots;
 pub(crate) mod taxes;
 pub(crate) mod transactions;

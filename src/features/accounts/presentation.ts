@@ -10,7 +10,7 @@ export const accountTypes = [
   ["manual_asset", "Manuell verwaltete Position"],
 ];
 export function supportsManualValuation(accountType: string): boolean {
-  return accountType === "manual_asset" || accountType === "pillar3a";
+  return accountType === "portfolio" || accountType === "manual_asset" || accountType === "pillar3a";
 }
 
 export function typeLabel(value: string) {

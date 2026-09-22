@@ -67,7 +67,7 @@ pub(crate) fn wealth_on(
         .sum();
     let regular_accounts = accounts
         .iter()
-        .filter(|account| !["manual_asset", "pillar3a"].contains(&account.account_type.as_str()))
+        .filter(|account| !crate::domain::banking::accounts::supports_positions(&account.account_type))
         .cloned()
         .collect::<Vec<_>>();
     let mut by_type = breakdown(&regular_accounts, |account| {
@@ -154,7 +154,7 @@ pub(crate) fn wealth_on(
     let history_query = format!(
         "SELECT 'account:' || bs.account_id AS source_key,bs.balance_date,bs.amount_minor
          FROM balance_snapshots bs JOIN accounts a ON a.id=bs.account_id
-         WHERE a.account_type NOT IN ('manual_asset','pillar3a') AND a.is_active=1
+         WHERE a.account_type NOT IN ('portfolio','manual_asset','pillar3a') AND a.is_active=1
            AND a.include_in_net_worth=1 AND a.currency='CHF'
            AND date(bs.balance_date)<=date('now','localtime'){account_filter}
          UNION ALL
@@ -255,19 +255,19 @@ pub(crate) fn dashboard_from(storage: &Storage) -> Result<DashboardData, String>
     let mut query = connection
         .prepare(
             "SELECT a.id, i.name, i.provider_key, a.name, a.account_type, a.currency,
-                    CASE WHEN a.account_type IN ('manual_asset','pillar3a') THEN (SELECT SUM(d.value_minor) FROM portfolio_positions p JOIN daily_valuations d ON d.id=(SELECT latest.id FROM daily_valuations latest WHERE latest.position_id=p.id AND date(latest.valuation_date)<=date('now','localtime') ORDER BY latest.valuation_date DESC LIMIT 1) WHERE p.account_id=a.id AND date(p.holding_start_date)<=date('now','localtime') AND (p.holding_end_date IS NULL OR date(p.holding_end_date)>=date('now','localtime'))) WHEN bs.id IS NULL THEN NULL ELSE bs.amount_minor + COALESCE((
+                    CASE WHEN a.account_type IN ('portfolio','manual_asset','pillar3a') THEN (SELECT SUM(d.value_minor) FROM portfolio_positions p JOIN daily_valuations d ON d.id=(SELECT latest.id FROM daily_valuations latest WHERE latest.position_id=p.id AND date(latest.valuation_date)<=date('now','localtime') ORDER BY latest.valuation_date DESC LIMIT 1) WHERE p.account_id=a.id AND date(p.holding_start_date)<=date('now','localtime') AND (p.holding_end_date IS NULL OR date(p.holding_end_date)>=date('now','localtime'))) WHEN bs.id IS NULL THEN NULL ELSE bs.amount_minor + COALESCE((
                       SELECT SUM(t.amount_minor) FROM transactions t
                       WHERE t.account_id = a.id AND date(t.booking_date) > date(bs.balance_date)
                         AND date(t.booking_date) <= date('now', 'localtime')
                         AND NOT EXISTS (SELECT 1 FROM ignored_duplicate_transactions ignored WHERE ignored.transaction_id=t.id)
                     ), 0) END,
-                    CASE WHEN a.account_type IN ('manual_asset','pillar3a') THEN (SELECT MAX(d.valuation_date) FROM portfolio_positions p JOIN daily_valuations d ON d.position_id=p.id WHERE p.account_id=a.id AND date(d.valuation_date)<=date('now','localtime')) WHEN bs.id IS NULL THEN NULL ELSE COALESCE((
+                    CASE WHEN a.account_type IN ('portfolio','manual_asset','pillar3a') THEN (SELECT MAX(d.valuation_date) FROM portfolio_positions p JOIN daily_valuations d ON d.position_id=p.id WHERE p.account_id=a.id AND date(d.valuation_date)<=date('now','localtime')) WHEN bs.id IS NULL THEN NULL ELSE COALESCE((
                       SELECT MAX(t.booking_date) FROM transactions t
                       WHERE t.account_id = a.id AND date(t.booking_date) > date(bs.balance_date)
                         AND date(t.booking_date) <= date('now', 'localtime')
                         AND NOT EXISTS (SELECT 1 FROM ignored_duplicate_transactions ignored WHERE ignored.transaction_id=t.id)
                     ), bs.balance_date) END,
-                    CASE WHEN a.account_type IN ('manual_asset','pillar3a') THEN COALESCE((SELECT d.currency FROM portfolio_positions p JOIN daily_valuations d ON d.id=(SELECT latest.id FROM daily_valuations latest WHERE latest.position_id=p.id AND date(latest.valuation_date)<=date('now','localtime') ORDER BY latest.valuation_date DESC LIMIT 1) WHERE p.account_id=a.id LIMIT 1),a.currency) ELSE a.currency END,
+                    CASE WHEN a.account_type IN ('portfolio','manual_asset','pillar3a') THEN COALESCE((SELECT d.currency FROM portfolio_positions p JOIN daily_valuations d ON d.id=(SELECT latest.id FROM daily_valuations latest WHERE latest.position_id=p.id AND date(latest.valuation_date)<=date('now','localtime') ORDER BY latest.valuation_date DESC LIMIT 1) WHERE p.account_id=a.id LIMIT 1),a.currency) ELSE a.currency END,
                     a.include_in_net_worth, i.logo_data_url
              FROM accounts a
              JOIN institutions i ON i.id = a.institution_id

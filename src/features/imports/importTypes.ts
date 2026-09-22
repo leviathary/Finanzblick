@@ -92,7 +92,7 @@ export interface ImportMappingProfile {
 }
 
 export interface ImportAccount {
-  id: number; name: string; provider: string; providerKey: string; currency: string; accountType: AccountType; isActive: boolean;
+  id: number; institutionId: number; name: string; provider: string; providerKey: string; currency: string; accountType: AccountType; isActive: boolean;
   externalReference?: string | null;
 }
 
@@ -101,6 +101,51 @@ export interface SaveImportResult {
   accountId: number;
   insertedTransactions: number;
   updatedTransactions: number;
+  duplicate: boolean;
+}
+
+export interface PositionSnapshotRow {
+  symbol: string;
+  marketSymbol: string;
+  isin: string | null;
+  valor: string | null;
+  priceSource: string | null;
+  quantity: string;
+  category: string;
+  assetType: string;
+  quoteCurrency: string;
+  sourceRow: number;
+}
+
+export interface PositionSnapshotChange {
+  positionId: number | null;
+  symbol: string;
+  marketSymbol: string;
+  previousQuantity: string | null;
+  quantity: string;
+  action: "new" | "update" | "zero" | "unchanged";
+}
+
+export interface PositionSnapshotPreview {
+  provider: string;
+  scope: "fullPortfolio" | "partial";
+  format: string;
+  snapshotDate: string | null;
+  accountReference: string | null;
+  referenceIsShared: boolean;
+  positions: PositionSnapshotRow[];
+  warnings: string[];
+  changes: PositionSnapshotChange[];
+  alreadyImported: boolean;
+  eligibleAccountIds: number[];
+}
+
+export interface SavePositionSnapshotResult {
+  importId: number;
+  createdPositions: number;
+  updatedPositions: number;
+  zeroedPositions: number;
+  unchangedPositions: number;
   duplicate: boolean;
 }
 

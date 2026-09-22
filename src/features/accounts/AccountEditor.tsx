@@ -66,20 +66,18 @@ export function AccountEditor({
             }
           />
         </label>
-        {!supportsManualValuation(account.accountType) && (
-          <label>
-            {t("IBAN / Vertragsnummer")}
-            <input
-              value={account.externalReference ?? ""}
-              onChange={(event) =>
-                setAccount({
-                  ...account,
-                  externalReference: event.target.value,
-                })
-              }
-            />
-          </label>
-        )}
+        <label>
+          {t("IBAN / Vertragsnummer")}
+          <input
+            value={account.externalReference ?? ""}
+            onChange={(event) =>
+              setAccount({
+                ...account,
+                externalReference: event.target.value,
+              })
+            }
+          />
+        </label>
       </div>
       {supportsManualValuation(account.accountType) && (
         <div className="account-value-editor">

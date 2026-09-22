@@ -34,7 +34,7 @@ fn read_positions(
     connection: &Connection,
     account_id: i64,
 ) -> rusqlite::Result<Vec<PositionChart>> {
-    let mut statement = connection.prepare("SELECT p.id,p.label,p.holding_end_date FROM portfolio_positions p JOIN accounts a ON a.id=p.account_id WHERE a.id=?1 AND a.account_type IN ('manual_asset','pillar3a') ORDER BY p.label,p.id")?;
+    let mut statement = connection.prepare("SELECT p.id,p.label,p.holding_end_date FROM portfolio_positions p JOIN accounts a ON a.id=p.account_id WHERE a.id=?1 AND a.account_type IN ('portfolio','manual_asset','pillar3a') ORDER BY p.label,p.id")?;
     let mut positions = statement
         .query_map([account_id], |row| {
             Ok(PositionChart {

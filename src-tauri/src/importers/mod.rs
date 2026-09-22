@@ -6,6 +6,7 @@ use serde::{Deserialize, Serialize};
 use std::{fs, path::Path};
 mod formats;
 mod pipeline;
+pub(crate) mod position_snapshots;
 use formats::{camt053, csv_import, excel, mt940, pdf, tabular};
 mod providers;
 mod registry;
