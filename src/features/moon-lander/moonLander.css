@@ -1,0 +1,12 @@
+/* Begrenzt das lokale Osterei auf einen modalen Spielbereich mit gemeinsamen UI-Farbrollen. */
+.settlement-rule-dialog.moon-lander-dialog { width: min(1000px, calc(100vw - 48px)); max-height: calc(100dvh - 48px); }
+.moon-lander-header, .moon-lander-footer, .moon-lander-hud { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.moon-lander-header { margin-bottom: 24px; }
+.moon-lander-header h2 { margin: 0; font-size: 22px; }
+.moon-lander-game { display: grid; gap: 16px; }
+.moon-lander-hud { color: var(--text-secondary); font-size: 13px; font-variant-numeric: tabular-nums; }
+.moon-lander-stage { overflow: hidden; border: 1px solid var(--border-subtle); border-radius: var(--radius-card); background: #0b1220; }
+.moon-lander-stage svg { display: block; width: 100%; max-height: 52dvh; }
+.moon-lander-stage:focus-visible { outline: 2px solid var(--interactive); outline-offset: 3px; }
+.moon-lander-instructions { color: var(--text-secondary); font-size: 13px; margin: 0; }
+.moon-lander-footer p { margin: 0; flex: 1 1 260px; }

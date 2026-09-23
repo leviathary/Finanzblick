@@ -313,6 +313,8 @@ in `src/styles/application.css`; Feature-Styles verwenden dieselben Farbrollen.
   Beendete/zukünftige Positionen sind optional; Auswahl öffnet Wert-/Kursverlauf.
   Zwischen Positionsname mit Umschaltaktionen und der zugehörigen Chart-Karte
   bleiben 16 px Abstand, auch wenn die Aktionen in schmalen Ansichten umbrechen.
+  Innerhalb der Chart-Karte bleiben ebenfalls 16 px Abstand zwischen Überschrift
+  und Zeitraumwahl, damit Titel und Bedienelemente klar getrennt sind.
   Normale Konten zeigen Saldoverlauf in Kontowährung und Buchungen, zunächst 50;
   Sortierung betrifft die geladenen Buchungen. „Weitere laden“ erweitert die Liste.
   „Verwalten“ öffnet gezielt das Konto in der bestehenden Verwaltung unter `#banks`.

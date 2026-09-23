@@ -10,10 +10,10 @@ gemeinsamen Sicht bündelt. Ohne Benutzerkonto oder Cloud-Synchronisierung.
 
 ## Installation unter Windows
 
-[Saldonaut 0.6.6 für Windows herunterladen (64 Bit)](../../releases/download/v0.6.6/Saldonaut_0.6.6_x64-setup.exe)
+[Saldonaut 0.6.7 für Windows herunterladen (64 Bit)](../../releases/download/v0.6.7/Saldonaut_0.6.7_x64-setup.exe)
 
-[Versionshinweise](../../releases/tag/v0.6.6)
-· [SHA-256-Prüfsumme](../../releases/download/v0.6.6/Saldonaut_0.6.6_x64-setup.exe.sha256)
+[Versionshinweise](../../releases/tag/v0.6.7)
+· [SHA-256-Prüfsumme](../../releases/download/v0.6.7/Saldonaut_0.6.7_x64-setup.exe.sha256)
 
 Der Installer ist nicht signiert; Windows kann deshalb eine Sicherheitswarnung
 anzeigen. Vor der Nutzung mit echten Daten immer ein verschlüsseltes Backup

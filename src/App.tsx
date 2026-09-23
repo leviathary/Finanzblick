@@ -24,6 +24,7 @@ import { TaxHistory } from "./features/tax-history/TaxHistory";
 import { FinanceChat } from "./features/chat/FinanceChat";
 import { Categories } from "./features/categories/Categories";
 import { Help } from "./features/help/Help";
+import { MoonLanderLauncher } from "./features/moon-lander/MoonLanderLauncher";
 
 type Page = "holdings" | "chat" | "help" | "data-security" | "settings" | "categories" | "overview" | "accounts" | "assets" | "tax-history" | "transactions" | "transfers" | "cards" | "card-setup" | "imports" | "import-history";
 type ImportKind = "bank" | "tax";
@@ -111,6 +112,7 @@ function App() {
 
   return (
     <main className="app-shell">
+      <MoonLanderLauncher />
       <aside className="sidebar">
         <strong className="brand">Saldonaut</strong>
         <nav className="sidebar-primary" aria-label={t("Hauptnavigation")}>

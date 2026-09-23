@@ -18,6 +18,7 @@
 .detail-filters input[type=search] { min-height: 44px; border: 1px solid var(--border-subtle); background: var(--bg-surface); color: var(--text-primary); border-radius: 10px; padding: 8px 12px; font: inherit; }
 .account-explorer .detail-checkbox { display: flex; align-items: center; gap: 8px; min-height: 44px; font-size: 13px; }
 .detail-checkbox input { width: 18px; height: 18px; }
+.detail-chart > .card-heading { margin-bottom: 16px; }
 .detail-chart-toolbar { justify-content: space-between; flex-wrap: wrap; margin-bottom: 12px; }
 .detail-periods, .detail-chart-tools { display: flex; gap: 8px; flex-wrap: wrap; }
 .detail-periods button { min-height: 32px; border: 1px solid var(--border-subtle); background: var(--bg-surface); color: var(--text-primary); border-radius: 8px; padding: 4px 12px; font: inherit; cursor: pointer; }
