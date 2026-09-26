@@ -1,5 +1,4 @@
 //! Initialisiert das aktuelle Datenmodell und seine Standardkategorien.
-use crate::storage::rules::categorization::apply_categories;
 use crate::storage::{categories, rules::settlement_rules};
 use rusqlite::Connection;
 
@@ -245,8 +244,7 @@ pub(crate) fn initialize_schema(connection: &Connection) -> Result<(), rusqlite:
            ('other','Sonstiges','#8390A1',100);
          COMMIT;",
     )?;
-    categories::apply_redirects(connection)?;
-    apply_categories(connection)
+    categories::apply_redirects(connection)
 }
 
 pub(in crate::storage) fn initialize_reporting_flags(db: &Connection) -> rusqlite::Result<()> {
@@ -263,4 +261,37 @@ pub(in crate::storage) fn initialize_reporting_flags(db: &Connection) -> rusqlit
       kind TEXT NOT NULL CHECK(kind IN ('REFUND','UNKNOWN'))
     );",
     )
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn reopening_schema_does_not_recategorize_existing_transactions() {
+        let db = Connection::open_in_memory().unwrap();
+        initialize_schema(&db).unwrap();
+        db.execute_batch(
+            "INSERT INTO institutions(id,provider_key,name,institution_type,created_at)
+               VALUES(1,'test','Test','bank','2026-01-01');
+             INSERT INTO accounts(id,institution_id,name,account_type,currency,created_at)
+               VALUES(1,1,'Konto','cash','CHF','2026-01-01');
+             INSERT INTO import_runs(id,account_id,source_name,source_format,source_hash,imported_at,transaction_count,warnings_json)
+               VALUES(1,1,'test.csv','CSV','hash','2026-01-01',1,'[]');
+             INSERT INTO transactions(account_id,import_id,booking_date,description,industry,amount_minor,currency,confidence,source_row)
+               VALUES(1,1,'2026-01-01','Netflix','Digitale Güter',-1000,'CHF',1,1);",
+        )
+        .unwrap();
+
+        initialize_schema(&db).unwrap();
+
+        let category: Option<i64> = db
+            .query_row(
+                "SELECT category_id FROM transactions WHERE id=1",
+                [],
+                |row| row.get(0),
+            )
+            .unwrap();
+        assert_eq!(category, None);
+    }
 }

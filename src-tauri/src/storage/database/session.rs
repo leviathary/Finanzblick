@@ -17,9 +17,7 @@ impl Session {
     pub(super) fn expired(&self) -> bool {
         self.activity
             .and_then(|t| t.elapsed().ok())
-            .map_or(true, |d| {
-                d >= Duration::from_secs(self.settings.auto_lock_minutes * 60)
-            })
+            .is_none_or(|d| d >= Duration::from_secs(self.settings.auto_lock_minutes * 60))
     }
     pub(super) fn clear(&mut self) {
         self.generation = self.generation.wrapping_add(1);

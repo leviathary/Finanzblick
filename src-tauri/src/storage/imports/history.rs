@@ -4,7 +4,7 @@ use crate::storage::database::Storage;
 use crate::storage::imports::models::ImportRun;
 
 pub(crate) fn list_imports(storage: &Storage) -> Result<Vec<ImportRun>, String> {
-    imports_from(&storage)
+    imports_from(storage)
 }
 
 pub(crate) fn imports_from(storage: &Storage) -> Result<Vec<ImportRun>, String> {
@@ -41,7 +41,7 @@ pub(crate) fn imports_from(storage: &Storage) -> Result<Vec<ImportRun>, String> 
 }
 
 pub(crate) fn delete_imports(storage: &Storage, ids: Vec<i64>) -> Result<usize, String> {
-    delete_imports_from(&storage, ids)
+    delete_imports_from(storage, ids)
 }
 
 pub(crate) fn delete_imports_from(storage: &Storage, ids: Vec<i64>) -> Result<usize, String> {

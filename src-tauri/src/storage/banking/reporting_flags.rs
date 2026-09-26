@@ -112,15 +112,13 @@ mod tests {
         );
         assert_eq!(db.query_row("SELECT COUNT(*) FROM transaction_reporting_flags WHERE exclude_from_cashflow=1 AND is_settlement=0 AND is_manually_overridden=1",[],|r|r.get::<_,i64>(0)).unwrap(),2);
         set_transfers(&mut db, &[3], TransferType::CreditCardSettlement).unwrap();
-        assert_eq!(
-            db.query_row(
+        assert!(db
+            .query_row(
                 "SELECT is_settlement FROM transaction_reporting_flags WHERE transaction_id=3",
                 [],
                 |r| r.get::<_, bool>(0)
             )
-            .unwrap(),
-            true
-        );
+            .unwrap());
         set_transfers(&mut db, &[3, 4], TransferType::None).unwrap();
         assert!(
             crate::storage::query_transaction_transfers(&db, None, None, None, "".into())

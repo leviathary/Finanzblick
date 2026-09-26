@@ -109,6 +109,12 @@ test("file warnings stay compact and the batch list avoids a second horizontal s
   assert.match(applicationCss, /\.import-batch-card \.batch-table > table \{[^}]+table-layout:\s*fixed;/s);
 });
 
+test("the import list does not expose complete local file paths", () => {
+  assert.match(wizardSource, /<strong>\{item\.file\.name\}<\/strong><small>\{formatFileSize/);
+  assert.doesNotMatch(wizardSource, /className="batch-path"/);
+  assert.doesNotMatch(applicationCss, /\.batch-path\s*\{/);
+});
+
 test("failed PDF rows can open their exact source document", () => {
   assert.doesNotMatch(wizardSource, /import \{ openPath \} from "@tauri-apps\/plugin-opener"/);
   assert.match(wizardSource, /item\.error && item\.file\.extension === "pdf"/);
@@ -116,6 +122,9 @@ test("failed PDF rows can open their exact source document", () => {
   assert.match(wizardSource, /t\("PDF anzeigen"\)/);
   assert.match(wizardSource, /sourceOpenError/);
   assert.ok(!desktopCapability.permissions.includes("opener:allow-open-path"));
+  const opener = desktopCapability.permissions.find(permission => permission?.identifier === "opener:allow-open-url");
+  assert.deepEqual(opener?.allow, [{ url: "https://www.tradingview.com/" }]);
+  assert.ok(!desktopCapability.permissions.includes("opener:default"));
 });
 
 test("an open PDF preview exposes its source beside the review status", () => {

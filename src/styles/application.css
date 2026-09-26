@@ -20,12 +20,13 @@
 }
 body {
   margin: 0;
-  min-width: 920px;
+  min-width: 0;
   min-height: 100vh;
   background: var(--bg-page);
   font-variant-numeric: tabular-nums;
   font-feature-settings: "tnum";
 }
+#root { container-type: inline-size; }
 button,
 input,
 select,
@@ -58,7 +59,7 @@ a {
 
 .app-shell {
   display: grid;
-  grid-template-columns: 230px 1fr;
+  grid-template-columns: 230px minmax(0, 1fr);
   min-height: 100vh;
 }
 .sidebar {
@@ -136,6 +137,31 @@ a {
 .content {
   min-width: 0;
   padding: 44px clamp(34px, 6vw, 92px);
+}
+@media (max-width: 919px) {
+  .app-shell { display: block; }
+  .sidebar { position: static; height: auto; padding: 16px; }
+  .brand { margin-bottom: 12px; font-size: 21px; }
+  .sidebar nav.sidebar-primary, .sidebar nav.sidebar-secondary { display: flex; flex-wrap: wrap; gap: 4px 8px; }
+  .sidebar-nav-group { display: flex; flex-wrap: wrap; gap: 4px 8px; }
+  .sidebar-nav-group + .sidebar-nav-group { margin: 0; padding: 0; border: 0; }
+  .sidebar-secondary { margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border-subtle); }
+  .sidebar a, .sidebar nav button { width: auto; min-height: 44px; padding: 8px 10px; }
+  .content { padding: 24px 16px; }
+}
+@container (max-width: 919px) {
+  .app-shell { display: block; }
+  .sidebar { position: static; height: auto; padding: 16px; }
+  .brand { margin-bottom: 12px; font-size: 21px; }
+  .sidebar nav.sidebar-primary, .sidebar nav.sidebar-secondary { display: flex; flex-wrap: wrap; gap: 4px 8px; }
+  .sidebar-nav-group { display: flex; flex-wrap: wrap; gap: 4px 8px; }
+  .sidebar-nav-group + .sidebar-nav-group { margin: 0; padding: 0; border: 0; }
+  .sidebar-secondary { margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border-subtle); }
+  .sidebar a, .sidebar nav button { width: auto; min-height: 44px; padding: 8px 10px; }
+  .content { padding: 24px 16px; }
+  .overview-summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .overview-summary-grid .summary-card.primary { grid-column: 1 / -1; }
+  .overview-grid, .asset-breakdowns, .transaction-analysis-grid { grid-template-columns: minmax(0, 1fr); }
 }
 .import-wizard {
   width: 100%;
@@ -2633,10 +2659,6 @@ p {
   border-radius: 8px;
   background: var(--bg-surface);
   color: var(--text-primary);
-}
-.batch-path {
-  overflow-wrap: anywhere;
-  font-size: 10px;
 }
 .batch-table small.batch-warning-status { color: var(--text-warning); font-weight: 650; }
 .batch-active {

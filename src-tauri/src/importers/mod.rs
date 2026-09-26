@@ -141,7 +141,7 @@ impl Default for ParsedTransaction {
     }
 }
 
-#[derive(Debug, Clone, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ParsedStatement {
     #[serde(default)]
@@ -165,27 +165,6 @@ pub struct ParsedStatement {
     pub record_definition_id: Option<String>,
     #[serde(default)]
     pub account_reference: Option<String>,
-}
-
-impl Default for ParsedStatement {
-    fn default() -> Self {
-        Self {
-            currency_balances: Vec::new(),
-            account_type: None,
-            provider: String::new(),
-            format: String::new(),
-            account_name: String::new(),
-            transactions: Vec::new(),
-            opening_balance_minor: None,
-            closing_balance_minor: None,
-            warnings: Vec::new(),
-            document_type: None,
-            document_date: None,
-            document_value_date: None,
-            record_definition_id: None,
-            account_reference: None,
-        }
-    }
 }
 
 pub use pipeline::parse_statement;

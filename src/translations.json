@@ -652,6 +652,11 @@
     "Impossible de lire la sauvegarde.",
     "Impossibile leggere il backup."
   ],
+  "Das Backup ist grösser als 2 GB und kann nicht importiert werden.": [
+    "The backup is larger than 2 GB and cannot be imported.",
+    "La sauvegarde dépasse 2 Go et ne peut pas être importée.",
+    "Il backup supera i 2 GB e non può essere importato."
+  ],
   "Bitte eine Backup-Datei wählen.": [
     "Choose a backup file.",
     "Choisissez un fichier de sauvegarde.",
@@ -997,6 +1002,11 @@
     "Veuillez corriger les valeurs : les actifs moins les dettes doivent correspondre au patrimoine imposable.",
     "Correggi i valori: le attività meno i debiti devono corrispondere al patrimonio imponibile."
   ],
+  "Fülle die leeren Betragsfelder aus. Danach wird die Berechnung geprüft.": [
+    "Fill in the empty amount fields. The calculation will then be checked.",
+    "Renseignez les montants manquants. Le calcul sera ensuite vérifié.",
+    "Compila i campi degli importi vuoti. Il calcolo verrà quindi verificato."
+  ],
   "Für dieses Jahr besteht bereits ein Wert. Beim Speichern wird er ersetzt.": [
     "A value already exists for this year. Saving will replace it.",
     "Une valeur existe déjà pour cette année. Elle sera remplacée lors de l’enregistrement.",
@@ -1104,7 +1114,7 @@
   ],
   "Abmelden": [
     "Log out",
-    "Se dÃ©connecter",
+    "Se déconnecter",
     "Disconnetti"
   ],
   "Lokaler Modus": [
@@ -5230,5 +5240,9 @@
   "Salden, Depots und einzelne Positionen": ["Balances, portfolios and individual positions", "Soldes, dépôts et positions individuelles", "Saldi, depositi e singole posizioni"],
   "Einnahmen, Ausgaben und Kategorien analysieren": ["Analyse income, expenses and categories", "Analyser les revenus, les dépenses et les catégories", "Analizza entrate, uscite e categorie"],
   "Was du wo findest": ["What you can find where", "Ce que tu trouves où", "Dove trovi cosa"],
-  "Von der Gesamtsicht bis zur einzelnen Buchung hat jeder Bereich eine klare Aufgabe.": ["From the big picture to an individual transaction, every section has a clear purpose.", "De la vue d’ensemble jusqu’à chaque écriture, chaque section a un rôle clair.", "Dalla visione d’insieme alla singola transazione, ogni sezione ha uno scopo chiaro."]
+  "Von der Gesamtsicht bis zur einzelnen Buchung hat jeder Bereich eine klare Aufgabe.": ["From the big picture to an individual transaction, every section has a clear purpose.", "De la vue d’ensemble jusqu’à chaque écriture, chaque section a un rôle clair.", "Dalla visione d’insieme alla singola transazione, ogni sezione ha uno scopo chiaro."],
+  "Status": ["Status", "Statut", "Stato"],
+  "Drilldown": ["Details", "Détail", "Dettaglio"],
+  "optional": ["optional", "facultatif", "facoltativo"],
+  "ab": ["from", "dès le", "dal"]
 }

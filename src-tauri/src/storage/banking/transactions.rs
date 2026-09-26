@@ -174,8 +174,7 @@ pub(crate) fn analyze_transactions_filtered(
                 })
             })
             .map_err(db_error)?;
-        let result = providers.collect::<Result<Vec<_>, _>>().map_err(db_error)?;
-        result
+        providers.collect::<Result<Vec<_>, _>>().map_err(db_error)?
     };
 
     Ok(TransactionAnalysis {
@@ -294,7 +293,7 @@ pub(crate) fn query_transaction_transfers(
     to: Option<String>,
     search: String,
 ) -> Result<Vec<TransferRow>, String> {
-    consumption::prepare(&db).map_err(db_error)?;
+    consumption::prepare(db).map_err(db_error)?;
     let mut query = db.prepare(
         "SELECT t.id,t.booking_date,a.name,t.description,t.amount_minor,t.currency,t.is_settlement,
          m.counterparty_name,m.remittance_information,i.name

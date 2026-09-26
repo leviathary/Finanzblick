@@ -1,5 +1,8 @@
 # Architekturvorgaben
 
+- Vor Architektur-, Persistenz-, Command- oder Berechtigungsänderungen
+  `docs/architecture.md` lesen und die dortigen Schutz- und Prüfregeln anwenden.
+
 - Die App unterstützt Windows; ein lokaler macOS-Build mit DMG ist ebenfalls
   beauftragt. Eine automatische Veröffentlichung ist nicht beauftragt.
 - Neue Funktionen und Abhängigkeiten müssen Windows und macOS unterstützen.

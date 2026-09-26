@@ -13,7 +13,7 @@ use rusqlite::OptionalExtension;
 use rusqlite::{params, Connection};
 
 pub(crate) fn list_accounts(storage: &Storage) -> Result<Vec<ManagedAccount>, String> {
-    accounts_from(&storage)
+    accounts_from(storage)
 }
 
 pub(crate) fn list_institutions(storage: &Storage) -> Result<Vec<ManagedInstitution>, String> {

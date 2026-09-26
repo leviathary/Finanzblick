@@ -133,7 +133,16 @@ pub(crate) async fn refresh_market_data(
                     }
                 };
                 match repository::store_prices(
-                    &storage, &position, &symbol, &currency, &source, values, &fx_source, rates,
+                    storage,
+                    &position,
+                    repository::FetchedPrices {
+                        symbol,
+                        currency,
+                        source,
+                        prices: values,
+                        fx_source,
+                        rates,
+                    },
                 ) {
                     Ok(stored) => {
                         result.updated_positions += 1;
@@ -149,6 +158,6 @@ pub(crate) async fn refresh_market_data(
     if result.errors.is_empty() {
         repository::record_success(storage, &result.refreshed_at)?;
     }
-    rebuild_daily_valuations_incremental(&storage)?;
+    rebuild_daily_valuations_incremental(storage)?;
     Ok(result)
 }

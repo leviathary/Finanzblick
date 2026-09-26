@@ -165,7 +165,6 @@ fn suspicious_duplicates_block_saving_until_explicitly_kept_or_skipped() {
     assert!(save_import_to(&storage, skipped.clone())
         .unwrap_err()
         .contains("vollständig geprüft"));
-    let mut skipped = skipped;
     skipped
         .duplicate_resolutions
         .push(crate::storage::imports::models::DuplicateResolution {

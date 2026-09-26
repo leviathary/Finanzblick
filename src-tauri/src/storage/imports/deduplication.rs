@@ -251,10 +251,12 @@ pub(crate) fn suspected_duplicates(
                 "stored",
                 Some(id),
                 None,
-                date,
-                description,
-                amount,
-                currency,
+                DuplicateMatch {
+                    booking_date: date,
+                    description,
+                    amount_minor: amount,
+                    currency,
+                },
                 &row.booking_date,
             ));
             continue;
@@ -283,10 +285,12 @@ pub(crate) fn suspected_duplicates(
                 "current_file",
                 None,
                 Some(compared_index),
-                previous.booking_date.clone(),
-                previous.description.clone(),
-                previous.amount_minor,
-                previous.currency.clone(),
+                DuplicateMatch {
+                    booking_date: previous.booking_date.clone(),
+                    description: previous.description.clone(),
+                    amount_minor: previous.amount_minor,
+                    currency: previous.currency.clone(),
+                },
                 &row.booking_date,
             ));
         }
@@ -294,17 +298,27 @@ pub(crate) fn suspected_duplicates(
     Ok(result)
 }
 
+struct DuplicateMatch {
+    booking_date: String,
+    description: String,
+    amount_minor: i64,
+    currency: String,
+}
+
 fn suspect(
     transaction_index: usize,
     match_source: &str,
     existing_transaction_id: Option<i64>,
     compared_transaction_index: Option<usize>,
-    booking_date: String,
-    description: String,
-    amount_minor: i64,
-    currency: String,
+    compared: DuplicateMatch,
     incoming_date: &str,
 ) -> SuspectedDuplicate {
+    let DuplicateMatch {
+        booking_date,
+        description,
+        amount_minor,
+        currency,
+    } = compared;
     SuspectedDuplicate {
         transaction_index,
         match_source: match_source.into(),

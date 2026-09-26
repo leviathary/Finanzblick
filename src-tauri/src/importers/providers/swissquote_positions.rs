@@ -100,7 +100,7 @@ fn parse_excel_rows(path: &Path, rows: &[&[Data]]) -> Result<Option<PositionSnap
     }
     validate_unique_symbols(&positions)?;
     let (account_reference, snapshot_date, warning) = filename_metadata(path);
-    return Ok(Some(PositionSnapshot {
+    Ok(Some(PositionSnapshot {
         provider: "swissquote".into(),
         reference_is_shared: true,
         scope: SnapshotScope::FullPortfolio,
@@ -113,7 +113,7 @@ fn parse_excel_rows(path: &Path, rows: &[&[Data]]) -> Result<Option<PositionSnap
         account_reference,
         positions,
         warnings: warning.into_iter().collect(),
-    }));
+    }))
 }
 
 fn excel_header(rows: &[&[Data]]) -> Option<(usize, usize, usize, usize)> {

@@ -8,6 +8,21 @@ import ts from "typescript";
 
 const root = new URL("../", import.meta.url);
 const read = file => fs.readFileSync(new URL(file, root), "utf8");
+
+test("large financial views delegate focused presentation responsibilities", () => {
+  const files = [
+    "src/features/tax-history/TaxHistory.tsx",
+    "src/features/positions/ManualPositions.tsx",
+    "src/features/transactions/Transactions.tsx",
+  ];
+  for (const file of files) {
+    assert.ok(read(file).split(/\r?\n/).length <= 600, file);
+  }
+  assert.match(read(files[0]), /from "\.\/taxHistorySupport"/);
+  assert.match(read(files[1]), /from "\.\/ManualPositionEditor"/);
+  assert.match(read(files[2]), /from "\.\/formatting"/);
+});
+
 test("sidebar prioritizes analysis and separates unlabeled task groups", () => {
   const app = read("src/App.tsx");
   const styles = read("src/styles/application.css");
@@ -235,13 +250,14 @@ test("market and tax workflows keep SQL and external data access behind their bo
 test("positions use a separate component and preserve typed command payloads", async () => {
   const accounts = read("src/features/accounts/Accounts.tsx");
   const positions = read("src/features/positions/ManualPositions.tsx");
+  const positionEditor = read("src/features/positions/ManualPositionEditor.tsx");
   assert.doesNotMatch(accounts, /setValuation|save_manual_valuation|list_manual_positions/);
   assert.match(accounts, /<ManualPositions\s/);
   assert.doesNotMatch(positions, /@tauri-apps|\binvoke\s*[<(]/);
   assert.match(positions, /className="manual-position-back"/);
   assert.match(positions, /backButton\.current\?\.focus\(\)/);
   assert.match(positions, /t\("Zurück zu Banken & Konten"\)/);
-  assert.equal(positions.match(/t\("Abbrechen"\)/g)?.length, 1, "Only the actual position form uses Cancel");
+  assert.equal(positionEditor.match(/t\("Abbrechen"\)/g)?.length, 1, "Only the actual position form uses Cancel");
   const calls = [];
   const sandbox = {
     exports: {},

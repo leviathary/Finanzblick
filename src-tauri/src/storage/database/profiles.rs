@@ -199,7 +199,7 @@ impl Storage {
         Ok(())
     }
 
-    pub(crate) fn anonymize_database(&self, anonymize_descriptions: bool) -> Result<(), String> {
+    pub(super) fn anonymize_database(&self, anonymize_descriptions: bool) -> Result<(), String> {
         let db = self.connect().map_err(|_| LOCKED)?;
         let anonymize_descriptions = if anonymize_descriptions { 1 } else { 0 };
         db.execute_batch(&format!(
@@ -313,7 +313,7 @@ impl Storage {
         Ok(())
     }
 
-    pub(crate) fn anonymize_database_with_factor(
+    pub(super) fn anonymize_database_with_factor(
         &self,
         factor: f64,
         anonymize_descriptions: bool,

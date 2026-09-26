@@ -61,6 +61,8 @@ fn parse_bytes(bytes: &[u8], provider: Option<&str>) -> Result<ParsedStatement, 
     let row_pattern =
         Regex::new(r"^(\d{6})(\d{4})?(RC|RD|C|D)([A-Z])?(\d+,\d{0,2})([A-Z][A-Z0-9]{3})(.*)$")
             .unwrap();
+    let structured_prefix = Regex::new(r"^[A-Z]\d{2}\?").unwrap();
+    let structured_separator = Regex::new(r"\?\d{2}").unwrap();
     let mut tags: Vec<(String, String, usize)> = Vec::new();
     for (index, line) in text.lines().enumerate() {
         let line = line.trim();
@@ -185,14 +187,8 @@ fn parse_bytes(bytes: &[u8], provider: Option<&str>) -> Result<ParsedStatement, 
             }
             "86" => {
                 if let Some(index) = last_row {
-                    let clean = Regex::new(r"^[A-Z]\d{2}\?")
-                        .unwrap()
-                        .replace(&content, "")
-                        .into_owned();
-                    let clean = Regex::new(r"\?\d{2}")
-                        .unwrap()
-                        .replace_all(&clean, " ")
-                        .into_owned();
+                    let clean = structured_prefix.replace(&content, "").into_owned();
+                    let clean = structured_separator.replace_all(&clean, " ").into_owned();
                     let previous = &transactions[index].description;
                     let reference = previous
                         .find(" · Referenz:")

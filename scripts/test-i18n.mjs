@@ -81,6 +81,8 @@ test('unlock controls and security messages are translated', () => {
     setLanguage(language);
     for (const key of keys) assert.notEqual(t(key), key);
   }
+  setLanguage('fr');
+  assert.equal(t('Abmelden'), 'Se déconnecter');
   setLanguage('de');
 });
 
@@ -98,6 +100,8 @@ test('chat description-sharing notices are translated and visible in the preview
 test('anonymized-copy dialog strings are translated and profile actions do not mutate the original', () => {
   const dialog = fs.readFileSync(new URL('../src/features/settings/AnonymizedCopyDialog.tsx', import.meta.url), 'utf8');
   const picker = fs.readFileSync(new URL('../src/features/settings/DatabasePicker.tsx', import.meta.url), 'utf8');
+  const databaseCommands = fs.readFileSync(new URL('../src-tauri/src/commands/database.rs', import.meta.url), 'utf8');
+  const commandRegistry = fs.readFileSync(new URL('../src-tauri/src/lib.rs', import.meta.url), 'utf8');
   for (const match of (dialog + picker).matchAll(/\bt\("([^"]+)"\)/g)) {
     assert.ok(messages[match[1]], match[1]);
     assert.equal(messages[match[1]].length, 3);
@@ -106,6 +110,8 @@ test('anonymized-copy dialog strings are translated and profile actions do not m
   assert.match(dialog, /invoke\("copy_database"/);
   assert.doesNotMatch(picker, /role="tablist"|Aktuelles Finanzprofil verwalten/);
   assert.doesNotMatch(picker, /invoke\("anonymize_database/);
+  assert.doesNotMatch(databaseCommands, /pub async fn anonymize_database/);
+  assert.doesNotMatch(commandRegistry, /commands::database::anonymize_database/);
 });
 
 test('category inline actions are translated and do not scroll to a distant editor', () => {
@@ -147,7 +153,10 @@ test('financial profile labels are localized consistently', () => {
 });
 
 test('tax history summary and chart labels are translated', () => {
-  const code = fs.readFileSync(new URL('../src/features/tax-history/TaxHistory.tsx', import.meta.url), 'utf8');
+  const code = [
+    '../src/features/tax-history/TaxHistory.tsx',
+    '../src/features/tax-history/taxHistorySupport.tsx',
+  ].map(file => fs.readFileSync(new URL(file, import.meta.url), 'utf8')).join('\n');
   const staticKeys = [
     ...Array.from(code.matchAll(/\bt\("([^"]+)"\)/g), match => match[1]),
     ...Array.from(code.matchAll(/label: "([^"]+)"/g), match => match[1]),
@@ -177,6 +186,13 @@ test('tax history summary and chart labels are translated', () => {
 });
 
 test('manual positions use a localized return action', () => {
+  const code = [
+    '../src/features/positions/ManualPositions.tsx',
+    '../src/features/positions/ManualPositionEditor.tsx',
+  ].map(file => fs.readFileSync(new URL(file, import.meta.url), 'utf8')).join('\n');
+  for (const match of code.matchAll(/\bt\("([^"\\]+)"\)/g)) {
+    assert.equal(messages[match[1]]?.length, 3, match[1]);
+  }
   for (const [language, label] of [
     ['en', 'Back to banks & accounts'],
     ['fr', 'Retour aux banques et comptes'],
@@ -186,6 +202,18 @@ test('manual positions use a localized return action', () => {
     assert.equal(t('Zurück zu Banken & Konten'), label);
   }
   setLanguage('de');
+});
+
+test('import, account and transaction labels are localized consistently', () => {
+  const wizard = fs.readFileSync(new URL('../src/features/imports/ImportWizard.tsx', import.meta.url), 'utf8');
+  const accounts = fs.readFileSync(new URL('../src/features/accounts/Accounts.tsx', import.meta.url), 'utf8');
+  const transactions = fs.readFileSync(new URL('../src/features/transactions/Transactions.tsx', import.meta.url), 'utf8');
+  assert.match(wizard, /<th>\{t\("Status"\)\}<\/th>/);
+  assert.match(accounts, /placeholder=\{t\("optional"\)\}/);
+  assert.match(transactions, /className="eyebrow">\{t\("Drilldown"\)\}/);
+  for (const key of ['Status', 'optional', 'Drilldown']) {
+    assert.equal(messages[key]?.length, 3, key);
+  }
 });
 
 test('managed account status badges are localized', () => {

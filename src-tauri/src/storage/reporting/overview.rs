@@ -24,14 +24,14 @@ pub(crate) fn database_status(storage: &Storage) -> Result<DatabaseStatus, Strin
 }
 
 pub(crate) fn dashboard_data(storage: &Storage) -> Result<DashboardData, String> {
-    dashboard_from(&storage)
+    dashboard_from(storage)
 }
 
 pub(crate) fn wealth_data(
     storage: &Storage,
     account_ids: Option<Vec<i64>>,
 ) -> Result<WealthData, String> {
-    wealth_from(&storage, account_ids.as_deref())
+    wealth_from(storage, account_ids.as_deref())
 }
 
 pub(crate) fn wealth_from(

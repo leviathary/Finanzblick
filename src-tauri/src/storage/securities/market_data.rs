@@ -5,6 +5,15 @@ use chrono::Local;
 use rusqlite::params;
 use std::collections::BTreeMap;
 
+pub(crate) struct FetchedPrices {
+    pub(crate) symbol: String,
+    pub(crate) currency: String,
+    pub(crate) source: String,
+    pub(crate) prices: Vec<DailyPrice>,
+    pub(crate) fx_source: String,
+    pub(crate) rates: BTreeMap<String, f64>,
+}
+
 pub(crate) fn demo_position_count(storage: &Storage) -> Result<Option<usize>, String> {
     let db = storage.connect().map_err(db_error)?;
     if database::demo::is_demo(&db) {
@@ -108,13 +117,16 @@ pub(crate) fn refresh_inputs(
 pub(crate) fn store_prices(
     storage: &Storage,
     position: &PositionToRefresh,
-    symbol: &str,
-    currency: &str,
-    source: &str,
-    prices: Vec<DailyPrice>,
-    fx_source: &str,
-    rates: BTreeMap<String, f64>,
+    fetched: FetchedPrices,
 ) -> Result<usize, String> {
+    let FetchedPrices {
+        symbol,
+        currency,
+        source,
+        prices,
+        fx_source,
+        rates,
+    } = fetched;
     let mut connection = storage.connect().map_err(db_error)?;
     let transaction = connection.transaction().map_err(db_error)?;
     transaction

@@ -54,7 +54,7 @@ pub(crate) fn account_details(
 
 fn read_details(db: &Connection, id: i64, limit: usize) -> rusqlite::Result<AccountDetails> {
     let account = accounts_on(db)
-        .map_err(|e| rusqlite::Error::InvalidParameterName(e))?
+        .map_err(rusqlite::Error::InvalidParameterName)?
         .into_iter()
         .find(|a| a.id == id)
         .ok_or(rusqlite::Error::QueryReturnedNoRows)?;

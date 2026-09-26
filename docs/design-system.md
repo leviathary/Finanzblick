@@ -97,8 +97,9 @@ in `src/styles/application.css`; Feature-Styles verwenden dieselben Farbrollen.
 - Weiß auf hellem Slate; dezente Rahmen und Schatten statt vieler farbiger Kästen.
 - Das Desktopfenster startet mit 1520 × 900 px, damit die vollständige
   Monatsvergleichstabelle einschließlich „Ø / Monat“ sichtbar ist. Die unterstützte
-  Mindestbreite bleibt 920 px; schmalere Layouts dürfen horizontal scrollbare
-  Datentabellen verwenden.
+  reguläre Fensterbreite bleibt 920 px. Bei starkem Zoom oder kleineren Fenstern
+  bricht die Seitennavigation um und der Inhalt nutzt die verfügbare Breite;
+  breite Datentabellen dürfen innerhalb ihrer Card horizontal scrollen.
 - Standard-Card: `dashboard-card`, Radius `--radius-card` (12 px),
   Schatten `--shadow-card`, Innenabstand normalerweise 24 px.
 - Anmeldung: maximal 420 px breit, Radius 16 px, Innenabstand 32 px.

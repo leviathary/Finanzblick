@@ -401,7 +401,7 @@ export function Accounts() {
                     externalReference: event.target.value,
                   })
                 }
-                placeholder="optional"
+                placeholder={t("optional")}
               />
             </label>
           </div>

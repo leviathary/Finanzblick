@@ -213,7 +213,7 @@ pub(crate) fn save_manual_valuation(
     let rebuild_now = listing_id.is_none() || request.unit_price_minor.is_some();
     transaction.commit().map_err(db_error)?;
     if rebuild_now {
-        rebuild_daily_valuations(&storage)?;
+        rebuild_daily_valuations(storage)?;
     }
     Ok(())
 }

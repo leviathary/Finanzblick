@@ -103,8 +103,6 @@ pub fn run() {
             commands::database::copy_database,
             commands::database::create_anonymized_copy,
             commands::database::switch_database,
-            commands::database::anonymize_database,
-            commands::database::anonymize_database_with_factor,
             commands::database::delete_database,
             commands::database::save_app_settings,
             commands::database::change_vault_password,

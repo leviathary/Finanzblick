@@ -709,6 +709,10 @@
   color: var(--text-positive);
   background: var(--bg-positive);
 }
+.tax-validation.pending {
+  color: var(--text-secondary);
+  background: var(--bg-muted);
+}
 .tax-validation.notice {
   color: var(--text-warning);
   background: var(--bg-warning);

@@ -86,7 +86,7 @@ pub(crate) fn validate_request(r: &PrepareRequest) -> Result<(NaiveDate, NaiveDa
             m.content.len() > 20_000
                 || !matches!((&m.role, i % 2), (Role::User, 0) | (Role::Assistant, 1))
         })
-        || r.history.len() % 2 != 0
+        || !r.history.len().is_multiple_of(2)
     {
         return Err("Die Frage oder der Chat ist zu lang. Bitte einen neuen Chat beginnen.".into());
     }

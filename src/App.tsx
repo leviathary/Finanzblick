@@ -28,16 +28,10 @@ import { MoonLanderLauncher } from "./features/moon-lander/MoonLanderLauncher";
 import { OnboardingTour } from "./features/onboarding/OnboardingTour";
 import { markOnboardingComplete, onboardingOpenEvent, shouldShowOnboarding } from "./features/onboarding/onboardingState";
 import { NavIcon } from "./shared/navigation/NavIcon";
+import { SectionTabs, SectionPanel } from "./shared/navigation/SectionTabs";
 
 type Page = "holdings" | "chat" | "help" | "data-security" | "settings" | "categories" | "overview" | "accounts" | "assets" | "taxes" | "tax-years" | "transactions" | "transfers" | "cards" | "card-setup" | "imports" | "import-history";
 type ImportKind = "bank" | "tax";
-
-function ImportKindTabs({ value, onChange }: { value: ImportKind; onChange: (value: ImportKind) => void }) {
-  return <div className="import-kind-tabs" role="tablist" aria-label={t("Importart")}>
-    <button type="button" role="tab" aria-selected={value === "bank"} onClick={() => onChange("bank")}>{t("Bankauszüge")}</button>
-    <button type="button" role="tab" aria-selected={value === "tax"} onClick={() => onChange("tax")}>{t("Steuererklärungen")}</button>
-  </div>;
-}
 
 function pageFromHash(): Page {
   if (window.location.hash === "#chat") return "chat";
@@ -125,25 +119,25 @@ function App() {
         <strong className="brand">Saldonaut</strong>
         <nav className="sidebar-primary" aria-label={t("Hauptnavigation")}>
           <div className="sidebar-nav-group" role="group" aria-label={t("Analyse")}>
-            <a className={page === "overview" ? "active" : ""} href="#overview"><NavIcon name="home"/><span>{t("Übersicht")}</span></a>
-            <a className={page === "assets" ? "active" : ""} href="#assets"><NavIcon name="chart"/><span>{t("Vermögen")}</span></a>
+            <a className={page === "overview" ? "active" : ""} aria-current={page === "overview" ? "page" : undefined} href="#overview"><NavIcon name="home"/><span>{t("Übersicht")}</span></a>
+            <a className={page === "assets" ? "active" : ""} aria-current={page === "assets" ? "page" : undefined} href="#assets"><NavIcon name="chart"/><span>{t("Vermögen")}</span></a>
             <a className={page === "holdings" ? "active" : ""} aria-current={page === "holdings" ? "page" : undefined} href="#holdings"><NavIcon name="bank"/><span>{t("Konten & Depots")}</span></a>
-            <a className={page === "transactions" || page === "transfers" || page === "cards" || page === "card-setup" ? "active" : ""} href="#transactions"><NavIcon name="transactions"/><span>{t("Transaktionen")}</span></a>
+            <a className={page === "transactions" || page === "transfers" || page === "cards" || page === "card-setup" ? "active" : ""} aria-current={page === "transactions" || page === "transfers" || page === "cards" || page === "card-setup" ? "page" : undefined} href="#transactions"><NavIcon name="transactions"/><span>{t("Transaktionen")}</span></a>
           </div>
           <div className="sidebar-nav-group" role="group" aria-label={t("Weitere Auswertungen und Werkzeuge")}>
             <a className={page === "taxes" || page === "tax-years" ? "active" : ""} aria-current={page === "taxes" || page === "tax-years" ? "page" : undefined} href="#taxes"><NavIcon name="tax"/><span>{t("Steuern")}</span></a>
-            <a className={page === "chat" ? "active" : ""} href="#chat"><NavIcon name="chat"/><span>{t("Finanzchat")}</span></a>
+            <a className={page === "chat" ? "active" : ""} aria-current={page === "chat" ? "page" : undefined} href="#chat"><NavIcon name="chat"/><span>{t("Finanzchat")}</span></a>
           </div>
           <div className="sidebar-nav-group" role="group" aria-label={t("Verwaltung")}>
             <a className={page === "imports" || page === "import-history" ? "active" : ""} aria-current={page === "imports" || page === "import-history" ? "page" : undefined} href="#imports"><NavIcon name="import"/><span>{t("Import")}</span></a>
-            <a className={page === "accounts" ? "active" : ""} href="#banks"><NavIcon name="bank"/><span>{t("Kontenverwaltung")}</span></a>
-            <a className={page === "categories" ? "active" : ""} href="#categories"><NavIcon name="tag"/><span>{t("Kategorien")}</span></a>
+            <a className={page === "accounts" ? "active" : ""} aria-current={page === "accounts" ? "page" : undefined} href="#banks"><NavIcon name="bank"/><span>{t("Kontenverwaltung")}</span></a>
+            <a className={page === "categories" ? "active" : ""} aria-current={page === "categories" ? "page" : undefined} href="#categories"><NavIcon name="tag"/><span>{t("Kategorien")}</span></a>
           </div>
         </nav>
         <nav className="sidebar-secondary" aria-label={t("Kontonavigation")}>
-          <a className={page === "help" ? "active" : ""} href="#help/start"><NavIcon name="help"/><span>{t("Hilfe")}</span></a>
-          <a className={page === "data-security" ? "active" : ""} href="#data-security"><NavIcon name="history"/><span>{t("Daten & Sicherheit")}</span></a>
-          <a className={page === "settings" ? "active" : ""} href="#settings"><NavIcon name="settings"/><span>{t("Einstellungen")}</span></a>
+          <a className={page === "help" ? "active" : ""} aria-current={page === "help" ? "page" : undefined} href="#help/start"><NavIcon name="help"/><span>{t("Hilfe")}</span></a>
+          <a className={page === "data-security" ? "active" : ""} aria-current={page === "data-security" ? "page" : undefined} href="#data-security"><NavIcon name="history"/><span>{t("Daten & Sicherheit")}</span></a>
+          <a className={page === "settings" ? "active" : ""} aria-current={page === "settings" ? "page" : undefined} href="#settings"><NavIcon name="settings"/><span>{t("Einstellungen")}</span></a>
           <button type="button" onClick={() => { void lockVault(); }}><NavIcon name="logout"/><span>{t("Abmelden")}</span></button>
         </nav>
       </aside>
@@ -154,9 +148,11 @@ function App() {
         </nav>}
         {page === "chat" ? <FinanceChat /> : page === "help" ? <Help /> : page === "data-security" ? <DataSecurity /> : page === "settings" ? <Settings /> : page === "overview" ? <Overview onImport={() => navigate("imports")} /> : page === "holdings" ? <AccountExplorer /> : page === "accounts" ? <Accounts /> : page === "assets" ? <Assets onAccounts={() => navigate("accounts")} onImport={() => navigate("imports")} /> : page === "taxes" ? <TaxHistory /> : page === "tax-years" ? <TaxHistory view="management" /> : page === "transactions" ? <Transactions /> : page === "transfers" ? <TransferManagement /> : page === "cards" ? <CreditCards /> : page === "card-setup" ? <CardSetupWizard /> : page === "categories" ? <Categories /> : null}
         <div hidden={page !== "imports"}>
-          <ImportKindTabs value={importKind} onChange={(kind) => { setImportKind(kind); window.location.hash = kind === "tax" ? "imports/tax" : "imports"; }} />
-          <div hidden={importKind !== "bank"}><ImportWizard enabled={page === "imports" && importKind === "bank"} /></div>
-          <div hidden={importKind !== "tax"}><TaxHistory view="import" active={page === "imports" && importKind === "tax"} /></div>
+          <SectionTabs id="import-kind" className="import-kind-tabs" label={t("Importart")} value={importKind} onChange={(kind) => { setImportKind(kind as ImportKind); window.location.hash = kind === "tax" ? "imports/tax" : "imports"; }} tabs={[
+            { value: "bank", label: t("Bankauszüge") }, { value: "tax", label: t("Steuererklärungen") },
+          ]} />
+          <SectionPanel id="import-kind" value="bank" active={importKind}><ImportWizard enabled={page === "imports" && importKind === "bank"} /></SectionPanel>
+          <SectionPanel id="import-kind" value="tax" active={importKind}><TaxHistory view="import" active={page === "imports" && importKind === "tax"} /></SectionPanel>
         </div>
         {page === "import-history" && <ImportHistory />}
       </div>

@@ -14,6 +14,8 @@ use std::path::Path;
 use std::sync::RwLock;
 use zeroize::Zeroizing;
 
+const MAX_BACKUP_FILE_SIZE: u64 = 2 * 1024 * 1024 * 1024;
+
 impl Storage {
     pub(crate) fn create_backup_file(&self, destination: &Path) -> Result<(), String> {
         if destination.extension().and_then(|value| value.to_str()) != Some("saldonaut-backup") {
@@ -75,15 +77,23 @@ impl Storage {
             .map_err(|_| "Backup konnte nicht importiert werden.")?;
         let mut input =
             fs::File::open(source).map_err(|_| "Backup konnte nicht gelesen werden.")?;
-        if !input
+        let metadata = input
             .metadata()
-            .map_err(|_| "Backup konnte nicht gelesen werden.")?
-            .is_file()
-        {
+            .map_err(|_| "Backup konnte nicht gelesen werden.")?;
+        if !metadata.is_file() {
             return Err("Bitte eine Backup-Datei wählen.".into());
         }
-        std::io::copy(&mut input, stage.as_file_mut())
-            .map_err(|_| "Backup konnte nicht gelesen werden.")?;
+        if metadata.len() > MAX_BACKUP_FILE_SIZE {
+            return Err("Das Backup ist grösser als 2 GB und kann nicht importiert werden.".into());
+        }
+        let copied = std::io::copy(
+            &mut std::io::Read::take(&mut input, MAX_BACKUP_FILE_SIZE + 1),
+            stage.as_file_mut(),
+        )
+        .map_err(|_| "Backup konnte nicht gelesen werden.")?;
+        if copied > MAX_BACKUP_FILE_SIZE {
+            return Err("Das Backup ist grösser als 2 GB und kann nicht importiert werden.".into());
+        }
         validate_backup(stage.path(), &password)?;
         {
             let restored = open(stage.path(), &password, false)
@@ -271,5 +281,27 @@ mod tests {
             .restore_backup_file(&corrupt, "broken", "test-password".into())
             .is_err());
         assert!(!directory.path().join("broken.vault.sqlite3").exists());
+    }
+
+    #[test]
+    fn restore_rejects_oversized_backups_before_copying_them() {
+        let directory = tempfile::tempdir().unwrap();
+        let storage = Storage {
+            path: directory.path().join("vault.sqlite3"),
+            session: RwLock::new(Session::default()),
+            _lock: None,
+        };
+        let oversized = directory.path().join("oversized.saldonaut-backup");
+        fs::File::create(&oversized)
+            .unwrap()
+            .set_len(MAX_BACKUP_FILE_SIZE + 1)
+            .unwrap();
+
+        let error = storage
+            .restore_backup_file(&oversized, "oversized", "test-password".into())
+            .unwrap_err();
+
+        assert!(error.contains("grösser als 2 GB"));
+        assert!(!directory.path().join("oversized.vault.sqlite3").exists());
     }
 }

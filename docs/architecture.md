@@ -6,7 +6,9 @@ Verbindliche UI-Vorgaben: [Design-Leitfaden](design-system.md).
 
 - Ein Rust-Crate und ein Frontend-Package mit fachlichen Modulgrenzen. Separate
   Cargo-/npm-Pakete erst bei einer tatsächlich unabhängig nutzbaren Schnittstelle.
-- Refactorings verändern weder bestehende Daten noch Command-Namen oder Finanzregeln.
+- Reine Refactorings verändern weder bestehende Daten noch verwendete Command-Namen
+  oder Finanzregeln. Ausdrücklich beauftragte Sicherheitskorrekturen dürfen
+  unbenutzte oder gefährliche Commands entfernen; Aufrufer und Tests sind abzugleichen.
 - Keine Bestandsdatenmigrationen für persönliche Konten oder Entwicklungsdaten.
 - Plattformintegration bleibt Windows/macOS-neutral. Ein macOS-Build ist separat zu prüfen.
 - Neue Abläufe gehören nicht in Repository- oder Basiskomponenten.
@@ -70,7 +72,9 @@ src-tauri/src/
 Commands nehmen Parameter entgegen und delegieren. Mehrstufige Abläufe liegen
 in `application`; einfache Lese-/Schreibvorgänge können unmittelbar an ein
 Repository delegiert werden. In `storage` gibt es keine Tauri-Commands mehr.
-Die bestehenden 66 registrierten Command-Namen bleiben unverändert.
+Genutzte Command-Verträge bleiben bei Refactorings stabil. Ungenutzte oder
+destruktive Zugänge werden ausdrücklich geprüft und bei Bedarf samt Registrierung
+entfernt. Eine frühere Registrierung ist kein Grund, einen unsicheren Zugang zu erhalten.
 
 Karten-Setup: Command → Anwendungsschicht → Repositories.
 Die Anwendungsschicht hält eine gemeinsame Datenbanktransaktion für Regeln
@@ -117,9 +121,11 @@ Die Domäne bleibt unabhängig von SQL und Tauri-Zustand.
 
 `storage/banking/reporting_flags.rs` schreibt manuelle Markierungen.
 `storage/reporting/consumption.rs` stellt die Konsumprojektion bereit.
-Kategorisierungsabfragen liegen in `storage/rules/categorization.rs`;
-die bisherige Initialisierung ruft diese unverändert auf. Das Schema enthält
-nicht mehr deren Implementierung.
+Kategorisierungsabfragen liegen in `storage/rules/categorization.rs`.
+Start, Entsperren und Schema-Initialisierung dürfen bestehende Buchungen nicht
+automatisch neu kategorisieren. Kategorisierung erfolgt im freigegebenen Import
+oder nach einer ausdrücklich ausgelösten Regeländerung. Auswirkungen auf bereits
+gespeicherte Buchungen müssen vor der Freigabe erkennbar sein.
 
 Steuerwerte bilden einen eigenen Fachbereich: Auch Immobilien und Schulden
 gehören dazu, nicht nur Wertschriftendepots. Steuer-PDF-Erkennung, Validierung,
@@ -146,6 +152,30 @@ Sperren wartet weiterhin auf laufende Zugriffe. Sitzungskennung und Generation
 können von der Anwendungsschicht geprüft werden; Passwort und interner
 Sitzungszustand werden dadurch nicht öffentlich.
 
+### Verbindliche Schutzregeln
+
+- Keine personenbezogenen Sonderfälle, echten Kundendaten oder einmaligen
+  Entwicklungsmigrationen im Produkt. Erforderliche individuelle Korrekturen
+  gehören in ein separates, nicht ausgeliefertes Werkzeug. Technische
+  Sicherheitsbereinigungen müssen gesondert dokumentiert und geprüft werden;
+  diese Regel erlaubt keine pauschalen Änderungen historischer Finanzdaten.
+- Anonymisierung ist ausschließlich als neue, temporär erzeugte und geprüfte
+  Profilkopie öffentlich erreichbar. Das Original und die aktive Profilauswahl
+  bleiben erhalten. Interne Hilfsfunktionen sind keine eigenen IPC-Befehle.
+- Jeder registrierte Command braucht einen aktuellen Anwendungsfall und prüft
+  Eingaben sowie erforderlichen Sitzungszugriff im Backend. Eine fehlende
+  UI-Schaltfläche schützt einen registrierten Command nicht.
+- Tauri-Capabilities erlauben nur die tatsächlich benötigten Aktionen und Ziele.
+  Der WebView darf derzeit ausschließlich die feste TradingView-URL öffnen;
+  native Datei- und Anmeldeaktionen validieren ihre Ziele separat.
+- Dateiimporte prüfen Typ und Größe vor Verarbeitung. Backup-Wiederherstellung
+  begrenzt zusätzlich den Kopierstrom auf 2 GiB; eine während des Lesens wachsende
+  Datei darf diese Grenze nicht umgehen. Fehler dürfen kein nutzbares Teilprofil
+  hinterlassen. Die Oberfläche bezeichnet die Grenze derzeit als 2 GB.
+- Normale Importansichten zeigen Dateinamen, keine vollständigen lokalen Pfade.
+  Auch Fehlermeldungen, Tooltips und Diagnoseausgaben sind auf unbeabsichtigte
+  Offenlegung von Benutzernamen und Verzeichnisstrukturen zu prüfen.
+
 ## Frontend
 
 - `features/auth/`: Anmeldung und zugehörige Styles.
@@ -164,6 +194,35 @@ Datenverträge, Backend-Aufrufe und Anzeigehelfer von den Komponenten.
 Die Kontenübersicht besitzt nicht mehr den Positionsformular-Zustand.
 Die Positionsansicht wird pro Konto neu montiert und entfernt ihre
 Event-Listener beim Verlassen.
+
+Komponenten werden nach Verantwortung aufgeteilt: Formular, Diagramm, Datenabruf
+und reine Berechnungen sollen unabhängig überprüfbar sein. Rund 600 Zeilen sind
+ein Anlass zur Aufteilung, kein Qualitätsnachweis; bloßes Verschieben von wenigen
+Zeilen oder Verdichten des Codes genügt nicht. Neue Sammelmodule vermeiden.
+Die Positionsverwaltung delegiert ihr Formular an `ManualPositionEditor.tsx`;
+Steuerhistorie und Buchungsanalyse verwenden ausgelagerte Präsentationshelfer.
+Alle statischen UI-Texte einschließlich Platzhaltern, Tabellenköpfen und
+Fehlermeldungen benötigen `t`/`tr` und Deutsch, Englisch, Französisch, Italienisch.
+
+### Prüfung vor Abschluss einer Änderung
+
+- Relevante Verhaltens- und Regressionstests ausführen; sicherheitsrelevante
+  Grenzen einschließlich Ablehnung und Fehlerbereinigung testen.
+- Bei Rust-Änderungen `cargo test --locked` und
+  `cargo clippy --locked --all-targets -- -D warnings` ausführen.
+  Lint-Ausnahmen eng begrenzen und am Code begründen; im Prüfbericht als Ausnahme
+  nennen, nicht als behobenen Befund. Keine pauschale Warnungsunterdrückung.
+- Bei Frontend-Änderungen `npm test` und `npm run build` ausführen.
+- Bei UI-Änderungen die Abnahmecheckliste aus `design-system.md` anwenden:
+  aktuelle Screenshots, Hell/Dunkel, 1520 px und 920 px Fensterbreite,
+  vergrößerte Darstellung, lange Übersetzungen, Tastatur und Fokus sowie
+  Lade-, Leer-, Fehler- und deaktivierte Zustände.
+- Im Ergebnis geprüfte Ansichten, Datenbasis (synthetisch oder natives Testprofil),
+  Umgebung und verbleibende Grenzen nennen. Ein Browser mit simuliertem Backend
+  belegt die UI, aber weder native Dateidialoge noch einen macOS-Build.
+- Architektur- und Designbeschreibung mit dem tatsächlichen Verhalten abgleichen.
+  Widersprüche bei der Änderung korrigieren; erfolgreiche Builds ersetzen keine
+  visuelle oder interaktive Prüfung.
 
 ## Tests und Erweiterungsregeln
 

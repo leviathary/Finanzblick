@@ -230,6 +230,7 @@ fn price(holding: &Holding, elapsed: f64, index: usize) -> i64 {
         as i64
 }
 
+#[allow(clippy::too_many_arguments)] // A flat call keeps the synthetic demo timeline readable.
 fn booking(
     db: &Connection,
     account: i64,
@@ -364,7 +365,7 @@ fn seed(db: &mut Connection, today: NaiveDate) -> rusqlite::Result<()> {
                 )?;
             }
         }
-        if day.day() == 24 && day.month() % 3 == 0 {
+        if day.day() == 24 && day.month().is_multiple_of(3) {
             booking(
                 &transaction,
                 4,
@@ -556,7 +557,7 @@ fn seed(db: &mut Connection, today: NaiveDate) -> rusqlite::Result<()> {
             } else {
                 portfolio += value;
             }
-            if !sold && day.day() == 26 && day.month() % 3 == 0 {
+            if !sold && day.day() == 26 && day.month().is_multiple_of(3) {
                 booking(
                     &transaction,
                     1,

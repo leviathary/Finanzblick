@@ -19,6 +19,7 @@ import { SettlementRuleDialog } from "./SettlementRuleDialog";
 import { DuplicateRemovalDialog } from "./DuplicateRemovalDialog";
 import { reportPeriod } from "../../domain/reportPeriod";
 import { monthlySelectionContains, summarizeMonthlySelection, type MonthlyCell, type MonthlyCellSelection } from "./monthlyCellSelection";
+import { amountNumber, money, monthName, monthNameLong, shortDate } from "./formatting";
 
 interface Category { key: string; label: string; color: string; amountMinor: number; transactionCount: number }
 interface CategoryBreakdownRow extends Category { keys: string[]; expandable?: boolean; nested?: boolean }
@@ -567,7 +568,7 @@ export function Transactions() {
         </div>
       </section>
       <article id="transaction-details" className="dashboard-card drilldown-table" tabIndex={-1}>
-        <div className="card-heading"><div><p className="eyebrow">Drilldown</p><h2>{monthlyDrilldownLabel ?? (selectionLabel ? selectionLabel : detailMode === "income" ? t("Alle Einnahmen") : t("Alle Ausgaben"))} <span className="drilldown-total">{money(monthlyDrilldown ? drilldownTotal : selectedTotal)}</span></h2></div><div className="drilldown-heading-actions"><span>{drilldownTransactions.length}  {t("Buchungen")}</span>{monthlyDrilldown && <button className="secondary-button" onClick={() => setMonthlyDrilldown(null)}>{t("Monatsauswahl aufheben")}</button>}</div></div>
+        <div className="card-heading"><div><p className="eyebrow">{t("Drilldown")}</p><h2>{monthlyDrilldownLabel ?? (selectionLabel ? selectionLabel : detailMode === "income" ? t("Alle Einnahmen") : t("Alle Ausgaben"))} <span className="drilldown-total">{money(monthlyDrilldown ? drilldownTotal : selectedTotal)}</span></h2></div><div className="drilldown-heading-actions"><span>{drilldownTransactions.length}  {t("Buchungen")}</span>{monthlyDrilldown && <button className="secondary-button" onClick={() => setMonthlyDrilldown(null)}>{t("Monatsauswahl aufheben")}</button>}</div></div>
         <div className="drilldown-filters">
           <label>{t("Buchungen durchsuchen")}<input type="search" placeholder={t("Beschreibung, Konto oder Bank")} value={search} onChange={event => setSearch(event.target.value)} /></label>
           <label>{t("Mindestbetrag (CHF)")}<input type="number" min="0" step="0.01" placeholder="0.00" value={minimum} onChange={event => setMinimum(event.target.value)} /></label>
@@ -594,9 +595,3 @@ export function Transactions() {
     </>}
   </section>;
 }
-
-function money(value: number) { return new Intl.NumberFormat(locale(), { style: "currency", currency: "CHF" }).format(value / 100); }
-function amountNumber(value: number) { return new Intl.NumberFormat(locale(), { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(value / 100); }
-function shortDate(value: string) { const [year, month, day] = value.slice(0, 10).split("-"); return `${day}.${month}.${year}`; }
-function monthName(month: number) { return new Intl.DateTimeFormat(locale(), { month: "short" }).format(new Date(2020, month, 1)); }
-function monthNameLong(month: number) { return new Intl.DateTimeFormat(locale(), { month: "long" }).format(new Date(2020, month, 1)); }

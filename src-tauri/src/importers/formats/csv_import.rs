@@ -61,7 +61,7 @@ fn parse_bytes(bytes: &[u8], selected_provider: Option<&str>) -> Result<ParsedSt
             .get(4)
             .copied()
             .ok_or("Ungültige sep=-Zeile.")?;
-        if ![b';', b',', b'\t'].contains(&separator) {
+        if !b";,\t".contains(&separator) {
             return Err("Nicht unterstütztes CSV-Trennzeichen.".into());
         }
         (
@@ -70,8 +70,9 @@ fn parse_bytes(bytes: &[u8], selected_provider: Option<&str>) -> Result<ParsedSt
             1,
         )
     } else {
-        let separator = [b';', b',', b'\t']
-            .into_iter()
+        let separator = b";,\t"
+            .iter()
+            .copied()
             .max_by_key(|delimiter| first.bytes().filter(|byte| byte == delimiter).count())
             .unwrap();
         (separator, content, 0)

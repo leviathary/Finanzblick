@@ -110,33 +110,6 @@ pub async fn create_anonymized_copy(
 }
 
 #[tauri::command]
-pub async fn anonymize_database(
-    app: tauri::AppHandle,
-    anonymize_descriptions: bool,
-) -> Result<(), String> {
-    tauri::async_runtime::spawn_blocking(move || {
-        app.state::<Storage>()
-            .anonymize_database(anonymize_descriptions)
-    })
-    .await
-    .map_err(|_| "Finanzprofil konnte nicht anonymisiert werden.".to_string())?
-}
-
-#[tauri::command]
-pub async fn anonymize_database_with_factor(
-    app: tauri::AppHandle,
-    factor: f64,
-    anonymize_descriptions: bool,
-) -> Result<(), String> {
-    tauri::async_runtime::spawn_blocking(move || {
-        app.state::<Storage>()
-            .anonymize_database_with_factor(factor, anonymize_descriptions)
-    })
-    .await
-    .map_err(|_| "Finanzprofil konnte nicht anonymisiert werden.".to_string())?
-}
-
-#[tauri::command]
 pub async fn delete_database(app: tauri::AppHandle) -> Result<(), String> {
     tauri::async_runtime::spawn_blocking(move || app.state::<Storage>().delete_database())
         .await
