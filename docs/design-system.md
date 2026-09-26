@@ -225,9 +225,26 @@ in `src/styles/application.css`; Feature-Styles verwenden dieselben Farbrollen.
 
 ## 6. Navigation und Einrichtungsassistenten
 
+- Nach dem ersten erfolgreichen Entsperren darf eine freiwillige, vierstufige
+  Willkommensführung als modaler Dialog erscheinen. Sie stellt Saldonaut zunächst
+  als gemeinsame Sicht auf mehrere Finanzbeziehungen vor und erklärt anschließend
+  Datenschutz, Import und die wichtigsten Auswertungen, wechselt dabei aber
+  nicht automatisch die Seite. Der Dialog ist gross genug für UI-nahe Vorschauen
+  mit ausschliesslich synthetischen Daten; kurze Begleittexte ersetzen längere
+  Erklärblöcke. Seine Piktogramme stammen aus derselben gemeinsamen Komponente wie
+  die Seitenleiste. In der zweispaltigen Desktopdarstellung beginnen Begleittext
+  und UI-Vorschau bündig an derselben Oberkante. Die nicht interaktive
+  Schrittüberschrift erhält zur Screenreader-Ankündigung programmatisch Fokus,
+  aber keinen irreführenden sichtbaren Eingaberahmen; alle bedienbaren Elemente
+  behalten ihren sichtbaren Fokus. „Überspringen“ bleibt immer sichtbar; Abschluss
+  und Überspringen werden gerätebezogen versioniert gespeichert. Unter Hilfe →
+  Erste Schritte kann die Einführung erneut geöffnet werden. Der Dialog führt
+  den Tastaturfokus, unterstützt Escape und bietet am Ende Übersicht und Import
+  als ausdrücklich beschriftete Ziele an.
+
 - Die Hauptnavigation der Seitenleiste ist ohne sichtbare Gruppenüberschriften in
   drei Bereiche gegliedert: Übersicht, Vermögen, Konten & Depots und Transaktionen;
-  danach Steuerhistorie und Finanzchat; danach Import, Kontenverwaltung und Kategorien.
+  danach Steuern und Finanzchat; danach Import, Kontenverwaltung und Kategorien.
   Dezente Trennlinien mit kompaktem Abstand kennzeichnen die Gruppen. Für
   assistive Technologien bleiben die Bereiche als benannte Gruppen erkennbar.
 - Die globale „Hilfe“ steht im unteren Navigationsbereich direkt oberhalb von
@@ -457,12 +474,32 @@ in `src/styles/application.css`; Feature-Styles verwenden dieselben Farbrollen.
   Kompakte rechtsbündige Attribution mit TradingView-Link, Copyright im aufklappbaren
   Lizenzhinweis und in den ausgelieferten Lizenzen; keine externen Datenfeeds.
 - Import und Importverwaltung bilden einen Seitenleistenpunkt „Import“ mit den
-  Reitern „Dateien importieren“ und „Importierte Dateien“. Darunter bleibt die
-  Auswahl Bankauszüge/Steuererklärungen beim Reiterwechsel erhalten. Bestehende
-  Direktlinks bleiben erreichbar; erfolgreiche Bankimporte verlinken ihre Einträge.
+  Reitern „Dateien importieren“ und „Importierte Dateien“. Bankauszüge und
+  Steuererklärungen werden ausschließlich bei „Dateien importieren“ als Importart
+  gewählt. „Importierte Dateien“ verwaltet die gespeicherten Bankimporte;
+  Steuerjahre stehen im eigenständigen Bereich „Steuern“. Bestehende Direktlinks
+  bleiben über Weiterleitungen erreichbar; erfolgreiche Bankimporte verlinken ihre Einträge.
+  Beim Steuererklärungsimport wird kein Reiter oder Direktlink zu „Steuerjahre“
+  eingeblendet; der bewusste Wechsel zur Verwaltung erfolgt über den
+  Seitenleistenpunkt „Steuern“.
+- Der Seitenleistenpunkt „Steuern“ enthält die Reiter „Steuerhistorie“ und
+  „Steuerjahre“. Die Historie zeigt den langfristigen Verlauf; unter „Steuerjahre“
+  werden gespeicherte Jahreswerte unabhängig von ihrer Herkunft bearbeitet und
+  gelöscht. Dort liegt auch die Hauptaktion „Steuerjahr erfassen“ für die manuelle
+  Eingabe. Der PDF-Import bleibt unter Import → Steuererklärungen und verlinkt zur
+  Verwaltung; der Importbereich enthält keine manuelle Erfassung.
 - Depotbestände verwenden dieselbe Dateiauswahl, Drag-and-drop-Zone,
   Importliste und Vorschau wie Bankauszüge. Der Dokumenttyp wird automatisch
   erkannt; es gibt keine separate Provider-Karte oder zweite Dateiauswahl.
+  Die gesamte Dropzone öffnet bei Mausklick den Dateidialog als Komfortfunktion;
+  ein sichtbarer Hauptbutton „Dateien auswählen“ macht diese Aktion unabhängig
+  davon erkennbar und per Tastatur erreichbar. Ordnerauswahl und Unterordneroption
+  stehen ausserhalb der Dropzone. Hover und Drag-over verwenden die dunkelblaue
+  Interaktionsfarbe; Grün bleibt dem erfolgreichen Import vorbehalten.
+  Der PDF-Import von Steuererklärungen verwendet dieselbe Dropzone, Klicklogik,
+  Upload-Symbolik und Zustandsdarstellung mit steuerbezogener Beschriftung. Der
+  Hinweis zur lokalen PDF-Verarbeitung steht dort als normaler Sekundärtext ohne
+  farbige Hinweisfläche oder Rahmen.
   Swissquote ist der erste unterstützte Positionsparser. Vorschau, Abgleich,
   Stichtagsregeln und Speicherung sind anbieterneutral und vom Buchungsimport getrennt.
   Die Vorschau zeigt Symbol, Kurssymbol, bisherigen und neuen Mengenstand sowie

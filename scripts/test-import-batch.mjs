@@ -84,6 +84,13 @@ test("position snapshots use the shared picker, drag-and-drop list and automatic
   assert.doesNotMatch(swissquoteReviewSource, /plugin-dialog/);
 });
 
+test("drop zone exposes file selection visibly and keeps folder options separate", () => {
+  assert.match(wizardSource, /className=\{`drop-zone batch-drop[\s\S]+onClick=\{\(\) => \{ if \(!busy\) void choose\(false\); \}\}/);
+  assert.match(wizardSource, /className="primary-button" disabled=\{busy\} onClick=\{event => \{ event\.stopPropagation\(\); void choose\(false\); \}\}>\{t\("Dateien auswählen"\)\}/);
+  assert.match(wizardSource, /<\/div>\s*<div className="batch-drop-options"><button className="secondary-button"[\s\S]+?\{t\("Ordner auswählen"\)\}<\/button>/);
+  assert.match(applicationCss, /\.batch-drop:hover:not\(\.disabled\),\s*\.batch-drop\.dragging\s*\{[^}]+border-color:\s*var\(--interactive\);/s);
+});
+
 test("overlapping card exports expose provisional transaction updates", () => {
   assert.match(wizardSource, /check\.updatableTransactions === 0/);
   assert.match(wizardSource, /vorläufige Kreditkartenbuchungen werden mit den endgültigen Abrechnungsdaten aktualisiert/);

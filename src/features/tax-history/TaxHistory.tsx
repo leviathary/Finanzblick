@@ -89,11 +89,16 @@ export function TaxHistory({ view = "history", active = true }: { view?: TaxHist
   const [manual, setManual] = useState<ManualTaxEntry>(emptyManualEntry);
   const busyRef = useRef(false);
   const editorRef = useRef<HTMLDivElement>(null);
+  const manualYearRef = useRef<HTMLInputElement>(null);
+  const manualButtonRef = useRef<HTMLButtonElement>(null);
   busyRef.current = busy;
 
   useEffect(() => {
     editorRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
   }, [editing?.id]);
+  useEffect(() => {
+    if (view === "management" && manualOpen) manualYearRef.current?.focus();
+  }, [manualOpen, view]);
 
   const load = () =>
     invoke<TaxSnapshot[]>("list_tax_snapshots")
@@ -191,7 +196,6 @@ export function TaxHistory({ view = "history", active = true }: { view?: TaxHist
     ]);
     if (failures.length) {
       setError(failures.join("\n"));
-      setManualOpen(true);
     }
   }
 
@@ -256,6 +260,7 @@ export function TaxHistory({ view = "history", active = true }: { view?: TaxHist
       );
       setManual(emptyManualEntry());
       setManualOpen(false);
+      manualButtonRef.current?.focus();
       await load();
     } catch (reason) {
       setError(String(reason));
@@ -332,93 +337,61 @@ export function TaxHistory({ view = "history", active = true }: { view?: TaxHist
 
   return (
     <section className="tax-history-page">
-      {view === "history" && <div className="overview-heading">
-        <div>
-          <p className="eyebrow">{t("Langzeitverlauf")}</p>
-          <h1>{t("Vermögen nach Steuerjahren")}</h1>
-          <p className="intro">
-            {t("Jährliche Vermögenswerte aus deinen Steuererklärungen, unabhängig von Bankimporten.")}
-          </p>
+      {view !== "import" && <>
+        <div className="overview-heading">
+          <div>
+            <p className="eyebrow">{view === "history" ? t("Langzeitverlauf") : t("Jahreswerte")}</p>
+            <h1>{t("Steuern")}</h1>
+            <p className="intro">{view === "history"
+              ? t("Jährliche Vermögenswerte aus deinen Steuererklärungen, unabhängig von Bankimporten.")
+              : t("Prüfe und bearbeite deine gespeicherten Jahreswerte oder erfasse ein Steuerjahr manuell.")}</p>
+          </div>
+          {view === "management" && <div className="tax-heading-actions">
+            <a className="secondary-button" href="#imports/tax">{t("Steuererklärung importieren")}</a>
+            <button ref={manualButtonRef} className="primary-button" type="button" disabled={busy} aria-expanded={manualOpen} onClick={() => setManualOpen((current) => !current)}>
+              {manualOpen ? t("Manuelle Eingabe schliessen") : t("Steuerjahr erfassen")}
+            </button>
+          </div>}
         </div>
-      </div>}
+        <nav className="transaction-tabs" aria-label={t("Steuern")}>
+          <a href="#taxes" aria-current={view === "history" ? "page" : undefined}>{t("Steuerhistorie")}</a>
+          <a href="#taxes/years" aria-current={view === "management" ? "page" : undefined}>{t("Steuerjahre")}</a>
+        </nav>
+      </>}
 
       {view === "import" && <div className="overview-heading">
         <div>
           <p className="eyebrow">{t("Import")}</p>
           <h1>{t("Steuererklärungen importieren")}</h1>
-          <p className="intro">{t("Steuererklärungen als PDF auslesen oder Jahreswerte ohne Datei manuell erfassen.")}</p>
+          <p className="intro">{t("Steuererklärungen als PDF auslesen und erkannte Jahreswerte vor dem Speichern prüfen.")}</p>
         </div>
       </div>}
 
-      {view === "management" && <div className="overview-heading">
-        <div>
-          <p className="eyebrow">{t("Import")}</p>
-          <h1>{t("Importierte Steuererklärungen")}</h1>
-          <p className="intro">{t("Prüfe die gespeicherten Jahreswerte und passe sie bei Bedarf an.")}</p>
-        </div>
-        <a className="primary-button" href="#imports/tax">{t("Steuererklärung importieren")}</a>
-      </div>}
-
-      {view === "import" && <><div className="privacy-note">
+      {view === "import" && <><p className="tax-privacy-text">
         <strong>{t("Lokale Verarbeitung")}</strong>
-        <span>{t("Die PDFs werden nur ausgelesen. Gespeichert werden das Steuerjahr, die geprüften Summen und ein Dateifingerabdruck - nicht das PDF selbst.")}</span>
-      </div>
+        {" "}<span>{t("Die PDFs werden nur ausgelesen. Gespeichert werden das Steuerjahr, die geprüften Summen und ein Dateifingerabdruck - nicht das PDF selbst.")}</span>
+      </p>
 
       <div
-        className={`drop-zone tax-drop-zone${dragging ? " dragging" : ""}`}
+        className={`drop-zone batch-drop tax-drop-zone${dragging ? " dragging" : ""}${busy ? " disabled" : ""}`}
+        onClick={() => { if (!busy) void chooseFiles(); }}
         onDragOver={(event) => event.preventDefault()}
         onDrop={(event) => {
           event.preventDefault();
           if (!isTauri()) setError(t("Drag-and-drop ist in der Desktop-App verfügbar."));
         }}
       >
-        <div className="file-icon" aria-hidden="true">PDF</div>
-        <h2>{t("Steuererklärungen hierher ziehen")}</h2>
-        <p>{t("Eine oder mehrere PDF-Dateien ablegen und die erkannten Jahreswerte anschliessend prüfen.")}</p>
-        <button className="primary-button" type="button" disabled={busy} onClick={() => void chooseFiles()}>
+        <span className="batch-drop-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M12 16V4m0 0L7.5 8.5M12 4l4.5 4.5"/><path d="M5 13v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5"/></svg></span>
+        <h2>{dragging ? t("Loslassen, um Steuererklärungen hinzuzufügen") : t("Steuererklärungen hierher ziehen")}</h2>
+        <span className="batch-drop-separator">{t("oder")}</span>
+        <button className="primary-button" type="button" disabled={busy} onClick={(event) => { event.stopPropagation(); void chooseFiles(); }}>
           {busy ? t("PDFs werden verarbeitet…") : t("PDFs auswählen")}
         </button>
         <small>{t("Unterstützt werden elektronisch erzeugte Steuererklärungen im PDF-Format.")}</small>
       </div>
 
-      <div className="tax-manual-prompt">
-        <div>
-          <strong>{t("Kein lesbares PDF vorhanden?")}</strong>
-          <small>{t("Erfasse die Jahreswerte direkt von Hand.")}</small>
-        </div>
-        <button className="secondary-button" type="button" disabled={busy} aria-expanded={manualOpen} onClick={() => setManualOpen((current) => !current)}>
-          {manualOpen ? t("Manuelle Eingabe schliessen") : t("Steuerjahr manuell erfassen")}
-        </button>
-      </div>
-
       {message && <p className="import-result" role="status">{message}</p>}
       {error && <p className="error-message preserve-lines" role="alert">{error}</p>}
-
-      {manualOpen && <form className="tax-preview-section tax-manual-entry" aria-labelledby="tax-manual-title" onSubmit={(event) => { event.preventDefault(); void saveManual(); }}>
-        <div className="card-heading">
-          <div>
-            <p className="eyebrow">{t("Manuelle Eingabe")}</p>
-            <h2 id="tax-manual-title">{t("Steuerjahr ohne PDF erfassen")}</h2>
-          </div>
-        </div>
-        <label className="tax-year-field">{t("Steuerjahr")}
-          <input type="number" min="1990" max="2100" step="1" inputMode="numeric" value={manual.taxYear} onChange={(event) => setManual({ ...manual, taxYear: event.target.value })} />
-        </label>
-        {manualYearExists && <p className="warning-message">{t("Für dieses Jahr besteht bereits ein Wert. Beim Speichern wird er ersetzt.")}</p>}
-        <TaxValueEditor item={manual} onChange={(change) => setManual({ ...manual, ...change })} />
-        <div className={`tax-validation ${manualStatus}`} role="status">
-          {manualStatus === "valid"
-            ? t("Plausibel: Vermögensaufteilung und Nettowert sind rechnerisch konsistent.")
-            : manualStatus === "notice"
-              ? t("Hinweis: Die Vermögensaufteilung entspricht nicht den gesamten Vermögenswerten. Das Steuerjahr kann trotzdem gespeichert werden.")
-              : t("Bitte Werte korrigieren: Vermögenswerte minus Schulden müssen dem steuerbaren Vermögen entsprechen.")}
-        </div>
-        {!manualYearValid && <p className="warning-message">{t("Bitte ein Steuerjahr zwischen 1990 und 2100 eingeben.")}</p>}
-        <div className="tax-preview-actions">
-          <button className="text-button" type="button" disabled={busy} onClick={() => { setManual(emptyManualEntry()); setManualOpen(false); }}>{t("Abbrechen")}</button>
-          <button className="primary-button" type="submit" disabled={busy || !manualCanSave}>{manualYearExists ? t("Jahr aktualisieren") : t("Jahr speichern")}</button>
-        </div>
-      </form>}
 
       {previews.length > 0 && (
         <section className="tax-preview-section" aria-labelledby="tax-preview-title">
@@ -466,6 +439,34 @@ export function TaxHistory({ view = "history", active = true }: { view?: TaxHist
         </section>
       )}</>}
 
+      {view === "management" && message && <p className="import-result" role="status">{message}</p>}
+      {view === "management" && error && <p className="error-message preserve-lines" role="alert">{error}</p>}
+      {view === "management" && manualOpen && <form className="tax-preview-section tax-manual-entry" aria-labelledby="tax-manual-title" onSubmit={(event) => { event.preventDefault(); void saveManual(); }}>
+        <div className="card-heading">
+          <div>
+            <p className="eyebrow">{t("Manuelle Eingabe")}</p>
+            <h2 id="tax-manual-title">{t("Steuerjahr ohne PDF erfassen")}</h2>
+          </div>
+        </div>
+        <label className="tax-year-field">{t("Steuerjahr")}
+          <input ref={manualYearRef} type="number" min="1990" max="2100" step="1" inputMode="numeric" value={manual.taxYear} onChange={(event) => setManual({ ...manual, taxYear: event.target.value })} />
+        </label>
+        {manualYearExists && <p className="warning-message">{t("Für dieses Jahr besteht bereits ein Wert. Beim Speichern wird er ersetzt.")}</p>}
+        <TaxValueEditor item={manual} onChange={(change) => setManual({ ...manual, ...change })} />
+        <div className={`tax-validation ${manualStatus}`} role="status">
+          {manualStatus === "valid"
+            ? t("Plausibel: Vermögensaufteilung und Nettowert sind rechnerisch konsistent.")
+            : manualStatus === "notice"
+              ? t("Hinweis: Die Vermögensaufteilung entspricht nicht den gesamten Vermögenswerten. Das Steuerjahr kann trotzdem gespeichert werden.")
+              : t("Bitte Werte korrigieren: Vermögenswerte minus Schulden müssen dem steuerbaren Vermögen entsprechen.")}
+        </div>
+        {!manualYearValid && <p className="warning-message">{t("Bitte ein Steuerjahr zwischen 1990 und 2100 eingeben.")}</p>}
+        <div className="tax-preview-actions">
+          <button className="text-button" type="button" disabled={busy} onClick={() => { setManual(emptyManualEntry()); setManualOpen(false); manualButtonRef.current?.focus(); }}>{t("Abbrechen")}</button>
+          <button className="primary-button" type="submit" disabled={busy || !manualCanSave}>{manualYearExists ? t("Jahr aktualisieren") : t("Jahr speichern")}</button>
+        </div>
+      </form>}
+
       {view === "history" && snapshots.length > 0 ? (
         <>
           <div className="summary-grid tax-summary-grid">
@@ -512,7 +513,7 @@ export function TaxHistory({ view = "history", active = true }: { view?: TaxHist
             <div className="card-heading">
               <div>
                 <p className="eyebrow">{t("Jahreswerte")}</p>
-                <h2>{t("Importierte Steuererklärungen")}</h2>
+                <h2>{t("Steuerjahre")}</h2>
               </div>
             </div>
             {editing && (() => {
@@ -562,8 +563,7 @@ export function TaxHistory({ view = "history", active = true }: { view?: TaxHist
 
       {view === "management" && snapshotsLoaded && snapshots.length === 0 && !error ? <article className="dashboard-card tax-empty-state">
         <h2>{t("Noch keine Jahreswerte")}</h2>
-        <p>{t("Importiere zuerst eine Steuererklärung, um ihre Jahreswerte hier verwalten zu können.")}</p>
-        <a className="primary-button" href="#imports/tax">{t("Steuererklärung importieren")}</a>
+        <p>{t("Erfasse ein Steuerjahr manuell oder importiere eine Steuererklärung als PDF.")}</p>
       </article> : null}
     </section>
   );

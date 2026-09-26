@@ -546,20 +546,15 @@
   max-width: 1480px;
   margin: 0 auto;
 }
-.privacy-note {
-  display: flex;
-  gap: 10px;
-  align-items: baseline;
-  margin: 22px 0;
-  padding: 13px 15px;
-  border: 1px solid var(--border-positive);
-  border-radius: 10px;
-  color: var(--text-positive);
-  background: var(--bg-positive);
+.tax-privacy-text {
+  margin: 18px 0 20px;
+  color: var(--text-secondary);
   font-size: 13px;
+  line-height: 1.6;
 }
-.privacy-note span {
-  color: var(--text-positive);
+.tax-privacy-text strong {
+  margin-right: 6px;
+  color: var(--text-primary);
 }
 .preserve-lines {
   white-space: pre-line;
@@ -572,33 +567,12 @@
   background: var(--bg-surface);
   box-shadow: var(--shadow-card);
 }
-.tax-drop-zone {
-  min-height: 240px;
-  margin: 22px 0;
-}
-.tax-drop-zone .file-icon {
-  width: 58px;
-  font-size: 13px;
-  font-weight: 800;
-  letter-spacing: 0.04em;
-}
-.tax-manual-prompt {
+.tax-heading-actions {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 20px;
-  margin: -6px 0 22px;
-  padding: 16px 18px;
-  border: 1px solid var(--border-subtle);
-  border-radius: 10px;
-  background: var(--bg-surface);
-}
-.tax-manual-prompt > div {
-  display: grid;
-  gap: 4px;
-}
-.tax-manual-prompt small {
-  color: var(--text-secondary);
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 12px;
 }
 .tax-manual-entry {
   margin-top: 18px;
@@ -921,11 +895,7 @@
   .tax-summary-grid {
     grid-template-columns: 1fr;
   }
-  .privacy-note {
-    align-items: flex-start;
-    flex-direction: column;
-  }
-  .tax-manual-prompt {
+  .tax-heading-actions {
     align-items: stretch;
     flex-direction: column;
   }

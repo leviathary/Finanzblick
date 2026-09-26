@@ -11,7 +11,7 @@ const read = file => fs.readFileSync(new URL(file, root), "utf8");
 test("sidebar prioritizes analysis and separates unlabeled task groups", () => {
   const app = read("src/App.tsx");
   const styles = read("src/styles/application.css");
-  const links = ["#overview", "#assets", "#transactions", "#tax-history", "#chat", "#imports", "#banks", "#categories"];
+  const links = ["#overview", "#assets", "#transactions", "#taxes", "#chat", "#imports", "#banks", "#categories"];
   const positions = links.map(link => app.indexOf(`href="${link}"`));
   assert.ok(positions.every(position => position >= 0));
   assert.deepEqual([...positions].sort((a, b) => a - b), positions);

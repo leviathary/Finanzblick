@@ -21,7 +21,9 @@ test('unified import navigation and completion messages have translations', () =
   const app = fs.readFileSync(new URL('../src/App.tsx', import.meta.url), 'utf8');
   assert.ok(!app.includes('t("Importverwaltung")'));
   assert.ok(app.includes('page === "imports" || page === "import-history"'));
-  assert.ok(app.includes('"#import-history/tax" : "#import-history"'));
+  assert.ok(app.includes('importKind === "bank"'));
+  assert.ok(!app.includes('importKind === "tax" ? t("Steuerjahre")'));
+  assert.ok(!app.includes('managementKind'));
   const wizard = fs.readFileSync(new URL('../src/features/imports/ImportWizard.tsx', import.meta.url), 'utf8');
   assert.ok(wizard.includes('summary.ids.push(change.result.importId)'));
   assert.ok(wizard.includes('#import-history?ids='));
@@ -163,6 +165,14 @@ test('tax history summary and chart labels are translated', () => {
     assert.equal(t('Steuerjahre'), years);
     assert.equal(t('Schulden'), debt);
   }
+  assert.match(code, /className=\{`drop-zone batch-drop tax-drop-zone/);
+  assert.match(code, /onClick=\{\(\) => \{ if \(!busy\) void chooseFiles\(\); \}\}/);
+  assert.match(code, /event\.stopPropagation\(\); void chooseFiles\(\);/);
+  assert.match(code, /view === "management" && manualOpen && <form/);
+  assert.doesNotMatch(code, /Kein lesbares PDF vorhanden\?/);
+  assert.match(code, /className="tax-privacy-text"/);
+  assert.doesNotMatch(code, /className="privacy-note"/);
+  assert.match(code, /href="#taxes\/years"/);
   setLanguage('de');
 });
 
@@ -218,6 +228,36 @@ test('local help is routed, searchable and fully translated', () => {
   for (const match of (help + content).matchAll(/\bt\("([^"\\]+)"\)/g)) {
     assert.equal(messages[match[1]]?.length, 3, match[1]);
   }
+});
+
+test('onboarding is skippable, reopenable from help and fully translated', () => {
+  const app = fs.readFileSync(new URL('../src/App.tsx', import.meta.url), 'utf8');
+  const tour = fs.readFileSync(new URL('../src/features/onboarding/OnboardingTour.tsx', import.meta.url), 'utf8');
+  const state = fs.readFileSync(new URL('../src/features/onboarding/onboardingState.ts', import.meta.url), 'utf8');
+  const navIcon = fs.readFileSync(new URL('../src/shared/navigation/NavIcon.tsx', import.meta.url), 'utf8');
+  const help = fs.readFileSync(new URL('../src/features/help/Help.tsx', import.meta.url), 'utf8');
+  assert.match(app, /shouldShowOnboarding/);
+  assert.match(app, /<OnboardingTour onClose=/);
+  assert.match(tour, /onCancel=\{event => \{ event\.preventDefault\(\); onClose\(\); \}\}/);
+  assert.match(tour, /t\("Überspringen"\)/);
+  assert.match(tour, /onClose\("imports"\)/);
+  assert.match(tour, /onboarding-drop-preview/);
+  assert.match(tour, /onboarding-aggregator/);
+  assert.match(tour, /NavIcon name="import"/);
+  assert.match(tour, /NavIcon name=\{item\.icon\}/);
+  assert.match(app, /shared\/navigation\/NavIcon/);
+  assert.match(navIcon, /export function NavIcon/);
+  assert.doesNotMatch(tour, /function StepIcon/);
+  assert.match(state, /saldonaut\.onboarding-version/);
+  assert.match(state, /currentVersion = 5/);
+  assert.match(help, /openOnboarding/);
+  for (const match of (tour + help).matchAll(/\bt\("([^"\\]+)"\)/g)) {
+    assert.equal(messages[match[1]]?.length, 3, match[1]);
+  }
+  for (const key of ['Gesamtvermögen und Anbieter auf einen Blick', 'Entwicklung und Aufteilung deines Vermögens', 'Salden, Depots und einzelne Positionen', 'Einnahmen, Ausgaben und Kategorien analysieren']) {
+    assert.equal(messages[key]?.length, 3, key);
+  }
+  assert.equal(messages['Schritt {0} von {1}']?.length, 3);
 });
 
 test('language and region independently affect messages and locale without translating personal labels', () => {

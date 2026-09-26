@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { t } from "../../i18n";
 import { getHelpArticles } from "./helpContent";
+import { openOnboarding } from "../onboarding/onboardingState";
 import "./help.css";
 
 function articleFromHash() {
@@ -68,6 +69,7 @@ export function Help() {
         <p className="eyebrow">{t("Hilfe")}</p>
         <h2 id="help-article-title" ref={headingRef} tabIndex={-1}>{activeArticle.title}</h2>
         <p className="help-summary">{activeArticle.summary}</p>
+        {activeArticle.id === "start" && <button type="button" className="secondary-button help-onboarding-action" onClick={openOnboarding}>{t("Einführung erneut anzeigen")}</button>}
         {activeArticle.sections.map(section => <section key={section.title}>
           <h3>{section.title}</h3>
           {section.paragraphs?.map(paragraph => <p key={paragraph}>{paragraph}</p>)}

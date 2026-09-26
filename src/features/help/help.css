@@ -106,6 +106,10 @@
   line-height: 1.6;
 }
 
+.help-onboarding-action {
+  margin-top: 20px;
+}
+
 .help-article > section {
   max-width: 760px;
   margin-top: 28px;

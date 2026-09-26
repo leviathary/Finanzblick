@@ -357,17 +357,19 @@ erhalten.
 **Screenshot:** `category-mapping.png` – Zweispaltenliste mit Quellkategorie und
 Saldonaut-Kategorie.
 
-## 9. Steuerhistorie
+## 9. Steuern
 
-Die Steuerhistorie verwaltet jährliche Vermögenswerte unabhängig von laufenden
-Bankimporten. Du kannst unterstützte Steuererklärungen importieren und die
-ermittelten Jahreswerte vor dem Speichern prüfen.
+Der Bereich Steuern verwaltet jährliche Vermögenswerte unabhängig von laufenden
+Bankimporten. Du kannst unterstützte Steuererklärungen importieren, Jahreswerte
+manuell erfassen und die langfristige Entwicklung vergleichen.
 
 1. Öffne **Import → Dateien importieren → Steuererklärungen**.
 2. Wähle die Datei und prüfe die Vorschau.
 3. Übernimm die erkannten Werte.
-4. Öffne **Steuerhistorie**, um Entwicklung, Wertschriften, Immobilien, übrige
-   Werte und Schulden nach Steuerjahr zu vergleichen.
+4. Öffne **Steuern → Steuerjahre**, um Jahreswerte zu bearbeiten oder ohne PDF
+   zu erfassen.
+5. Öffne **Steuern → Steuerhistorie**, um Entwicklung, Wertschriften, Immobilien,
+   übrige Werte und Schulden nach Steuerjahr zu vergleichen.
 
 Die Steuerhistorie ist eine separate Jahresbetrachtung. Ihre Werte werden nicht
 automatisch mit den laufenden Bank- und Depotständen vermischt.

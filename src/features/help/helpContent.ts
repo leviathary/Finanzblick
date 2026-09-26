@@ -178,7 +178,7 @@ export function getHelpArticles(): HelpArticle[] {
     },
     {
       id: "tax-history",
-      title: t("Steuerhistorie"),
+      title: t("Steuern"),
       summary: t("Jährliche Steuerwerte importieren und unabhängig von Bankständen vergleichen."),
       sections: [
         {
@@ -186,7 +186,8 @@ export function getHelpArticles(): HelpArticle[] {
           steps: [
             t("Öffne Import, Dateien importieren und danach Steuererklärungen."),
             t("Wähle eine unterstützte Datei und prüfe die erkannten Jahreswerte."),
-            t("Öffne Steuerhistorie, um Vermögen, Immobilien, übrige Werte und Schulden zu vergleichen."),
+            t("Öffne Steuern und wähle Steuerjahre, um Jahreswerte zu bearbeiten oder ohne PDF zu erfassen."),
+            t("Wähle Steuerhistorie, um Vermögen, Immobilien, übrige Werte und Schulden zu vergleichen."),
           ],
           note: t("Die Steuerhistorie ist eine separate Jahresbetrachtung und wird nicht automatisch mit laufenden Bankständen vermischt."),
         },

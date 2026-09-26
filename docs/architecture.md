@@ -29,7 +29,7 @@ src-tauri/src/
     cards.rs               Karten-Setup
     categories.rs          Kategorien und Branchenregeln
     rules.rs               Ausgleichsregeln
-    taxes.rs               Steuerhistorie
+    taxes.rs               Steuerjahresverwaltung und Steuerhistorie
     market_data.rs         Kursaktualisierung
     assistant.rs           Finanzassistent
   application/

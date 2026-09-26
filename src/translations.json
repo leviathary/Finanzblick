@@ -56,7 +56,7 @@
 "Teilbestand: Nicht enthaltene Positionen bleiben unverändert.": ["Partial snapshot: positions not included remain unchanged.","État partiel : les positions absentes restent inchangées.","Consistenza parziale: le posizioni non incluse restano invariate."],
 "Stichtag fehlt": ["Effective date missing","Date de référence manquante","Data di riferimento mancante"],
 "Bankauszüge und Depotbestände gemeinsam auswählen oder hierher ziehen. Der Dokumenttyp wird automatisch erkannt.": ["Select bank statements and portfolio snapshots together or drag them here. The document type is detected automatically.","Sélectionne ensemble les relevés bancaires et les états de portefeuille ou dépose-les ici. Le type de document est détecté automatiquement.","Seleziona insieme estratti conto e consistenze del portafoglio oppure trascinali qui. Il tipo di documento viene riconosciuto automaticamente."],
-"Bankauszüge und Depotbestände: XLSX, XLS, CSV, PDF, MT940 sowie camt.053 und camt.054 (ISO 20022 XML) · maximal 25 MB pro Datei": ["Bank statements and portfolio snapshots: XLSX, XLS, CSV, PDF, MT940, camt.053 and camt.054 (ISO 20022 XML) · maximum 25 MB per file","Relevés bancaires et états de portefeuille : XLSX, XLS, CSV, PDF, MT940, camt.053 et camt.054 (XML ISO 20022) · 25 Mo maximum par fichier","Estratti conto e consistenze del portafoglio: XLSX, XLS, CSV, PDF, MT940, camt.053 e camt.054 (XML ISO 20022) · massimo 25 MB per file"],
+"Bankauszüge und Depotbestände: XLSX, XLS, CSV, PDF, MT940 sowie camt.053 und camt.054 (ISO 20022 XML)": ["Bank statements and portfolio snapshots: XLSX, XLS, CSV, PDF, MT940, camt.053 and camt.054 (ISO 20022 XML)","Relevés bancaires et états de portefeuille : XLSX, XLS, CSV, PDF, MT940, camt.053 et camt.054 (XML ISO 20022)","Estratti conto e consistenze del portafoglio: XLSX, XLS, CSV, PDF, MT940, camt.053 e camt.054 (XML ISO 20022)"],
 "Die Positionen wurden im zugehörigen Depot aktualisiert.": ["The positions were updated in the associated portfolio.","Les positions ont été actualisées dans le portefeuille correspondant.","Le posizioni sono state aggiornate nel portafoglio corrispondente."],
 "{0} Depotbestände abgeglichen": ["{0} portfolio snapshots reconciled","{0} états de portefeuille rapprochés","{0} consistenze del portafoglio allineate"],
 "Bitte den Stichtag des Positionsbestands angeben.": ["Please enter the effective date of the position snapshot.","Indique la date de référence de l’état des positions.","Indica la data di riferimento della consistenza posizioni."],
@@ -677,6 +677,11 @@
     "Lisez les déclarations fiscales au format PDF ou saisissez manuellement les valeurs annuelles sans fichier.",
     "Leggi le dichiarazioni fiscali in PDF oppure inserisci manualmente i valori annuali senza file."
   ],
+  "Steuererklärungen als PDF auslesen und erkannte Jahreswerte vor dem Speichern prüfen.": [
+    "Read tax returns from PDF and review the detected annual values before saving.",
+    "Lisez les déclarations fiscales au format PDF et vérifiez les valeurs annuelles détectées avant l’enregistrement.",
+    "Leggi le dichiarazioni fiscali in PDF e verifica i valori annuali rilevati prima del salvataggio."
+  ],
   "Kein lesbares PDF vorhanden?": [
     "No readable PDF available?",
     "Aucun PDF lisible disponible ?",
@@ -701,6 +706,11 @@
     "Tax years",
     "Années fiscales",
     "Anni fiscali"
+  ],
+  "Steuerjahr erfassen": [
+    "Add tax year",
+    "Ajouter une année fiscale",
+    "Aggiungi anno fiscale"
   ],
   "Schulden": [
     "Debt",
@@ -807,6 +817,11 @@
     "Vérifiez les valeurs annuelles enregistrées et modifiez-les si nécessaire.",
     "Verifica i valori annuali salvati e modificali se necessario."
   ],
+  "Prüfe und bearbeite deine gespeicherten Jahreswerte oder erfasse ein Steuerjahr manuell.": [
+    "Review and edit your saved annual values or add a tax year manually.",
+    "Vérifiez et modifiez vos valeurs annuelles enregistrées ou ajoutez une année fiscale manuellement.",
+    "Controlla e modifica i valori annuali salvati oppure aggiungi manualmente un anno fiscale."
+  ],
   "Steuererklärung importieren": [
     "Import tax return",
     "Importer une déclaration fiscale",
@@ -816,6 +831,11 @@
     "Import a tax return first to manage its annual values here.",
     "Importez d’abord une déclaration fiscale afin de gérer ici ses valeurs annuelles.",
     "Importa prima una dichiarazione fiscale per gestire qui i relativi valori annuali."
+  ],
+  "Erfasse ein Steuerjahr manuell oder importiere eine Steuererklärung als PDF.": [
+    "Add a tax year manually or import a tax return as a PDF.",
+    "Ajoutez une année fiscale manuellement ou importez une déclaration fiscale au format PDF.",
+    "Aggiungi manualmente un anno fiscale oppure importa una dichiarazione fiscale in PDF."
   ],
   "Vermögensentwicklung nach Steuerjahren": [
     "Asset development by tax year",
@@ -891,6 +911,11 @@
     "Drag tax returns here",
     "Déposer les déclarations fiscales ici",
     "Trascina qui le dichiarazioni fiscali"
+  ],
+  "Loslassen, um Steuererklärungen hinzuzufügen": [
+    "Drop to add tax returns",
+    "Relâchez pour ajouter les déclarations fiscales",
+    "Rilascia per aggiungere le dichiarazioni fiscali"
   ],
   "Eine oder mehrere PDF-Dateien ablegen und die erkannten Jahreswerte anschliessend prüfen.": [
     "Drop one or more PDF files and then review the detected annual values.",
@@ -2456,6 +2481,16 @@
     "Drop files or folders here",
     "Déposez des fichiers ou dossiers ici",
     "Trascina qui file o cartelle"
+  ],
+  "Loslassen, um Dateien oder Ordner hinzuzufügen": [
+    "Drop to add files or folders",
+    "Relâchez pour ajouter les fichiers ou dossiers",
+    "Rilascia per aggiungere file o cartelle"
+  ],
+  "oder": [
+    "or",
+    "ou",
+    "oppure"
   ],
   "Dateien auswählen": [
     "Select files",
@@ -5109,7 +5144,8 @@
   "Steuerwerte übernehmen": ["Import tax values", "Reprendre les valeurs fiscales", "Importa valori fiscali"],
   "Öffne Import, Dateien importieren und danach Steuererklärungen.": ["Open Import, Import files and then Tax returns.", "Ouvre Importation, Importer des fichiers, puis Déclarations fiscales.", "Apri Importazione, Importa file e quindi Dichiarazioni fiscali."],
   "Wähle eine unterstützte Datei und prüfe die erkannten Jahreswerte.": ["Select a supported file and review the detected annual values.", "Sélectionne un fichier pris en charge et vérifie les valeurs annuelles détectées.", "Seleziona un file supportato e controlla i valori annuali rilevati."],
-  "Öffne Steuerhistorie, um Vermögen, Immobilien, übrige Werte und Schulden zu vergleichen.": ["Open Tax history to compare assets, real estate, other values and debt.", "Ouvre Historique fiscal pour comparer le patrimoine, les biens immobiliers, les autres valeurs et les dettes.", "Apri Cronologia fiscale per confrontare patrimonio, immobili, altri valori e debiti."],
+  "Öffne Steuern und wähle Steuerjahre, um Jahreswerte zu bearbeiten oder ohne PDF zu erfassen.": ["Open Taxes and select Tax years to edit annual values or add them without a PDF.", "Ouvrez Impôts et sélectionnez Années fiscales pour modifier les valeurs annuelles ou les saisir sans PDF.", "Apri Imposte e seleziona Anni fiscali per modificare i valori annuali o aggiungerli senza PDF."],
+  "Wähle Steuerhistorie, um Vermögen, Immobilien, übrige Werte und Schulden zu vergleichen.": ["Select Tax history to compare assets, real estate, other values and debt.", "Sélectionnez Historique fiscal pour comparer le patrimoine, les biens immobiliers, les autres valeurs et les dettes.", "Seleziona Cronologia fiscale per confrontare patrimonio, immobili, altri valori e debiti."],
   "Die Steuerhistorie ist eine separate Jahresbetrachtung und wird nicht automatisch mit laufenden Bankständen vermischt.": ["Tax history is a separate annual view and is not automatically combined with current bank balances.", "L’historique fiscal est une vue annuelle distincte et n’est pas automatiquement combiné avec les soldes bancaires courants.", "La cronologia fiscale è una vista annuale separata e non viene combinata automaticamente con i saldi bancari correnti."],
   "Fragen zu ausgewählten Finanzdaten stellen und die Freigabe kontrollieren.": ["Ask questions about selected financial data and control what is shared.", "Poser des questions sur des données financières sélectionnées et contrôler leur partage.", "Fai domande sui dati finanziari selezionati e controlla la condivisione."],
   "ChatGPT verbinden": ["Connect ChatGPT", "Connecter ChatGPT", "Collega ChatGPT"],
@@ -5153,5 +5189,46 @@
   "Neuer Anbieter": ["New provider", "Nouveau prestataire", "Nuovo fornitore"],
   "Lege über Bank oder Anbieter hinzufügen zuerst die Bankbeziehung an. Ein Konto ergänzt du danach über das Drei-Punkte-Menü der Anbietergruppe.": ["First create the banking relationship with Add bank or provider. Then add an account from the provider group's three-dot menu.", "Crée d’abord la relation bancaire avec Ajouter une banque ou un prestataire. Ajoute ensuite un compte via le menu à trois points du groupe de prestataires.", "Crea prima il rapporto bancario con Aggiungi banca o fornitore. Aggiungi poi un conto dal menu a tre punti del gruppo del fornitore."],
   "Der PDF-Text ist beschädigt oder verwendet ein nicht unterstütztes älteres Format. Die übrigen Dateien können weiterverarbeitet werden.": ["The PDF text is damaged or uses an unsupported older format. The remaining files can still be processed.", "Le texte du PDF est endommagé ou utilise un ancien format non pris en charge. Les autres fichiers peuvent continuer à être traités.", "Il testo del PDF è danneggiato o utilizza un vecchio formato non supportato. Gli altri file possono continuare a essere elaborati."],
-  "Die Datei konnte nicht verarbeitet werden. Die übrigen Dateien können weiterverarbeitet werden.": ["The file could not be processed. The remaining files can still be processed.", "Le fichier n’a pas pu être traité. Les autres fichiers peuvent continuer à être traités.", "Impossibile elaborare il file. Gli altri file possono continuare a essere elaborati."]
+  "Die Datei konnte nicht verarbeitet werden. Die übrigen Dateien können weiterverarbeitet werden.": ["The file could not be processed. The remaining files can still be processed.", "Le fichier n’a pas pu être traité. Les autres fichiers peuvent continuer à être traités.", "Impossibile elaborare il file. Gli altri file possono continuare a essere elaborati."],
+  "Willkommen bei Saldonaut": ["Welcome to Saldonaut", "Bienvenue dans Saldonaut", "Benvenuto in Saldonaut"],
+  "Schritt {0} von {1}": ["Step {0} of {1}", "Étape {0} sur {1}", "Passaggio {0} di {1}"],
+  "Überspringen": ["Skip", "Ignorer", "Salta"],
+  "Deine Daten bleiben bei dir": ["Your data stays with you", "Tes données restent chez toi", "I tuoi dati restano con te"],
+  "Bankauszüge und Steuererklärungen werden ausschliesslich lokal verarbeitet, nicht hochgeladen und nicht in dein Finanzprofil kopiert. Bestätigte Finanzdaten werden verschlüsselt auf diesem Gerät gespeichert.": ["Bank statements and tax returns are processed locally only, are not uploaded and are not copied into your financial profile. Confirmed financial data is stored encrypted on this device.", "Les relevés bancaires et déclarations fiscales sont traités uniquement en local, ne sont pas téléversés et ne sont pas copiés dans ton profil financier. Les données financières confirmées sont stockées chiffrées sur cet appareil.", "Gli estratti conto e le dichiarazioni fiscali vengono elaborati esclusivamente in locale, non vengono caricati né copiati nel profilo finanziario. I dati finanziari confermati vengono archiviati in forma cifrata su questo dispositivo."],
+  "Dokumente einfach einlesen": ["Import documents with ease", "Importer simplement des documents", "Importa facilmente i documenti"],
+  "Ziehe Bankauszüge, Depotbestände oder Steuererklärungen in die Dropzone oder wähle sie im Dateidialog aus. Saldonaut erkennt den Dokumenttyp automatisch und zeigt dir vor dem Speichern eine Vorschau.": ["Drag bank statements, portfolio holdings or tax returns into the drop zone, or select them in the file dialog. Saldonaut automatically detects the document type and shows you a preview before saving.", "Fais glisser des relevés bancaires, des positions de dépôt ou des déclarations fiscales dans la zone de dépôt, ou sélectionne-les dans le dialogue de fichiers. Saldonaut reconnaît automatiquement le type de document et affiche un aperçu avant l’enregistrement.", "Trascina estratti conto, posizioni di deposito o dichiarazioni fiscali nell’area di rilascio oppure selezionali nella finestra di dialogo dei file. Saldonaut riconosce automaticamente il tipo di documento e mostra un’anteprima prima del salvataggio."],
+  "Deine Finanzen im Blick": ["Your finances at a glance", "Tes finances en un coup d’œil", "Le tue finanze sotto controllo"],
+  "Von der Übersicht bis zur einzelnen Buchung": ["From the overview to individual transactions", "De la vue d’ensemble à chaque écriture", "Dalla panoramica alla singola transazione"],
+  "Die Übersicht zeigt dein Gesamtvermögen auf einen Blick. Unter Vermögen untersuchst du die Entwicklung, unter Konten & Depots verwaltest du deine Bestände und unter Transaktionen analysierst du Einnahmen und Ausgaben.": ["The overview shows your total wealth at a glance. Under Assets you can examine its development, under Accounts & portfolios you manage your holdings, and under Transactions you analyse income and expenses.", "La vue d’ensemble affiche ton patrimoine total en un coup d’œil. Sous Patrimoine, tu étudies son évolution, sous Comptes et dépôts, tu gères tes avoirs, et sous Transactions, tu analyses les revenus et les dépenses.", "La panoramica mostra il patrimonio totale a colpo d’occhio. In Patrimonio puoi esaminarne l’andamento, in Conti e depositi gestisci le tue posizioni e in Transazioni analizzi entrate e uscite."],
+  "Ersten Import starten": ["Start first import", "Commencer la première importation", "Avvia la prima importazione"],
+  "Einführung erneut anzeigen": ["Show introduction again", "Afficher à nouveau l’introduction", "Mostra di nuovo l’introduzione"],
+  "Dokumente": ["Documents", "Documents", "Documenti"],
+  "Bank & Steuern": ["Banking & taxes", "Banque et impôts", "Banca e imposte"],
+  "Lokal verarbeitet": ["Processed locally", "Traité localement", "Elaborato in locale"],
+  "Auf deinem Gerät": ["On your device", "Sur ton appareil", "Sul tuo dispositivo"],
+  "Verschlüsselt": ["Encrypted", "Chiffré", "Cifrato"],
+  "Keine Dokumente werden hochgeladen": ["No documents are uploaded", "Aucun document n’est téléversé", "Nessun documento viene caricato"],
+  "Deine Finanzen": ["Your finances", "Tes finances", "Le tue finanze"],
+  "Alles auf einen Blick": ["Everything at a glance", "Tout en un coup d’œil", "Tutto a colpo d’occhio"],
+  "Entwicklung verstehen": ["Understand development", "Comprendre l’évolution", "Comprendi l’andamento"],
+  "Bestände verwalten": ["Manage holdings", "Gérer les avoirs", "Gestisci le posizioni"],
+  "Einnahmen & Ausgaben": ["Income & expenses", "Revenus et dépenses", "Entrate e uscite"],
+  "Starte mit deinem ersten Import": ["Start your first import", "Commence ta première importation", "Inizia la tua prima importazione"],
+  "Orientierung": ["Orientation", "Orientation", "Orientamento"],
+  "Schnell am richtigen Ort": ["Quickly find the right place", "Trouver rapidement le bon endroit", "Trova subito il posto giusto"],
+  "Dokumente bleiben auf deinem Gerät. Nur bestätigte Finanzdaten werden verschlüsselt im lokalen Profil gespeichert.": ["Documents stay on your device. Only confirmed financial data is stored encrypted in the local profile.", "Les documents restent sur ton appareil. Seules les données financières confirmées sont stockées chiffrées dans le profil local.", "I documenti restano sul tuo dispositivo. Solo i dati finanziari confermati vengono archiviati in forma cifrata nel profilo locale."],
+  "Ziehe Bankauszüge, Depotbestände oder Steuererklärungen hinein. Saldonaut erkennt den Dokumenttyp und zeigt dir vor dem Speichern eine Vorschau.": ["Drag in bank statements, portfolio holdings or tax returns. Saldonaut detects the document type and shows you a preview before saving.", "Fais glisser des relevés bancaires, des positions de dépôt ou des déclarations fiscales. Saldonaut reconnaît le type de document et affiche un aperçu avant l’enregistrement.", "Trascina estratti conto, posizioni di deposito o dichiarazioni fiscali. Saldonaut riconosce il tipo di documento e mostra un’anteprima prima del salvataggio."],
+  "Vier Bereiche führen dich von der Gesamtsicht bis zur einzelnen Buchung.": ["Four sections take you from the big picture to an individual transaction.", "Quatre sections te guident de la vue d’ensemble jusqu’à chaque écriture.", "Quattro sezioni ti guidano dalla visione d’insieme alla singola transazione."],
+  "Willkommen": ["Welcome", "Bienvenue", "Benvenuto"],
+  "Gemeinsame Übersicht": ["Combined overview", "Vue d’ensemble commune", "Panoramica comune"],
+  "6 Konten": ["6 accounts", "6 comptes", "6 conti"],
+  "3 Anbieter": ["3 providers", "3 prestataires", "3 fornitori"],
+  "Deine Finanzen an einem Ort": ["Your finances in one place", "Tes finances au même endroit", "Le tue finanze in un unico posto"],
+  "Saldonaut ist dein Finanzaggregator und bündelt Konten, Depots und Finanzdaten verschiedener Anbieter in einer gemeinsamen Übersicht.": ["Saldonaut is your financial aggregator, bringing accounts, portfolios and financial data from different providers together in one overview.", "Saldonaut est ton agrégateur financier et réunit les comptes, les dépôts et les données financières de différents prestataires dans une seule vue d’ensemble.", "Saldonaut è il tuo aggregatore finanziario e riunisce conti, depositi e dati finanziari di diversi fornitori in un’unica panoramica."],
+  "Gesamtvermögen und Anbieter auf einen Blick": ["Total wealth and providers at a glance", "Patrimoine total et prestataires en un coup d’œil", "Patrimonio totale e fornitori a colpo d’occhio"],
+  "Entwicklung und Aufteilung deines Vermögens": ["Development and allocation of your wealth", "Évolution et répartition de ton patrimoine", "Andamento e ripartizione del tuo patrimonio"],
+  "Salden, Depots und einzelne Positionen": ["Balances, portfolios and individual positions", "Soldes, dépôts et positions individuelles", "Saldi, depositi e singole posizioni"],
+  "Einnahmen, Ausgaben und Kategorien analysieren": ["Analyse income, expenses and categories", "Analyser les revenus, les dépenses et les catégories", "Analizza entrate, uscite e categorie"],
+  "Was du wo findest": ["What you can find where", "Ce que tu trouves où", "Dove trovi cosa"],
+  "Von der Gesamtsicht bis zur einzelnen Buchung hat jeder Bereich eine klare Aufgabe.": ["From the big picture to an individual transaction, every section has a clear purpose.", "De la vue d’ensemble jusqu’à chaque écriture, chaque section a un rôle clair.", "Dalla visione d’insieme alla singola transazione, ogni sezione ha uno scopo chiaro."]
 }

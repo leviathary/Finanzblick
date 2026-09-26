@@ -1905,10 +1905,14 @@ a {
   text-align: right;
 }
 .wizard-heading {
-  display: flex;
-  justify-content: space-between;
-  gap: 32px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  column-gap: 32px;
   align-items: flex-start;
+}
+.wizard-heading > .intro {
+  grid-column: 1 / -1;
+  max-width: none;
 }
 h1 {
   margin: 6px 0 10px;
@@ -2520,6 +2524,55 @@ p {
 }
 .batch-drop {
   margin: 24px 0;
+  min-height: 212px;
+  padding: 32px;
+  border-width: 2px;
+  cursor: pointer;
+}
+.batch-drop:hover:not(.disabled),
+.batch-drop.dragging {
+  border-color: var(--interactive);
+  background: var(--bg-hover);
+}
+.batch-drop.dragging {
+  transform: scale(1.005);
+}
+.batch-drop.disabled {
+  cursor: default;
+  opacity: 0.72;
+}
+.batch-drop-icon {
+  display: grid;
+  width: 48px;
+  height: 48px;
+  margin-bottom: 12px;
+  place-items: center;
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  color: var(--interactive);
+  background: var(--bg-surface);
+}
+.batch-drop-icon svg {
+  width: 25px;
+  height: 25px;
+}
+.batch-drop h2 {
+  margin: 0;
+}
+.batch-drop-separator {
+  margin: 8px 0;
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+.batch-drop > small {
+  max-width: 720px;
+}
+.batch-drop-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: center;
+  margin: -8px 0 24px;
 }
 .batch-buttons {
   display: flex;
@@ -2527,19 +2580,12 @@ p {
   gap: 12px;
   align-items: center;
 }
-.batch-drop .batch-buttons {
-  justify-content: center;
-  margin: 16px 0;
-}
 .batch-check {
   display: flex;
   gap: 9px;
   align-items: center;
   margin: 18px 0;
   font-size: 14px;
-}
-.batch-drop .batch-check {
-  justify-content: center;
 }
 .batch-table {
   margin-top: 18px;

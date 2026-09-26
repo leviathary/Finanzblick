@@ -9,10 +9,11 @@ Die Benutzeroberfläche wird fachlich nach Features organisiert:
 - `categories`: Kategorienverwaltung
 - `imports`: Dateiimporte, Mapping und Importhistorie
 - `assets`: Vermögensentwicklung, Diagramme und Aufteilungen
-- `tax-history`: Steuerhistorie
+- `tax-history`: Steuerjahresverwaltung und langfristige Steuerhistorie
 - `settings`: Einstellungen, Profile und Backups
 - `chat`: Finanzassistent
 - `help`: lokale, durchsuchbare Hilfe und Themenartikel
+- `onboarding`: gerätebezogene Willkommensführung und Wiederaufruf aus der Hilfe
 - `auth`: Anmeldung und Anmeldestyles
 - `positions`: Positionsverwaltung, typisierte API und Bewertungsformular
 
