@@ -1,0 +1,69 @@
+{
+  "schemaVersion": 1,
+  "id": "ubs-monthly-account-statement-v1",
+  "provider": "ubs",
+  "displayName": "UBS-Kontoauszug",
+  "recognitionAll": ["ihr konto auf einen blick", "total gutschriften", "total belastungen", "kontostand"],
+  "accountType": "cash",
+  "documentType": "statement",
+  "accountReference": {
+    "regex": "(?i)\\b(CH\\d{2}(?:\\s*[A-Z0-9]){17})\\b",
+    "group": 1,
+    "canonicalAlphanumeric": true
+  },
+  "requireAccountReference": false,
+  "fixedCurrency": "CHF",
+  "accountName": {
+    "markerContains": "iban",
+    "fallback": "Neues UBS-Konto",
+    "regex": "(?im)^(.+?)\\s+(?:\\|\\s*)?IBAN\\b.*$",
+    "group": 1
+  },
+  "table": {
+    "headerAll": ["datum", "informationen", "valuta", "kontostand"],
+    "contentAfterHeaderMarker": "Kontostand",
+    "continuationToPrevious": true,
+    "stopStartsWith": [],
+    "stopAfterClosingBalance": true,
+    "ignoreExact": ["Kontoinhaber", "aUBS"],
+    "ignoreRegex": [
+      "^\\d{2}\\.\\d{2}\\.\\d{4}GNZKOA.*$",
+      "^Formular ohne Unterschrift.*$",
+      "^Umsatztotal\\s+.*$"
+    ],
+    "ignoreAccountReferenceLines": true,
+    "ignoreDocumentDatePrefix": false
+  },
+  "rows": {
+    "moneyPattern": "[+-]?\\d+(?:[ '’]\\d{3})*[.,]\\d{2}(?: ?-)?",
+    "balanceRegex": "^(\\d{2}\\.\\d{2}\\.\\d{2,4})\\s+(?:Anfangssaldo|Schlusssaldo)\\s+({money})(?:\\s+.*)?$",
+    "balanceDateGroup": 1,
+    "balanceAmountGroup": 2,
+    "transactionRegex": "^(\\d{2}\\.\\d{2}\\.\\d{2})\\s+(.*?)\\s+({money})\\s+(\\d{2}\\.\\d{2}\\.\\d{2})\\s+({money})(?:\\s+(\\S.*))?$",
+    "descriptionGroup": 2,
+    "bookingDateGroup": 1,
+    "valueDateGroup": 4,
+    "balanceGroup": 5,
+    "amountGroup": 3,
+    "trailingDescriptionGroup": 6,
+    "debitTotalRegex": "Total Belastungen\\s+({money})",
+    "debitTotalValueGroup": 1,
+    "creditTotalRegex": "Total Gutschriften\\s+({money})",
+    "creditTotalValueGroup": 1,
+    "transactionAlternatives": [
+      {
+        "regex": "^(\\d{2}\\.\\d{2}\\.\\d{2})\\s+({money})\\s+(\\d{2}\\.\\d{2}\\.\\d{2})\\s+({money})\\s*(\\S.*)$",
+        "descriptionGroup": 5,
+        "bookingDateGroup": 1,
+        "valueDateGroup": 3,
+        "balanceGroup": 4,
+        "amountGroup": 2
+      }
+    ],
+    "candidateRegex": "^\\d{2}\\.\\d{2}\\.\\d{2}\\s+.*\\s+\\d{2}\\.\\d{2}\\.\\d{2}(?:\\s|$)",
+    "trailingMinus": true
+  },
+  "signStrategy": "runningBalance",
+  "allowEmptyTransactions": true,
+  "confidence": 0.99
+}

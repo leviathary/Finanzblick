@@ -1,6 +1,6 @@
 //! Registriert Swissquote, liest PDF-Kontoauszüge mit getrennten Währungssalden und delegiert Depotbestände an den Positionsparser.
 
-use super::ProviderImporter;
+use super::{IntegratedImportProfile, ProviderImporter};
 use crate::importers::{
     normalize_date, parse_money, CurrencyBalance, ParsedStatement, ParsedTransaction,
 };
@@ -10,6 +10,21 @@ use std::path::Path;
 pub(super) static IMPORTER: SwissquoteImporter = SwissquoteImporter;
 
 pub(super) struct SwissquoteImporter;
+
+const INTEGRATED_IMPORT_PROFILES: &[IntegratedImportProfile] = &[
+    IntegratedImportProfile {
+        id: "swissquote-account-statement",
+        display_name: "Swissquote-Kontoauszug",
+        formats: &["PDF"],
+        document_type: "statement",
+    },
+    IntegratedImportProfile {
+        id: "swissquote-position-statement",
+        display_name: "Swissquote-Positionsbestand",
+        formats: &["PDF", "XLSX", "XLS"],
+        document_type: "position_statement",
+    },
+];
 
 impl ProviderImporter for SwissquoteImporter {
     fn parse_positions(
@@ -31,7 +46,11 @@ impl ProviderImporter for SwissquoteImporter {
         &["swissquote bank", "swissquote"]
     }
 
-    fn parse_pdf(&self, _path: &Path, text: &str) -> Option<Result<ParsedStatement, String>> {
+    fn integrated_import_profiles(&self) -> &'static [IntegratedImportProfile] {
+        INTEGRATED_IMPORT_PROFILES
+    }
+
+    fn parse_pdf_hook(&self, _path: &Path, text: &str) -> Option<Result<ParsedStatement, String>> {
         let lines: Vec<String> = text
             .lines()
             .map(|line| line.split_whitespace().collect::<Vec<_>>().join(" "))
@@ -287,8 +306,7 @@ DATUM INFORMATION REFERENZ BELASTUNG GUTSCHRIFT VALUTA-DATUM SALDO (EUR)
 31.12.2024 Schlussbilanz 1.81";
         let provider = super::super::detect("Swissquote Bank").unwrap();
         let padded = text.replace(' ', "  ");
-        let parsed = provider
-            .parse_pdf(Path::new("statement.pdf"), &padded)
+        let parsed = super::super::parse_pdf(provider, Path::new("statement.pdf"), &padded)
             .unwrap()
             .unwrap();
         assert_eq!(parsed.transactions.len(), 1);

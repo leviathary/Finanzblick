@@ -29,13 +29,6 @@ GRID = colors.HexColor("#DDE3E8")
 
 samples = [
     {
-        "file": "ubs_kontoauszug_2026-08.pdf", "provider": "UBS", "kind": "Kontoauszug",
-        "account": "Privatkonto CHF | IBAN CH00 0000 0000 0000 1000 1", "period": "01.08.2026 - 31.08.2026",
-        "headers": ["Datum", "Informationen", "Belastung", "Gutschrift", "Valuta", "Kontostand"],
-        "rows": [["01.08.26", "Anfangssaldo", "", "", "01.08.26", "7'840.25"], ["03.08.26", "Muster Immobilien AG - Miete", "1'850.00", "", "03.08.26", "5'990.25"], ["05.08.26", "Coop Supermarkt Zürich", "126.45", "", "05.08.26", "5'863.80"], ["07.08.26", "Arbeitgeber Beispiel AG - Lohn", "", "6'850.00", "07.08.26", "12'713.80"], ["09.08.26", "SBB Mobile", "68.00", "", "09.08.26", "12'645.80"], ["12.08.26", "Swisscom Rechnung", "89.90", "", "12.08.26", "12'555.90"], ["16.08.26", "Übertrag an Sparkonto", "1'200.00", "", "16.08.26", "11'355.90"], ["20.08.26", "Restaurant Seeblick", "142.80", "", "20.08.26", "11'213.10"], ["25.08.26", "Krankenkasse Muster", "428.60", "", "25.08.26", "10'784.50"], ["31.08.26", "Schlusssaldo", "", "", "31.08.26", "10'784.50"]],
-        "summary": [["Anfangssaldo", "7'840.25"], ["Total Gutschriften", "6'850.00"], ["Total Belastungen", "3'905.75"], ["Schlusssaldo", "10'784.50"]],
-    },
-    {
         "file": "migros_bank_konto_2026-08.pdf", "provider": "Migros Bank", "kind": "Kontoübersicht",
         "account": "Sparkonto | Konto MB-TEST-2001", "period": "August 2026",
         "headers": ["Datum", "Buchungstext", "Soll CHF", "Haben CHF", "Saldo CHF"],
@@ -91,7 +84,6 @@ for sample in samples:
     for row in sample["rows"]:
         data.append([Paragraph(str(c), small) for c in row])
     widths_by_provider = {
-        "UBS": [22, 55, 22, 22, 22, 31],
         "Migros Bank": [26, 64, 25, 25, 34],
         "Raiffeisen": [26, 26, 62, 28, 32],
         "Generali": [26, 64, 24, 24, 36],

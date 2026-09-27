@@ -1,6 +1,6 @@
 // Koordiniert Kontovorschläge und das schrittweise Speichern eines Importstapels.
 
-import type { DuplicateCheck, DuplicateResolutionAction, ImportAccount, ParsedStatement, SaveImportResult, SavePositionSnapshotResult, PositionSnapshotPreview, TabularMapping } from "./importTypes";
+import type { DuplicateCheck, DuplicateResolutionAction, ImportAccount, ParsedStatement, PdfMapping, SaveImportResult, SavePositionSnapshotResult, PositionSnapshotPreview, TabularMapping } from "./importTypes";
 import type { SelectedStatement } from "./fileDetection";
 
 export interface BatchItem {
@@ -16,6 +16,7 @@ export interface BatchItem {
   duplicateCheck?: DuplicateCheck;
   duplicateResolutions?: Record<number, DuplicateResolutionAction>;
   mapping?: TabularMapping;
+  pdfMapping?: PdfMapping;
   positionSnapshot?: PositionSnapshotPreview;
   positionAccountId?: number | null;
   positionDateEditable?: boolean;

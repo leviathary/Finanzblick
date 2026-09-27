@@ -95,8 +95,14 @@ fn institution_details_are_shared_and_duplicate_names_are_rejected() {
 #[test]
 fn depot_positions_support_manual_management_and_consistent_reporting() {
     use crate::storage::securities::models::ManualValuationRequest;
-    use crate::storage::securities::positions::{save_manual_valuation, list_manual_positions, delete_manual_position};
-    let directory = std::env::temp_dir().join(format!("saldonaut-depot-test-{}-{}", std::process::id(), chrono::Utc::now().timestamp_nanos_opt().unwrap()));
+    use crate::storage::securities::positions::{
+        delete_manual_position, list_manual_positions, save_manual_valuation,
+    };
+    let directory = std::env::temp_dir().join(format!(
+        "saldonaut-depot-test-{}-{}",
+        std::process::id(),
+        chrono::Utc::now().timestamp_nanos_opt().unwrap()
+    ));
     fs::create_dir_all(&directory).unwrap();
     let storage = Storage::test_storage(directory.join("test.sqlite3"));
     let connection = storage.connect().unwrap();
@@ -107,23 +113,48 @@ fn depot_positions_support_manual_management_and_consistent_reporting() {
         INSERT INTO balance_snapshots(account_id,import_id,balance_date,amount_minor,currency) VALUES(1,1,'2026-01-01',999999,'CHF');").unwrap();
     drop(connection);
     let request = |id, end: Option<&str>| ManualValuationRequest {
-        id, account_id: 1, label: "Testanlage".into(), valuation_date: "2026-01-02".into(),
-        amount_minor: 123400, quantity: None, unit_price_minor: None, quote_currency: None,
-        exchange_rate: None, asset_type: Some("stock".into()), identifier_type: None,
-        identifier: None, holding_start_date: Some("2026-01-02".into()), holding_end_date: end.map(str::to_string),
+        id,
+        account_id: 1,
+        label: "Testanlage".into(),
+        valuation_date: "2026-01-02".into(),
+        amount_minor: 123400,
+        quantity: None,
+        unit_price_minor: None,
+        quote_currency: None,
+        exchange_rate: None,
+        asset_type: Some("stock".into()),
+        identifier_type: None,
+        identifier: None,
+        holding_start_date: Some("2026-01-02".into()),
+        holding_end_date: end.map(str::to_string),
     };
     save_manual_valuation(&storage, request(None, None)).unwrap();
     let positions = list_manual_positions(&storage, 1).unwrap();
     assert_eq!(positions.len(), 1);
-    assert_eq!(accounts_from(&storage).unwrap()[0].balance_minor, Some(123400));
+    assert_eq!(
+        accounts_from(&storage).unwrap()[0].balance_minor,
+        Some(123400)
+    );
     let wealth = wealth_from(&storage, None).unwrap();
     assert_eq!(wealth.current_total_minor, 123400);
-    assert_eq!(wealth.by_type.iter().map(|item| item.amount_minor).sum::<i64>(), 123400);
+    assert_eq!(
+        wealth
+            .by_type
+            .iter()
+            .map(|item| item.amount_minor)
+            .sum::<i64>(),
+        123400
+    );
     assert_eq!(wealth.history.first().unwrap().date, "2026-01-02");
     assert_eq!(wealth.history.last().unwrap().total_minor, 123400);
     let dashboard = dashboard_from(&storage).unwrap();
     assert_eq!(dashboard.accounts[0].balance_minor, Some(123400));
-    assert_eq!(securities::position_history::position_chart_data(&storage, 1).unwrap().len(), 1);
+    assert_eq!(
+        securities::position_history::position_chart_data(&storage, 1)
+            .unwrap()
+            .len(),
+        1
+    );
     assert!(delete_manual_position(&storage, positions[0].id).is_err());
     save_manual_valuation(&storage, request(Some(positions[0].id), Some("2026-01-03"))).unwrap();
     let wealth = wealth_from(&storage, None).unwrap();

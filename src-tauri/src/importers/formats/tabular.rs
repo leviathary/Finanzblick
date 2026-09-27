@@ -390,19 +390,22 @@ fn mapped_date(row: &[Data], column: usize, format: &DateFormat) -> Option<Strin
     row.get(column)
         .and_then(|cell| cell.as_date())
         .map(|date| date.format("%Y-%m-%d").to_string())
-        .or_else(|| {
-            let value = row.get(column)?.to_string();
-            let formats: &[&str] = match format {
-                DateFormat::Auto => &["%Y-%m-%d", "%d.%m.%Y", "%d.%m.%y", "%d/%m/%Y", "%m/%d/%Y"],
-                DateFormat::Dmy => &["%d.%m.%Y", "%d.%m.%y", "%d/%m/%Y", "%d-%m-%Y"],
-                DateFormat::Mdy => &["%m/%d/%Y", "%m-%d-%Y"],
-                DateFormat::Ymd => &["%Y-%m-%d", "%Y/%m/%d"],
-            };
-            formats
-                .iter()
-                .find_map(|pattern| NaiveDate::parse_from_str(value.trim(), pattern).ok())
-                .map(|date| date.format("%Y-%m-%d").to_string())
-        })
+        .or_else(|| parse_mapped_date(&row.get(column)?.to_string(), format))
+}
+
+pub(in crate::importers) fn parse_mapped_date(value: &str, format: &DateFormat) -> Option<String> {
+    let formats: &[&str] = match format {
+        DateFormat::Auto => &[
+            "%Y-%m-%d", "%Y/%m/%d", "%d.%m.%Y", "%d.%m.%y", "%d/%m/%Y", "%m/%d/%Y",
+        ],
+        DateFormat::Dmy => &["%d.%m.%Y", "%d.%m.%y", "%d/%m/%Y", "%d-%m-%Y"],
+        DateFormat::Mdy => &["%m/%d/%Y", "%m-%d-%Y"],
+        DateFormat::Ymd => &["%Y-%m-%d", "%Y/%m/%d"],
+    };
+    formats
+        .iter()
+        .find_map(|pattern| NaiveDate::parse_from_str(value.trim(), pattern).ok())
+        .map(|date| date.format("%Y-%m-%d").to_string())
 }
 
 fn mapped_optional_date(
@@ -448,7 +451,7 @@ fn mapped_money(row: &[Data], column: usize, format: &NumberFormat) -> Option<i6
     parse_mapped_money(&cell_string(row, column), format)
 }
 
-fn parse_mapped_money(value: &str, format: &NumberFormat) -> Option<i64> {
+pub(in crate::importers) fn parse_mapped_money(value: &str, format: &NumberFormat) -> Option<i64> {
     let original = value.trim();
     if original.is_empty() {
         return None;

@@ -1,6 +1,6 @@
 //! Datenbankgestützte Auswertungsprojektionen.
-pub(crate) mod consumption;
 pub(crate) mod account_details;
+pub(crate) mod consumption;
 mod overview;
 pub(crate) use overview::{dashboard_data, database_status, wealth_data, wealth_on};
 #[cfg(test)]

@@ -12,6 +12,9 @@ pub(crate) use deduplication::{check_import_duplicates, is_file_imported};
 pub(crate) use history::{delete_imports, list_imports, restore_import_duplicates};
 #[cfg(test)]
 pub(crate) use history::{delete_imports_from, imports_from};
-pub(crate) use mapping_profiles::{list_import_mapping_profiles, save_import_mapping_profile};
+pub(crate) use mapping_profiles::{
+    list_import_mapping_profiles, list_pdf_import_mapping_profiles, save_import_mapping_profile,
+    save_pdf_import_mapping_profile,
+};
 pub(crate) use persistence::save_import_to;
 pub(crate) mod models;

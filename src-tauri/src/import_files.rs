@@ -217,10 +217,8 @@ mod tests {
 
     #[test]
     fn validates_only_existing_pdfs_for_native_opening() {
-        let root = std::env::temp_dir().join(format!(
-            "saldonaut-open-import-pdf-{}",
-            std::process::id()
-        ));
+        let root =
+            std::env::temp_dir().join(format!("saldonaut-open-import-pdf-{}", std::process::id()));
         fs::create_dir_all(&root).unwrap();
         let pdf = root.join("statement.PDF");
         let text = root.join("statement.txt");

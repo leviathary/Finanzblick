@@ -67,7 +67,9 @@ pub(crate) fn wealth_on(
         .sum();
     let regular_accounts = accounts
         .iter()
-        .filter(|account| !crate::domain::banking::accounts::supports_positions(&account.account_type))
+        .filter(|account| {
+            !crate::domain::banking::accounts::supports_positions(&account.account_type)
+        })
         .cloned()
         .collect::<Vec<_>>();
     let mut by_type = breakdown(&regular_accounts, |account| {

@@ -32,6 +32,11 @@ pub(crate) fn initialize_schema(connection: &Connection) -> Result<(), rusqlite:
            header_fingerprint TEXT NOT NULL, mapping_json TEXT NOT NULL,
            updated_at TEXT NOT NULL
          );
+         CREATE TABLE IF NOT EXISTS pdf_import_mapping_profiles (
+           id INTEGER PRIMARY KEY, name TEXT NOT NULL UNIQUE,
+           layout_fingerprint TEXT NOT NULL, mapping_json TEXT NOT NULL,
+           updated_at TEXT NOT NULL
+         );
          CREATE TABLE IF NOT EXISTS categories (
            id INTEGER PRIMARY KEY, category_key TEXT NOT NULL UNIQUE, label TEXT NOT NULL,
            color TEXT NOT NULL, sort_order INTEGER NOT NULL

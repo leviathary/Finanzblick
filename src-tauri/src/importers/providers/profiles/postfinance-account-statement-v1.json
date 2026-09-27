@@ -1,0 +1,55 @@
+{
+  "schemaVersion": 1,
+  "id": "postfinance-account-statement-v1",
+  "provider": "postfinance",
+  "displayName": "PostFinance-Kontoauszug",
+  "recognitionAll": ["postfinance", "kontoauszug", "lastschrift", "gutschrift"],
+  "accountType": "cash",
+  "documentType": "statement",
+  "accountReference": {
+    "regex": "(?i)\\bIBAN\\s+(CH(?:\\s*\\d){19})\\b",
+    "group": 1,
+    "canonicalAlphanumeric": true
+  },
+  "currency": {
+    "regex": "(?im)^IBAN\\s+CH(?:\\s*\\d){19}\\s+([A-Z]{3})\\s*$",
+    "group": 1
+  },
+  "fixedCurrency": "CHF",
+  "documentDate": {
+    "regex": "(?im)^Datum\\s+(\\d{1,2}[./-]\\d{1,2}[./-]\\d{2,4})\\s*$",
+    "group": 1
+  },
+  "accountName": {
+    "markerContains": "kontoauszug",
+    "fallback": "PostFinance Konto"
+  },
+  "table": {
+    "headerAll": ["datum", "saldo", "valuta", "lastschrift", "gutschrift", "text"],
+    "stopStartsWith": ["bitte uberprufen sie den kontoauszug"],
+    "ignoreExact": ["datum", "iban", "kontonummer"],
+    "ignoreRegex": ["^Seite\\s+\\d+\\s*/\\s*\\d+$", "^\\d{2}-\\d{6}-\\d$"],
+    "ignoreAccountReferenceLines": true,
+    "ignoreDocumentDatePrefix": true
+  },
+  "rows": {
+    "moneyPattern": "\\d{1,3}(?:[ '’]?\\d{3})*(?:[.,]\\d{2})",
+    "balanceRegex": "^(\\d{2}\\.\\d{2}\\.\\d{2,4})\\s+({money})\\s+Kontostand$",
+    "balanceDateGroup": 1,
+    "balanceAmountGroup": 2,
+    "transactionRegex": "^(.*?)\\s*(\\d{2}\\.\\d{2}\\.\\d{2,4})\\s+(\\d{2}\\.\\d{2}\\.\\d{2,4})(?:\\s+({money}))?\\s+({money})$",
+    "descriptionGroup": 1,
+    "bookingDateGroup": 2,
+    "valueDateGroup": 3,
+    "balanceGroup": 4,
+    "amountGroup": 5,
+    "totalsRegex": "^Total\\s+({money})\\s+({money})$",
+    "debitTotalGroup": 1,
+    "creditTotalGroup": 2
+  },
+  "transactionReference": {
+    "labelStartsWith": "sender referenz",
+    "namespace": "postfinance_pdf"
+  },
+  "confidence": 0.98
+}

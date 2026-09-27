@@ -2,5 +2,5 @@
 pub(crate) mod market_data;
 pub(crate) mod models;
 pub(crate) mod position_history;
-pub(crate) mod positions;
 pub(crate) mod position_snapshots;
+pub(crate) mod positions;

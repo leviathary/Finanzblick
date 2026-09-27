@@ -26,11 +26,12 @@ async fn parse_statement(
     path: String,
     selected_provider: Option<String>,
     mapping: Option<importers::TabularMapping>,
+    pdf_mapping: Option<importers::PdfMapping>,
 ) -> Result<importers::ParsedStatement, String> {
     tauri::async_runtime::spawn_blocking(move || {
         let storage = app.state::<storage::Storage>();
         let _lease = storage.require_unlocked()?;
-        importers::parse_statement(path, selected_provider, mapping)
+        importers::parse_statement_with_pdf_mapping(path, selected_provider, mapping, pdf_mapping)
     })
     .await
     .map_err(|_| "Die Datei konnte nicht verarbeitet werden. Die übrigen Dateien können weiterverarbeitet werden.".to_string())?
@@ -43,6 +44,15 @@ fn inspect_tabular_file(
 ) -> Result<importers::TabularInspection, String> {
     let _lease = storage.require_unlocked()?;
     importers::inspect_tabular_file(path)
+}
+
+#[tauri::command]
+fn inspect_pdf_file(
+    storage: tauri::State<'_, storage::Storage>,
+    path: String,
+) -> Result<importers::PdfInspection, String> {
+    let _lease = storage.require_unlocked()?;
+    importers::inspect_pdf_file(path)
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -111,6 +121,7 @@ pub fn run() {
             commands::database::vault_activity,
             parse_statement,
             inspect_tabular_file,
+            inspect_pdf_file,
             import_files::collect_import_files,
             import_files::open_import_pdf,
             commands::imports::save_import,
@@ -119,6 +130,9 @@ pub fn run() {
             commands::imports::list_imports,
             commands::imports::list_import_mapping_profiles,
             commands::imports::save_import_mapping_profile,
+            commands::imports::list_pdf_import_mapping_profiles,
+            commands::imports::list_bundled_import_profiles,
+            commands::imports::save_pdf_import_mapping_profile,
             commands::imports::delete_imports,
             commands::imports::restore_import_duplicates,
             commands::position_snapshots::preview_position_snapshot,

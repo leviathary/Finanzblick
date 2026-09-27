@@ -7,9 +7,11 @@ import ts from "typescript";
 
 const source = await readFile(new URL("../src/features/imports/importBatch.ts", import.meta.url), "utf8");
 const wizardSource = await readFile(new URL("../src/features/imports/ImportWizard.tsx", import.meta.url), "utf8");
+const pdfMappingSource = await readFile(new URL("../src/features/imports/PdfMappingDialog.tsx", import.meta.url), "utf8");
 const appSource = await readFile(new URL("../src/App.tsx", import.meta.url), "utf8");
 const swissquoteReviewSource = await readFile(new URL("../src/features/imports/PositionSnapshotImport.tsx", import.meta.url), "utf8");
 const applicationCss = await readFile(new URL("../src/styles/application.css", import.meta.url), "utf8");
+const managementCss = await readFile(new URL("../src/styles/management.css", import.meta.url), "utf8");
 const desktopCapability = JSON.parse(await readFile(new URL("../src-tauri/capabilities/default.json", import.meta.url), "utf8"));
 const js = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.ESNext } }).outputText;
 const { canRelease, displayedProvider, suggestAccounts, hasAccountReferenceMismatch, hasAccounts, orderedBatchItems, orderedPreviewTransactionIndices, readyPositionSnapshot, readyToSave, saveBatch, unresolvedDuplicateCount } = await import(`data:text/javascript;base64,${Buffer.from(js).toString("base64")}`);
@@ -64,6 +66,9 @@ test("potential duplicates block import until every row has an explicit decision
 test("duplicate decisions and the actual import expose distinct visible states", () => {
   assert.match(wizardSource, /✓ Kein Duplikat – wird importiert/);
   assert.match(wizardSource, /✓ Als Duplikat erkannt – wird übersprungen/);
+  assert.match(wizardSource, /unresolvedDuplicateCount\(item\) > 0 && <small className="batch-duplicate"/);
+  assert.match(wizardSource, /count === 1[\s\S]+Ein mögliches Duplikat muss vor dem Import geprüft werden/);
+  assert.doesNotMatch(wizardSource, /const suspected = check\.suspectedTransactions/);
   assert.match(wizardSource, /Import läuft …/);
   assert.match(wizardSource, /duplicate-comparison-row/);
   assert.match(wizardSource, /t\("Vergleichsbuchung"\)/);
@@ -132,6 +137,52 @@ test("an open PDF preview exposes its source beside the review status", () => {
   assert.match(wizardSource, /current\.file\.extension === "pdf"/);
   assert.match(wizardSource, /onClick=\{\(\) => void openSource\(current\)\}/);
   assert.match(applicationCss, /\.review-header-actions[^}]+flex-wrap:\s*wrap/);
+});
+
+test("preview toggles name opening and closing and expose their state visually", () => {
+  assert.match(wizardSource, /expanded\) return accountRequired \? t\("Auswahl schliessen"\) : t\("Vorschau schliessen"\)/);
+  assert.match(wizardSource, /t\("Vorschau öffnen"\)/);
+  assert.match(wizardSource, /className="secondary-button preview-toggle"[^>]+aria-expanded=/);
+  assert.match(wizardSource, /className="preview-toggle-icon" aria-hidden="true"/);
+  assert.match(applicationCss, /\.preview-toggle\[aria-expanded="true"\][^{]*\{[^}]*border-color:\s*var\(--interactive\)/s);
+});
+
+test("unknown PDFs use a reusable local field mapping before import", () => {
+  assert.match(wizardSource, /item\.file\.extension === "pdf" && item\.file\.provider === "unknown"/);
+  assert.match(wizardSource, /invoke<PdfInspection>\("inspect_pdf_file"/);
+  assert.match(wizardSource, /invoke<number>\("save_pdf_import_mapping_profile"/);
+  assert.match(pdfMappingSource, /layoutFingerprint === inspection\.layoutFingerprint/);
+  assert.match(pdfMappingSource, /infer-from-balance/);
+  assert.match(pdfMappingSource, /ignoredDescriptions/);
+  assert.match(pdfMappingSource, /target !== "ignore" && target !== "description"/);
+  assert.match(pdfMappingSource, /additionalDescriptionSources/);
+  assert.match(pdfMappingSource, /key: "text-before"/);
+  assert.match(pdfMappingSource, /inlineLayout/);
+  assert.match(pdfMappingSource, /descriptionSource === "before" && inlineCount > 0/);
+  assert.doesNotMatch(pdfMappingSource, /fetch\(|https?:\/\//);
+});
+
+test("PDF field mapping is editable only for explicitly generic PDF imports", () => {
+  assert.match(wizardSource, /item\.file\.provider === CUSTOM_PDF_PROVIDER && Boolean\(item\.parsed\)[\s\S]+PDF-Zuordnung ändern/);
+  assert.doesNotMatch(wizardSource, /item\.file\.provider !== CUSTOM_PDF_PROVIDER \|\| Boolean\(item\.parsed\)/);
+});
+
+test("import page lists bundled provider profiles and their formats from backend metadata", () => {
+  assert.match(wizardSource, /invoke<BundledImportProfileSummary\[\]>\("list_bundled_import_profiles"\)/);
+  assert.match(wizardSource, /className="bundled-profile-overview"/);
+  assert.match(wizardSource, /t\(profile\.displayName\)/);
+  assert.match(wizardSource, /profile\.formats\.join\(" · "\)/);
+  assert.match(wizardSource, /provider === "standard"[^}]+t\("Bankstandard"\)/);
+  assert.match(wizardSource, /profile\.schemaVersion/);
+  assert.match(applicationCss, /\.bundled-profile-overview > summary[^}]+min-height:\s*44px/s);
+});
+
+test("the PDF field mapper stays wide and keeps both table scrollbars accessible", () => {
+  assert.match(pdfMappingSource, /className="mapping-dialog pdf-mapping-dialog"/);
+  assert.match(managementCss, /\.pdf-mapping-dialog \{[^}]+width:\s*calc\(100vw - 24px\);[^}]+overflow:\s*hidden;/s);
+  assert.match(managementCss, /\.pdf-mapping-dialog \.mapping-table-wrap \{[^}]+overflow:\s*auto;/s);
+  assert.match(managementCss, /\.pdf-mapping-table th \{[^}]+position:\s*sticky;[^}]+top:\s*0;/s);
+  assert.match(managementCss, /\.pdf-mapping-dialog \.mapping-footer \{[^}]+position:\s*static;/s);
 });
 
 test("preview places unresolved and resolved duplicate candidates before clear rows", () => {

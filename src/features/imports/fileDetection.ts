@@ -8,6 +8,7 @@ export type SupportedExtension = (typeof supportedExtensions)[number];
 // frontend union member. Built-ins below provide labels and filename hints.
 export type ProviderId = string;
 export const CUSTOM_EXCEL_PROVIDER = "custom-excel";
+export const CUSTOM_PDF_PROVIDER = "custom-pdf";
 
 export interface SelectedStatement {
   name: string;
@@ -20,11 +21,13 @@ export interface SelectedStatement {
 export const providers: Array<{ id: ProviderId; label: string; type: string }> = [
   { id: "zkb", label: "Zürcher Kantonalbank", type: "Bank" },
   { id: "ubs", label: "UBS", type: "Bank" },
+  { id: "postfinance", label: "PostFinance", type: "Bank" },
   { id: "swissquote", label: "Swissquote", type: "Bank / Trading" },
   { id: "migros", label: "Migros Bank", type: "Bank" },
   { id: "raiffeisen", label: "Raiffeisen", type: "Bank" },
   { id: "generali", label: "Generali", type: "Versicherung / Vorsorge" },
   { id: CUSTOM_EXCEL_PROVIDER, label: "Eigene Excel-Datei", type: "Benutzerdefinierte Datei" },
+  { id: CUSTOM_PDF_PROVIDER, label: "Eigene PDF-Datei", type: "Benutzerdefinierte Datei" },
   { id: "unknown", label: "Anderer Anbieter", type: "Manuelle Zuordnung" },
 ];
 
@@ -32,6 +35,7 @@ export function detectProvider(fileName: string): ProviderId {
   const normalized = fileName.toLocaleLowerCase("de-CH");
   if (normalized.includes("zkb") || normalized.includes("zürcher kantonalbank") || normalized.includes("zuercher kantonalbank")) return "zkb";
   if (normalized.includes("ubs")) return "ubs";
+  if (normalized.includes("postfinance") || normalized.includes("post finance")) return "postfinance";
   if (normalized.includes("swissquote")) return "swissquote";
   if (normalized.includes("migros")) return "migros";
   if (normalized.includes("raiffeisen")) return "raiffeisen";

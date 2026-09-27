@@ -1,5 +1,5 @@
 //! Fachbezogene Repository-Anfragen und Ergebnisprojektionen.
-use crate::importers::{ParsedStatement, TabularMapping};
+use crate::importers::{ParsedStatement, PdfMapping, TabularMapping};
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 #[derive(Debug, Serialize)]
@@ -51,6 +51,23 @@ pub struct SaveImportMappingProfile {
     pub(crate) name: String,
     pub(crate) header_fingerprint: String,
     pub(crate) mapping: TabularMapping,
+}
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct PdfImportMappingProfile {
+    pub(crate) id: i64,
+    pub(crate) name: String,
+    pub(crate) layout_fingerprint: String,
+    pub(crate) mapping: PdfMapping,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SavePdfImportMappingProfile {
+    pub(crate) name: String,
+    pub(crate) layout_fingerprint: String,
+    pub(crate) mapping: PdfMapping,
 }
 
 #[derive(Debug, Serialize)]

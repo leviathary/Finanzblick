@@ -699,22 +699,42 @@ mod tests {
     #[test]
     fn depot_accounts_are_import_targets_for_each_provider_but_cash_is_not() {
         let mut db = database();
-        db.execute("UPDATE accounts SET account_type='portfolio' WHERE id IN (1,2)", []).unwrap();
-        db.execute("UPDATE accounts SET account_type='cash' WHERE id=3", []).unwrap();
+        db.execute(
+            "UPDATE accounts SET account_type='portfolio' WHERE id IN (1,2)",
+            [],
+        )
+        .unwrap();
+        db.execute("UPDATE accounts SET account_type='cash' WHERE id=3", [])
+            .unwrap();
         for (id, provider, reference) in [(1, "swissquote", "111"), (2, "example_broker", "222")] {
             let mut input = snapshot(provider, "2026-01-02", vec![row("AAA", "stock", "2")]);
             input.account_reference = Some(reference.into());
-            assert_eq!(eligible_accounts(&db, &input, &normalize_reference).unwrap(), vec![id]);
+            assert_eq!(
+                eligible_accounts(&db, &input, &normalize_reference).unwrap(),
+                vec![id]
+            );
             assert_eq!(save_test(&mut db, id, &input, "depot").created_positions, 1);
             assert_eq!(quantity_at(&db, id, "AAA", "2026-01-01"), None);
-            assert_eq!(quantity_at(&db, id, "AAA", "2026-01-02").as_deref(), Some("2"));
+            assert_eq!(
+                quantity_at(&db, id, "AAA", "2026-01-02").as_deref(),
+                Some("2")
+            );
             input.account_reference = Some("wrong".into());
-            assert!(eligible_accounts(&db, &input, &normalize_reference).unwrap().is_empty());
-            db.execute("UPDATE accounts SET is_active=0 WHERE id=?1", [id]).unwrap();
+            assert!(eligible_accounts(&db, &input, &normalize_reference)
+                .unwrap()
+                .is_empty());
+            db.execute("UPDATE accounts SET is_active=0 WHERE id=?1", [id])
+                .unwrap();
             input.account_reference = Some(reference.into());
-            assert!(eligible_accounts(&db, &input, &normalize_reference).unwrap().is_empty());
+            assert!(eligible_accounts(&db, &input, &normalize_reference)
+                .unwrap()
+                .is_empty());
         }
-        let input = snapshot("example_broker", "2026-01-02", vec![row("AAA", "stock", "2")]);
+        let input = snapshot(
+            "example_broker",
+            "2026-01-02",
+            vec![row("AAA", "stock", "2")],
+        );
         assert!(persist(&mut db, 3, &input, "test", "cash", &normalize_reference).is_err());
     }
 

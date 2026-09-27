@@ -102,10 +102,45 @@ explizite Provider-Fähigkeit ab. Anbieterunabhängige technische Schutzmaßnahm
 wie Größenlimits, Zeichencodierung, PDF-Fehlerisolation und Hintergrundausführung
 bleiben dagegen im Format-, Pipeline- oder Infrastruktur-Rand.
 
+PDF-Importe verwenden eine gemeinsame Profilausführung mit zwei getrennten
+Vertrauensstufen. Versionierte, mit der Anwendung ausgelieferte JSON-Profile
+unter `importers/providers/profiles/` beschreiben Erkennung, Metadaten,
+Tabellenzeilen, Seitenköpfe, Kontrollsummen und Referenzen bekannter Anbieter.
+`formats/pdf_profile.rs` validiert und führt sie aus; `ProviderImporter` bindet
+das Profil an einen Anbieter und bietet nur für nicht deklarativ abbildbare
+Fachlogik einen eng begrenzten `parse_pdf_hook`. Der zentrale Provider-PDF-Pfad
+prüft immer zuerst ein mitgeliefertes Profil und erst danach diesen Hook.
+PostFinance-Kontoauszüge sowie moderne UBS-Monatskontoauszüge verwenden diese
+gemeinsame Engine. Das UBS-Profil nutzt die allgemeine Vorzeichenstrategie über
+laufende Salden. Mehrseitige UBS-Kreditkartenabrechnungen verwenden ein eigenes
+deklaratives JSON-Profil und die gemeinsame Kreditkarten-Profilengine; sie prüft
+Kartenwechsel, Seitenüberträge, Kartentotale und den Rechnungsbetrag. Ältere
+UBS-Kontoauszüge bleiben wegen ihrer abweichenden Zustandslogik ein eng begrenzter
+Provider-Hook.
+Erfolgreiche Erkennung und bestandene Kontrollprüfungen werden nicht als Warnung
+ausgegeben. Profilwarnungen sind optional und ausschließlich für verbleibende,
+vom Nutzer prüfbare Unsicherheiten vorgesehen.
+Die Importoberfläche bezieht ihre schreibgeschützte Profilübersicht aus der
+Importer-Registry. Darin werden sowohl versionierte JSON-Profile und getestete
+integrierte Providerparser als auch die anbieterunabhängigen Bankstandards
+MT940, camt.053 und camt.054 samt Dateiformaten und Dokumenttyp geführt; das
+Frontend pflegt keine parallele Liste unterstützter Importlayouts.
+
+Davon getrennt ist der generische, vom Endbenutzer erlernte PDF-Import wie das
+Tabellenmapping eine eingeschränkte deklarative Feldzuordnung: `formats/pdf.rs`
+extrahiert sprachneutrale Datums-, Text- und Betragsfelder, die Oberfläche ordnet
+sie den normalisierten Importfeldern zu. Gespeicherte Benutzerprofile enthalten
+nur diese Zuordnung, Formatoptionen, Ausschlussbegriffe und einen strukturellen
+Layout-Fingerabdruck; Quelltext, Buchungen und Kontodaten werden nicht als
+Lernmaterial gespeichert. Keine der beiden Profilarten enthält ausführbaren Code.
+
 Persistenzregeln, die normalisierte Importmerkmale verarbeiten – beispielsweise
 Duplikatabgleich oder das atomare Ersetzen einer vorläufigen Buchung – bleiben
 anbieterneutral in `storage/imports/`. Sie dürfen keine Banknamen, UBS-Texte
-oder konkrete Quellspalten auswerten. Jede neue Provider-Fähigkeit erhält einen
+oder konkrete Quellspalten auswerten. Sind bei zwei ansonsten ähnlichen Buchungen
+laufende Salden vorhanden, schliesst ein unterschiedlicher Saldo einen
+Duplikatverdacht aus; fehlt einer der beiden Salden, bleibt der Vergleich
+konservativ. Jede neue Provider-Fähigkeit erhält einen
 Regressionstest, der belegt, dass sie bei mindestens einem anderen Provider
 nicht versehentlich aktiv wird.
 

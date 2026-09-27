@@ -1,6 +1,6 @@
 //! Liest ZKB-Belegmetadaten aus PDFs und übersetzt sie in normalisierte Importdaten.
 
-use super::{ParsedStatement, ProviderImporter};
+use super::{IntegratedImportProfile, ParsedStatement, ProviderImporter};
 use crate::importers::{
     normalize_date, normalized, parse_money, ParsedSecurityDetails, ParsedTransaction,
 };
@@ -11,6 +11,13 @@ pub(super) static IMPORTER: ZkbImporter = ZkbImporter;
 
 pub(super) struct ZkbImporter;
 
+const INTEGRATED_IMPORT_PROFILES: &[IntegratedImportProfile] = &[IntegratedImportProfile {
+    id: "zkb-transaction-notice",
+    display_name: "ZKB-Buchungsbeleg",
+    formats: &["PDF"],
+    document_type: "transaction_notice",
+}];
+
 impl ProviderImporter for ZkbImporter {
     fn id(&self) -> &'static str {
         "zkb"
@@ -20,7 +27,11 @@ impl ProviderImporter for ZkbImporter {
         &["zürcher kantonalbank", "zuercher kantonalbank", "zkb"]
     }
 
-    fn parse_pdf(&self, path: &Path, _text: &str) -> Option<Result<ParsedStatement, String>> {
+    fn integrated_import_profiles(&self) -> &'static [IntegratedImportProfile] {
+        INTEGRATED_IMPORT_PROFILES
+    }
+
+    fn parse_pdf_hook(&self, path: &Path, _text: &str) -> Option<Result<ParsedStatement, String>> {
         let keywords = pdf_keywords(path).ok().flatten()?;
         let metadata = parse_metadata(&keywords);
         if !is_transaction_notice(&metadata) {

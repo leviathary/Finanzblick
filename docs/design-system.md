@@ -604,10 +604,49 @@ am jeweiligen Bereich die Abweichung kontrolliert beheben und Regressionen prüf
   einem Link zur Kontoverwaltung. Nur Dokumente ohne Kontokennung dürfen auf die
   Zuordnung über Anbieter, Währung und Kontotyp zurückfallen.
 - Im Kopf stehen Dateistatus, Buchungsanzahl und Kontozuordnungen kompakt; keine wiederholte Bereitschaftsmeldung oder allgemeine Bedienerklärung.
-- Die Vorschau öffnet direkt unter der zugehörigen Datei. Warnungen und Duplikathinweise bleiben der Datei zugeordnet.
+- Die Vorschau öffnet direkt unter der zugehörigen Datei. Ihr Umschalter benennt
+  den Zustand ausdrücklich als „Vorschau öffnen“ oder „Vorschau schliessen“ und
+  zeigt zusätzlich einen nach unten beziehungsweise oben gerichteten Pfeil.
+  Warnungen und Duplikathinweise bleiben der Datei zugeordnet.
 - Eine geöffnete PDF-Vorschau bietet im Kopf neben ihren Statusangaben direkt
   „PDF anzeigen“ an. So bleibt das Quelldokument auch während der
   Duplikatentscheidung ohne Rücksprung in die Dateizeile erreichbar.
+- Nicht erkannte Kontoauszüge können als „Eigene PDF-Datei“ zugeordnet werden.
+  Eine kompakte, aufklappbare und schreibgeschützte Übersicht „Unterstützte
+  Importprofile“ unter der Dateiauswahl nennt die tatsächlich registrierten
+  Anbieterprofile und Bankstandards mit Anbieter beziehungsweise „Bankstandard“,
+  Dateiformat und Dokumenttyp. Versionierte JSON-Profile zeigen zusätzlich ihre
+  Profilversion. Die Einträge werden aus Backend-Metadaten der registrierten
+  Parser und nicht zusätzlich im Frontend gepflegt; die Übersicht umfasst
+  deshalb auch CSV-, Excel-, MT940-, camt- und Positionsbestandsprofile.
+  Der PDF-Dialog verwendet dieselbe Dialog-, Tabellen- und Footerstruktur wie
+  die Excel-Spaltenzuordnung. Er zeigt erkannte Text-, Datums- und Betragsfelder,
+  verlangt Buchungsdatum, Beschreibung und Betrag und bietet Saldo,
+  Vorzeichenlogik, Datums-/Zahlenformat sowie sprachabhängige Ausschlussbegriffe
+  als explizite Optionen an. Ein Profil kann optional benannt gespeichert werden;
+  die dunkelblaue Hauptaktion prüft die Zuordnung und öffnet danach die normale
+  Importvorschau. Escape schließt den Dialog, der Fokus beginnt im ersten
+  Auswahlfeld und sämtliche Felder besitzen sichtbare Labels.
+  Auf dem Desktop nutzt der Dialog nahezu die gesamte verfügbare Fensterbreite.
+  Kopf, Optionen und Aktionsleiste bleiben sichtbar, während ausschließlich die
+  Feldtabelle horizontal und vertikal scrollt. Ihre horizontale Scrollleiste liegt
+  stets am unteren Rand des sichtbaren Tabellenbereichs; die Zuordnungszeile bleibt
+  beim vertikalen Scrollen stehen. Der Dokumentkopf vor der ersten strukturierten
+  Tabellenzeile wird nicht als Buchungstext angeboten. Leerzeichen zur
+  Tausendergruppierung bleiben Bestandteil des erkannten Betrags und erscheinen
+  nicht als scheinbare Zahl im Beschreibungstext. Strukturelle Anfangs- und
+  Schlusssaldozeilen am Tabellenrand werden automatisch als Saldenkontext erkannt
+  und nicht als auswählbare Buchungszeilen angezeigt oder importiert. Mehrere
+  Textfelder dürfen gemeinsam der Beschreibung zugeordnet werden. Bei Layouts mit
+  Text in der Zahlenzeile werden dieser Text und der unmittelbar folgende
+  Detailblock vorausgewählt. Stehen die Buchungsdetails dagegen vor der
+  Zahlenzeile, werden der vorhergehende Detailblock und ergänzender Text in der
+  Zahlenzeile kombiniert. Alle drei Textpositionen bleiben sichtbar und können
+  manuell angepasst werden. Die Feldzuordnung wird nur für ausdrücklich als
+  „Eigene PDF-Datei“ gewählte, generische Importe angeboten. Bei einem erfolgreich
+  erkannten, mitgelieferten Anbieterprofil bleibt die geprüfte Profilvorschau
+  maßgeblich; der vereinfachte generische Dialog wird dort nicht als vermeintlicher
+  Profileditor angezeigt.
 - In der Dateiliste stehen fehlgeschlagene Analysen zuerst, danach Dateien mit
   ungeklärten Duplikatverdachtsfällen und anschließend alle übrigen Dateien.
   Innerhalb derselben Statusgruppe bleibt die Reihenfolge der Dateiauswahl erhalten.
@@ -618,7 +657,9 @@ am jeweiligen Bereich die Abweichung kontrolliert beheben und Regressionen prüf
   markiert und blockieren den Import, bis jede einzeln als neue Buchung bestätigt
   oder als Duplikat übersprungen wurde. Als Verdachtsfall gilt derselbe Betrag
   in derselben Währung auf demselben Konto und dasselbe vollständige Kommentarfeld
-  innerhalb eines Toleranzfensters von zwei Tagen. Beim Vergleich werden nur
+  innerhalb eines Toleranzfensters von zwei Tagen. Haben beide Buchungen einen
+  laufenden Saldo, schliesst ein unterschiedlicher Saldo den Verdacht
+  anbieterunabhängig aus. Beim Vergleich werden nur
   technisch bedingte Unterschiede bei Leerzeichen vereinheitlicht; Referenzen oder
   andere Bestandteile werden nicht aus dem Kommentar herausgelöst. Fehlt eines der
   beiden Kommentarfelder, bleibt der Fall aus Sicherheitsgründen ein manueller
@@ -634,7 +675,10 @@ am jeweiligen Bereich die Abweichung kontrolliert beheben und Regressionen prüf
   ungeklärte Verdachtsfälle zuerst, danach bereits entschiedene Verdachtsfälle und
   zuletzt unauffällige Buchungen; diese Sortierung verändert weder Quellzeilen noch
   die gespeicherte Buchungsreihenfolge. Der kompakte Restzähler muss auch in
-  schmalen Ansichten vollständig sichtbar bleiben. Unterschiedliche Kommentarfelder
+  schmalen Ansichten vollständig sichtbar bleiben. Hinweise nennen ein einzelnes
+  „mögliches Duplikat“ im Singular und mehrere im Plural; sobald alle Fälle einer
+  Datei entschieden sind, verschwindet der Prüfhinweis aus ihrer Dateizeile.
+  Unterschiedliche Kommentarfelder
   schließen einen Verdachtsfall aus. Bei einem echten Verdachtsfall
   steht die vollständige Vergleichsbuchung als eigene helle Tabellenzeile unmittelbar
   unter der zu prüfenden Buchung; Datum, Beschreibung und Betrag verwenden dieselben

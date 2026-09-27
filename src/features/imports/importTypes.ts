@@ -91,6 +91,56 @@ export interface ImportMappingProfile {
   mapping: TabularMapping;
 }
 
+export type PdfTextSource = "before" | "inline" | "after";
+export type PdfAmountSign = "signed" | "debit" | "credit" | "infer-from-balance";
+
+export interface PdfMapping {
+  dateIndex: number;
+  valueDateIndex: number | null;
+  descriptionSource: PdfTextSource;
+  additionalDescriptionSources: PdfTextSource[];
+  amountIndex: number;
+  balanceIndex: number | null;
+  fixedCurrency: string;
+  amountSign: PdfAmountSign;
+  dateFormat: DateFormat;
+  numberFormat: NumberFormat;
+  ignoredDescriptions: string[];
+}
+
+export interface PdfInspectionRow {
+  sourceRow: number;
+  textBefore: string;
+  textInline: string;
+  textAfter: string;
+  dates: string[];
+  amounts: string[];
+}
+
+export interface PdfInspection {
+  rowCount: number;
+  maxDateCount: number;
+  maxMoneyCount: number;
+  layoutFingerprint: string;
+  preview: PdfInspectionRow[];
+}
+
+export interface PdfImportMappingProfile {
+  id: number;
+  name: string;
+  layoutFingerprint: string;
+  mapping: PdfMapping;
+}
+
+export interface BundledImportProfileSummary {
+  id: string;
+  provider: ProviderId;
+  displayName: string;
+  formats: string[];
+  documentType: string;
+  schemaVersion?: number;
+}
+
 export interface ImportAccount {
   id: number; institutionId: number; name: string; provider: string; providerKey: string; currency: string; accountType: AccountType; isActive: boolean;
   externalReference?: string | null;

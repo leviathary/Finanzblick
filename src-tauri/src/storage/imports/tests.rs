@@ -228,6 +228,80 @@ fn suspicious_duplicates_block_saving_until_explicitly_kept_or_skipped() {
 }
 
 #[test]
+fn running_balances_distinguish_repeated_payments_for_any_provider() {
+    let directory = tempfile::tempdir().unwrap();
+    let storage = Storage::test_storage(directory.path().join("balance-deduplication.sqlite3"));
+    initialize_schema(&storage.connect().unwrap()).unwrap();
+    let transaction = |source_row, balance_minor| crate::importers::ParsedTransaction {
+        booking_date: "2026-03-15".into(),
+        value_date: Some("2026-03-15".into()),
+        description: "Zahlung Verkehrsbetrieb".into(),
+        amount_minor: -9_100,
+        balance_minor: Some(balance_minor),
+        currency: "CHF".into(),
+        confidence: 1.0,
+        source_row,
+        ..Default::default()
+    };
+    let statement = |transactions| crate::importers::ParsedStatement {
+        provider: "synthetic-bank".into(),
+        format: "PDF".into(),
+        account_name: "Testkonto".into(),
+        transactions,
+        ..Default::default()
+    };
+    let first_source = directory.path().join("first.pdf");
+    fs::write(&first_source, b"first balances").unwrap();
+    let first = save_import_to(
+        &storage,
+        SaveImportRequest {
+            account_ids: BTreeMap::new(),
+            source_path: first_source.to_string_lossy().into(),
+            account_name: "Testkonto".into(),
+            statement: statement(vec![transaction(1, 3_544_608), transaction(2, 3_535_508)]),
+            duplicate_resolutions: vec![],
+        },
+    )
+    .unwrap();
+    assert_eq!(first.inserted_transactions, 2);
+
+    let second_source = directory.path().join("second.pdf");
+    fs::write(&second_source, b"second balance").unwrap();
+    let request = SaveImportRequest {
+        account_ids: BTreeMap::from([("CHF".into(), first.account_id)]),
+        source_path: second_source.to_string_lossy().into(),
+        account_name: "Testkonto".into(),
+        statement: statement(vec![transaction(1, 3_526_408)]),
+        duplicate_resolutions: vec![],
+    };
+    let check = duplicate_check(&storage.connect().unwrap(), &request, "second").unwrap();
+    assert_eq!(check.matching_transactions, 0);
+    assert!(check.suspected_transactions.is_empty());
+    assert_eq!(
+        save_import_to(&storage, request)
+            .unwrap()
+            .inserted_transactions,
+        1
+    );
+
+    let same_balance_source = directory.path().join("same-balance.pdf");
+    fs::write(&same_balance_source, b"same balance").unwrap();
+    let same_balance = SaveImportRequest {
+        account_ids: BTreeMap::from([("CHF".into(), first.account_id)]),
+        source_path: same_balance_source.to_string_lossy().into(),
+        account_name: "Testkonto".into(),
+        statement: statement(vec![transaction(1, 3_526_408)]),
+        duplicate_resolutions: vec![],
+    };
+    assert_eq!(
+        duplicate_check(&storage.connect().unwrap(), &same_balance, "same-balance")
+            .unwrap()
+            .matching_transactions,
+        1
+    );
+}
+
+#[test]
 fn ignored_duplicate_stays_deduplicated_and_can_be_restored_from_its_import() {
     let directory = tempfile::tempdir().unwrap();
     let storage = Storage::test_storage(directory.path().join("ignored-duplicate.sqlite3"));
@@ -721,7 +795,7 @@ fn digital_categories_cover_existing_and_new_rows_and_preserve_overrides() {
 #[test]
 fn checks_hash_account_and_transaction_multiplicity() {
     let connection = Connection::open_in_memory().unwrap();
-    connection.execute_batch("CREATE TABLE import_runs(source_hash TEXT); INSERT INTO import_runs VALUES ('known'); CREATE TABLE transactions(account_id INTEGER, booking_date TEXT, value_date TEXT, amount_minor INTEGER, currency TEXT, description TEXT); INSERT INTO transactions VALUES(1, '2026-09-01', NULL, -100, 'CHF', 'Coffee'); CREATE TABLE transaction_metadata(transaction_id INTEGER PRIMARY KEY,account_id INTEGER,reference_namespace TEXT,external_reference TEXT,fallback_fingerprint TEXT);").unwrap();
+    connection.execute_batch("CREATE TABLE import_runs(source_hash TEXT); INSERT INTO import_runs VALUES ('known'); CREATE TABLE transactions(account_id INTEGER, booking_date TEXT, value_date TEXT, amount_minor INTEGER, currency TEXT, description TEXT, balance_minor INTEGER); INSERT INTO transactions VALUES(1, '2026-09-01', NULL, -100, 'CHF', 'Coffee', NULL); CREATE TABLE transaction_metadata(transaction_id INTEGER PRIMARY KEY,account_id INTEGER,reference_namespace TEXT,external_reference TEXT,fallback_fingerprint TEXT);").unwrap();
     let mut request: SaveImportRequest = serde_json::from_value(serde_json::json!({
         "sourcePath": "unused", "accountName": "", "accountIds": {"CHF": 1},
         "statement": {"provider": "ubs", "format": "CSV", "accountName": "", "warnings": [], "openingBalanceMinor": null, "closingBalanceMinor": null,

@@ -14,7 +14,15 @@ use sha2::Digest;
 use sha2::Sha256;
 use std::collections::BTreeMap;
 use std::fs;
-type TransactionKey = (i64, String, Option<String>, i64, String, String);
+type TransactionKey = (
+    i64,
+    String,
+    Option<String>,
+    i64,
+    String,
+    String,
+    Option<i64>,
+);
 
 pub(crate) fn check_import_duplicates(
     storage: &Storage,
@@ -132,15 +140,24 @@ pub(crate) fn duplicate_check(
                     row.amount_minor,
                     row.currency.as_str(),
                     row.description.trim(),
+                    row.balance_minor,
                 ))
                 .or_insert(0usize) += 1;
         }
     }
-    let mut query = connection.prepare("SELECT COUNT(*) FROM transactions WHERE account_id = ?1 AND booking_date = ?2 AND COALESCE(value_date,'') = COALESCE(?3,'') AND amount_minor = ?4 AND currency = ?5 AND trim(description) = ?6").map_err(db_error)?;
-    for ((account, date, value_date, amount, currency, description), incoming) in counts {
+    let mut query = connection.prepare("SELECT COUNT(*) FROM transactions WHERE account_id = ?1 AND booking_date = ?2 AND COALESCE(value_date,'') = COALESCE(?3,'') AND amount_minor = ?4 AND currency = ?5 AND trim(description) = ?6 AND (?7 IS NULL OR balance_minor IS NULL OR balance_minor = ?7)").map_err(db_error)?;
+    for ((account, date, value_date, amount, currency, description, balance), incoming) in counts {
         let existing: usize = query
             .query_row(
-                params![account, date, value_date, amount, currency, description],
+                params![
+                    account,
+                    date,
+                    value_date,
+                    amount,
+                    currency,
+                    description,
+                    balance
+                ],
                 |row| row.get(0),
             )
             .map_err(db_error)?;
@@ -215,7 +232,7 @@ pub(crate) fn suspected_duplicates(
         .collect::<std::collections::BTreeSet<_>>();
     let mut query = connection
         .prepare(
-            "SELECT rowid,booking_date,description,amount_minor,currency FROM transactions
+            "SELECT rowid,booking_date,description,amount_minor,currency,balance_minor FROM transactions
              WHERE account_id=?1 AND amount_minor=?2 AND currency=?3
                AND date(booking_date) BETWEEN date(?4,'-2 day') AND date(?4,'+2 day')
              ORDER BY ABS(julianday(booking_date)-julianday(?4)), rowid DESC",
@@ -235,6 +252,7 @@ pub(crate) fn suspected_duplicates(
                         stored.get::<_, String>(2)?,
                         stored.get::<_, i64>(3)?,
                         stored.get::<_, String>(4)?,
+                        stored.get::<_, Option<i64>>(5)?,
                     ))
                 },
             )
@@ -242,10 +260,17 @@ pub(crate) fn suspected_duplicates(
             .collect::<Result<Vec<_>, _>>()
             .map_err(db_error)?
             .into_iter()
-            .find(|(_, date, description, _, _)| {
-                suspicious_match(&row.booking_date, &row.description, date, description)
+            .find(|(_, date, description, _, _, balance)| {
+                suspicious_match(
+                    &row.booking_date,
+                    &row.description,
+                    row.balance_minor,
+                    date,
+                    description,
+                    *balance,
+                )
             });
-        if let Some((id, date, description, amount, currency)) = stored {
+        if let Some((id, date, description, amount, currency, _)) = stored {
             result.push(suspect(
                 index,
                 "stored",
@@ -275,8 +300,10 @@ pub(crate) fn suspected_duplicates(
                     && suspicious_match(
                         &row.booking_date,
                         &row.description,
+                        row.balance_minor,
                         &previous.booking_date,
                         &previous.description,
+                        previous.balance_minor,
                     )
             })
         {
@@ -350,10 +377,15 @@ fn dates_are_close(left: &str, right: &str) -> bool {
 fn suspicious_match(
     incoming_date: &str,
     incoming_description: &str,
+    incoming_balance: Option<i64>,
     compared_date: &str,
     compared_description: &str,
+    compared_balance: Option<i64>,
 ) -> bool {
     if !dates_are_close(incoming_date, compared_date) {
+        return false;
+    }
+    if matches!((incoming_balance, compared_balance), (Some(left), Some(right)) if left != right) {
         return false;
     }
     let incoming = normalized_description(incoming_description);
@@ -405,7 +437,8 @@ pub(crate) fn transaction_indices_to_insert(
             "SELECT COUNT(*) FROM transactions
          WHERE account_id = ?1 AND booking_date = ?2 AND amount_minor = ?3
            AND COALESCE(value_date,'') = COALESCE(?4,'')
-           AND currency = ?5 AND trim(description) = ?6",
+           AND currency = ?5 AND trim(description) = ?6
+           AND (?7 IS NULL OR balance_minor IS NULL OR balance_minor = ?7)",
         )
         .map_err(db_error)?;
     for row in &request.statement.transactions {
@@ -416,13 +449,14 @@ pub(crate) fn transaction_indices_to_insert(
             row.amount_minor,
             row.currency.clone(),
             row.description.trim().to_string(),
+            row.balance_minor,
         );
         if existing_counts.contains_key(&key) {
             continue;
         }
         let count = count_query
             .query_row(
-                params![key.0, key.1, key.3, key.2, key.4, key.5],
+                params![key.0, key.1, key.3, key.2, key.4, key.5, key.6],
                 |result| result.get(0),
             )
             .map_err(db_error)?;
@@ -458,6 +492,7 @@ pub(crate) fn transaction_indices_to_insert(
             row.amount_minor,
             row.currency.clone(),
             row.description.trim().to_string(),
+            row.balance_minor,
         );
         let occurrence = encountered.entry(key.clone()).or_default();
         let exceeds_legacy_count = *occurrence >= existing_counts[&key];

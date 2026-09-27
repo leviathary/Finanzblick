@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "id": "ubs-credit-card-statement-v1",
+  "provider": "ubs",
+  "displayName": "UBS-Kreditkartenabrechnung",
+  "recognitionAll": ["kreditkartenabrechnung in chf", "kartenkonto", "buchungsdatum detail betrag chf", "rechnungsbetrag"],
+  "accountType": "credit_card",
+  "documentType": "credit_card_statement",
+  "fixedCurrency": "CHF",
+  "accountNamePrefix": "Kartenkonto ",
+  "accountNameLabel": "UBS Mastercard",
+  "summary": {
+    "datedAmountRegex": "^(\\d{2}\\.\\d{2}\\.\\d{4}) (.*?) ([+-]?(?:\\d{1,3}(?:['’ ]\\d{3})+|\\d+)\\.\\d{2})$",
+    "dateGroup": 1,
+    "labelGroup": 2,
+    "amountGroup": 3,
+    "openingLabel": "Betrag letzte Rechnung",
+    "closingLabel": "Rechnungsbetrag",
+    "cardTotalPrefix": "Kartentotal "
+  },
+  "details": {
+    "headerPrefix": "Buchungsdatum Detail Betrag CHF",
+    "datedDescriptionRegex": "^(\\d{2}\\.\\d{2}\\.\\d{4}) (.+)$",
+    "dateGroup": 1,
+    "descriptionGroup": 2,
+    "amountTailRegex": "^(?:(?:[A-Z]{3} [+-]?(?:\\d{1,3}(?:['’ ]\\d{3})+|\\d+)\\.\\d{2}|\\d{2}\\.\\d{2}\\.\\d{4}) )?([+-]?(?:\\d{1,3}(?:['’ ]\\d{3})+|\\d+)\\.\\d{2})$",
+    "amountGroup": 1,
+    "purchaseDateRegex": "\\d{2}\\.\\d{2}\\.\\d{4}",
+    "cardMarker": ", UBS Mastercard",
+    "cardNumberPrefix": "XXXX ",
+    "carryToPrefix": "Übertrag auf Seite",
+    "carryFromPrefix": "Übertrag von Seite",
+    "cardTotalPrefix": "Kartentotal "
+  },
+  "confidence": 0.99,
+  "warning": "Kreditkartenschulden werden negativ geführt. Käufe und Gebühren sind Belastungen, Rückerstattungen und LSV-Zahlungen Gutschriften. Transaktionsdaten und Fremdwährungsdetails stehen im Buchungstext.",
+  "roundingToleranceMinor": 5
+}

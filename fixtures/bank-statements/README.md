@@ -2,13 +2,14 @@
 
 Diese Dateien dienen ausschliesslich der Entwicklung und automatisierten Tests.
 Alle Personen, Kontonummern, IBANs, Policen, Buchungstexte und Beträge sind frei
-erfunden. Es wurden keine Werte aus dem bereitgestellten UBS-Dokument übernommen.
+erfunden. Es wurden keine Werte aus bereitgestellten Bankdokumenten übernommen.
 
 ## Abgedeckte Formate
 
 | Anbieter | Excel-Logik | PDF-Logik | Besonderheit |
 | --- | --- | --- | --- |
-| UBS | Belastung und Gutschrift getrennt | laufender Kontostand | zusätzliche Saldoübersichten sind möglich |
+| UBS | Belastung und Gutschrift getrennt | modernes Monatslayout als versioniertes PDF-Profil; Altformat als Hook | Vorzeichen werden gegen den laufenden Kontostand und Kontrollsummen geprüft |
+| PostFinance | - | versioniertes PDF-Profil über die gemeinsame Engine | Vorzeichen und Seitenumbrüche werden gegen Salden und Kontrollsummen geprüft |
 | Migros Bank | Soll und Haben getrennt | kompakte Kontoübersicht | bankeigene Referenz pro Buchung |
 | Raiffeisen | ein vorzeichenbehafteter Betrag | Transaktionsliste | positive und negative Beträge in einer Spalte |
 | Generali | Vertragsbewegungen | Vorsorgeübersicht | Anbieter/Police statt Bank/Konto |

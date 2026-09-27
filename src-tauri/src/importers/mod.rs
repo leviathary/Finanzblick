@@ -11,7 +11,57 @@ use formats::{camt053, csv_import, excel, mt940, pdf, tabular};
 mod providers;
 mod registry;
 use csv_import::parse_csv;
+pub(crate) use pdf::validate_pdf_mapping;
+pub use pdf::{PdfInspection, PdfMapping};
 pub use tabular::{inspect_tabular_file, TabularInspection, TabularMapping};
+
+pub fn bundled_import_profile_summaries() -> Result<Vec<BundledImportProfileSummary>, String> {
+    let mut profiles = providers::bundled_import_profile_summaries()?;
+    profiles.extend([
+        BundledImportProfileSummary {
+            id: "mt940-account-statement".into(),
+            provider: "standard".into(),
+            display_name: "MT940-Kontoauszug".into(),
+            formats: vec!["MT940".into(), "STA".into()],
+            document_type: "statement".into(),
+            schema_version: None,
+        },
+        BundledImportProfileSummary {
+            id: "camt053-account-statement".into(),
+            provider: "standard".into(),
+            display_name: "camt.053-Kontoauszug".into(),
+            formats: vec!["XML".into()],
+            document_type: "statement".into(),
+            schema_version: None,
+        },
+        BundledImportProfileSummary {
+            id: "camt054-account-notification".into(),
+            provider: "standard".into(),
+            display_name: "camt.054-Buchungsanzeige".into(),
+            formats: vec!["XML".into()],
+            document_type: "transaction_notification".into(),
+            schema_version: None,
+        },
+    ]);
+    profiles.sort_by(|left, right| {
+        left.provider
+            .cmp(&right.provider)
+            .then(left.display_name.cmp(&right.display_name))
+    });
+    Ok(profiles)
+}
+
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct BundledImportProfileSummary {
+    pub id: String,
+    pub provider: String,
+    pub display_name: String,
+    pub formats: Vec<String>,
+    pub document_type: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub schema_version: Option<u8>,
+}
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -167,7 +217,13 @@ pub struct ParsedStatement {
     pub account_reference: Option<String>,
 }
 
+#[cfg(test)]
 pub use pipeline::parse_statement;
+pub use pipeline::parse_statement_with_pdf_mapping;
+
+pub fn inspect_pdf_file(path: String) -> Result<PdfInspection, String> {
+    pdf::inspect(Path::new(&path))
+}
 
 pub(crate) fn card_credit_hint(provider: &str, description: &str) -> Option<&'static str> {
     providers::by_id(provider).and_then(|p| p.card_credit_kind(description))
@@ -334,7 +390,6 @@ mod tests {
     #[test]
     fn parses_all_pdf_fixtures() {
         let cases = [
-            ("pdf/ubs_kontoauszug_2026-08.pdf", "ubs", 8),
             ("pdf/migros_bank_konto_2026-08.pdf", "migros", 5),
             ("pdf/raiffeisen_transaktionen_2026-08.pdf", "raiffeisen", 6),
             ("pdf/generali_vorsorge_2026.pdf", "generali", 7),
@@ -369,9 +424,17 @@ Umsatztotal 23.00 200.00
 Dienstleistungspreisabschluss
 31.08.23 KEINE BUCHUNG 23.00 31.08.23 1 154.00";
         let parse = |text: &str| {
-            providers::ubs::parse_account_rows(
-                &text.lines().map(str::to_string).collect::<Vec<_>>(),
+            let parsed = providers::parse_pdf(
+                providers::by_id("ubs").expect("UBS provider registered"),
+                std::path::Path::new("ubs-statement.pdf"),
+                text,
             )
+            .ok_or_else(|| "UBS-Profil hat den Kontoauszug nicht erkannt.".to_string())??;
+            Ok::<ParsedPdfRows, String>((
+                parsed.transactions,
+                parsed.opening_balance_minor,
+                parsed.closing_balance_minor,
+            ))
         };
         let (rows, opening, closing) = parse(text).unwrap();
         assert_eq!(rows.len(), 2);

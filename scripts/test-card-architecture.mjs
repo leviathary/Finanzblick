@@ -181,6 +181,39 @@ test("domain and importers stay independent of persistence and Tauri state", () 
   }
 });
 
+test("bundled provider PDF layouts use the shared profile engine before hooks", () => {
+  const providers = read("src-tauri/src/importers/providers/mod.rs");
+  const postfinance = read("src-tauri/src/importers/providers/postfinance.rs");
+  const ubs = read("src-tauri/src/importers/providers/ubs.rs");
+  const engine = read("src-tauri/src/importers/formats/pdf_profile.rs");
+  const cardEngine = read("src-tauri/src/importers/formats/pdf_card_profile.rs");
+  const profile = JSON.parse(read("src-tauri/src/importers/providers/profiles/postfinance-account-statement-v1.json"));
+  const ubsProfile = JSON.parse(read("src-tauri/src/importers/providers/profiles/ubs-monthly-account-statement-v1.json"));
+  const ubsCardProfile = JSON.parse(read("src-tauri/src/importers/providers/profiles/ubs-credit-card-statement-v1.json"));
+  assert.match(providers, /bundled_pdf_profiles/);
+  assert.match(providers, /bundled_card_pdf_profiles/);
+  assert.match(providers, /return Some\(result\);[\s\S]*parse_pdf_hook/);
+  assert.match(postfinance, /include_str!\("profiles\/postfinance-account-statement-v1\.json"\)/);
+  assert.doesNotMatch(postfinance, /Regex::new|reconcile_signs|credit_indices_for_statement/);
+  assert.match(ubs, /include_str!\("profiles\/ubs-monthly-account-statement-v1\.json"\)/);
+  assert.doesNotMatch(ubs, /fn parse_account_rows|fn parse_ubs_money/);
+  assert.match(engine, /deny_unknown_fields/);
+  assert.equal(profile.schemaVersion, 1);
+  assert.equal(profile.provider, "postfinance");
+  assert.ok(profile.recognitionAll.length >= 3);
+  assert.equal(ubsProfile.schemaVersion, 1);
+  assert.equal(ubsProfile.provider, "ubs");
+  assert.equal(ubsProfile.displayName, "UBS-Kontoauszug");
+  assert.equal(ubsProfile.signStrategy, "runningBalance");
+  assert.match(ubs, /include_str!\("profiles\/ubs-credit-card-statement-v1\.json"\)/);
+  assert.doesNotMatch(ubs, /fn parse_mastercard/);
+  assert.match(cardEngine, /deny_unknown_fields/);
+  assert.equal(ubsCardProfile.schemaVersion, 1);
+  assert.equal(ubsCardProfile.provider, "ubs");
+  assert.equal(ubsCardProfile.displayName, "UBS-Kreditkartenabrechnung");
+  assert.equal(ubsCardProfile.documentType, "credit_card_statement");
+});
+
 test("setup previews preserve optional sides, limits and confirmed IDs", () => {
   const compiled = ts.transpileModule(read("src/features/cards/setup/model.ts"), {
     compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020 },
