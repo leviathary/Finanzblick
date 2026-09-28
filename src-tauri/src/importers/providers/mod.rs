@@ -219,7 +219,20 @@ mod tests {
     fn lists_every_tested_provider_import_profile() {
         let profiles = bundled_import_profile_summaries().unwrap();
 
-        assert_eq!(profiles.len(), 7);
+        assert_eq!(profiles.len(), 9);
+        assert!(profiles.iter().any(|profile| {
+            profile.id == "migros-pillar3a-statement-v1"
+                && profile.provider == "migros"
+                && profile.schema_version == Some(1)
+                && profile.document_type == "statement"
+        }));
+        assert!(profiles.iter().any(|profile| {
+            profile.id == "migros-savings-statement-v1"
+                && profile.provider == "migros"
+                && profile.display_name == "Migros-Bank-Kontoauszug"
+                && profile.schema_version == Some(1)
+                && profile.document_type == "statement"
+        }));
         assert!(profiles.iter().any(|profile| {
             profile.id == "postfinance-account-statement-v1"
                 && profile.provider == "postfinance"
@@ -262,7 +275,7 @@ mod tests {
     fn complete_overview_includes_bank_independent_statement_standards() {
         let profiles = crate::importers::bundled_import_profile_summaries().unwrap();
 
-        assert_eq!(profiles.len(), 10);
+        assert_eq!(profiles.len(), 12);
         assert!(profiles.iter().any(|profile| {
             profile.id == "mt940-account-statement"
                 && profile.provider == "standard"

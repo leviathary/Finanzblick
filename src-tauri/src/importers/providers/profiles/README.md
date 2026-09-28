@@ -13,6 +13,9 @@ synthetische positive sowie negative Regressionstests.
 
 Die Kontoauszugsengine bietet dafür unter anderem gemeinsame oder getrennte Kontrollsummen,
 alternative Zeilenlayouts und die Vorzeichenbestimmung über Saldenabgleich. Ein
+Profil kann Anfangs- und Schlusssaldo samt Periodendaten auch aus getrennten
+Zusammenfassungszeilen erfassen, wenn die Buchungstabelle diese Angaben nicht
+in einer gemeinsamen datierten Zeile ausweist. Ein
 Kreditkartenprofil beschreibt zusätzlich Kartenwechsel, mehrzeilige Buchungen,
 Seitenüberträge und Kartentotale für die anbieterneutral benannte
 Kreditkartenengine. Nicht deklarativ abbildbare Dokumentfamilien bleiben enge

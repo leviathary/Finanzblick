@@ -24,6 +24,10 @@ struct BundledPdfProfile {
     currency: Option<CaptureRule>,
     fixed_currency: Option<String>,
     document_date: Option<CaptureRule>,
+    opening_balance: Option<CaptureRule>,
+    opening_date: Option<CaptureRule>,
+    closing_balance: Option<CaptureRule>,
+    closing_date: Option<CaptureRule>,
     account_name: LineBeforeRule,
     table: TableRules,
     rows: RowRules,
@@ -162,6 +166,10 @@ struct CompiledProfile {
     account_reference: Option<Regex>,
     currency: Option<Regex>,
     document_date: Option<Regex>,
+    opening_balance: Option<Regex>,
+    opening_date: Option<Regex>,
+    closing_balance: Option<Regex>,
+    closing_date: Option<Regex>,
     account_name: Option<Regex>,
     balance: Regex,
     transaction: Regex,
@@ -259,6 +267,26 @@ fn compile_profile(profile_json: &str) -> Result<CompiledProfile, String> {
         .as_ref()
         .map(|rule| compile(&rule.regex))
         .transpose()?;
+    let opening_balance = profile
+        .opening_balance
+        .as_ref()
+        .map(|rule| compile(&rule.regex))
+        .transpose()?;
+    let opening_date = profile
+        .opening_date
+        .as_ref()
+        .map(|rule| compile(&rule.regex))
+        .transpose()?;
+    let closing_balance = profile
+        .closing_balance
+        .as_ref()
+        .map(|rule| compile(&rule.regex))
+        .transpose()?;
+    let closing_date = profile
+        .closing_date
+        .as_ref()
+        .map(|rule| compile(&rule.regex))
+        .transpose()?;
     let account_name = profile
         .account_name
         .regex
@@ -311,6 +339,32 @@ fn compile_profile(profile_json: &str) -> Result<CompiledProfile, String> {
     }
     if let (Some(rule), Some(regex)) = (&profile.document_date, &document_date) {
         validate_group(regex, rule.group, "Dokumentdatum")?;
+    }
+    match (
+        &profile.opening_balance,
+        &opening_balance,
+        &profile.opening_date,
+        &opening_date,
+    ) {
+        (Some(balance_rule), Some(balance_regex), Some(date_rule), Some(date_regex)) => {
+            validate_group(balance_regex, balance_rule.group, "Anfangssaldo")?;
+            validate_group(date_regex, date_rule.group, "Anfangsdatum")?;
+        }
+        (None, None, None, None) => {}
+        _ => return Err("PDF-Profil enthält unvollständige Regeln für den Anfangssaldo.".into()),
+    }
+    match (
+        &profile.closing_balance,
+        &closing_balance,
+        &profile.closing_date,
+        &closing_date,
+    ) {
+        (Some(balance_rule), Some(balance_regex), Some(date_rule), Some(date_regex)) => {
+            validate_group(balance_regex, balance_rule.group, "Schlusssaldo")?;
+            validate_group(date_regex, date_rule.group, "Schlussdatum")?;
+        }
+        (None, None, None, None) => {}
+        _ => return Err("PDF-Profil enthält unvollständige Regeln für den Schlusssaldo.".into()),
     }
     match (&account_name, profile.account_name.group) {
         (Some(regex), Some(group)) => validate_group(regex, group, "Kontoname")?,
@@ -368,6 +422,10 @@ fn compile_profile(profile_json: &str) -> Result<CompiledProfile, String> {
         account_reference,
         currency,
         document_date,
+        opening_balance,
+        opening_date,
+        closing_balance,
+        closing_date,
         account_name,
         balance,
         transaction,
@@ -461,10 +519,30 @@ fn parse_with_profile(compiled: &CompiledProfile, text: &str) -> Result<ParsedSt
         .filter(|value| !value.is_empty())
         .unwrap_or_else(|| profile.account_name.fallback.clone());
 
-    let mut opening = None;
-    let mut opening_date = None;
-    let mut closing = None;
-    let mut closing_date = None;
+    let mut opening = match (&profile.opening_balance, &compiled.opening_balance) {
+        (Some(rule), Some(regex)) => regex.captures(text).and_then(|captures| {
+            parse_capture_profile_money(&captures, rule.group, profile.rows.trailing_minus)
+        }),
+        _ => None,
+    };
+    let mut opening_date = match (&profile.opening_date, &compiled.opening_date) {
+        (Some(rule), Some(regex)) => regex
+            .captures(text)
+            .and_then(|captures| parse_capture_date(&captures, rule.group)),
+        _ => None,
+    };
+    let mut closing = match (&profile.closing_balance, &compiled.closing_balance) {
+        (Some(rule), Some(regex)) => regex.captures(text).and_then(|captures| {
+            parse_capture_profile_money(&captures, rule.group, profile.rows.trailing_minus)
+        }),
+        _ => None,
+    };
+    let mut closing_date = match (&profile.closing_date, &compiled.closing_date) {
+        (Some(rule), Some(regex)) => regex
+            .captures(text)
+            .and_then(|captures| parse_capture_date(&captures, rule.group)),
+        _ => None,
+    };
     let (total_debits, total_credits) = extract_totals(compiled, &lines)?;
     let mut pending_description = Vec::new();
     let mut candidates = Vec::new();

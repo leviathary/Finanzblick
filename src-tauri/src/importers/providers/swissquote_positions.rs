@@ -508,8 +508,8 @@ mod tests {
     #[test]
     fn derives_account_number_from_swissquote_iban() {
         assert_eq!(
-            canonical_account_reference("CH11 0878 1000 0326 2870 0").as_deref(),
-            Some("326287")
+            canonical_account_reference("CH24 0000 0000 0123 4560 0").as_deref(),
+            Some("123456")
         );
     }
 

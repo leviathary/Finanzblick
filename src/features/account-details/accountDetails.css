@@ -12,6 +12,8 @@
 .detail-account-link { padding: 16px 0; text-decoration: none; border-bottom: 1px solid var(--border-subtle); min-height: 64px; }
 .detail-account-link:last-child { border: 0; }
 .detail-account-link:hover { background: var(--bg-hover); }
+.detail-account-section + .detail-account-section { margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border-subtle); }
+.detail-account-section-heading { margin: 0 0 4px; color: var(--text-secondary); font-size: 14px; font-weight: 700; }
 .detail-number { margin-left: auto; text-align: right; font-variant-numeric: tabular-nums; }
 .detail-filters { justify-content: space-between; flex-wrap: wrap; }
 .detail-filters label { display: grid; gap: 8px; }

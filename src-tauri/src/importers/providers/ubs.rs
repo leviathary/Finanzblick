@@ -349,7 +349,7 @@ Umsatztotal 50.00 200.00
     #[test]
     fn accepts_a_valid_balance_only_savings_statement() {
         let text = "UBS Sparkonto CHF
-IBAN CH53 0029 2292 6049 44M1 G
+IBAN CH28 0029 0000 0000 0000 0
 Kontoauszug
 01.01.2019 - 31.12.2019 / Jährlich
 Ihr Konto auf einen Blick Belastungen Gutschriften Kontostand
@@ -371,7 +371,7 @@ Umsatztotal 0.00 0.00
         assert_eq!(parsed.account_name, "UBS Sparkonto CHF");
         assert_eq!(
             parsed.account_reference.as_deref(),
-            Some("CH5300292292604944M1G")
+            Some("CH2800290000000000000")
         );
         assert_eq!(parsed.currency_balances.len(), 1);
         assert_eq!(
@@ -381,8 +381,8 @@ Umsatztotal 0.00 0.00
         assert_eq!(parsed.currency_balances[0].closing_date, "2019-12-31");
 
         let same_line = text.replace(
-            "UBS Sparkonto CHF\nIBAN CH53",
-            "UBS Sparkonto CHF | IBAN CH53",
+            "UBS Sparkonto CHF\nIBAN CH28",
+            "UBS Sparkonto CHF | IBAN CH28",
         );
         assert_eq!(
             parse_pdf_text(&same_line).unwrap().account_name,
@@ -392,7 +392,7 @@ Umsatztotal 0.00 0.00
 
     #[test]
     fn parses_compact_text_runs_from_older_pdf_streams() {
-        let text = "UBS Privatkonto CHF IBAN CH26 0029 Ihr Konto auf einen Blick Belastungen Gutschriften Kontostand Anfangssaldo 1 000.00 Total Gutschriften 200.00 Total Belastungen 23.00 Schlusssaldo 1 177.00
+        let text = "UBS Privatkonto CHF IBAN CH28 0029 Ihr Konto auf einen Blick Belastungen Gutschriften Kontostand Anfangssaldo 1 000.00 Total Gutschriften 200.00 Total Belastungen 23.00 Schlusssaldo 1 177.00
 Datum Informationen Belastungen Gutschriften Valuta Kontostand 01.08.23 Anfangssaldo 1 000.00
 02.08.23 STORNO UBS TWINT 200.00 01.08.23 1 200.00 TEST SHOP Referenz 123
 Datum Informationen Belastungen Gutschriften Valuta Kontostand 31.08.23 SALDO DIENSTLEISTUNGSPREISABSCHLUSS 23.00 31.08.23 1 177.00 Details
@@ -410,8 +410,8 @@ Umsatztotal 23.00 200.00
     #[test]
     fn extracts_canonical_iban_from_account_statement() {
         assert_eq!(
-            extract_iban("UBS Privatkonto CHF\nIBAN CH26 0029 2292 6049 4440 D"),
-            Some("CH260029229260494440D".into())
+            extract_iban("UBS Privatkonto CHF\nIBAN CH28 0029 0000 0000 0000 0"),
+            Some("CH2800290000000000000".into())
         );
         assert_eq!(extract_iban("UBS Mastercard ohne IBAN"), None);
     }

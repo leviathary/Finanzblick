@@ -91,7 +91,13 @@ liefert er sie kanonisch in `ParsedStatement.account_reference`. Das Frontend da
 damit Konten vorauswählen und ungeeignete Ziele ausblenden; die verbindliche
 Übereinstimmungsprüfung erfolgt zusätzlich anbieterneutral und atomar in
 `storage/imports/`. Ein Rückfall auf Anbieter, Währung und Kontotyp ist nur ohne
-erkannte Kontokennung zulässig.
+erkannte Kontokennung zulässig. Manuell eingegebene Kontokennungen werden ohne
+Leerraum und unsichtbare Copy/Paste-Trennzeichen gespeichert; der Vergleich
+normalisiert auch bestehende, noch formatiert gespeicherte Werte, ohne eine
+Bestandsmigration auszuführen. Anbieter-Aliasse der Importer werden beim Lesen
+der Konten zusätzlich als Importkennung bereitgestellt. Dadurch bleiben manuell
+angelegte Anbieternamen und ihre gespeicherten Schlüssel unverändert, können aber
+mit einem erkannten Dokumentanbieter abgeglichen werden.
 
 Anbieterspezifische Erkennung und Fachlogik gehört ausschließlich nach
 `importers/providers/<anbieter>.rs` und wird über `ProviderImporter` aktiviert.
@@ -111,7 +117,9 @@ das Profil an einen Anbieter und bietet nur für nicht deklarativ abbildbare
 Fachlogik einen eng begrenzten `parse_pdf_hook`. Der zentrale Provider-PDF-Pfad
 prüft immer zuerst ein mitgeliefertes Profil und erst danach diesen Hook.
 PostFinance-Kontoauszüge sowie moderne UBS-Monatskontoauszüge verwenden diese
-gemeinsame Engine. Das UBS-Profil nutzt die allgemeine Vorzeichenstrategie über
+gemeinsame Engine. Dasselbe gilt für Migros-Bank-Vorsorgeabschlüsse und
+mehrseitige Migros-Bank-Sparkontoauszüge mit laufenden Salden und mehrzeiligen
+Buchungsdetails. Das UBS-Profil nutzt die allgemeine Vorzeichenstrategie über
 laufende Salden. Mehrseitige UBS-Kreditkartenabrechnungen verwenden ein eigenes
 deklaratives JSON-Profil und die gemeinsame Kreditkarten-Profilengine; sie prüft
 Kartenwechsel, Seitenüberträge, Kartentotale und den Rechnungsbetrag. Ältere
@@ -298,8 +306,11 @@ aus einem späteren Snapshot rückgerechnet.
 Die Kontotypen `portfolio`, `manual_asset` und `pillar3a` unterstützen dieselbe
 Positionsverwaltung und denselben Import. `supports_positions` kapselt die
 Backend-Berechtigung; `supportsManualValuation` die gemeinsame UI-Freigabe.
-Ihre Salden, Vermögensaufteilung und Verläufe basieren auf Positionsbewertungen;
-Kontosnapshots werden nicht zusätzlich gezählt. Anbieter- und Referenzprüfungen
+Bei `portfolio` und `manual_asset` basieren Salden, Vermögensaufteilung und
+Verläufe immer auf Positionsbewertungen. Ein `pillar3a` ohne Positionen verwendet
+dagegen importierte Kontosnapshots und Buchungen; sobald mindestens eine Position
+existiert, gelten ausschließlich Positionsbewertungen. Kontosnapshots werden in
+diesem Modus nicht zusätzlich gezählt. Anbieter- und Referenzprüfungen
 sowie der Ausschluss archivierter Importziele bleiben unabhängig vom Kontotyp.
 Bestehende Konten werden nicht automatisch umklassifiziert.
 

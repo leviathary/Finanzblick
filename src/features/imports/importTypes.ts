@@ -142,7 +142,7 @@ export interface BundledImportProfileSummary {
 }
 
 export interface ImportAccount {
-  id: number; institutionId: number; name: string; provider: string; providerKey: string; currency: string; accountType: AccountType; isActive: boolean;
+  id: number; institutionId: number; name: string; provider: string; providerKey: string; importProviderKey?: string | null; currency: string; accountType: AccountType; isActive: boolean;
   externalReference?: string | null;
 }
 

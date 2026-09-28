@@ -39,7 +39,7 @@ export function currencies(statement: ParsedStatement): string[] {
 export function matchingAccounts(accounts: ImportAccount[], statement: ParsedStatement, currency: string): ImportAccount[] {
   const reference = statementAccountReference(statement);
   return accounts.filter(account => account.isActive
-    && (statement.provider === "unknown" || account.providerKey === statement.provider)
+    && (statement.provider === "unknown" || importProviderKey(account) === statement.provider)
     && account.currency === currency
     && (!statement.accountType || account.accountType === statement.accountType)
     && (!reference || normalizeAccountReference(account.externalReference ?? "") === reference));
@@ -59,11 +59,11 @@ export function suggestAccounts(accounts: ImportAccount[], statement: ParsedStat
 }
 
 function normalizeAccountReference(value: string): string {
-  return value.trim().replace(/^IBAN\s*:?\s*/i, "").replace(/\s/g, "").toUpperCase();
+  return value.trim().replace(/^IBAN\s*:?\s*/i, "").replace(/[\s\u200B\u2060\uFEFF]/gu, "").toUpperCase();
 }
 
 export function hasAccounts(item: BatchItem, accounts: ImportAccount[]): boolean {
-  const providerKeys = new Set(accounts.filter(account => Object.values(item.accountIds).includes(account.id)).map(account => account.providerKey));
+  const providerKeys = new Set(accounts.filter(account => Object.values(item.accountIds).includes(account.id)).map(importProviderKey));
   return Boolean(item.parsed && providerKeys.size === 1 && currencies(item.parsed).length && currencies(item.parsed).every(currency => matchingAccounts(accounts, item.parsed!, currency).some(account => account.id === item.accountIds[currency])));
 }
 
@@ -78,6 +78,10 @@ export function hasAccountReferenceMismatch(accounts: ImportAccount[], statement
 
 function statementAccountReference(statement: ParsedStatement): string {
   return normalizeAccountReference(statement.accountReference ?? (statement.format.toUpperCase() === "MT940" ? statement.accountName : ""));
+}
+
+function importProviderKey(account: ImportAccount): string {
+  return account.importProviderKey ?? account.providerKey;
 }
 
 export function unresolvedDuplicateCount(item: BatchItem): number {

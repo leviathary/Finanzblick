@@ -184,15 +184,18 @@ fn pillar3a_is_manually_valued_and_excluded_from_assets_by_default() {
     connection.execute_batch(
             "INSERT INTO institutions(id,provider_key,name,institution_type,created_at) VALUES(1,'pension-provider','Vorsorgeanbieter','pension',datetime('now'));
              INSERT INTO accounts(id,institution_id,name,account_type,currency,include_in_net_worth,created_at) VALUES(1,1,'Vorsorgekonto','pillar3a','CHF',0,datetime('now'));
-             INSERT INTO portfolio_positions(id,account_id,label,asset_type,holding_start_date,created_at,updated_at) VALUES(1,1,'Vorsorgeguthaben','cash',date('now','localtime'),datetime('now'),datetime('now'));
-             INSERT INTO manual_position_values(position_id,value_date,amount_minor,currency,source,recorded_at) VALUES(1,date('now','localtime'),1234500,'CHF','manual',datetime('now'));",
+             INSERT INTO import_runs(id,account_id,source_format,source_name,source_hash,imported_at,transaction_count,warnings_json) VALUES(1,1,'pdf','statement.pdf','pillar-balance-test',datetime('now'),0,'[]');
+             INSERT INTO balance_snapshots(account_id,import_id,balance_date,amount_minor,currency) VALUES(1,1,date('now','localtime'),567800,'CHF');",
         ).unwrap();
     drop(connection);
-    rebuild_daily_valuations(&storage).unwrap();
 
     let accounts = accounts_from(&storage).unwrap();
-    assert_eq!(accounts[0].balance_minor, Some(1_234_500));
-    assert_eq!(accounts[0].manual_valuation_count, 1);
+    assert_eq!(accounts[0].balance_minor, Some(567_800));
+    assert_eq!(accounts[0].manual_valuation_count, 0);
+    assert_eq!(
+        dashboard_from(&storage).unwrap().accounts[0].balance_minor,
+        Some(567_800)
+    );
     assert_eq!(wealth_from(&storage, None).unwrap().current_total_minor, 0);
 
     storage
@@ -202,11 +205,32 @@ fn pillar3a_is_manually_valued_and_excluded_from_assets_by_default() {
         .unwrap();
     assert_eq!(
         wealth_from(&storage, None).unwrap().current_total_minor,
-        1_234_500
+        567_800
     );
     let wealth = wealth_from(&storage, None).unwrap();
     assert_eq!(wealth.by_type[0].key, "pillar3a");
     assert_eq!(wealth.by_type[0].label, "Vorsorgekonten");
+    assert_eq!(wealth.history.last().unwrap().total_minor, 567_800);
+
+    let connection = storage.connect().unwrap();
+    connection.execute_batch(
+        "INSERT INTO portfolio_positions(id,account_id,label,asset_type,holding_start_date,created_at,updated_at) VALUES(1,1,'Vorsorgeguthaben','cash',date('now','localtime'),datetime('now'),datetime('now'));
+         INSERT INTO manual_position_values(position_id,value_date,amount_minor,currency,source,recorded_at) VALUES(1,date('now','localtime'),1234500,'CHF','manual',datetime('now'));",
+    ).unwrap();
+    drop(connection);
+    rebuild_daily_valuations(&storage).unwrap();
+
+    let accounts = accounts_from(&storage).unwrap();
+    assert_eq!(accounts[0].balance_minor, Some(1_234_500));
+    assert_eq!(accounts[0].manual_valuation_count, 1);
+    assert_eq!(
+        wealth_from(&storage, None).unwrap().current_total_minor,
+        1_234_500
+    );
+    assert_eq!(
+        dashboard_from(&storage).unwrap().accounts[0].balance_minor,
+        Some(1_234_500)
+    );
     fs::remove_dir_all(directory).unwrap();
 }
 

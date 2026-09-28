@@ -58,9 +58,9 @@ fn read_details(db: &Connection, id: i64, limit: usize) -> rusqlite::Result<Acco
         .into_iter()
         .find(|a| a.id == id)
         .ok_or(rusqlite::Error::QueryReturnedNoRows)?;
-    let is_depot = supports_positions(&account.account_type);
+    let supports_position_mode = supports_positions(&account.account_type);
     let mut positions = Vec::new();
-    if is_depot {
+    if supports_position_mode {
         let mut query = db.prepare(
             "SELECT p.id,p.label,COALESCE(l.market_symbol,(SELECT identifier FROM instrument_identifiers WHERE instrument_id=l.instrument_id ORDER BY id LIMIT 1)),
              q.quantity_amount,q.quantity_scale,ip.price_amount,ip.price_scale,ip.currency,
@@ -94,14 +94,16 @@ fn read_details(db: &Connection, id: i64, limit: usize) -> rusqlite::Result<Acco
             })?
             .collect::<rusqlite::Result<_>>()?;
     }
-    let history_currency = if is_depot {
+    let uses_position_values =
+        supports_position_mode && (account.account_type != "pillar3a" || !positions.is_empty());
+    let history_currency = if uses_position_values {
         "CHF".to_string()
     } else {
         account.currency.clone()
     };
     // Each date uses the latest balance evidence plus subsequent non-duplicate bookings.
     // Depot history includes an explicit zero after an end date, never before inception.
-    let sql = if is_depot {
+    let sql = if uses_position_values {
         "WITH changes AS (
           SELECT d.position_id,d.valuation_date day,d.value_minor value FROM daily_valuations d JOIN portfolio_positions p ON p.id=d.position_id
           WHERE p.account_id=?1 AND d.currency=?2 AND d.valuation_date>=p.holding_start_date AND (p.holding_end_date IS NULL OR d.valuation_date<=p.holding_end_date)
@@ -229,5 +231,35 @@ mod tests {
         let detail = read_details(&db, 2, 50).unwrap();
         assert_eq!(detail.transactions.len(), 2);
         assert!(!detail.has_more);
+    }
+
+    #[test]
+    fn cash_only_pillar3a_uses_imported_balance_history() {
+        let db = database();
+        db.execute_batch(
+            "INSERT INTO accounts(id,institution_id,name,account_type,currency,is_active,include_in_net_worth,created_at)
+               VALUES(3,1,'Pillar 3a','pillar3a','CHF',1,0,'now');
+             INSERT INTO import_runs(id,account_id,source_name,source_format,source_hash,imported_at,transaction_count,warnings_json)
+               VALUES(2,3,'statement.pdf','pdf','pillar-test','now',1,'[]');
+             INSERT INTO balance_snapshots(account_id,import_id,balance_date,amount_minor,currency)
+               VALUES(3,2,'2026-01-01',500000,'CHF');
+             INSERT INTO transactions(id,account_id,import_id,booking_date,description,amount_minor,currency,confidence,source_row)
+               VALUES(4,3,2,'2026-01-02','Interest',1000,'CHF',1,1);",
+        )
+        .unwrap();
+
+        let detail = read_details(&db, 3, 50).unwrap();
+        assert!(detail.positions.is_empty());
+        assert_eq!(detail.account.balance_minor, Some(501_000));
+        assert_eq!(detail.history_currency, "CHF");
+        assert_eq!(
+            detail
+                .history
+                .iter()
+                .map(|point| (point.date.as_str(), point.total_minor))
+                .collect::<Vec<_>>(),
+            vec![("2026-01-01", 500_000), ("2026-01-02", 501_000)]
+        );
+        assert_eq!(detail.transactions.len(), 1);
     }
 }

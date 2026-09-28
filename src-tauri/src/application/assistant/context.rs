@@ -104,7 +104,7 @@ mod tests {
     fn descriptions_are_explicit_details_but_structured_account_identifiers_are_omitted() {
         let db = fixture();
         let secret =
-            "Erika Mustermann, Musterstrasse 42, CH93 0076 2011 6238 5295 7, Konto 12345678";
+            "Erika Mustermann, Musterstrasse 42, CH36 0000 0000 0000 0000 0, Konto 12345678";
         db.execute(
             "UPDATE accounts SET name=?1 || id,external_reference=?1",
             [secret],
@@ -125,7 +125,7 @@ mod tests {
         for forbidden in [
             "Erika",
             "Musterstrasse",
-            "CH93",
+            "CH36",
             "12345678",
             "PRIVATE ACCOUNT",
             "PRIVATE KEY",

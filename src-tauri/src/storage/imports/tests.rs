@@ -4,6 +4,64 @@ use super::*;
 use crate::storage::*;
 
 #[test]
+fn formatted_iban_matches_a_manually_named_provider_without_migration() {
+    let directory = tempfile::tempdir().unwrap();
+    let storage = Storage::test_storage(directory.path().join("formatted-iban.sqlite3"));
+    let connection = storage.connect().unwrap();
+    initialize_schema(&connection).unwrap();
+    connection
+        .execute_batch(
+            "INSERT INTO institutions(id,provider_key,name,institution_type,created_at)
+               VALUES(1,'migros-bank','Migros Bank','bank','2026-01-01');
+             INSERT INTO accounts(id,institution_id,name,account_type,currency,external_reference,created_at)
+               VALUES(1,1,'Vorsorge','pillar3a','CHF','CH36 0000 0000 0000 0000 0','2026-01-01');",
+        )
+        .unwrap();
+    drop(connection);
+    let source = directory.path().join("statement.pdf");
+    fs::write(&source, b"synthetic statement").unwrap();
+
+    let result = save_import_to(
+        &storage,
+        SaveImportRequest {
+            account_ids: BTreeMap::from([("CHF".into(), 1)]),
+            source_path: source.to_string_lossy().into(),
+            account_name: "Vorsorge".into(),
+            statement: crate::importers::ParsedStatement {
+                provider: "migros".into(),
+                format: "PDF".into(),
+                account_name: "Vorsorge".into(),
+                account_type: Some("pillar3a".into()),
+                account_reference: Some("CH3600000000000000000".into()),
+                transactions: vec![crate::importers::ParsedTransaction {
+                    booking_date: "2025-12-31".into(),
+                    description: "Zins".into(),
+                    amount_minor: 100,
+                    currency: "CHF".into(),
+                    confidence: 1.0,
+                    source_row: 1,
+                    ..Default::default()
+                }],
+                ..Default::default()
+            },
+            duplicate_resolutions: vec![],
+        },
+    )
+    .unwrap();
+
+    assert_eq!(result.account_id, 1);
+    assert_eq!(
+        storage
+            .connect()
+            .unwrap()
+            .query_row("SELECT COUNT(*) FROM institutions", [], |row| row
+                .get::<_, i64>(0))
+            .unwrap(),
+        1
+    );
+}
+
+#[test]
 fn suspicious_duplicates_block_saving_until_explicitly_kept_or_skipped() {
     let directory = tempfile::tempdir().unwrap();
     let storage = Storage::test_storage(directory.path().join("suspects.sqlite3"));

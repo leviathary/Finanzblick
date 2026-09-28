@@ -51,6 +51,8 @@ export function Accounts() {
   const { settings } = useSettings();
   const [accounts, setAccounts] = useState<Account[]>([]);
   const openedAccount = useRef<string | null>(null);
+  const createForm = useRef<HTMLElement>(null);
+  const accountNameInput = useRef<HTMLInputElement>(null);
   useEffect(() => {
     const open = () => {
       const value = new URLSearchParams(window.location.hash.split("?")[1]).get("account");
@@ -76,6 +78,18 @@ export function Accounts() {
     currency: settings.defaultCurrency,
     externalReference: "",
   });
+  useEffect(() => {
+    if (!showCreate) return;
+    const frame = window.requestAnimationFrame(() => {
+      const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      createForm.current?.scrollIntoView({
+        behavior: reduceMotion ? "auto" : "smooth",
+        block: "start",
+      });
+      accountNameInput.current?.focus({ preventScroll: true });
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [showCreate]);
 
   const load = useCallback(async () => {
     try {
@@ -336,7 +350,7 @@ export function Accounts() {
       </div>
       {error && <p className="error-message">{t(error)}</p>}
       {showCreate && (
-        <article className="dashboard-card account-form">
+        <article ref={createForm} className="dashboard-card account-form">
           <div className="card-heading">
             <h2>{t("Neues Konto")}</h2>
             <button
@@ -351,6 +365,7 @@ export function Accounts() {
             <label>
               {t("Kontoname")}
               <input
+                ref={accountNameInput}
                 value={draft.accountName}
                 onChange={(event) =>
                   setDraft({ ...draft, accountName: event.target.value })

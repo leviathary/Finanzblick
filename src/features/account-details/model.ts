@@ -12,6 +12,31 @@ export interface AccountDetails {
   transactions: { id: number; date: string; description: string; amountMinor: number; currency: string }[];
   hasMore: boolean;
 }
+
+export type AccountSection = "bank" | "cards" | "investments" | "pension";
+
+function accountSection(accountType: Account["accountType"]): AccountSection {
+  if (accountType === "credit_card") return "cards";
+  if (accountType === "portfolio" || accountType === "manual_asset") return "investments";
+  if (accountType === "pillar3a") return "pension";
+  return "bank";
+}
+
+export function groupedAccounts<T extends Pick<Account, "accountType">>(accounts: T[]) {
+  const groups = new Map<AccountSection, T[]>([
+    ["bank", []],
+    ["cards", []],
+    ["investments", []],
+    ["pension", []],
+  ]);
+  for (const account of accounts) groups.get(accountSection(account.accountType))?.push(account);
+  return [...groups].filter(([, grouped]) => grouped.length > 0).map(([section, grouped]) => ({ section, accounts: grouped }));
+}
+
+export function usesPositionValuation(accountType: string, positionCount: number) {
+  return accountType === "portfolio" || accountType === "manual_asset" || (accountType === "pillar3a" && positionCount > 0);
+}
+
 export function localToday() {
   const now = new Date();
   return `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}-${String(now.getDate()).padStart(2,"0")}`;

@@ -3,11 +3,11 @@ import { useEffect, useRef, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { t, locale } from "../../i18n";
 import type { Account } from "../accounts/types";
-import { money, supportsManualValuation, typeLabel } from "../accounts/presentation";
+import { money, typeLabel } from "../accounts/presentation";
 import { ProviderLogo } from "../accounts/ProviderLogo";
 import type { PositionChart } from "../assets/positionHistory";
 import { DetailChart } from "./DetailChart";
-import { isCurrent, localToday, positionShares, type AccountDetails, type PositionDetail } from "./model";
+import { groupedAccounts, isCurrent, localToday, positionShares, usesPositionValuation, type AccountDetails, type AccountSection, type PositionDetail } from "./model";
 import "./accountDetails.css";
 
 function selectedId() { const value = new URLSearchParams(window.location.hash.split("?")[1]).get("account"); return value && /^\d+$/.test(value) ? Number(value) : null; }
@@ -60,7 +60,7 @@ export function AccountExplorer() {
     return () => { cancelled = true; };
   }, [id, selectedPosition, revision]);
   const account = details?.account;
-  const depot = account && supportsManualValuation(account.accountType);
+  const depot = account && usesPositionValuation(account.accountType, details?.positions.length ?? 0);
   const shares = positionShares(details?.positions ?? []);
   const positions = (details?.positions ?? []).filter(p => past || isCurrent(p)).sort((a,b) => {
     const av = sort.key === "share" ? shares.get(a.id) : a[sort.key];
@@ -74,6 +74,17 @@ export function AccountExplorer() {
   const chart = charts.find(p => p.id === selectedPosition);
   const chartCurrency = mode === "value" ? "CHF" : chart?.prices[0]?.currency ?? account?.currency ?? "CHF";
   const chartHistory = mode === "value" ? chart?.history ?? [] : chart?.prices.filter(p => p.currency === chartCurrency) ?? [];
+  const listedAccounts = (accounts ?? []).filter(a =>
+    (archived || a.isActive)
+    && `${a.name} ${a.provider} ${typeLabel(a.accountType)}`.toLocaleLowerCase().includes(search.toLocaleLowerCase())
+  );
+  const accountGroups = groupedAccounts(listedAccounts);
+  const sectionLabel: Record<AccountSection, string> = {
+    bank: t("Bankkonten"),
+    cards: t("Kreditkarten"),
+    investments: t("Depots & Anlagen"),
+    pension: t("Vorsorgekonten"),
+  };
   const bookings = [...(details?.transactions ?? [])].sort((a,b) => {
     const key = bookingSort.key;
     const result = key === "amountMinor" ? a.currency.localeCompare(b.currency) || Math.abs(a.amountMinor)-Math.abs(b.amountMinor) : a[key].localeCompare(b[key],locale());
@@ -92,10 +103,13 @@ export function AccountExplorer() {
     {error ? <div role="alert" className="error-banner">{error}<button className="secondary-button" onClick={() => setRevision(v => v+1)}>{t("Erneut versuchen")}</button></div> : !accounts || (id !== null && !details) ? <p role="status">{t("Daten werden geladen …")}</p> : id === null ? <>
       <div className="detail-filters"><label>{t("Suchen")}<input type="search" value={search} onChange={e => setSearch(e.target.value)} /></label><label className="detail-checkbox"><input type="checkbox" checked={archived} onChange={e => setArchived(e.target.checked)} />{t("Archivierte Konten anzeigen")}</label></div>
       <article className="dashboard-card detail-account-list">
-        {accounts.filter(a => (archived || a.isActive) && `${a.name} ${a.provider} ${typeLabel(a.accountType)}`.toLocaleLowerCase().includes(search.toLocaleLowerCase())).map(a => <a className="detail-account-link" href={`#holdings?account=${a.id}`} key={a.id}>
-          <ProviderLogo name={a.provider} providerKey={a.providerKey} customLogo={a.logoDataUrl}/><div><strong>{a.name}</strong><small>{a.provider} · {typeLabel(a.accountType)}{!a.isActive && ` · ${t("Archiviert")}`}{!a.includeInNetWorth && ` · ${t("Nicht im Gesamtvermögen")}`}</small></div><div className="detail-number"><strong>{money(a.balanceMinor, a.balanceCurrency)}</strong><small>{a.balanceDate ? date(a.balanceDate) : t("Ohne Stichtag")}</small></div><span aria-hidden="true">→</span>
-        </a>)}
-        {!accounts.some(a => (archived || a.isActive) && `${a.name} ${a.provider} ${typeLabel(a.accountType)}`.toLocaleLowerCase().includes(search.toLocaleLowerCase())) && <p>{t("Keine passenden Konten gefunden.")}</p>}
+        {accountGroups.map(group => <section className="detail-account-section" aria-labelledby={`account-section-${group.section}`} key={group.section}>
+          <h2 className="detail-account-section-heading" id={`account-section-${group.section}`}>{sectionLabel[group.section]}</h2>
+          {group.accounts.map(a => <a className="detail-account-link" href={`#holdings?account=${a.id}`} key={a.id}>
+            <ProviderLogo name={a.provider} providerKey={a.providerKey} customLogo={a.logoDataUrl}/><div><strong>{a.name}</strong><small>{a.provider} · {typeLabel(a.accountType)}{!a.isActive && ` · ${t("Archiviert")}`}{!a.includeInNetWorth && ` · ${t("Nicht im Gesamtvermögen")}`}</small></div><div className="detail-number"><strong>{money(a.balanceMinor, a.balanceCurrency)}</strong><small>{a.balanceDate ? date(a.balanceDate) : t("Ohne Stichtag")}</small></div><span aria-hidden="true">→</span>
+          </a>)}
+        </section>)}
+        {!listedAccounts.length && <p>{t("Keine passenden Konten gefunden.")}</p>}
       </article>
     </> : details && account && <>
       <article className="dashboard-card detail-summary"><ProviderLogo name={account.provider} providerKey={account.providerKey} customLogo={account.logoDataUrl}/><div><strong>{account.provider}</strong><small>{typeLabel(account.accountType)} · {account.externalReference ?? ""}</small>{!account.isActive && <small>{t("Archiviert")}</small>}{!account.includeInNetWorth && <small>{t("Nicht im Gesamtvermögen")}</small>}</div><div className="detail-total"><small>{t("Aktueller Wert")}</small><strong>{money(account.balanceMinor, account.balanceCurrency)}</strong><small>{account.balanceDate ? date(account.balanceDate) : t("Ohne Stichtag")}</small></div></article>

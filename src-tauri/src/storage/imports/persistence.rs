@@ -1,5 +1,6 @@
 //! Speichert freigegebene Importe, Buchungen und Salden gemeinsam.
 use super::deduplication::{suspected_duplicates, transaction_indices_to_insert};
+use crate::domain::banking::accounts::normalize_account_reference;
 use crate::importers::{CARD_PURCHASE_REFERENCE_NAMESPACE, PROVISIONAL_CARD_TRANSACTION_KIND};
 use crate::storage::banking::cards;
 use crate::storage::database::errors::db_error;
@@ -52,25 +53,46 @@ pub(crate) fn save_import_to(
         .account_type
         .as_deref()
         .unwrap_or(account_type);
-    transaction
-        .execute(
-            "INSERT OR IGNORE INTO institutions(provider_key, name, institution_type, created_at)
-             VALUES (?1, ?2, ?3, ?4)",
-            params![
-                request.statement.provider,
-                institution_name,
-                institution_type,
-                now
-            ],
-        )
-        .map_err(db_error)?;
-    let institution_id: i64 = transaction
-        .query_row(
-            "SELECT id FROM institutions WHERE provider_key = ?1",
-            [&request.statement.provider],
-            |row| row.get(0),
-        )
-        .map_err(db_error)?;
+    let institution_id = if let Some(account_id) = request.account_ids.values().next() {
+        let (id, provider_key, provider_name) = transaction
+            .query_row(
+                "SELECT i.id,i.provider_key,i.name FROM accounts a
+                 JOIN institutions i ON i.id=a.institution_id WHERE a.id=?1",
+                [account_id],
+                |row| {
+                    Ok((
+                        row.get::<_, i64>(0)?,
+                        row.get::<_, String>(1)?,
+                        row.get::<_, String>(2)?,
+                    ))
+                },
+            )
+            .map_err(db_error)?;
+        if !provider_matches(&request.statement.provider, &provider_key, &provider_name) {
+            return Err("Das gewählte Konto gehört nicht zum erkannten Anbieter.".into());
+        }
+        id
+    } else {
+        transaction
+            .execute(
+                "INSERT OR IGNORE INTO institutions(provider_key, name, institution_type, created_at)
+                 VALUES (?1, ?2, ?3, ?4)",
+                params![
+                    request.statement.provider,
+                    institution_name,
+                    institution_type,
+                    now
+                ],
+            )
+            .map_err(db_error)?;
+        transaction
+            .query_row(
+                "SELECT id FROM institutions WHERE provider_key = ?1",
+                [&request.statement.provider],
+                |row| row.get(0),
+            )
+            .map_err(db_error)?
+    };
     let currency = request
         .statement
         .currency_balances
@@ -393,21 +415,10 @@ fn validate_account_reference(
     Ok(())
 }
 
-fn normalize_account_reference(value: &str) -> String {
-    let trimmed = value.trim();
-    let without_label = if trimmed
-        .get(..4)
-        .is_some_and(|prefix| prefix.eq_ignore_ascii_case("IBAN"))
-    {
-        trimmed[4..].trim_start_matches([':', ' '])
-    } else {
-        trimmed
-    };
-    without_label
-        .chars()
-        .filter(|character| !character.is_whitespace())
-        .collect::<String>()
-        .to_uppercase()
+fn provider_matches(statement_provider: &str, provider_key: &str, provider_name: &str) -> bool {
+    provider_key == statement_provider
+        || crate::importers::canonical_provider_id(provider_key) == Some(statement_provider)
+        || crate::importers::canonical_provider_id(provider_name) == Some(statement_provider)
 }
 
 fn reconcile_provisional_card_transactions(
@@ -500,16 +511,8 @@ pub(crate) fn provider_metadata(provider: &str) -> (&'static str, &'static str, 
 
 #[cfg(test)]
 mod reference_tests {
-    use super::{normalize_account_reference, validate_account_reference};
+    use super::{provider_matches, validate_account_reference};
     use rusqlite::Connection;
-
-    #[test]
-    fn normalizes_iban_labels_case_and_spacing() {
-        assert_eq!(
-            normalize_account_reference(" iban: ch26 0029 2292 6049 4440 d "),
-            "CH260029229260494440D"
-        );
-    }
 
     #[test]
     fn rejects_selected_accounts_with_a_different_or_missing_reference() {
@@ -517,22 +520,28 @@ mod reference_tests {
         connection
             .execute_batch(
                 "CREATE TABLE accounts(id INTEGER PRIMARY KEY, external_reference TEXT);
-                 INSERT INTO accounts VALUES(1, 'CH26 0029 2292 6049 4440 D');
+                 INSERT INTO accounts VALUES(1, 'CH36 0000 0000 0000 0000 0');
                  INSERT INTO accounts VALUES(2, NULL);",
             )
             .unwrap();
         let transaction = connection.transaction().unwrap();
 
         assert!(
-            validate_account_reference(&transaction, 1, Some("IBAN: CH260029229260494440D"))
+            validate_account_reference(&transaction, 1, Some("IBAN: CH3600000000000000000"))
                 .is_ok()
         );
         assert!(
-            validate_account_reference(&transaction, 1, Some("CH9300762011623852957")).is_err()
+            validate_account_reference(&transaction, 1, Some("CH0900000000000000001")).is_err()
         );
         assert!(
-            validate_account_reference(&transaction, 2, Some("CH260029229260494440D")).is_err()
+            validate_account_reference(&transaction, 2, Some("CH3600000000000000000")).is_err()
         );
         assert!(validate_account_reference(&transaction, 2, None).is_ok());
+    }
+
+    #[test]
+    fn accepts_known_provider_aliases_without_changing_the_stored_institution() {
+        assert!(provider_matches("migros", "migros-bank", "Migros Bank"));
+        assert!(!provider_matches("ubs", "migros-bank", "Migros Bank"));
     }
 }

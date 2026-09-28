@@ -1,6 +1,6 @@
 //! Kapselt SQL-Zugriffe auf Konten und Anbieter.
 use crate::domain::banking::accounts::{
-    clean_optional, default_include_in_net_worth, validate_account,
+    default_include_in_net_worth, normalize_account_reference, validate_account,
 };
 use crate::storage::banking::models::{
     CreateAccountRequest, CreateInstitutionRequest, ManagedAccount, ManagedInstitution,
@@ -110,7 +110,7 @@ pub(crate) fn create_account(
     let include_in_net_worth = default_include_in_net_worth(&request.account_type);
     connection.execute(
         "INSERT INTO accounts(institution_id, name, account_type, currency, created_at, external_reference, include_in_net_worth) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)",
-        params![institution_id, request.account_name.trim(), request.account_type, request.currency.trim().to_uppercase(), now, clean_optional(request.external_reference), include_in_net_worth],
+        params![institution_id, request.account_name.trim(), request.account_type, request.currency.trim().to_uppercase(), now, normalize_optional_reference(request.external_reference), include_in_net_worth],
     ).map_err(|error| match error {
         rusqlite::Error::SqliteFailure(_, _) => "Dieses Konto ist bei diesem Anbieter bereits vorhanden.".to_string(),
         other => db_error(other),
@@ -127,7 +127,7 @@ pub(crate) fn update_account(
     let transaction = connection.transaction().map_err(db_error)?;
     let changed = transaction.execute(
         "UPDATE accounts SET name = ?1, account_type = ?2, currency = ?3, external_reference = ?4, is_active = ?5, include_in_net_worth = ?6 WHERE id = ?7",
-        params![request.name.trim(), request.account_type, request.currency.trim().to_uppercase(), clean_optional(request.external_reference), request.is_active, request.include_in_net_worth, request.id],
+        params![request.name.trim(), request.account_type, request.currency.trim().to_uppercase(), normalize_optional_reference(request.external_reference), request.is_active, request.include_in_net_worth, request.id],
     ).map_err(db_error)?;
     if changed == 0 {
         return Err("Das Konto wurde nicht gefunden.".to_string());
@@ -179,6 +179,12 @@ fn validate_institution(name: &str, institution_type: &str) -> Result<(), String
         return Err("Bitte einen gültigen Anbietertyp auswählen.".into());
     }
     Ok(())
+}
+
+fn normalize_optional_reference(value: Option<String>) -> Option<String> {
+    value
+        .map(|item| normalize_account_reference(&item))
+        .filter(|item| !item.is_empty())
 }
 
 pub(crate) fn delete_account(storage: &Storage, account_id: i64) -> Result<(), String> {
@@ -262,19 +268,19 @@ pub(crate) fn accounts_on(connection: &Connection) -> Result<Vec<ManagedAccount>
     let mut statement = connection.prepare(
         "SELECT a.id, i.id, i.name, i.provider_key, i.institution_type, a.name, a.account_type,
                 a.currency, a.external_reference, a.is_active, a.include_in_net_worth,
-                CASE WHEN a.account_type IN ('portfolio','manual_asset','pillar3a') THEN (SELECT SUM(d.value_minor) FROM portfolio_positions p JOIN daily_valuations d ON d.id=(SELECT latest.id FROM daily_valuations latest WHERE latest.position_id=p.id AND date(latest.valuation_date)<=date('now','localtime') ORDER BY latest.valuation_date DESC LIMIT 1) WHERE p.account_id=a.id AND date(p.holding_start_date)<=date('now','localtime') AND (p.holding_end_date IS NULL OR date(p.holding_end_date)>=date('now','localtime'))) WHEN bs.id IS NULL THEN NULL ELSE bs.amount_minor + COALESCE((
+                CASE WHEN a.account_type IN ('portfolio','manual_asset') OR (a.account_type='pillar3a' AND EXISTS(SELECT 1 FROM portfolio_positions position_mode WHERE position_mode.account_id=a.id)) THEN (SELECT SUM(d.value_minor) FROM portfolio_positions p JOIN daily_valuations d ON d.id=(SELECT latest.id FROM daily_valuations latest WHERE latest.position_id=p.id AND date(latest.valuation_date)<=date('now','localtime') ORDER BY latest.valuation_date DESC LIMIT 1) WHERE p.account_id=a.id AND date(p.holding_start_date)<=date('now','localtime') AND (p.holding_end_date IS NULL OR date(p.holding_end_date)>=date('now','localtime'))) WHEN bs.id IS NULL THEN NULL ELSE bs.amount_minor + COALESCE((
                   SELECT SUM(t.amount_minor) FROM transactions t
                   WHERE t.account_id = a.id AND date(t.booking_date) > date(bs.balance_date)
                     AND date(t.booking_date) <= date('now', 'localtime')
                     AND NOT EXISTS (SELECT 1 FROM ignored_duplicate_transactions ignored WHERE ignored.transaction_id=t.id)
                 ), 0) END,
-                CASE WHEN a.account_type IN ('portfolio','manual_asset','pillar3a') THEN (SELECT MAX(d.valuation_date) FROM portfolio_positions p JOIN daily_valuations d ON d.position_id=p.id WHERE p.account_id=a.id AND date(d.valuation_date)<=date('now','localtime')) WHEN bs.id IS NULL THEN NULL ELSE COALESCE((
+                CASE WHEN a.account_type IN ('portfolio','manual_asset') OR (a.account_type='pillar3a' AND EXISTS(SELECT 1 FROM portfolio_positions position_mode WHERE position_mode.account_id=a.id)) THEN (SELECT MAX(d.valuation_date) FROM portfolio_positions p JOIN daily_valuations d ON d.position_id=p.id WHERE p.account_id=a.id AND date(d.valuation_date)<=date('now','localtime')) WHEN bs.id IS NULL THEN NULL ELSE COALESCE((
                   SELECT MAX(t.booking_date) FROM transactions t
                   WHERE t.account_id = a.id AND date(t.booking_date) > date(bs.balance_date)
                     AND date(t.booking_date) <= date('now', 'localtime')
                     AND NOT EXISTS (SELECT 1 FROM ignored_duplicate_transactions ignored WHERE ignored.transaction_id=t.id)
                 ), bs.balance_date) END,
-                CASE WHEN a.account_type IN ('portfolio','manual_asset','pillar3a') THEN COALESCE((SELECT d.currency FROM portfolio_positions p JOIN daily_valuations d ON d.id=(SELECT latest.id FROM daily_valuations latest WHERE latest.position_id=p.id AND date(latest.valuation_date)<=date('now','localtime') ORDER BY latest.valuation_date DESC LIMIT 1) WHERE p.account_id=a.id LIMIT 1),a.currency) ELSE a.currency END,
+                CASE WHEN a.account_type IN ('portfolio','manual_asset') OR (a.account_type='pillar3a' AND EXISTS(SELECT 1 FROM portfolio_positions position_mode WHERE position_mode.account_id=a.id)) THEN COALESCE((SELECT d.currency FROM portfolio_positions p JOIN daily_valuations d ON d.id=(SELECT latest.id FROM daily_valuations latest WHERE latest.position_id=p.id AND date(latest.valuation_date)<=date('now','localtime') ORDER BY latest.valuation_date DESC LIMIT 1) WHERE p.account_id=a.id LIMIT 1),a.currency) ELSE a.currency END,
                 (SELECT COUNT(*) FROM import_runs ir WHERE ir.account_id = a.id OR EXISTS(SELECT 1 FROM balance_snapshots s WHERE s.import_id = ir.id AND s.account_id = a.id)),
                 (SELECT COUNT(*) FROM portfolio_positions p WHERE p.account_id = a.id),
                 NULL, NULL, NULL, NULL, i.logo_data_url
@@ -284,11 +290,17 @@ pub(crate) fn accounts_on(connection: &Connection) -> Result<Vec<ManagedAccount>
     ).map_err(db_error)?;
     let accounts = statement
         .query_map([], |row| {
+            let provider = row.get::<_, String>(2)?;
+            let provider_key = row.get::<_, String>(3)?;
+            let import_provider_key = crate::importers::canonical_provider_id(&provider_key)
+                .or_else(|| crate::importers::canonical_provider_id(&provider))
+                .map(str::to_string);
             Ok(ManagedAccount {
                 id: row.get(0)?,
                 institution_id: row.get(1)?,
-                provider: row.get(2)?,
-                provider_key: row.get(3)?,
+                provider,
+                provider_key,
+                import_provider_key,
                 institution_type: row.get(4)?,
                 name: row.get(5)?,
                 account_type: row.get(6)?,

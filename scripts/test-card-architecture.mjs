@@ -342,6 +342,15 @@ test("managed account cards use the compact approved density", () => {
   assert.match(styles, /\.row-action-trigger\s*\{[\s\S]*?min-width: 44px;[\s\S]*?min-height: 44px/);
 });
 
+test("adding an account reveals its form and moves focus to the editable name", () => {
+  const accounts = read("src/features/accounts/Accounts.tsx");
+  assert.match(accounts, /ref=\{createForm\} className="dashboard-card account-form"/);
+  assert.match(accounts, /createForm\.current\?\.scrollIntoView\(\{[\s\S]*?block: "start"/);
+  assert.match(accounts, /ref=\{accountNameInput\}/);
+  assert.match(accounts, /accountNameInput\.current\?\.focus\(\{ preventScroll: true \}\)/);
+  assert.match(accounts, /prefers-reduced-motion: reduce/);
+});
+
 test("providers are selected once and their shared details are edited centrally", () => {
   const accounts = read("src/features/accounts/Accounts.tsx");
   const editor = read("src/features/accounts/AccountEditor.tsx");

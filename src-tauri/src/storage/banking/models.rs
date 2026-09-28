@@ -7,6 +7,7 @@ pub struct ManagedAccount {
     pub institution_id: i64,
     pub provider: String,
     pub provider_key: String,
+    pub import_provider_key: Option<String>,
     pub institution_type: String,
     pub name: String,
     pub account_type: String,

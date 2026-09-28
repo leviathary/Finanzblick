@@ -232,6 +232,14 @@ test("provider statements can select an account by canonical account reference",
   assert.match(wizardSource, /kein aktives Konto mit derselben hinterlegten IBAN oder Kontoreferenz vorhanden/);
 });
 
+test("formatted and invisibly separated IBANs match the canonical statement reference", () => {
+  const statement = { ...parsed, provider: "migros", accountType: "pillar3a", accountReference: "CH3600000000000000000", currencyBalances: [] };
+  const matching = { ...account, provider: "Migros Bank", providerKey: "migros-bank", importProviderKey: "migros", accountType: "pillar3a",
+    externalReference: "IBAN: ch36 0000\u00a00000\u202f0000\u200b0000\ufeff0" };
+  assert.deepEqual(suggestAccounts([matching], statement), { CHF: 1 });
+  assert.equal(hasAccountReferenceMismatch([matching], statement), false);
+});
+
 test("generic camt selects by IBAN across providers and supports balance-only files", () => {
   const statement = { ...parsed, format: "CAMT053", provider: "unknown", accountType: null,
     accountReference: "CH00 0000 0000 0000 1000 1", transactions: [], currencyBalances: [{ currency: "CHF" }] };

@@ -991,7 +991,7 @@ mod tests {
     #[test]
     fn ignores_pdf_preamble_and_keeps_spaced_thousands_out_of_descriptions() {
         let rows = extract_mapping_rows(
-            "Bank address\nIBAN CH26 0029 2292 6049 4440 D\nDatum Informationen Belastungen Valuta Kontostand\n01.01.23 Anfangssaldo 14 097.75\n02.01.23 ZAHLUNG UBS TWINT 270.95 31.12.22 13 826.80\nCOOP THUN",
+            "Bank address\nIBAN CH36 0000 0000 0000 0000 0\nDatum Informationen Belastungen Valuta Kontostand\n01.01.23 Anfangssaldo 14 097.75\n02.01.23 ZAHLUNG UBS TWINT 270.95 31.12.22 13 826.80\nCOOP THUN",
         )
         .unwrap();
 

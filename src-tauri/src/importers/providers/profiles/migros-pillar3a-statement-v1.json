@@ -1,0 +1,72 @@
+{
+  "schemaVersion": 1,
+  "id": "migros-pillar3a-statement-v1",
+  "provider": "migros",
+  "displayName": "Migros-Bank-Vorsorgekontoauszug",
+  "recognitionAll": ["migros bank", "vorsorge-portfolio", "kontoabschluss", "schlusssaldo"],
+  "accountType": "pillar3a",
+  "documentType": "statement",
+  "accountReference": {
+    "regex": "(?i)\\bIBAN\\s+(CH(?:\\s*\\d){19})\\b",
+    "group": 1,
+    "canonicalAlphanumeric": true
+  },
+  "fixedCurrency": "CHF",
+  "documentDate": {
+    "regex": "(?im)^[ \\t]*Kontoabschluss\\s+per\\s+(\\d{1,2}[./-]\\d{1,2}[./-]\\d{4})\\b",
+    "group": 1
+  },
+  "openingBalance": {
+    "regex": "(?im)^[ \\t]*Anfangssaldo\\s+CHF\\s+(\\d{1,3}(?:[ '’]?\\d{3})*(?:[.,]\\d{2}))[ \\t]*$",
+    "group": 1
+  },
+  "openingDate": {
+    "regex": "(?im)^[ \\t]*Kontoauszug\\s+(\\d{1,2}[./-]\\d{1,2}[./-]\\d{4})\\s+-",
+    "group": 1
+  },
+  "closingBalance": {
+    "regex": "(?im)^[ \\t]*Schlusssaldo\\s+CHF\\s+(\\d{1,3}(?:[ '’]?\\d{3})*(?:[.,]\\d{2}))",
+    "group": 1
+  },
+  "closingDate": {
+    "regex": "(?im)^[ \\t]*Kontoauszug\\s+\\d{1,2}[./-]\\d{1,2}[./-]\\d{4}\\s+-\\s+(\\d{1,2}[./-]\\d{1,2}[./-]\\d{4})",
+    "group": 1
+  },
+  "accountName": {
+    "markerContains": "vorsorgekonto",
+    "fallback": "Migros Bank Vorsorgekonto",
+    "regex": "(?im)^[ \\t]*(Vorsorgekonto)\\s+[^\\r\\n]+$",
+    "group": 1
+  },
+  "table": {
+    "headerAll": ["datum", "text", "valuta", "belastungen", "gutschriften", "saldo"],
+    "stopStartsWith": ["konditionen", "s. e. & o."],
+    "ignoreExact": [],
+    "ignoreRegex": [
+      "^Saldovortrag\\s+{money}$",
+      "^Schlusssaldo\\s+{money}$",
+      "^Seite\\s+\\d+\\s*/\\s*\\d+.*$"
+    ],
+    "ignoreAccountReferenceLines": true,
+    "ignoreDocumentDatePrefix": false,
+    "stopAfterClosingBalance": true
+  },
+  "rows": {
+    "moneyPattern": "\\d{1,3}(?:[ '’]?\\d{3})*(?:[.,]\\d{2})",
+    "balanceRegex": "^Saldo\\s+per\\s+(\\d{1,2}\\.\\d{1,2}\\.\\d{4})\\s+({money})\\s+({money})\\s+({money})$",
+    "balanceDateGroup": 1,
+    "balanceAmountGroup": 4,
+    "transactionRegex": "^(\\d{1,2}\\.\\d{1,2}\\.\\d{2})\\s+(.*?)\\s+(\\d{1,2}\\.\\d{1,2}\\.\\d{2})\\s+({money})\\s+({money})$",
+    "descriptionGroup": 2,
+    "bookingDateGroup": 1,
+    "valueDateGroup": 3,
+    "balanceGroup": 5,
+    "amountGroup": 4,
+    "totalsRegex": "^Saldo\\s+per\\s+\\d{1,2}\\.\\d{1,2}\\.\\d{4}\\s+({money})\\s+({money})\\s+{money}$",
+    "debitTotalGroup": 1,
+    "creditTotalGroup": 2,
+    "candidateRegex": "^\\d{1,2}\\.\\d{1,2}\\.\\d{2}\\s+"
+  },
+  "confidence": 0.99,
+  "allowEmptyTransactions": true
+}

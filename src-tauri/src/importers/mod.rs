@@ -79,6 +79,10 @@ type ParsedPdfRows = (Vec<ParsedTransaction>, Option<i64>, Option<i64>);
 pub(crate) const CARD_PURCHASE_REFERENCE_NAMESPACE: &str = "credit-card-purchase";
 pub(crate) const PROVISIONAL_CARD_TRANSACTION_KIND: &str = "provisional_card_transaction";
 
+pub(crate) fn canonical_provider_id(value: &str) -> Option<&'static str> {
+    providers::by_id(value).map(|provider| provider.id())
+}
+
 /// Column aliases are owned by a provider importer; the Excel reader only
 /// applies the selected provider's mapping to the workbook.
 pub(super) struct ProviderExcelMapping {

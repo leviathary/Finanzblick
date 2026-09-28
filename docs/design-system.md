@@ -320,7 +320,11 @@ in `src/styles/application.css`; Feature-Styles verwenden dieselben Farbrollen.
 
 - „Konten & Depots“ ist eine rein lesende Übersicht mit Suche, optionalen
   archivierten Konten und verlinkten Detailansichten. Vom Gesamtvermögen
-  ausgeschlossene Konten bleiben sichtbar und entsprechend gekennzeichnet.
+  ausgeschlossene Konten bleiben sichtbar und entsprechend gekennzeichnet. Die
+  Liste gliedert die vorhandenen Treffer mit dezenten Überschriften in Bankkonten,
+  Kreditkarten, Depots & Anlagen und Vorsorgekonten. Leere Sektionen werden
+  ausgeblendet. Innerhalb dieser Gruppen bleibt die vom Backend gelieferte
+  Reihenfolge stabil.
   Die Detailansicht zeigt Anbieter, Wert mit Bewertungswährung und Datum sowie
   den gemeinsamen interaktiven Chart mit 1M, 6M, YTD, 1J und Gesamt.
   Bei Depots heißt der Chart „Depotwert im Zeitverlauf“, nicht Performance;

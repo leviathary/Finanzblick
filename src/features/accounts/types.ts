@@ -5,6 +5,7 @@ export interface Account {
   institutionId: number;
   provider: string;
   providerKey: string;
+  importProviderKey: string | null;
   institutionType: string;
   name: string;
   accountType: AccountType;

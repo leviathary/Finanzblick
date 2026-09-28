@@ -60,8 +60,38 @@ pub(crate) fn supports_positions(account_type: &str) -> bool {
     matches!(account_type, "portfolio" | "manual_asset" | "pillar3a")
 }
 
-pub(crate) fn clean_optional(value: Option<String>) -> Option<String> {
-    value
-        .map(|item| item.trim().to_string())
-        .filter(|item| !item.is_empty())
+/// Normalisiert IBANs und andere Kontokennungen für Speicherung und Vergleich.
+/// Neben Unicode-Leerraum werden unsichtbare Copy/Paste-Trennzeichen entfernt.
+pub(crate) fn normalize_account_reference(value: &str) -> String {
+    let trimmed = value.trim();
+    let without_label = if trimmed
+        .get(..4)
+        .is_some_and(|prefix| prefix.eq_ignore_ascii_case("IBAN"))
+    {
+        trimmed[4..].trim_start_matches([':', ' '])
+    } else {
+        trimmed
+    };
+    without_label
+        .chars()
+        .filter(|character| {
+            !character.is_whitespace() && !matches!(character, '\u{200b}' | '\u{2060}' | '\u{feff}')
+        })
+        .collect::<String>()
+        .to_uppercase()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::normalize_account_reference;
+
+    #[test]
+    fn normalizes_formatted_and_pasted_ibans() {
+        assert_eq!(
+            normalize_account_reference(
+                " IBAN: ch36 0000\u{00a0}0000\u{202f}0000\u{200b}0000\u{feff}0 "
+            ),
+            "CH3600000000000000000"
+        );
+    }
 }
