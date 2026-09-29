@@ -10,10 +10,10 @@ sources into one view. No app account or cloud sync required.
 
 ## Install on Windows
 
-[Download Saldonaut 0.6.11 for Windows (64-bit)](../../releases/download/v0.6.11/Saldonaut_0.6.11_x64-setup.exe)
+[Download Saldonaut 0.6.12 for Windows (64-bit)](../../releases/download/v0.6.12/Saldonaut_0.6.12_x64-setup.exe)
 
-[Release notes](../../releases/tag/v0.6.11)
-· [SHA-256 checksum](../../releases/download/v0.6.11/Saldonaut_0.6.11_x64-setup.exe.sha256)
+[Release notes](../../releases/tag/v0.6.12)
+· [SHA-256 checksum](../../releases/download/v0.6.12/Saldonaut_0.6.12_x64-setup.exe.sha256)
 
 The installer is unsigned, so Windows may display a security warning. Always
 create an encrypted backup before using real data. The demo is included:
