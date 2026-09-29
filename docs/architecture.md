@@ -162,6 +162,29 @@ Repository-Anfragen und Ergebnisprojektionen liegen beim jeweiligen Fachbereich
 in `models.rs`, nicht mehr in einer zentralen Sammeldatei.
 Die Domäne bleibt unabhängig von SQL und Tauri-Zustand.
 
+Die lesende Positionsdetailansicht leitet Bestandsänderungen aus den datierten
+absoluten Werten in `position_quantities` ab. Nur Einträge mit der expliziten
+Quelle `manual_trade` werden anhand ihres Deltas als Kauf oder Verkauf bezeichnet;
+andere Quellen erscheinen neutral als Bestandsanpassung. Daraus werden keine
+Banktransaktionen oder Geldflüsse erzeugt, und die Projektion verändert keine
+Persistenz.
+
+### Verbindlicher Änderungsradius
+
+- Eine Änderung an einer einzelnen Position darf nur Ableitungen dieser Position
+  und nur ab dem frühesten fachlich betroffenen Datum neu berechnen.
+- Eine Änderung oder ein Import für ein einzelnes Konto beziehungsweise Depot darf
+  höchstens dieses Konto und dessen betroffenen Zeitraum neu berechnen. Andere
+  Konten und Positionen dürfen weder gelöscht noch vorsorglich neu aufgebaut werden.
+- Tabellenweite Löschungen oder vollständige Neuaufbauten sind ausschließlich für
+  ausdrücklich gestartete globale Operationen zulässig, etwa die initiale
+  Schema-/Profilaufbereitung oder eine marktweite Kursaktualisierung. Sie dürfen
+  nicht als vereinfachte Implementierung eines einzelnen Speichervorgangs dienen.
+- Persistenzfunktionen müssen den Änderungsradius als Position-ID, Konto-ID und
+  Stichtag weitergeben. Ein bloßes „anschließend alles neu berechnen“ ist nicht
+  zulässig. Regressionstests belegen bei neuen Schreibwegen, dass frühere Werte und
+  nicht betroffene Positionen beziehungsweise Konten unverändert bleiben.
+
 `storage/banking/reporting_flags.rs` schreibt manuelle Markierungen.
 `storage/reporting/consumption.rs` stellt die Konsumprojektion bereit.
 Kategorisierungsabfragen liegen in `storage/rules/categorization.rs`.
@@ -302,6 +325,18 @@ Unveränderte und leere Vollbestände sind ebenfalls datierte Importnachweise.
 Rückdatierungen vor vorhandene Mengenstände werden abgewiesen; am selben Tag
 ersetzt ein neuer Stand den bisherigen. Manuelle ältere Historie wird nicht
 aus einem späteren Snapshot rückgerechnet.
+
+Manuelle Käufe und Verkäufe verwenden dieselbe datierte Mengenhistorie, jedoch
+ohne einen künstlichen Importnachweis. Der Command speichert eine positive oder
+negative Mengenänderung als neuen absoluten Bestand ab dem Wirksamkeitsdatum;
+frühere Mengenstände bleiben unverändert. Rückdatierungen vor den jüngsten
+Mengenstand und Verkäufe über den vorhandenen Bestand hinaus werden abgewiesen.
+Nur ein resultierender Nullbestand setzt das Enddatum der Position. Das Bearbeiten
+von Positionsstammdaten darf vorhandene Einträge in `position_quantities` nicht
+löschen oder überschreiben. Nach einer Bestandsänderung werden ausschließlich die
+Tagesbewertungen der betroffenen Position ab dem Wirksamkeitsdatum verworfen und
+anschließend inkrementell neu aufgebaut. Ein Kauf oder Verkauf darf keinen
+vollständigen Neuaufbau aller historischen Depotbewertungen auslösen.
 
 Die Kontotypen `portfolio`, `manual_asset` und `pillar3a` unterstützen dieselbe
 Positionsverwaltung und denselben Import. `supports_positions` kapselt die

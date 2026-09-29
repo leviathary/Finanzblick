@@ -362,7 +362,13 @@ pub(crate) fn set_transaction_category(
     storage: &Storage,
     transaction_id: i64,
     category_key: String,
+    create_merchant_rule: bool,
 ) -> Result<usize, String> {
     let mut connection = storage.connect().map_err(db_error)?;
-    merchant_rules::learn(&mut connection, transaction_id, &category_key)
+    merchant_rules::assign(
+        &mut connection,
+        transaction_id,
+        &category_key,
+        create_merchant_rule,
+    )
 }

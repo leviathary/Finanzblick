@@ -79,8 +79,14 @@ pub fn set_transaction_category(
     storage: State<'_, Storage>,
     transaction_id: i64,
     category_key: String,
+    create_merchant_rule: Option<bool>,
 ) -> Result<usize, String> {
-    storage::banking::transactions::set_transaction_category(&storage, transaction_id, category_key)
+    storage::banking::transactions::set_transaction_category(
+        &storage,
+        transaction_id,
+        category_key,
+        create_merchant_rule.unwrap_or(false),
+    )
 }
 
 #[tauri::command]

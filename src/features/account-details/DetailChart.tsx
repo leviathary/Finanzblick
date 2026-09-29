@@ -19,6 +19,6 @@ export function DetailChart({ history, currency, title }: { history: DailyValue[
           <button key={value} type="button" aria-pressed={period === value} onClick={() => setPeriod(value)}>{label}</button>)}
       </div><div ref={setControls} className="detail-chart-tools wealth-chart-tools" />
     </div>
-    {visible.length ? <InteractiveTimelineChart history={visible} currency={currency} controlsContainer={controls} ariaLabel={title} /> : <p className="intro">{t("Keine Bewertungsdaten in diesem Zeitraum.")}</p>}
+    {visible.length ? <InteractiveTimelineChart history={visible} currency={currency} controlsContainer={controls} minimumValueSpanRatio={0.2} ariaLabel={title} /> : <p className="intro">{t("Keine Bewertungsdaten in diesem Zeitraum.")}</p>}
   </article>;
 }

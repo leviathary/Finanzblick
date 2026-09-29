@@ -141,6 +141,20 @@ in `src/styles/application.css`; Feature-Styles verwenden dieselben Farbrollen.
 - Während des Speicherns Aktionen sperren und Fortschritt verständlich anzeigen.
   `aria-disabled` allein sperrt einen Link nicht; Navigation zusätzlich verhindern.
 
+### Kontextuelle Informationen
+
+- Kurze, ergänzende Begriffserklärungen verwenden die gemeinsame Komponente
+  `ContextHelp`: eine transparente 32-px-Bedienfläche mit einem zurückhaltenden
+  18-px-Info-Kreis. Pro zusammengehörigem Abschnitt höchstens einen Auslöser,
+  bevorzugt rechts in dessen Überschrift; keine wiederholten Info-Symbole je Zeile.
+- Der Hinweis erscheint bei Hover und Tastaturfokus, besitzt einen zugänglichen
+  Namen und enthält keinen interaktiven Inhalt. Wesentliche Informationen und
+  Konsequenzen dürfen nicht ausschließlich in diesem Tooltip stehen.
+- Längere Bedienhilfen, mehrere Themen oder Inhalte mit Links und Aktionen öffnen
+  einen fokussierten Dialog oder verweisen auf die lokale Hilfe. Status-, Warn-
+  und Fehlermeldungen bleiben direkt am betroffenen Inhalt sichtbar und verwenden
+  keinen Info-Auslöser.
+
 ## 5. Formularfelder, Tabellen und Zustände
 
 - Inputs und Selects: 44 px Höhe, weiß, Slate-Rahmen, Radius 10–12 px;
@@ -158,10 +172,13 @@ in `src/styles/application.css`; Feature-Styles verwenden dieselben Farbrollen.
 - Tabellen standardmäßig kompakt halten. Keine großen Aktionsblöcke in jeder
   Zeile der Haupt-Transaktionsübersicht; dort das Drei-Punkte-Menü verwenden.
 - Dedizierte Einrichtungsansichten dürfen direkte Zeilenaktionen haben.
-- Buchungs-Drilldown zeigt Kategorien als Text mit Farbpunkt, Herkunft als Tooltip.
-  „Kategorie ändern …“ im Drei-Punkte-Menü öffnet die Inline-Auswahl mit Speichern
-  und Abbrechen. Erst dort auf die Wirkung für passende Händlerbuchungen und
-  zukünftige Importe hinweisen. Auswahl allein speichert nicht; Fehler im Editor
+- Buchungs-Drilldown zeigt Kategorien als Text mit Farbpunkt und die Herkunft
+  direkt darunter; der Tooltip wiederholt diese Information. „Kategorie ändern …“
+  im Drei-Punkte-Menü öffnet die Inline-Auswahl mit Speichern und Abbrechen.
+  Der Geltungsbereich wird als zwei exklusive Radio-Optionen angezeigt:
+  „Händlerregel erstellen“ ist vorausgewählt und gilt für passende bestehende
+  Buchungen und zukünftige Importe; „Nur diese Buchung kategorisieren“ setzt eine
+  einzelne manuelle Ausnahme. Auswahl allein speichert nicht; Fehler im Editor
   anzeigen, Escape bricht ab und gibt den Fokus an die Zeilenaktion zurück.
   Kein permanenter Sortierhilfetext über der Drilldown-Tabelle; Richtungspfeile
   bleiben sichtbar. Trefferzahl und gefilterte Summe nur bei aktiven Detailfiltern.
@@ -293,9 +310,55 @@ in `src/styles/application.css`; Feature-Styles verwenden dieselben Farbrollen.
   Positionsverwaltung (Hinzufügen, Bearbeiten und Beenden bzw. Löschen ohne Historie).
   Alle drei Kontotypen sind Ziele für passende Positionsimporte. Salden und
   Vermögensverläufe ergeben sich aus den Positionen, nicht zusätzlich aus Kontosalden.
+  Manuell bewertete bestehende Positionen bieten getrennt davon „Neue Bewertung“:
+  Erfasst werden nur Wert und Bewertungsdatum, während Positionseigenschaften und
+  frühere Bewertungen erhalten bleiben. „Position bearbeiten“ bleibt der Änderung
+  von Bezeichnung, Bewertungsmethode und Haltedauer vorbehalten. Automatisch über
+  eine Wertpapierkennung bewertete Positionen bieten keine manuelle Neubewertung an.
+  „Neue Bewertung“ öffnet eine eigene Detailansicht mit aktuellem Wert,
+  kompaktem Stichtagsformular direkt oberhalb des Diagramms und Bewertungsverlauf.
+  Die Positionsliste bleibt eine kompakte Zusammenfassung. Ihre Aktionen stehen im
+  gemeinsamen Drei-Punkte-Menü rechts in derselben Zeile; eine separate Aktionszeile
+  wird nicht verwendet. „Löschen“ wird dort nur für Positionen ohne Historie angeboten
+  und steht als abgetrennte destruktive Aktion am Ende des Menüs. „Position bearbeiten“
+  öffnet einen fokussierten Modal-Dialog über der Liste, damit der Editor unabhängig
+  von der Listenlänge sichtbar bleibt. Abbrechen, Escape und erfolgreiches Speichern
+  schließen ihn; danach kehrt der Fokus zur auslösenden Zeilenaktion zurück. Nur die
+  Erfassung einer neuen Position bleibt als Formular im normalen Seitenfluss.
+  Bei Positionen mit Wertpapierkennung und Einheiten steht zusätzlich
+  „Kauf/Verkauf erfassen“ im Drei-Punkte-Menü. Ein fokussierter Dialog erfasst
+  Vorgang, positive „Anzahl“ und Datum, zeigt den resultierenden Bestand vor dem
+  Speichern und verändert die Menge erst nach der Hauptaktion. Anzahl und Datum
+  verwenden dieselben 44-px-Controls, Oberflächenfarben und Fokuszustände wie der
+  Positionseditor; native abweichende Eingabefarben werden nicht verwendet. Ein zusätzlicher
+  Erklärungstext unter den Feldern wird nicht angezeigt. Frühere Bestände bleiben
+  erhalten; nur ein Verkauf auf null beendet die Position. Im allgemeinen
+  Positionseditor sind Bewertungsmethode und bestehende Menge deshalb gesperrt.
+  Dort stehen weder ein Hilfetext unter der Menge noch ein eigener Hinweisblock.
+  Stattdessen erklärt genau ein `ContextHelp`-Auslöser rechts im Dialogkopf, dass
+  Käufe und Verkäufe über das Drei-Punkte-Menü erfasst werden. Beim Öffnen erhält
+  das erste Eingabefeld den Fokus, damit diese Kontexthilfe nicht unaufgefordert
+  erscheint; sie öffnet erst bei Hover oder gezieltem Tastaturfokus. Der Dialog
+  ist auf 800 px begrenzt. Seine zweispaltigen Stammdaten gewichten das Textfeld
+  breiter als den Anlagetyp; sämtliche Inputs und Selects verwenden 44 px Höhe,
+  die gemeinsame Oberflächenfarbe und normale Eingabeschrift statt geerbter
+  fetter Labelschrift. Schreibgeschützte Bestands- und Kursfelder verwenden die
+  dezente Hintergrundfläche.
+  Depot- und manuelle Bewertungsverläufe beginnen nicht zwingend bei null, verwenden
+  aber mindestens eine symmetrische Y-Achsenspanne von 20 Prozent des sichtbaren
+  Wertniveaus. Kleine absolute Änderungen dürfen dadurch nicht wie große Sprünge
+  erscheinen; der niedrigste beobachtete Wert liegt nicht direkt am unteren Rand.
+  Unter dem Diagramm listet die Detailansicht alle tatsächlich manuell eingegebenen
+  Stichtagsbewertungen absteigend auf. „Bearbeiten“ öffnet einen fokussierten
+  Modal-Dialog für Wert und Datum und führt den Fokus nach dem Schließen zur
+  auslösenden Listenaktion zurück. Dort kann die Bewertung nach einer separaten
+  Bestätigung auch gelöscht werden; die einzige Bewertung einer Position bleibt
+  geschützt. Fortschreibungen der Tageskurve sind keine eigenen Listeneinträge
+  und nicht direkt editierbar.
   Die Positionsverwaltung ist eine eigene Detailansicht. Oberhalb
   ihrer Card steht ein lokalisierter sekundärer Button „← Zurück zu Banken &
-  Konten“; kein „Abbrechen“ im Card-Header. Beim Öffnen erhält die Rückkehraktion
+  Konten“; zur folgenden Positions- oder Bewertungs-Card bleiben 12 px Abstand.
+  Kein „Abbrechen“ im Card-Header. Beim Öffnen erhält die Rückkehraktion
   den Fokus. Formular-Abbrechen bleibt unten neben der Speicheraktion; Escape
   verwirft keinen begonnenen Positionsentwurf.
 
@@ -329,10 +392,15 @@ in `src/styles/application.css`; Feature-Styles verwenden dieselben Farbrollen.
   den gemeinsamen interaktiven Chart mit 1M, 6M, YTD, 1J und Gesamt.
   Bei Depots heißt der Chart „Depotwert im Zeitverlauf“, nicht Performance;
   Bestandsänderungen sind keine Rendite, vor dem Stichtag entstehen keine Werte.
-  Eine sortierbare Positionstabelle zeigt Bezeichnung, Symbol, Menge, Kurs, Wert
+  Eine sortierbare Positionstabelle zeigt Bezeichnung, Symbol, Anzahl, Kurs, Wert
   und Anteil. Fehlende Bewertungen bleiben erkennbar; bei unvollständigen oder
   gemischten Bewertungswährungen werden keine irreführenden Anteile berechnet.
   Beendete/zukünftige Positionen sind optional; Auswahl öffnet Wert-/Kursverlauf.
+  Für Stückbestände von Aktien, ETF und Fonds verwendet die Oberfläche konsistent
+  „Anzahl“; Dezimalwerte bleiben dabei zulässig. Unter dem Chart folgt die kompakte
+  Liste „Bestandsänderungen“ mit Datum, Vorgang, Anzahl und Bestand danach. Sie
+  zeigt Käufe, Verkäufe, Anfangsbestände und sonstige Bestandsanpassungen getrennt
+  von Bankbuchungen, weil eine Mengenänderung allein keinen Geldfluss belegt.
   Zwischen Positionsname mit Umschaltaktionen und der zugehörigen Chart-Karte
   bleiben 16 px Abstand, auch wenn die Aktionen in schmalen Ansichten umbrechen.
   Innerhalb der Chart-Karte bleiben ebenfalls 16 px Abstand zwischen Überschrift
@@ -345,7 +413,17 @@ in `src/styles/application.css`; Feature-Styles verwenden dieselben Farbrollen.
 
 - Kategorien: Drei-Punkte-Aktionen pro Zeile; Name und Farbe direkt inline
   bearbeiten, jeweils nur eine Kategorie. Speichern/Abbrechen bleiben in der
-  betroffenen Zeile. Oben nur „Neue Kategorie“ als dunkelblaue Hauptaktion.
+  betroffenen Zeile. Beim Bearbeiten werden die Händler- und Branchenregeln der
+  Kategorie lesbar aufgelistet und können einzeln nach Bestätigung gelöscht
+  werden. Automatisch durch die gelöschte Regel zugeordnete Buchungen wechseln
+  dabei dauerhaft zu „Sonstiges“; manuelle Einzelentscheidungen bleiben erhalten.
+  Im Kopf der Regelliste steht genau ein kompakter `ContextHelp`-Auslöser, der
+  Branchen- und Händlerregel gemeinsam erklärt. Die Erklärung erscheint bei Hover und
+  Tastaturfokus; dieselbe Unterscheidung steht ausführlicher in der lokalen Hilfe.
+  Das Drei-Punkte-Menü bietet zusätzlich
+  „Buchungen anzeigen“ und öffnet die Transaktionen mit dieser Kategorie über
+  den gesamten Zeitraum direkt im Buchungs-Drilldown. Oben nur „Neue Kategorie“
+  als dunkelblaue Hauptaktion.
   Der kurze Einleitungssatz nutzt auf breiten Ansichten die verfügbare Zeile und
   wird nicht durch die allgemeine 700-px-Textbreite künstlich umgebrochen; auf
   schmalen Ansichten bleibt natürlicher Umbruch erlaubt.

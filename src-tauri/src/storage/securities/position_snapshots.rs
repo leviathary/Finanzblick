@@ -7,8 +7,8 @@ use crate::domain::securities::position_snapshots::{
 };
 use crate::storage::database::errors::db_error;
 use crate::storage::database::Storage;
-use crate::storage::securities::positions::rebuild_daily_valuations;
-use chrono::Utc;
+use crate::storage::securities::positions::rebuild_account_valuations_from;
+use chrono::{NaiveDate, Utc};
 use rusqlite::{params, Connection, OptionalExtension, Transaction, TransactionBehavior};
 use serde::Serialize;
 use std::collections::{BTreeMap, BTreeSet};
@@ -99,6 +99,8 @@ pub(crate) fn save(
     source_hash: &str,
     normalize: &dyn Fn(&str) -> String,
 ) -> Result<SavePositionSnapshotResult, String> {
+    let snapshot_date = NaiveDate::parse_from_str(snapshot.date()?, "%Y-%m-%d")
+        .map_err(|_| "Bitte einen gültigen Stichtag angeben.".to_string())?;
     let mut connection = storage.connect().map_err(db_error)?;
     let result = persist(
         &mut connection,
@@ -108,7 +110,7 @@ pub(crate) fn save(
         source_hash,
         normalize,
     )?;
-    rebuild_daily_valuations(storage)?;
+    rebuild_account_valuations_from(storage, account_id, snapshot_date)?;
     Ok(result)
 }
 
@@ -987,6 +989,8 @@ mod tests {
             let db = storage.connect().unwrap();
             db.execute("INSERT INTO instrument_prices(listing_id,price_date,price_type,price_amount,price_scale,currency,source,fetched_at) SELECT id,'2026-01-01','eod_close',1000,2,'CHF','yahoo','now' FROM instrument_listings",[]).unwrap();
         }
+        crate::storage::securities::positions::rebuild_daily_valuations_incremental(&storage)
+            .unwrap();
         let next = snapshot(
             "example_broker",
             "2026-02-01",

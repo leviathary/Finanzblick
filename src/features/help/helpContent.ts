@@ -174,6 +174,10 @@ export function getHelpArticles(): HelpArticle[] {
           title: t("Kartenkäufe automatisch zuordnen"),
           paragraphs: [t("Links steht die vom Kartenanbieter gelieferte Kreditkarten-Kategorie, rechts deine Saldonaut-Kategorie."), t("Die Auswahl gilt für bestehende und künftig importierte Kartenkäufe. Manuelle Zuordnungen und speziellere Händlerregeln bleiben erhalten.")],
         },
+        {
+          title: t("Branchen- und Händlerregeln"),
+          paragraphs: [t("Eine Branchenregel verwendet eine Branche, die der Anbieter im importierten Kreditkarten- oder Bankauszug mitliefert."), t("Eine Händlerregel entsteht in Saldonaut beim Kategorisieren einer Buchung. Sie erkennt passende Buchungstexte desselben Händlers und gilt auch für zukünftige Importe.")],
+        },
       ],
     },
     {

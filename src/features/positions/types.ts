@@ -16,6 +16,34 @@ export interface ManualPosition {
   priceSource: string | null;
   holdingStartDate: string | null;
   holdingEndDate: string | null;
+  canDelete: boolean;
+}
+
+export interface ManualValuation {
+  id: number;
+  positionId: number;
+  valueDate: string;
+  amountMinor: number;
+  currency: string;
+}
+
+export interface UpdateManualValuationRequest {
+  id: number;
+  positionId: number;
+  valueDate: string;
+  amountMinor: number;
+}
+
+export interface DeleteManualValuationRequest {
+  id: number;
+  positionId: number;
+}
+
+export interface PositionQuantityChangeRequest {
+  positionId: number;
+  effectiveDate: string;
+  changeType: "buy" | "sell";
+  quantity: string;
 }
 
 export interface MarketRefreshResult {

@@ -6,7 +6,12 @@ import type { Account } from "../accounts/types";
 import type { ManualPosition } from "./types";
 import { money } from "../accounts/presentation";
 import { marketSourceLabel } from "./presentation";
+import { ActionMenu } from "../../shared/ActionMenu";
+import { ManualPositionDialog } from "./ManualPositionDialog";
 import { ManualPositionEditor, type ManualPositionDraft } from "./ManualPositionEditor";
+import { ManualValuationHistory } from "./ManualValuationHistory";
+import { PositionQuantityWorkflow } from "./PositionQuantityWorkflow";
+import { existingPositionDraft, newPositionDraft } from "./positionDraft";
 
 type Props = {
   account: Account;
@@ -19,25 +24,15 @@ export function ManualPositions({ account: valuing, onClose, onChanged, onError:
   const backButton = useRef<HTMLButtonElement>(null);
   const [saving, setSaving] = useState(false);
   const [valuationNotice, setValuationNotice] = useState<string | null>(null);
+  const [valuationActionError, setValuationActionError] = useState<string | null>(null);
   const [marketRefreshPending, setMarketRefreshPending] = useState(false);
   const [showPositionForm, setShowPositionForm] = useState(true);
-  const [valuation, setValuation] = useState<ManualPositionDraft>({
-    id: null as number | null,
-    label: "",
-    amount: "",
-    quantity: "",
-    unitPrice: "",
-    quoteCurrency: valuing.currency,
-    exchangeRate: "1",
-    date: new Date().toISOString().slice(0, 10),
-    assetType: "other",
-    identifierType: "ticker" as "isin" | "ticker",
-    isin: "",
-    ticker: "",
-    method: "total" as "total" | "units",
-    holdingStartDate: new Date().toISOString().slice(0, 10),
-    holdingEndDate: "",
-  });
+  const [editingPosition, setEditingPosition] = useState<ManualPosition | null>(null);
+  const [positionEditorError, setPositionEditorError] = useState<string | null>(null);
+  const [quantityPosition, setQuantityPosition] = useState<ManualPosition | null>(null);
+  const [valuingPosition, setValuingPosition] = useState<ManualPosition | null>(null);
+  const [historyRevision, setHistoryRevision] = useState(0);
+  const [valuation, setValuation] = useState<ManualPositionDraft>(() => newPositionDraft(valuing.currency));
   const [positions, setPositions] = useState<ManualPosition[]>([]);
 
   useEffect(() => {
@@ -65,6 +60,11 @@ export function ManualPositions({ account: valuing, onClose, onChanged, onError:
       ).trim(),
     );
 
+
+  function reportPositionError(message: string) {
+    setError(message);
+    if (editingPosition) setPositionEditorError(message);
+  }
 
   async function saveValuation() {
     const wasEditing = valuation.id !== null;
@@ -98,33 +98,27 @@ export function ManualPositions({ account: valuing, onClose, onChanged, onError:
       identifier.trim() &&
       !/^[A-Z]{2}[A-Z0-9]{10}$/.test(identifier.trim())
     ) {
-      setError(
-        t(
-          "Die ISIN muss aus 12 Buchstaben und Ziffern bestehen und mit einem zweistelligen Ländercode beginnen.",
-        ),
-      );
-      return;
+      reportPositionError(t("Die ISIN muss aus 12 Buchstaben und Ziffern bestehen und mit einem zweistelligen Ländercode beginnen."));
+      return false;
     }
     if (
       useAutomaticPrice &&
       (quantity === null || !Number.isFinite(quantity) || quantity <= 0)
     ) {
-      setError(t("Bitte eine gültige Menge eingeben."));
-      return;
+      reportPositionError(t("Bitte eine gültige Menge eingeben."));
+      return false;
     }
-    const holdingStartDate = useAutomaticPrice
-      ? valuation.holdingStartDate
-      : valuation.date;
+    const holdingStartDate = valuation.holdingStartDate || valuation.date;
     if (!holdingStartDate) {
-      setError(t("Bitte ein Einstandsdatum eingeben."));
-      return;
+      reportPositionError(t("Bitte ein Einstandsdatum eingeben."));
+      return false;
     }
     if (
       valuation.holdingEndDate &&
       valuation.holdingEndDate < holdingStartDate
     ) {
-      setError(t("Das Verkaufsdatum darf nicht vor dem Einstandsdatum liegen."));
-      return;
+      reportPositionError(t("Das Verkaufsdatum darf nicht vor dem Einstandsdatum liegen."));
+      return false;
     }
     if (
       useUnits &&
@@ -133,29 +127,30 @@ export function ManualPositions({ account: valuing, onClose, onChanged, onError:
         !Number.isFinite(quantity) ||
         (!useAutomaticPrice && !Number.isFinite(unitPrice)))
     ) {
-      setError(t("Bitte Menge und Wert pro Einheit vollständig eingeben."));
-      return;
+      reportPositionError(t("Bitte Menge und Wert pro Einheit vollständig eingeben."));
+      return false;
     }
     if (
       useUnits &&
       !useAutomaticPrice &&
       (!Number.isFinite(exchangeRate) || exchangeRate <= 0)
     ) {
-      setError(t("Bitte einen gültigen Wechselkurs eingeben."));
-      return;
+      reportPositionError(t("Bitte einen gültigen Wechselkurs eingeben."));
+      return false;
     }
     if (!Number.isFinite(amount) || amount < 0) {
-      setError(t("Bitte einen gültigen Wert eingeben."));
-      return;
+      reportPositionError(t("Bitte einen gültigen Wert eingeben."));
+      return false;
     }
     setSaving(true);
     setError(null);
+    setPositionEditorError(null);
     try {
       await positionsApi.save({
           id: valuation.id,
           accountId: valuing.id,
           label: valuation.label,
-          valuationDate: holdingStartDate,
+          valuationDate: wasEditing ? valuation.date : holdingStartDate,
           amountMinor: Math.round(amount * 100),
           quantity,
           unitPriceMinor:
@@ -173,18 +168,7 @@ export function ManualPositions({ account: valuing, onClose, onChanged, onError:
         await positionsApi.list(valuing.id),
       );
       await onChanged();
-      setValuation((current) => ({
-        ...current,
-        id: null,
-        label: "",
-        amount: "",
-        quantity: "",
-        unitPrice: "",
-        isin: "",
-        ticker: "",
-        holdingStartDate: new Date().toISOString().slice(0, 10),
-        holdingEndDate: "",
-      }));
+      setValuation(newPositionDraft(valuing.currency));
       setValuationNotice(
         useAutomaticPrice
           ? t("Position gespeichert. Kurse werden im Hintergrund geladen.")
@@ -212,26 +196,199 @@ export function ManualPositions({ account: valuing, onClose, onChanged, onError:
             );
           });
       }
+      return true;
     } catch (reason) {
-      setError(
+      reportPositionError(
         typeof reason === "string"
           ? reason
           : t("Der manuelle Wert konnte nicht gespeichert werden."),
       );
+      return false;
     } finally {
       setSaving(false);
     }
   }
 
-  async function deletePosition(position: ManualPosition) {
-    if (!window.confirm(t("Diese Position löschen?"))) return;
-    await positionsApi.remove(position.id);
-    const remainingPositions = await positionsApi.list(position.accountId);
-    setPositions(remainingPositions);
-    setShowPositionForm(remainingPositions.length === 0);
-    await onChanged();
+  async function saveAdditionalValuation(position: ManualPosition, date: string, value: string) {
+    const amount = Number(value.trim().replace(/[’']/g, "").replace(",", "."));
+    if (!Number.isFinite(amount) || amount < 0) {
+      const message = t("Bitte einen gültigen Wert eingeben.");
+      setError(message); setValuationActionError(message);
+      return false;
+    }
+    if (!date || position.holdingStartDate && date < position.holdingStartDate) {
+      const message = t("Das Bewertungsdatum darf nicht vor dem Einstandsdatum liegen.");
+      setError(message); setValuationActionError(message);
+      return false;
+    }
+    if (position.holdingEndDate && date > position.holdingEndDate) {
+      const message = t("Das Bewertungsdatum darf nicht nach dem Verkaufsdatum liegen.");
+      setError(message); setValuationActionError(message);
+      return false;
+    }
+    setSaving(true);
+    setError(null);
+    setValuationActionError(null);
+    try {
+      await positionsApi.save({
+        id: position.id,
+        accountId: position.accountId,
+        label: position.label,
+        valuationDate: date,
+        amountMinor: Math.round(amount * 100),
+        quantity: position.quantity,
+        unitPriceMinor: null,
+        quoteCurrency: null,
+        exchangeRate: null,
+        assetType: position.assetType ?? "other",
+        identifierType: null,
+        identifier: null,
+        holdingStartDate: position.holdingStartDate ?? position.valuationDate,
+        holdingEndDate: position.holdingEndDate,
+      });
+      const updatedPositions = await positionsApi.list(valuing.id);
+      setPositions(updatedPositions);
+      await onChanged();
+      setValuingPosition(updatedPositions.find(current => current.id === position.id) ?? null);
+      setHistoryRevision(current => current + 1);
+      setValuationNotice(t("Neue Bewertung gespeichert. Frühere Bewertungen bleiben erhalten."));
+      return true;
+    } catch (reason) {
+      const message = typeof reason === "string" ? reason : t("Der manuelle Wert konnte nicht gespeichert werden.");
+      setError(message); setValuationActionError(message);
+      return false;
+    } finally {
+      setSaving(false);
+    }
   }
 
+  async function updateStoredValuation(position: ManualPosition, valuationId: number, date: string, value: string) {
+    const amount = Number(value.trim().replace(/[’']/g, "").replace(",", "."));
+    if (!Number.isFinite(amount) || amount < 0) {
+      const message = t("Bitte einen gültigen Wert eingeben.");
+      setError(message); setValuationActionError(message);
+      return false;
+    }
+    if (!date || position.holdingStartDate && date < position.holdingStartDate) {
+      const message = t("Das Bewertungsdatum darf nicht vor dem Einstandsdatum liegen.");
+      setError(message); setValuationActionError(message);
+      return false;
+    }
+    if (position.holdingEndDate && date > position.holdingEndDate) {
+      const message = t("Das Bewertungsdatum darf nicht nach dem Verkaufsdatum liegen.");
+      setError(message); setValuationActionError(message);
+      return false;
+    }
+    setSaving(true);
+    setError(null);
+    setValuationActionError(null);
+    try {
+      await positionsApi.updateValuation({
+        id: valuationId,
+        positionId: position.id,
+        valueDate: date,
+        amountMinor: Math.round(amount * 100),
+      });
+      const updatedPositions = await positionsApi.list(valuing.id);
+      setPositions(updatedPositions);
+      await onChanged();
+      setValuingPosition(updatedPositions.find(current => current.id === position.id) ?? null);
+      setHistoryRevision(current => current + 1);
+      setValuationNotice(t("Bewertung korrigiert."));
+      return true;
+    } catch (reason) {
+      const message = typeof reason === "string" ? reason : t("Die Bewertung konnte nicht korrigiert werden.");
+      setError(message); setValuationActionError(message);
+      return false;
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function deleteStoredValuation(position: ManualPosition, valuationId: number) {
+    setSaving(true);
+    setError(null);
+    setValuationActionError(null);
+    try {
+      await positionsApi.deleteValuation({ id: valuationId, positionId: position.id });
+      const updatedPositions = await positionsApi.list(valuing.id);
+      setPositions(updatedPositions);
+      await onChanged();
+      setValuingPosition(updatedPositions.find(current => current.id === position.id) ?? null);
+      setHistoryRevision(current => current + 1);
+      setValuationNotice(t("Bewertung gelöscht."));
+      return true;
+    } catch (reason) {
+      const message = typeof reason === "string" ? reason : t("Die Bewertung konnte nicht gelöscht werden.");
+      setError(message); setValuationActionError(message);
+      return false;
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  function startNewPosition() {
+    setValuationNotice(null);
+    setPositionEditorError(null);
+    setEditingPosition(null);
+    setValuingPosition(null);
+    setValuation(newPositionDraft(valuing.currency));
+    setShowPositionForm(true);
+  }
+
+  function startNewValuation(position: ManualPosition) {
+    setValuationNotice(null);
+    setShowPositionForm(false);
+    setValuingPosition(position);
+  }
+
+  function startEditingPosition(position: ManualPosition) {
+    setValuationNotice(null);
+    setError(null);
+    setPositionEditorError(null);
+    setShowPositionForm(false);
+    setEditingPosition(position);
+    setValuation(existingPositionDraft(position, valuing.currency));
+  }
+
+  function cancelPositionEditor() {
+    setValuationNotice(null);
+    setPositionEditorError(null);
+    setError(null);
+    setEditingPosition(null);
+    setShowPositionForm(false);
+    setValuation(newPositionDraft(valuing.currency));
+  }
+
+  async function deletePosition(position: ManualPosition) {
+    if (!window.confirm(t("Diese Position löschen?"))) return;
+    setError(null);
+    try {
+      await positionsApi.remove(position.id);
+      const remainingPositions = await positionsApi.list(position.accountId);
+      setPositions(remainingPositions);
+      setShowPositionForm(remainingPositions.length === 0);
+      await onChanged();
+    } catch (reason) {
+      setError(typeof reason === "string" ? reason : t("Die Position konnte nicht gelöscht werden."));
+    }
+  }
+
+  if (valuingPosition) {
+    return <ManualValuationHistory
+      position={valuingPosition}
+      currency={valuing.currency}
+      saving={saving}
+      notice={valuationNotice}
+      actionError={valuationActionError}
+      revision={historyRevision}
+      onBack={() => { setValuingPosition(null); setValuationNotice(null); setValuationActionError(null); setError(null); }}
+      onClearError={() => { setValuationActionError(null); setError(null); }}
+      onSave={(date, amount) => saveAdditionalValuation(valuingPosition, date, amount)}
+      onUpdate={(valuationId, date, amount) => updateStoredValuation(valuingPosition, valuationId, date, amount)}
+      onDelete={valuationId => deleteStoredValuation(valuingPosition, valuationId)}
+    />;
+  }
 
   return <>
         <div className="manual-position-back">
@@ -298,10 +455,10 @@ export function ManualPositions({ account: valuing, onClose, onChanged, onError:
               <div className="manual-position-list">
                 {positions.map((position) => (
                   <div key={position.id}>
-                    <div>
+                    <div className="position-summary">
                       <strong>{position.label}</strong>
                       <small>
-                            {position.valuationDate}
+                        {position.valuationDate}
                         {position.identifier
                           ? ` · ${position.identifier} · ${t("Automatisch bewertet")}${position.priceSource ? ` (${marketSourceLabel(position.priceSource)})` : ""}`
                           : ""}
@@ -313,7 +470,7 @@ export function ManualPositions({ account: valuing, onClose, onChanged, onError:
                           : ""}
                       </small>
                     </div>
-                    <b>
+                    <b className="position-amount">
                       {marketRefreshPending &&
                       position.identifier
                         ? t("Kurse werden geladen …")
@@ -329,55 +486,38 @@ export function ManualPositions({ account: valuing, onClose, onChanged, onError:
                         position.valueCurrency,
                           )}
                     </b>
-                    <button
-                      className="text-button"
-                      onClick={() => {
-                        setValuationNotice(null);
-                        setShowPositionForm(true);
-                        setValuation((current) => ({
-                          ...current,
-                          id: position.id,
-                          label: position.label,
-                          amount: String(position.amountMinor / 100),
-                          quantity:
-                            position.quantity === null
-                              ? ""
-                              : String(position.quantity),
-                          unitPrice:
-                            position.unitPriceMinor === null
-                              ? ""
-                              : String(position.unitPriceMinor / 100),
-                          quoteCurrency:
-                            position.quoteCurrency ?? valuing.currency,
-                          exchangeRate: String(position.exchangeRate ?? 1),
-                          method:
-                            position.quantity !== null ? "units" : "total",
-                          assetType: position.assetType ?? "other",
-                          identifierType: position.identifierType ?? "ticker",
-                          isin:
-                            position.identifierType === "isin"
-                              ? (position.identifier ?? "")
-                              : "",
-                          ticker:
-                            position.identifierType === "ticker"
-                              ? (position.identifier ?? "")
-                              : "",
-                          holdingStartDate:
-          position.holdingStartDate ?? position.valuationDate,
-                          holdingEndDate: position.holdingEndDate ?? "",
-                        }));
-                      }}
-                    >
-                      {t("Bearbeiten")}
-                    </button>
-                    {!position.identifier && (
-                      <button
-                        className="text-button danger"
-                        onClick={() => void deletePosition(position)}
-                      >
-                        {t("Löschen")}
-                      </button>
-                    )}
+                    <ActionMenu
+                      label={`${t("Aktionen")}: ${position.label}`}
+                      disabled={saving}
+                      actions={[
+                        ...(!position.identifier
+                          ? [{
+                              label: t("Neue Bewertung"),
+                              onClick: () => startNewValuation(position),
+                            }]
+                          : []),
+                        ...(position.identifier && position.quantity !== null
+                          ? [{
+                              label: t("Kauf/Verkauf erfassen"),
+                              onClick: () => {
+                                setQuantityPosition(position);
+                              },
+                            }]
+                          : []),
+                        {
+                          label: t("Position bearbeiten"),
+                          onClick: () => startEditingPosition(position),
+                        },
+                        ...(position.canDelete
+                          ? [{
+                              label: t("Löschen"),
+                              onClick: () => void deletePosition(position),
+                              separated: true,
+                              danger: true,
+                            }]
+                          : []),
+                      ]}
+                    />
                   </div>
                 ))}
               </div>
@@ -392,10 +532,7 @@ export function ManualPositions({ account: valuing, onClose, onChanged, onError:
               <button
                 className="secondary-button"
                 type="button"
-                onClick={() => {
-                  setValuationNotice(null);
-                  setShowPositionForm(true);
-                }}
+                onClick={startNewPosition}
               >
                 {t("Neue Position erfassen")}
               </button>
@@ -409,11 +546,46 @@ export function ManualPositions({ account: valuing, onClose, onChanged, onError:
               setValuation={setValuation}
               automaticValuation={automaticValuation}
               saving={saving}
-              setValuationNotice={setValuationNotice}
-              setShowPositionForm={setShowPositionForm}
+              onCancel={cancelPositionEditor}
               onSave={saveValuation}
             />
           )}
         </article>
+        {editingPosition && (
+          <ManualPositionDialog
+            positionLabel={editingPosition.label}
+            saving={saving}
+            error={positionEditorError}
+            showQuantityHelp={valuation.method === "units"}
+            onClose={cancelPositionEditor}
+          >
+            <ManualPositionEditor
+              account={valuing}
+              positionsExist
+              valuation={valuation}
+              setValuation={setValuation}
+              automaticValuation={automaticValuation}
+              saving={saving}
+              showHeading={false}
+              onCancel={cancelPositionEditor}
+              onSave={async () => {
+                const saved = await saveValuation();
+                if (saved) setEditingPosition(null);
+                return saved;
+              }}
+            />
+          </ManualPositionDialog>
+        )}
+        {quantityPosition && (
+          <PositionQuantityWorkflow
+            position={quantityPosition}
+            accountId={valuing.id}
+            onChanged={onChanged}
+            onPositionsChanged={setPositions}
+            onNotice={setValuationNotice}
+            onError={setError}
+            onClose={() => setQuantityPosition(null)}
+          />
+        )}
       </>;
 }

@@ -38,4 +38,40 @@ pub struct ManualPosition {
     pub price_source: Option<String>,
     pub holding_start_date: Option<String>,
     pub holding_end_date: Option<String>,
+    pub can_delete: bool,
+}
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ManualValuation {
+    pub id: i64,
+    pub position_id: i64,
+    pub value_date: String,
+    pub amount_minor: i64,
+    pub currency: String,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct UpdateManualValuationRequest {
+    pub id: i64,
+    pub position_id: i64,
+    pub value_date: String,
+    pub amount_minor: i64,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct DeleteManualValuationRequest {
+    pub id: i64,
+    pub position_id: i64,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct PositionQuantityChangeRequest {
+    pub position_id: i64,
+    pub effective_date: String,
+    pub change_type: String,
+    pub quantity: String,
 }

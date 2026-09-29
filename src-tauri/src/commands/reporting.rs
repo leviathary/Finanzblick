@@ -14,6 +14,14 @@ pub fn account_details(
 }
 
 #[tauri::command]
+pub fn position_quantity_history(
+    storage: State<'_, Storage>,
+    position_id: i64,
+) -> Result<Vec<storage::reporting::account_details::PositionQuantityChange>, String> {
+    storage::reporting::account_details::position_quantity_history(&storage, position_id)
+}
+
+#[tauri::command]
 pub fn database_status(storage: State<'_, Storage>) -> Result<DatabaseStatus, String> {
     storage::reporting::database_status(&storage)
 }

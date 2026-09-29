@@ -52,7 +52,7 @@ test("pillar 3a uses account balances until positions exist", () => {
 });
 test("all account detail labels have three translations", async () => {
   const messages=JSON.parse(await readFile(new URL("../src/translations.json",import.meta.url),"utf8"));
-  for(const file of ["AccountExplorer.tsx","DetailChart.tsx"]) {
+  for(const file of ["AccountExplorer.tsx","DetailChart.tsx","PositionQuantityHistory.tsx"]) {
     const code=await readFile(new URL("../src/features/account-details/"+file,import.meta.url),"utf8");
     for(const match of code.matchAll(/\bt\("([^"\\]+)"\)/g)) assert.equal(messages[match[1]]?.length,3,match[1]);
   }

@@ -13,6 +13,15 @@ export interface AccountDetails {
   hasMore: boolean;
 }
 
+export type PositionQuantityChangeKind = "opening" | "purchase" | "sale" | "adjustment";
+export interface PositionQuantityChange {
+  id: number;
+  date: string;
+  kind: PositionQuantityChangeKind;
+  change: number;
+  balance: number;
+}
+
 export type AccountSection = "bank" | "cards" | "investments" | "pension";
 
 function accountSection(accountType: Account["accountType"]): AccountSection {

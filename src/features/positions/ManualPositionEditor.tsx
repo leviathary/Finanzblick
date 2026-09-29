@@ -31,15 +31,15 @@ interface Props {
   setValuation: Dispatch<SetStateAction<ManualPositionDraft>>;
   automaticValuation: boolean;
   saving: boolean;
-  setValuationNotice: (notice: string | null) => void;
-  setShowPositionForm: (show: boolean) => void;
-  onSave: () => Promise<void>;
+  showHeading?: boolean;
+  onCancel: () => void;
+  onSave: () => Promise<boolean>;
 }
 
-export function ManualPositionEditor({ account, positionsExist, valuation, setValuation, automaticValuation, saving, setValuationNotice, setShowPositionForm, onSave }: Props) {
+export function ManualPositionEditor({ account, positionsExist, valuation, setValuation, automaticValuation, saving, showHeading = true, onCancel, onSave }: Props) {
   return (
 <section className="position-form-section">
-              <div className="position-section-heading">
+              {showHeading && <div className="position-section-heading">
                 <div>
                   <p className="eyebrow">
                     {valuation.id ? t("Bearbeiten") : t("Neu erfassen")}
@@ -50,11 +50,12 @@ export function ManualPositionEditor({ account, positionsExist, valuation, setVa
                       : t("Neue Position")}
                   </h3>
                 </div>
-              </div>
+              </div>}
               <div className="valuation-setup">
                 <label>
                   {t("Bezeichnung")}
                   <input
+                    autoFocus={valuation.id !== null}
                     value={valuation.label}
                     onChange={(event) =>
                       setValuation({ ...valuation, label: event.target.value })
@@ -158,6 +159,7 @@ export function ManualPositionEditor({ account, positionsExist, valuation, setVa
                   <div className="valuation-methods">
                     <button
                       type="button"
+                      disabled={valuation.id !== null}
                       className={valuation.method === "total" ? "active" : ""}
                       onClick={() =>
                         setValuation({ ...valuation, method: "total" })
@@ -168,12 +170,13 @@ export function ManualPositionEditor({ account, positionsExist, valuation, setVa
                     {valuation.assetType !== "cash" && (
                       <button
                         type="button"
+                        disabled={valuation.id !== null}
                         className={valuation.method === "units" ? "active" : ""}
                         onClick={() =>
                           setValuation({ ...valuation, method: "units" })
                         }
                       >
-                        {t("Menge × Wert pro Einheit")}
+                        {t("Anzahl × Wert pro Einheit")}
                       </button>
                     )}
                   </div>
@@ -198,9 +201,10 @@ export function ManualPositionEditor({ account, positionsExist, valuation, setVa
                 ) : (
                   <>
                     <label>
-                      {t("Menge / Einheiten")}
+                      {t("Anzahl")}
                       <input
                         inputMode="decimal"
+                        readOnly={valuation.id !== null}
                         value={valuation.quantity}
                         onChange={(event) =>
                           setValuation({
@@ -301,15 +305,14 @@ export function ManualPositionEditor({ account, positionsExist, valuation, setVa
                     <input
                       type="date"
                       lang={locale()}
-                      value={
-                        automaticValuation
-                          ? valuation.holdingStartDate
-                          : valuation.date
-                      }
+                      value={valuation.holdingStartDate}
                       onChange={(event) =>
                         setValuation({
                           ...valuation,
-                          date: event.target.value,
+                          date:
+                            valuation.id === null
+                              ? event.target.value
+                              : valuation.date,
                           holdingStartDate: event.target.value,
                         })
                       }
@@ -320,30 +323,19 @@ export function ManualPositionEditor({ account, positionsExist, valuation, setVa
                       )}
                     </small>
                   </label>
-                  <label>
-                    {t("Verkaufsdatum (optional)")}
-                    <input
-                      type="date"
-                      lang={locale()}
-                      min={
-                        (automaticValuation
-                          ? valuation.holdingStartDate
-                          : valuation.date) || undefined
-                      }
-                      value={valuation.holdingEndDate}
-                      onChange={(event) =>
-                        setValuation({
-                          ...valuation,
-                          holdingEndDate: event.target.value,
-                        })
-                      }
-                    />
-                    <small>
-                      {t(
-                        "Ohne Verkaufsdatum bleibt die Position offen. Nach einem Verkauf bleibt ihre Historie erhalten.",
-                      )}
-                    </small>
-                  </label>
+                  {!(valuation.id !== null && valuation.method === "units") && (
+                    <label>
+                      {t("Verkaufsdatum (optional)")}
+                      <input
+                        type="date"
+                        lang={locale()}
+                        min={valuation.holdingStartDate || undefined}
+                        value={valuation.holdingEndDate}
+                        onChange={(event) => setValuation({ ...valuation, holdingEndDate: event.target.value })}
+                      />
+                      <small>{t("Ohne Verkaufsdatum bleibt die Position offen. Nach einem Verkauf bleibt ihre Historie erhalten.")}</small>
+                    </label>
+                  )}
                 </div>
               </div>
               <div className="form-actions">
@@ -351,26 +343,15 @@ export function ManualPositionEditor({ account, positionsExist, valuation, setVa
                   <button
                     className="secondary-button"
                     type="button"
-                    onClick={() => {
-                      setValuationNotice(null);
-                      setShowPositionForm(false);
-                      setValuation((current) => ({
-                        ...current,
-                        id: null,
-                        label: "",
-                        amount: "",
-                        quantity: "",
-                        unitPrice: "",
-                        isin: "",
-                        ticker: "",
-                      }));
-                    }}
+                    disabled={saving}
+                    onClick={onCancel}
                   >
                     {t("Abbrechen")}
                   </button>
                 )}
                 <button
                   className="primary-button"
+                  type="button"
                   disabled={saving}
                   onClick={() => void onSave()}
                 >

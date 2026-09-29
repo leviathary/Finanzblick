@@ -4,6 +4,7 @@ use crate::storage::database::errors::db_error;
 use crate::storage::database::schema::initialize_schema;
 use crate::storage::database::Storage;
 use crate::storage::rules::categorization::apply_categories;
+use crate::storage::rules::merchant_rules::merchant_key;
 use rusqlite::{params, Connection};
 
 use serde::Serialize;
@@ -22,6 +23,13 @@ pub struct ManagedCategory {
     color: String,
     transaction_count: i64,
     rule_count: i64,
+}
+
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CategoryRule {
+    rule_type: String,
+    label: String,
 }
 
 pub fn list_categories(storage: &Storage) -> Result<Vec<ManagedCategory>, String> {
@@ -46,6 +54,131 @@ pub fn list_categories(storage: &Storage) -> Result<Vec<ManagedCategory>, String
         .collect::<Result<Vec<_>, _>>()
         .map_err(db_error)?;
     Ok(result)
+}
+
+fn category_rules(db: &Connection, category_key: &str) -> Result<Vec<CategoryRule>, String> {
+    let mut query = db
+        .prepare(
+            "SELECT rule_type,label FROM (
+               SELECT 'merchant' AS rule_type,r.merchant_key AS label
+               FROM merchant_category_rules r JOIN categories c ON c.id=r.category_id
+               WHERE c.category_key=?1 AND c.id NOT IN (SELECT source_id FROM category_redirects)
+               UNION ALL
+               SELECT 'industry' AS rule_type,r.industry_label AS label
+               FROM industry_category_rules r JOIN categories c ON c.id=r.category_id
+               WHERE c.category_key=?1 AND c.id NOT IN (SELECT source_id FROM category_redirects)
+             ) ORDER BY rule_type,label COLLATE NOCASE",
+        )
+        .map_err(db_error)?;
+    let rules = query
+        .query_map([category_key], |row| {
+            Ok(CategoryRule {
+                rule_type: row.get(0)?,
+                label: row.get(1)?,
+            })
+        })
+        .map_err(db_error)?
+        .collect::<Result<Vec<_>, _>>()
+        .map_err(db_error)?;
+    Ok(rules)
+}
+
+pub fn list_category_rules(
+    storage: &Storage,
+    category_key: String,
+) -> Result<Vec<CategoryRule>, String> {
+    let db = storage.connect().map_err(db_error)?;
+    category_rules(&db, &category_key)
+}
+
+fn delete_rule(
+    db: &mut Connection,
+    category_key: &str,
+    rule_type: &str,
+    label: &str,
+) -> Result<usize, String> {
+    let tx = db.transaction().map_err(db_error)?;
+    let (category_id, other_id): (i64, i64) = tx
+        .query_row(
+            "SELECT selected.id,other.id FROM categories selected,categories other
+             WHERE selected.category_key=?1 AND other.category_key='other'
+               AND selected.id NOT IN (SELECT source_id FROM category_redirects)",
+            [category_key],
+            |row| Ok((row.get(0)?, row.get(1)?)),
+        )
+        .map_err(|_| "Kategorie nicht gefunden.".to_string())?;
+    let affected = match rule_type {
+        "merchant" => {
+            let key = label.trim();
+            if tx
+                .execute(
+                    "DELETE FROM merchant_category_rules WHERE merchant_key=?1 AND category_id=?2",
+                    params![key, category_id],
+                )
+                .map_err(db_error)?
+                != 1
+            {
+                return Err("Händlerregel nicht gefunden.".into());
+            }
+            let candidates = tx
+                .prepare(
+                    "SELECT id,description FROM transactions
+                     WHERE category_id=?1 AND category_manual=0 AND category_source='merchant'",
+                )
+                .map_err(db_error)?
+                .query_map([category_id], |row| {
+                    Ok((row.get::<_, i64>(0)?, row.get::<_, String>(1)?))
+                })
+                .map_err(db_error)?
+                .collect::<Result<Vec<_>, _>>()
+                .map_err(db_error)?;
+            let ids = candidates
+                .into_iter()
+                .filter_map(|(id, description)| (merchant_key(&description) == key).then_some(id))
+                .collect::<Vec<_>>();
+            for id in &ids {
+                tx.execute(
+                    "UPDATE transactions SET category_id=?1,category_manual=1,category_source='manual' WHERE id=?2",
+                    params![other_id, id],
+                )
+                .map_err(db_error)?;
+            }
+            ids.len()
+        }
+        "industry" => {
+            if tx
+                .execute(
+                    "DELETE FROM industry_category_rules
+                     WHERE industry_key=lower(trim(?1)) AND category_id=?2",
+                    params![label, category_id],
+                )
+                .map_err(db_error)?
+                != 1
+            {
+                return Err("Branchenregel nicht gefunden.".into());
+            }
+            tx.execute(
+                "UPDATE transactions SET category_id=?1,category_manual=1,category_source='manual'
+                 WHERE category_id=?2 AND category_manual=0 AND category_source='industry'
+                   AND lower(trim(industry))=lower(trim(?3))",
+                params![other_id, category_id, label],
+            )
+            .map_err(db_error)?
+        }
+        _ => return Err("Ungültige Zuordnungsregel.".into()),
+    };
+    tx.commit().map_err(db_error)?;
+    Ok(affected)
+}
+
+pub fn delete_category_rule(
+    storage: &Storage,
+    category_key: String,
+    rule_type: String,
+    label: String,
+) -> Result<usize, String> {
+    let mut db = storage.connect().map_err(db_error)?;
+    delete_rule(&mut db, &category_key, &rule_type, &label)
 }
 
 #[derive(Serialize)]
@@ -248,5 +381,105 @@ mod tests {
         assert_eq!(target, "leisure");
         assert_eq!(db.query_row("SELECT COUNT(*) FROM category_redirects r JOIN categories c ON c.id=r.target_id WHERE c.category_key='leisure'",[],|r|r.get::<_,i64>(0)).unwrap(),2);
         assert!(remove(&mut db, "leisure".into(), "leisure".into()).is_err());
+    }
+
+    #[test]
+    fn lists_merchant_and_industry_rules_for_the_selected_category() {
+        let db = Connection::open_in_memory().unwrap();
+        initialize_schema(&db).unwrap();
+        db.execute_batch(
+            "INSERT INTO merchant_category_rules(merchant_key,category_id)
+             SELECT 'streaming service',id FROM categories WHERE category_key='digital_subscriptions';
+             INSERT INTO industry_category_rules(industry_key,industry_label,category_id)
+             SELECT 'digital goods','Digital goods',id FROM categories WHERE category_key='digital_subscriptions';",
+        )
+        .unwrap();
+
+        let rules = category_rules(&db, "digital_subscriptions").unwrap();
+        assert_eq!(rules.len(), 2);
+        assert_eq!(rules[0].rule_type, "industry");
+        assert_eq!(rules[0].label, "Digital goods");
+        assert_eq!(rules[1].rule_type, "merchant");
+        assert_eq!(rules[1].label, "streaming service");
+        assert!(category_rules(&db, "groceries").unwrap().is_empty());
+    }
+
+    #[test]
+    fn deleting_rules_moves_only_their_automatic_assignments_to_other() {
+        let mut db = Connection::open_in_memory().unwrap();
+        db.execute_batch(
+            "CREATE TABLE categories(id INTEGER PRIMARY KEY,category_key TEXT);
+             INSERT INTO categories VALUES(1,'other'),(2,'digital_subscriptions');
+             CREATE TABLE category_redirects(source_id INTEGER PRIMARY KEY,target_id INTEGER);
+             CREATE TABLE merchant_category_rules(merchant_key TEXT PRIMARY KEY,category_id INTEGER);
+             INSERT INTO merchant_category_rules VALUES('streaming service',2),('other service',2);
+             CREATE TABLE industry_category_rules(industry_key TEXT PRIMARY KEY,industry_label TEXT,category_id INTEGER);
+             INSERT INTO industry_category_rules VALUES('digital goods','Digital goods',2);
+             CREATE TABLE transactions(id INTEGER PRIMARY KEY,description TEXT,industry TEXT,category_id INTEGER,category_manual INTEGER,category_source TEXT);
+             INSERT INTO transactions VALUES
+               (1,'Streaming Service 123',NULL,2,0,'merchant'),
+               (2,'Streaming Service 456',NULL,2,1,'manual'),
+               (3,'Other Service 123',NULL,2,0,'merchant'),
+               (4,'Card purchase','Digital goods',2,0,'industry');",
+        )
+        .unwrap();
+
+        assert_eq!(
+            delete_rule(
+                &mut db,
+                "digital_subscriptions",
+                "merchant",
+                "streaming service"
+            )
+            .unwrap(),
+            1
+        );
+        assert_eq!(
+            db.query_row(
+                "SELECT category_id||':'||category_manual||':'||category_source FROM transactions WHERE id=1",
+                [],
+                |row| row.get::<_, String>(0)
+            )
+            .unwrap(),
+            "1:1:manual"
+        );
+        assert_eq!(
+            db.query_row(
+                "SELECT category_id FROM transactions WHERE id=2",
+                [],
+                |row| row.get::<_, i64>(0)
+            )
+            .unwrap(),
+            2
+        );
+        assert_eq!(
+            db.query_row(
+                "SELECT category_id FROM transactions WHERE id=3",
+                [],
+                |row| row.get::<_, i64>(0)
+            )
+            .unwrap(),
+            2
+        );
+        assert_eq!(
+            delete_rule(
+                &mut db,
+                "digital_subscriptions",
+                "industry",
+                "Digital goods"
+            )
+            .unwrap(),
+            1
+        );
+        assert_eq!(
+            db.query_row(
+                "SELECT category_id FROM transactions WHERE id=4",
+                [],
+                |row| row.get::<_, i64>(0)
+            )
+            .unwrap(),
+            1
+        );
+        assert!(delete_rule(&mut db, "digital_subscriptions", "unknown", "x").is_err());
     }
 }

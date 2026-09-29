@@ -124,6 +124,12 @@ test('category inline actions are translated and do not scroll to a distant edit
   assert.doesNotMatch(code, /window.scrollTo/);
   assert.match(code, /edit===item.key && editor/);
   assert.match(code, /targetKey:target/);
+  assert.match(code, /invoke<CategoryRule\[\]>\("list_category_rules"/);
+  assert.match(code, /invoke<number>\("delete_category_rule"/);
+  assert.match(code, /className="danger-button"[^>]*onClick=\{\(\)=>void removeRule\(\)\}/);
+  assert.match(code, /#transactions\?category=/);
+  assert.match(code, /t\("Buchungen anzeigen"\)/);
+  assert.match(code, /t\("Zuordnungsregeln"\)/);
   assert.match(code, /className="category-create-action"><button type="button"[^>]*className="primary-button"/);
   assert.match(code, /className="intro category-page-intro"/);
   assert.match(categoryStyles, /\.category-page-intro\s*\{\s*max-width: none;/);
@@ -189,6 +195,9 @@ test('manual positions use a localized return action', () => {
   const code = [
     '../src/features/positions/ManualPositions.tsx',
     '../src/features/positions/ManualPositionEditor.tsx',
+    '../src/features/positions/ManualValueEditor.tsx',
+    '../src/features/positions/ManualValuationHistory.tsx',
+    '../src/features/positions/ManualValuationDialog.tsx',
   ].map(file => fs.readFileSync(new URL(file, import.meta.url), 'utf8')).join('\n');
   for (const match of code.matchAll(/\bt\("([^"\\]+)"\)/g)) {
     assert.equal(messages[match[1]]?.length, 3, match[1]);

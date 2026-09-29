@@ -221,8 +221,14 @@ Depots ohne importierbaren Auszug oder andere Vermögenspositionen.
 3. Lege eine neue Position mit Name, Datum, Menge und Bewertung an.
 4. Hinterlege bei Wertpapieren nach Möglichkeit eine passende Kennung und Börse,
    damit Marktpreise automatisch ermittelt werden können.
-5. Speichere regelmässig neue Stichtage, wenn du die Entwicklung im Zeitverlauf
-   abbilden möchtest.
+5. Wähle bei einer bestehenden manuell bewerteten Position **Neue Bewertung**, um
+   den Bewertungsverlauf zu öffnen und dort nur einen neuen Wert und dessen
+   Stichtag zu erfassen. Die frühere Bewertung und die Position selbst bleiben
+   erhalten; eine zweite Position ist dafür nicht nötig. Bereits gespeicherte
+   Stichtagswerte stehen unter dem Diagramm. Wähle dort **Bearbeiten**, um im
+   Dialog einen falschen Wert oder ein falsches Bewertungsdatum zu korrigieren
+   oder eine nicht mehr benötigte Bewertung zu löschen. Die einzige Bewertung
+   einer Position kann nicht gelöscht werden.
 
 Bei Mitarbeiteraktien kann beispielsweise für jedes Zuteilungsjahr eine eigene
 Position geführt werden. So bleiben Menge, Bewertungsdatum und Entwicklung je
@@ -306,8 +312,11 @@ Kategorie-Donut und geöffneter Restgruppe.
 ### Eine Buchung kategorisieren
 
 Öffne das Drei-Punkte-Menü einer Buchung und wähle **Kategorie ändern …**. Die
-Änderung kann auch auf passende Buchungen desselben Händlers und zukünftige
-Importe wirken. Prüfe deshalb den Hinweis im Editor, bevor du speicherst.
+Wähle im Editor den Geltungsbereich. **Händlerregel erstellen** ist vorausgewählt:
+Passende bestehende Buchungen werden geändert und zukünftige Importe automatisch
+zugeordnet. Wähle **Nur diese Buchung kategorisieren**, wenn die Buchung eine
+Ausnahme ist. Unter jeder Kategorie zeigt Saldonaut, ob sie manuell, anhand einer
+Händlerregel, anhand der Branche oder anhand des Buchungstexts gewählt wurde.
 
 ### Umbuchungen und Ausgleiche
 
@@ -353,6 +362,11 @@ Kartenanbieter gelieferte **Kreditkarten-Kategorie** und rechts die zugehörige
 **Saldonaut-Kategorie**. Die Auswahl gilt für bestehende und künftig importierte
 Kartenkäufe. Manuell gesetzte Kategorien und speziellere Händlerregeln bleiben
 erhalten.
+
+Eine **Branchenregel** verwendet eine Branche, die der Anbieter im importierten
+Kreditkarten- oder Bankauszug mitliefert. Eine **Händlerregel** entsteht dagegen
+in Saldonaut beim Kategorisieren einer Buchung. Sie erkennt passende
+Buchungstexte desselben Händlers und gilt auch für zukünftige Importe.
 
 **Screenshot:** `category-mapping.png` – Zweispaltenliste mit Quellkategorie und
 Saldonaut-Kategorie.

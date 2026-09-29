@@ -34,4 +34,9 @@
 .detail-note { color: var(--text-secondary); font-size: 13px; margin: -12px 0 0; }
 .account-explorer .card-heading { flex-wrap: wrap; gap: 12px; }
 .detail-position-section { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; }
+.position-quantity-history { display: grid; gap: 16px; }
+.position-quantity-history h3 { margin: 0; font-size: 20px; }
+.position-change-table th:first-child, .position-change-table td:first-child,
+.position-change-table th:nth-child(2), .position-change-table td:nth-child(2) { text-align: left; }
+.position-change-table th:nth-child(n+3), .position-change-table td:nth-child(n+3) { text-align: right; }
 @media (max-width: 1000px) { .detail-total > strong { font-size: 24px; } .detail-summary { flex-wrap: wrap; } .detail-table { min-width: 620px; } }

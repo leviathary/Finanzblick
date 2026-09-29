@@ -43,6 +43,16 @@ struct AccountBooking {
     currency: String,
 }
 
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct PositionQuantityChange {
+    id: i64,
+    date: String,
+    kind: String,
+    change: f64,
+    balance: f64,
+}
+
 pub(crate) fn account_details(
     storage: &Storage,
     account_id: i64,
@@ -50,6 +60,65 @@ pub(crate) fn account_details(
 ) -> Result<AccountDetails, String> {
     let connection = storage.connect().map_err(db_error)?;
     read_details(&connection, account_id, limit).map_err(db_error)
+}
+
+pub(crate) fn position_quantity_history(
+    storage: &Storage,
+    position_id: i64,
+) -> Result<Vec<PositionQuantityChange>, String> {
+    let connection = storage.connect().map_err(db_error)?;
+    read_position_quantity_history(&connection, position_id).map_err(db_error)
+}
+
+fn read_position_quantity_history(
+    db: &Connection,
+    position_id: i64,
+) -> rusqlite::Result<Vec<PositionQuantityChange>> {
+    let mut query = db.prepare(
+        "SELECT q.id,q.valid_from,q.quantity_amount,q.quantity_scale,q.source
+         FROM position_quantities q
+         JOIN portfolio_positions p ON p.id=q.position_id
+         WHERE p.id=?1
+         ORDER BY date(q.valid_from),q.id",
+    )?;
+    let rows = query
+        .query_map([position_id], |row| {
+            Ok((
+                row.get::<_, i64>(0)?,
+                row.get::<_, String>(1)?,
+                row.get::<_, i64>(2)?,
+                row.get::<_, i32>(3)?,
+                row.get::<_, String>(4)?,
+            ))
+        })?
+        .collect::<rusqlite::Result<Vec<_>>>()?;
+    let mut previous = None;
+    let mut changes = rows
+        .into_iter()
+        .map(|(id, date, amount, scale, source)| {
+            let balance = amount as f64 / 10_f64.powi(scale);
+            let change = balance - previous.unwrap_or(0.0);
+            let kind = if previous.is_none() {
+                "opening"
+            } else if source == "manual_trade" && change > 0.0 {
+                "purchase"
+            } else if source == "manual_trade" && change < 0.0 {
+                "sale"
+            } else {
+                "adjustment"
+            };
+            previous = Some(balance);
+            PositionQuantityChange {
+                id,
+                date,
+                kind: kind.into(),
+                change,
+                balance,
+            }
+        })
+        .collect::<Vec<_>>();
+    changes.reverse();
+    Ok(changes)
 }
 
 fn read_details(db: &Connection, id: i64, limit: usize) -> rusqlite::Result<AccountDetails> {
@@ -231,6 +300,32 @@ mod tests {
         let detail = read_details(&db, 2, 50).unwrap();
         assert_eq!(detail.transactions.len(), 2);
         assert!(!detail.has_more);
+    }
+
+    #[test]
+    fn quantity_history_distinguishes_trades_from_other_adjustments() {
+        let db = database();
+        db.execute_batch(
+            "INSERT INTO position_quantities(position_id,valid_from,quantity_amount,quantity_scale,source,recorded_at)
+               VALUES(2,'2026-01-02',180,0,'manual','now'),
+                     (2,'2026-02-01',160,0,'manual_trade','now'),
+                     (2,'2026-03-01',170,0,'manual_trade','now'),
+                     (2,'2026-04-01',175,0,'statement','now');",
+        )
+        .unwrap();
+
+        let changes = read_position_quantity_history(&db, 2).unwrap();
+        assert_eq!(changes.len(), 4);
+        assert_eq!(changes[0].date, "2026-04-01");
+        assert_eq!(changes[0].kind, "adjustment");
+        assert_eq!((changes[0].change, changes[0].balance), (5.0, 175.0));
+        assert_eq!(changes[1].kind, "purchase");
+        assert_eq!((changes[1].change, changes[1].balance), (10.0, 170.0));
+        assert_eq!(changes[2].kind, "sale");
+        assert_eq!((changes[2].change, changes[2].balance), (-20.0, 160.0));
+        assert_eq!(changes[3].kind, "opening");
+        assert_eq!((changes[3].change, changes[3].balance), (180.0, 180.0));
+        assert!(read_position_quantity_history(&db, 999).unwrap().is_empty());
     }
 
     #[test]

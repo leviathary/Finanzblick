@@ -3,7 +3,7 @@ use crate::storage::database::errors::db_error;
 use rusqlite::{params, Connection};
 use std::collections::HashMap;
 
-fn merchant_key(description: &str) -> String {
+pub(crate) fn merchant_key(description: &str) -> String {
     let text = description
         .split('·')
         .next()
@@ -58,10 +58,11 @@ pub(in crate::storage) fn apply(connection: &Connection) -> Result<(), rusqlite:
     Ok(())
 }
 
-pub(in crate::storage) fn learn(
+pub(in crate::storage) fn assign(
     connection: &mut Connection,
     id: i64,
     category_key: &str,
+    create_merchant_rule: bool,
 ) -> Result<usize, String> {
     let transaction = connection.transaction().map_err(db_error)?;
     let description: String = transaction
@@ -85,20 +86,20 @@ pub(in crate::storage) fn learn(
             params![category, id],
         )
         .map_err(db_error)?;
-    if !key.is_empty() {
+    if create_merchant_rule && !key.is_empty() {
         transaction.execute("INSERT INTO merchant_category_rules(merchant_key,category_id) VALUES(?1,?2) ON CONFLICT(merchant_key) DO UPDATE SET category_id=excluded.category_id", params![key,category]).map_err(db_error)?;
+        apply(&transaction).map_err(db_error)?;
     }
-    apply(&transaction).map_err(db_error)?;
-    let descriptions = transaction
-        .prepare("SELECT description FROM transactions")
-        .map_err(db_error)?
-        .query_map([], |row| row.get::<_, String>(0))
-        .map_err(db_error)?
-        .collect::<Result<Vec<_>, _>>()
-        .map_err(db_error)?;
-    let count = if key.is_empty() {
+    let count = if !create_merchant_rule || key.is_empty() {
         1
     } else {
+        let descriptions = transaction
+            .prepare("SELECT description FROM transactions")
+            .map_err(db_error)?
+            .query_map([], |row| row.get::<_, String>(0))
+            .map_err(db_error)?
+            .collect::<Result<Vec<_>, _>>()
+            .map_err(db_error)?;
         descriptions
             .iter()
             .filter(|text| merchant_key(text) == key)
@@ -116,7 +117,7 @@ mod tests {
         let mut db = Connection::open_in_memory().unwrap();
         db.execute_batch("CREATE TABLE categories(id INTEGER PRIMARY KEY,category_key TEXT); INSERT INTO categories VALUES(1,'other'),(2,'leisure'); CREATE TABLE transactions(id INTEGER PRIMARY KEY,description TEXT,category_id INTEGER,category_manual INTEGER DEFAULT 0,category_source TEXT NOT NULL DEFAULT 'description'); INSERT INTO transactions(id,description,category_id,category_manual) VALUES(1,'Bürgermeister Zürich · Einkauf: 01.01.2026',1,0),(2,'BURGERMEISTER Bern · Einkauf: 02.01.2026',1,0),(3,'Other restaurant',1,0);").unwrap();
         apply(&db).unwrap();
-        assert_eq!(learn(&mut db, 1, "leisure").unwrap(), 2);
+        assert_eq!(assign(&mut db, 1, "leisure", true).unwrap(), 2);
         db.execute(
             "INSERT INTO transactions(id,description,category_id,category_manual) VALUES(4,'Buergermeister Basel',1,0)",
             [],
@@ -129,7 +130,7 @@ mod tests {
                 .unwrap(),
             2
         );
-        assert_eq!(learn(&mut db, 2, "other").unwrap(), 3);
+        assert_eq!(assign(&mut db, 2, "other", true).unwrap(), 3);
         assert_eq!(
             db.query_row(
                 "SELECT COUNT(*) FROM transactions WHERE category_id=1",
@@ -142,6 +143,30 @@ mod tests {
         assert_eq!(
             merchant_key("NETFLIX 123 · Einkauf: 01.01.2026"),
             merchant_key("Netflix 456 · Einkauf: 02.02.2026")
+        );
+    }
+
+    #[test]
+    fn assigns_only_the_selected_transaction_without_learning() {
+        let mut db = Connection::open_in_memory().unwrap();
+        db.execute_batch("CREATE TABLE categories(id INTEGER PRIMARY KEY,category_key TEXT); CREATE TABLE merchant_category_rules(merchant_key TEXT PRIMARY KEY,category_id INTEGER NOT NULL REFERENCES categories(id)); INSERT INTO categories VALUES(1,'other'),(2,'leisure'); CREATE TABLE transactions(id INTEGER PRIMARY KEY,description TEXT,category_id INTEGER,category_manual INTEGER DEFAULT 0,category_source TEXT NOT NULL DEFAULT 'description'); INSERT INTO transactions(id,description,category_id,category_manual) VALUES(1,'Coop Pronto Zürich',1,0),(2,'Coop Pronto Bern',1,0);").unwrap();
+
+        assert_eq!(assign(&mut db, 1, "leisure", false).unwrap(), 1);
+        assert_eq!(
+            db.query_row(
+                "SELECT COUNT(*) FROM transactions WHERE category_id=2 AND category_manual=1 AND category_source='manual'",
+                [],
+                |row| row.get::<_, i64>(0),
+            )
+            .unwrap(),
+            1
+        );
+        assert_eq!(
+            db.query_row("SELECT COUNT(*) FROM merchant_category_rules", [], |row| {
+                row.get::<_, i64>(0)
+            })
+            .unwrap(),
+            0
         );
     }
 }

@@ -284,12 +284,46 @@ test("positions use a separate component and preserve typed command payloads", a
   const accounts = read("src/features/accounts/Accounts.tsx");
   const positions = read("src/features/positions/ManualPositions.tsx");
   const positionEditor = read("src/features/positions/ManualPositionEditor.tsx");
+  const positionDialog = read("src/features/positions/ManualPositionDialog.tsx");
+  const quantityDialog = read("src/features/positions/PositionQuantityDialog.tsx");
+  const quantityWorkflow = read("src/features/positions/PositionQuantityWorkflow.tsx");
+  const valueEditor = read("src/features/positions/ManualValueEditor.tsx");
+  const valuationHistory = read("src/features/positions/ManualValuationHistory.tsx");
+  const valuationDialog = read("src/features/positions/ManualValuationDialog.tsx");
   assert.doesNotMatch(accounts, /setValuation|save_manual_valuation|list_manual_positions/);
   assert.match(accounts, /<ManualPositions\s/);
   assert.doesNotMatch(positions, /@tauri-apps|\binvoke\s*[<(]/);
   assert.match(positions, /className="manual-position-back"/);
   assert.match(positions, /backButton\.current\?\.focus\(\)/);
   assert.match(positions, /t\("Zurück zu Banken & Konten"\)/);
+  assert.match(positions, /<ManualValuationHistory/);
+  assert.match(positions, /<ActionMenu/);
+  assert.doesNotMatch(positions, /position-row-actions/);
+  assert.match(positions, /startNewValuation\(position\)/);
+  assert.match(positions, /startEditingPosition\(position\)/);
+  assert.match(positions, /<ManualPositionDialog/);
+  assert.match(positionDialog, /showModal\(\)/);
+  assert.match(positionDialog, /querySelector<HTMLInputElement>\("input:not\(\[disabled\]\)"\)\?\.focus\(\)/);
+  assert.match(positionDialog, /onCancel=/);
+  assert.match(positionDialog, /createPortal/);
+  assert.doesNotMatch(positionDialog, /return \(\) =>[^}]*\.close\(\)/s);
+  assert.match(positions, /<PositionQuantityWorkflow/);
+  assert.match(quantityWorkflow, /saveQuantityChange/);
+  assert.match(quantityDialog, /showModal\(\)/);
+  assert.match(quantityDialog, /t\("Kauf"\)/);
+  assert.match(quantityDialog, /t\("Verkauf"\)/);
+  assert.match(valuationHistory, /<ManualValueEditor/);
+  assert.match(valuationHistory, /<ManualValuationDialog/);
+  assert.match(valuationHistory, /<InteractiveTimelineChart/);
+  assert.ok(valuationHistory.indexOf("<ManualValueEditor") < valuationHistory.indexOf("<InteractiveTimelineChart"));
+  assert.match(valuationDialog, /showModal\(\)/);
+  assert.match(valuationDialog, /onCancel=/);
+  assert.match(valuationDialog, /onDelete/);
+  assert.match(positions, /\.\.\.\(!position\.identifier/);
+  assert.match(positions, /valuationDate: date/);
+  assert.match(positions, /onClick=\{startNewPosition\}/);
+  assert.match(valueEditor, /t\("Neue Bewertung"\)/);
+  assert.match(valueEditor, /position\.holdingStartDate/);
   assert.equal(positionEditor.match(/t\("Abbrechen"\)/g)?.length, 1, "Only the actual position form uses Cancel");
   const calls = [];
   const sandbox = {
@@ -306,11 +340,14 @@ test("positions use a separate component and preserve typed command payloads", a
   const request = { id: null, accountId: 4, amountMinor: 1200 };
   await api.list(4);
   await api.save(request);
+  const quantityChange = { positionId: 9, effectiveDate: "2026-09-29", changeType: "sell", quantity: "20" };
+  await api.saveQuantityChange(quantityChange);
   await api.remove(9);
   await api.refresh();
   assert.deepEqual(JSON.parse(JSON.stringify(calls)), [
     { command: "list_manual_positions", args: { accountId: 4 } },
     { command: "save_manual_valuation", args: { request } },
+    { command: "save_position_quantity_change", args: { request: quantityChange } },
     { command: "delete_manual_position", args: { positionId: 9 } },
     { command: "refresh_market_data", args: { force: true } },
   ]);

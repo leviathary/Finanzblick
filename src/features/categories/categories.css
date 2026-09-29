@@ -7,16 +7,34 @@
 .category-inline-editor input, .category-removal-dialog select { min-height: 44px; padding: 10px; border: 1px solid var(--border-subtle); border-radius: 10px; background: var(--bg-surface); color: var(--text-primary); width: 100%; }
 .category-inline-editor input[type="color"] { width: 72px; padding: 4px; }
 .category-inline-editor .error-message { flex-basis: 100%; }
+.category-rule-list { flex-basis: 100%; display: grid; gap: 8px; padding: 16px; border: 1px solid var(--border-subtle); border-radius: 10px; background: var(--bg-muted); }
+.category-rule-list p { margin: 0; color: var(--text-secondary); }
+.category-rule-list ul { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.category-rule-list li { display: grid; grid-template-columns: minmax(120px, auto) 1fr auto; gap: 12px; align-items: center; }
+.category-rule-list li > span { color: var(--text-secondary); }
+.category-rule-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.category-rule-heading .context-help-tooltip > span { display: block; }
+.category-rule-heading .context-help-tooltip > span + span { margin-top: 8px; }
+.category-rule-delete { min-height: 36px; border: 0; border-radius: 8px; padding: 6px 10px; background: transparent; color: var(--text-negative); font: inherit; font-weight: 600; cursor: pointer; }
+.category-rule-delete:hover { background: var(--bg-negative); }
+.category-rule-delete:focus-visible { outline: 2px solid var(--interactive); outline-offset: 2px; }
+.category-rule-delete:disabled { opacity: .5; cursor: default; }
+.category-rule-dialog { width: min(620px, calc(100vw - 32px)); }
 .category-menu { position: relative; margin-left: auto; }
 .category-menu summary { list-style: none; cursor: pointer; display: grid; place-items: center; min-width: 44px; min-height: 44px; border-radius: 9px; color: var(--interactive); font-size: 22px; }
 .category-menu summary::-webkit-details-marker { display: none; }
 .category-menu summary:hover { background: var(--bg-hover); }
 .category-menu summary:focus-visible { outline: 2px solid var(--interactive); outline-offset: 2px; }
 .category-menu-options { position: absolute; z-index: 5; right: 0; top: 100%; min-width: 200px; padding: 8px; border: 1px solid var(--border-subtle); border-radius: 10px; background: var(--bg-surface); box-shadow: var(--shadow-card); }
-.category-menu-options button { display: block; width: 100%; min-height: 44px; text-align: left; border: 0; background: transparent; color: var(--text-primary); border-radius: 6px; padding: 8px 12px; font: inherit; cursor: pointer; }
-.category-menu-options button:hover { background: var(--bg-hover); }
+.category-menu-options button, .category-menu-options a { display: flex; align-items: center; width: 100%; min-height: 44px; text-align: left; border: 0; background: transparent; color: var(--text-primary); border-radius: 6px; padding: 8px 12px; font: inherit; text-decoration: none; cursor: pointer; }
+.category-menu-options button:hover, .category-menu-options a:hover { background: var(--bg-hover); }
+.category-menu-options a:focus-visible { outline: 2px solid var(--interactive); outline-offset: 2px; }
 .category-menu-options .category-delete-option { color: var(--text-negative); }
 .category-menu-options button:disabled { opacity: .5; cursor: default; }
 .category-removal-dialog { width: min(640px, calc(100vw - 32px)); }
 .category-removal-dialog label { display: grid; gap: 8px; margin: 24px 0; }
 .category-dialog-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 12px; margin-top: 24px; }
+@media (max-width: 700px) {
+  .category-rule-list li { grid-template-columns: 1fr auto; gap: 4px 12px; }
+  .category-rule-list li > span { grid-column: 1 / -1; }
+}

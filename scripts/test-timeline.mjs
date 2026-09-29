@@ -5,7 +5,7 @@ import test from "node:test";
 import ts from "typescript";
 const source = await readFile(new URL("../src/shared/charts/timelineModel.ts", import.meta.url), "utf8");
 const js = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2020 } }).outputText;
-const { prepareTimeline, measureTimeline, zoomRange, monthsBefore } = await import(`data:text/javascript;base64,${Buffer.from(js).toString("base64")}`);
+const { prepareTimeline, measureTimeline, zoomRange, monthsBefore, expandValueRange } = await import(`data:text/javascript;base64,${Buffer.from(js).toString("base64")}`);
 test("timeline sorts a copy, converts minor units and preserves calendar gaps", () => {
   const input = [{ date: "2024-03-01", totalMinor: 12345 }, { date: "2024-02-28", totalMinor: -123 }];
   const original = structuredClone(input);
@@ -30,6 +30,11 @@ test("month presets clamp month ends and preserve leap years", () => {
   assert.equal(monthsBefore("2024-03-31", 1), "2024-02-29");
   assert.equal(monthsBefore("2026-03-31", 1), "2026-02-28");
   assert.equal(monthsBefore("2026-03-31", 6), "2025-09-30");
+});
+test("value ranges keep small portfolio changes in visual proportion", () => {
+  assert.deepEqual(expandValueRange(45_900, 46_500, 0.2), { minValue: 41_550, maxValue: 50_850 });
+  assert.deepEqual(expandValueRange(30_000, 50_000, 0.2), { minValue: 30_000, maxValue: 50_000 });
+  assert.deepEqual(expandValueRange(-100, 100, 0.2), { minValue: -100, maxValue: 100 });
 });
 test("wealth chart cannot change report dates and chart strings are translated", async () => {
   const wrapper = await readFile(new URL("../src/features/assets/WealthChart.tsx", import.meta.url), "utf8");
@@ -180,14 +185,20 @@ test("monthly cell selection includes a rectangular range and totals only popula
   assert.deepEqual(summarizeMonthlySelection([], [[100]]), { count: 0, total: 0 });
 });
 
-test("drilldown category changes require explicit inline save", async () => {
+test("drilldown category changes use an explicit scope with merchant rule selected by default", async () => {
   const code = await readFile(new URL("../src/features/transactions/Transactions.tsx", import.meta.url), "utf8");
   const editor = await readFile(new URL("../src/features/transactions/InlineCategoryEditor.tsx", import.meta.url), "utf8");
   const actions = await readFile(new URL("../src/features/transactions/TransactionActions.tsx", import.meta.url), "utf8");
   const messages = JSON.parse(await readFile(new URL("../src/translations.json", import.meta.url), "utf8"));
   assert.ok(code.includes('<InlineCategoryEditor'));
   assert.ok(!code.includes('onChange={event => void changeCategory'));
-  assert.ok(editor.includes('await onSave(key)'));
+  assert.ok(editor.includes('useState<"merchant" | "single">("merchant")'));
+  assert.ok(editor.includes('await onSave(key, createMerchantRule)'));
+  assert.ok(editor.includes('type="radio"'));
+  assert.ok(editor.includes('checked={scope === "merchant"}'));
+  assert.ok(editor.includes('checked={scope === "single"}'));
+  assert.ok(code.includes('createMerchantRule }'));
+  assert.ok(code.includes('className="category-source-badge"'));
   assert.ok(editor.includes('event.key === "Escape"'));
   assert.ok(editor.includes('role="alert"'));
   assert.ok(actions.includes('onEditCategory'));

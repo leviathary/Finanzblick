@@ -94,9 +94,12 @@ fn institution_details_are_shared_and_duplicate_names_are_rejected() {
 
 #[test]
 fn depot_positions_support_manual_management_and_consistent_reporting() {
-    use crate::storage::securities::models::ManualValuationRequest;
+    use crate::storage::securities::models::{
+        DeleteManualValuationRequest, ManualValuationRequest, UpdateManualValuationRequest,
+    };
     use crate::storage::securities::positions::{
-        delete_manual_position, list_manual_positions, save_manual_valuation,
+        delete_manual_position, delete_manual_valuation, list_manual_positions,
+        list_manual_valuations, save_manual_valuation, update_manual_valuation,
     };
     let directory = std::env::temp_dir().join(format!(
         "saldonaut-depot-test-{}-{}",
@@ -131,6 +134,7 @@ fn depot_positions_support_manual_management_and_consistent_reporting() {
     save_manual_valuation(&storage, request(None, None)).unwrap();
     let positions = list_manual_positions(&storage, 1).unwrap();
     assert_eq!(positions.len(), 1);
+    assert!(!positions[0].can_delete);
     assert_eq!(
         accounts_from(&storage).unwrap()[0].balance_minor,
         Some(123400)
@@ -156,6 +160,119 @@ fn depot_positions_support_manual_management_and_consistent_reporting() {
         1
     );
     assert!(delete_manual_position(&storage, positions[0].id).is_err());
+    let connection = storage.connect().unwrap();
+    connection.execute_batch(
+        "INSERT INTO accounts(id,institution_id,name,account_type,currency,include_in_net_worth,created_at) VALUES(2,1,'Anderes Depot','manual_asset','CHF',0,'now');
+         INSERT INTO portfolio_positions(id,account_id,label,asset_type,holding_start_date,created_at,updated_at) VALUES(2,2,'Unveränderte Position','other','2026-01-02','now','now');
+         INSERT INTO daily_valuations(position_id,valuation_date,value_minor,currency,calculated_at) VALUES(2,'2026-01-02',77700,'CHF','sentinel');",
+    ).unwrap();
+    drop(connection);
+    let mut later_value = request(Some(positions[0].id), None);
+    later_value.valuation_date = "2026-01-03".into();
+    later_value.amount_minor = 130_000;
+    save_manual_valuation(&storage, later_value).unwrap();
+    let updated = list_manual_positions(&storage, 1).unwrap();
+    assert_eq!(updated[0].valuation_date, "2026-01-03");
+    assert_eq!(updated[0].amount_minor, 130_000);
+    let connection = storage.connect().unwrap();
+    assert_eq!(
+        connection
+            .query_row(
+                "SELECT COUNT(*) FROM manual_position_values WHERE position_id=?1",
+                [positions[0].id],
+                |row| row.get::<_, i64>(0),
+            )
+            .unwrap(),
+        2
+    );
+    drop(connection);
+    let saved_values = list_manual_valuations(&storage, positions[0].id).unwrap();
+    assert_eq!(saved_values.len(), 2);
+    assert_eq!(saved_values[0].value_date, "2026-01-03");
+    update_manual_valuation(
+        &storage,
+        UpdateManualValuationRequest {
+            id: saved_values[0].id,
+            position_id: positions[0].id,
+            value_date: "2026-01-04".into(),
+            amount_minor: 131_000,
+        },
+    )
+    .unwrap();
+    assert_eq!(
+        list_manual_positions(&storage, 1).unwrap()[0].amount_minor,
+        131_000
+    );
+    assert_eq!(
+        list_manual_valuations(&storage, positions[0].id).unwrap()[0].value_date,
+        "2026-01-04"
+    );
+    let duplicate_error = update_manual_valuation(
+        &storage,
+        UpdateManualValuationRequest {
+            id: saved_values[0].id,
+            position_id: positions[0].id,
+            value_date: "2026-01-02".into(),
+            amount_minor: 131_000,
+        },
+    )
+    .unwrap_err();
+    assert!(duplicate_error.contains("bereits eine Bewertung"));
+    update_manual_valuation(
+        &storage,
+        UpdateManualValuationRequest {
+            id: saved_values[0].id,
+            position_id: positions[0].id,
+            value_date: "2026-01-03".into(),
+            amount_minor: 130_000,
+        },
+    )
+    .unwrap();
+    delete_manual_valuation(
+        &storage,
+        DeleteManualValuationRequest {
+            id: saved_values[0].id,
+            position_id: positions[0].id,
+        },
+    )
+    .unwrap();
+    let remaining_values = list_manual_valuations(&storage, positions[0].id).unwrap();
+    assert_eq!(remaining_values.len(), 1);
+    assert_eq!(
+        list_manual_positions(&storage, 1).unwrap()[0].amount_minor,
+        123_400
+    );
+    let protected_error = delete_manual_valuation(
+        &storage,
+        DeleteManualValuationRequest {
+            id: remaining_values[0].id,
+            position_id: positions[0].id,
+        },
+    )
+    .unwrap_err();
+    assert!(protected_error.contains("einzige Bewertung"));
+    let connection = storage.connect().unwrap();
+    assert_eq!(
+        connection
+            .query_row(
+                "SELECT holding_start_date FROM portfolio_positions WHERE id=?1",
+                [positions[0].id],
+                |row| row.get::<_, String>(0),
+            )
+            .unwrap(),
+        "2026-01-02"
+    );
+    assert_eq!(
+        connection
+            .query_row(
+                "SELECT calculated_at FROM daily_valuations WHERE position_id=2",
+                [],
+                |row| row.get::<_, String>(0),
+            )
+            .unwrap(),
+        "sentinel"
+    );
+    drop(connection);
     save_manual_valuation(&storage, request(Some(positions[0].id), Some("2026-01-03"))).unwrap();
     let wealth = wealth_from(&storage, None).unwrap();
     assert_eq!(wealth.current_total_minor, 0);
@@ -166,6 +283,135 @@ fn depot_positions_support_manual_management_and_consistent_reporting() {
     drop(connection);
     delete_manual_position(&storage, draft_id).unwrap();
     assert_eq!(list_manual_positions(&storage, 1).unwrap().len(), 1);
+    drop(storage);
+    fs::remove_dir_all(directory).unwrap();
+}
+
+#[test]
+fn dated_buys_and_sales_preserve_earlier_position_quantities() {
+    use crate::storage::securities::models::PositionQuantityChangeRequest;
+    use crate::storage::securities::positions::save_position_quantity_change;
+
+    let directory = std::env::temp_dir().join(format!(
+        "saldonaut-position-quantity-test-{}-{}",
+        std::process::id(),
+        std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .unwrap()
+            .as_nanos()
+    ));
+    fs::create_dir_all(&directory).unwrap();
+    let storage = Storage::test_storage(directory.join("test.sqlite3"));
+    let connection = storage.connect().unwrap();
+    initialize_schema(&connection).unwrap();
+    connection.execute_batch(
+        "INSERT INTO institutions(id,provider_key,name,institution_type,created_at) VALUES(1,'broker','Broker','broker','2026-01-01');
+         INSERT INTO accounts(id,institution_id,name,account_type,currency,created_at) VALUES(1,1,'Depot','portfolio','CHF','2026-01-01');
+         INSERT INTO instruments(id,name,asset_type) VALUES(1,'NVIDIA','stock');
+         INSERT INTO instrument_listings(id,instrument_id,market_symbol,quote_currency,preferred_price_source) VALUES(1,1,'NVDA','CHF','test');
+         INSERT INTO instrument_prices(id,listing_id,price_date,price_type,price_amount,price_scale,currency,source,fetched_at) VALUES
+           (1,1,'2026-09-01','eod_close',20000,2,'CHF','test','2026-09-01'),
+           (2,1,'2026-09-20','eod_close',21000,2,'CHF','test','2026-09-20'),
+           (3,1,'2026-09-21','eod_close',22000,2,'CHF','test','2026-09-21');
+         INSERT INTO portfolio_positions(id,account_id,listing_id,label,asset_type,holding_start_date,created_at,updated_at) VALUES(1,1,1,'NVIDIA','stock','2026-09-01','2026-09-01','2026-09-01');
+         INSERT INTO position_quantities(position_id,valid_from,quantity_amount,quantity_scale,source,recorded_at) VALUES(1,'2026-09-01',180,0,'manual','2026-09-01');",
+    ).unwrap();
+    drop(connection);
+    rebuild_daily_valuations(&storage).unwrap();
+    let connection = storage.connect().unwrap();
+    connection
+        .execute(
+            "UPDATE daily_valuations SET calculated_at='preserved-before-change' WHERE position_id=1 AND valuation_date='2026-09-19'",
+            [],
+        )
+        .unwrap();
+    drop(connection);
+
+    save_position_quantity_change(
+        &storage,
+        PositionQuantityChangeRequest {
+            position_id: 1,
+            effective_date: "2026-09-20".into(),
+            change_type: "sell".into(),
+            quantity: "20".into(),
+        },
+    )
+    .unwrap();
+    let connection = storage.connect().unwrap();
+    let quantity = |date: &str| {
+        connection.query_row(
+        "SELECT quantity_amount FROM position_quantities WHERE position_id=1 AND date(valid_from)<=date(?1) ORDER BY date(valid_from) DESC LIMIT 1",
+        [date], |row| row.get::<_, i64>(0),
+    ).unwrap()
+    };
+    assert_eq!(quantity("2026-09-19"), 180);
+    assert_eq!(quantity("2026-09-20"), 160);
+    assert_eq!(
+        connection
+            .query_row(
+                "SELECT calculated_at FROM daily_valuations WHERE position_id=1 AND valuation_date='2026-09-19'",
+                [],
+                |row| row.get::<_, String>(0),
+            )
+            .unwrap(),
+        "preserved-before-change"
+    );
+    assert_eq!(
+        connection
+            .query_row(
+                "SELECT quantity_amount FROM daily_valuations WHERE position_id=1 AND valuation_date='2026-09-20'",
+                [],
+                |row| row.get::<_, i64>(0),
+            )
+            .unwrap(),
+        160
+    );
+    assert_eq!(
+        connection
+            .query_row(
+                "SELECT holding_end_date FROM portfolio_positions WHERE id=1",
+                [],
+                |row| row.get::<_, Option<String>>(0)
+            )
+            .unwrap(),
+        None
+    );
+    drop(connection);
+
+    let error = save_position_quantity_change(
+        &storage,
+        PositionQuantityChangeRequest {
+            position_id: 1,
+            effective_date: "2026-09-21".into(),
+            change_type: "sell".into(),
+            quantity: "161".into(),
+        },
+    )
+    .unwrap_err();
+    assert!(error.contains("nicht mehr Einheiten"));
+    save_position_quantity_change(
+        &storage,
+        PositionQuantityChangeRequest {
+            position_id: 1,
+            effective_date: "2026-09-21".into(),
+            change_type: "sell".into(),
+            quantity: "160".into(),
+        },
+    )
+    .unwrap();
+    let connection = storage.connect().unwrap();
+    assert_eq!(
+        connection
+            .query_row(
+                "SELECT holding_end_date FROM portfolio_positions WHERE id=1",
+                [],
+                |row| row.get::<_, Option<String>>(0)
+            )
+            .unwrap()
+            .as_deref(),
+        Some("2026-09-21")
+    );
+    drop(connection);
     drop(storage);
     fs::remove_dir_all(directory).unwrap();
 }

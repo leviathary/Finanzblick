@@ -30,3 +30,12 @@ export function zoomRange(range: { from: number; to: number }, factor: number) {
   const middle = (range.from + range.to) / 2, half = Math.max(1, (range.to - range.from) * factor / 2);
   return { from: middle - half, to: middle + half };
 }
+export function expandValueRange(minValue: number, maxValue: number, minimumSpanRatio: number) {
+  if (![minValue, maxValue, minimumSpanRatio].every(Number.isFinite) || minValue > maxValue || minimumSpanRatio <= 0) {
+    return { minValue, maxValue };
+  }
+  const minimumSpan = Math.max(Math.abs(minValue), Math.abs(maxValue), 1) * minimumSpanRatio;
+  const missingSpan = minimumSpan - (maxValue - minValue);
+  if (missingSpan <= 0) return { minValue, maxValue };
+  return { minValue: minValue - missingSpan / 2, maxValue: maxValue + missingSpan / 2 };
+}

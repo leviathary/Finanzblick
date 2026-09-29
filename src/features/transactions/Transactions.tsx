@@ -4,11 +4,9 @@ import { MultiSelect } from "../../shared/MultiSelect";
 import { CategoryDonut, splitPositiveCategories } from "./CategoryDonut";
 import { InlineCategoryEditor } from "./InlineCategoryEditor";
 import "./analysis.css";
-
 import { t, tr, locale, categoryName } from "../../i18n";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
-
 import type { TimelinePoint } from "../../shared/charts/TimelineChart";
 import { InteractiveTimelineChart } from "../../shared/charts/InteractiveTimelineChart";
 import { monthsBefore } from "../../shared/charts/timelineModel";
@@ -20,6 +18,7 @@ import { DuplicateRemovalDialog } from "./DuplicateRemovalDialog";
 import { reportPeriod } from "../../domain/reportPeriod";
 import { monthlySelectionContains, summarizeMonthlySelection, type MonthlyCell, type MonthlyCellSelection } from "./monthlyCellSelection";
 import { amountNumber, money, monthName, monthNameLong, shortDate } from "./formatting";
+import { readTransactionRoute, useTransactionDeepLink } from "./transactionRoute";
 
 interface Category { key: string; label: string; color: string; amountMinor: number; transactionCount: number }
 interface CategoryBreakdownRow extends Category { keys: string[]; expandable?: boolean; nested?: boolean }
@@ -29,14 +28,14 @@ interface Provider { provider: string; providerKey: string }
 interface Account { id: number; name: string; providerKey: string; provider: string; currency: string; isActive: boolean; accountType: string }
 interface Analysis { incomeTransactions: Transaction[]; totalIncomeMinor: number; incomeCount: number; totalSpendMinor: number; transactionCount: number; firstDate: string | null; lastDate: string | null; categories: Category[]; months: Month[]; history: TimelinePoint[]; transactions: Transaction[]; providers: Provider[] }
 
-
 export function Transactions() {
+  const initialRoute = useRef(readTransactionRoute()).current;
   const [ruleTransaction, setRuleTransaction] = useState<Transaction | null>(null);
   const [duplicateTransaction, setDuplicateTransaction] = useState<Transaction | null>(null);
   const [duplicateError, setDuplicateError] = useState<string | null>(null);
   const [savingDuplicate, setSavingDuplicate] = useState(false);
   const [savingSettlement, setSavingSettlement] = useState(false);
-  const [detailMode, setDetailMode] = useState<"income" | "expense">("expense");
+  const [detailMode, setDetailMode] = useState<"income" | "expense">(initialRoute.mode);
   const [analysisView, setAnalysisView] = useState<"category" | "month">("category");
   const [sort, setSort] = useState<{ key: "bookingDate" | "description" | "accountName" | "amountMinor"; descending: boolean }>({ key: "bookingDate", descending: true });
   const [search, setSearch] = useState("");
@@ -46,7 +45,7 @@ export function Transactions() {
   const dragSelection = useRef<{ key: string; base: string[]; selecting: boolean } | null>(null);
   const suppressCategoryClick = useRef(false);
   const categoryAnchor = useRef<string | null>(null);
-  const [category, setCategory] = useState<string[]>([]);
+  const [category, setCategory] = useState<string[]>(initialRoute.category ? [initialRoute.category] : []);
   const [remainingExpanded, setRemainingExpanded] = useState(false);
   const [provider, setProvider] = useState<string[]>([]);
   const [categoryOptions, setCategoryOptions] = useState<{ key: string; label: string }[]>([]);
@@ -69,9 +68,9 @@ export function Transactions() {
       .finally(() => { if (!cancelled) setBalanceLoading(false); });
     return () => { cancelled = true; };
   }, [balanceProvider, balanceAccount]);
-  const [from, setFrom] = useState(() => reportPeriod()?.from ?? `${new Date().getFullYear()}-01-01`);
-  const [to, setTo] = useState(() => reportPeriod()?.to ?? "");
-  const [selectedPeriod, setSelectedPeriod] = useState<"all" | "currentYear" | "1m" | "6m" | "1y" | "3y" | "5y" | "custom">(() => reportPeriod() ? "custom" : "currentYear");
+  const [from, setFrom] = useState(() => initialRoute.all ? "" : reportPeriod()?.from ?? `${new Date().getFullYear()}-01-01`);
+  const [to, setTo] = useState(() => initialRoute.all ? "" : reportPeriod()?.to ?? "");
+  const [selectedPeriod, setSelectedPeriod] = useState<"all" | "currentYear" | "1m" | "6m" | "1y" | "3y" | "5y" | "custom">(() => initialRoute.all ? "all" : reportPeriod() ? "custom" : "currentYear");
   const [chartControls, setChartControls] = useState<HTMLDivElement | null>(null);
   const [comparisonYear, setComparisonYear] = useState(() => String(new Date().getFullYear()));
   const [monthlyDrilldown, setMonthlyDrilldown] = useState<{ categoryKey: string | null; year: string; month: number } | null>(null);
@@ -98,6 +97,7 @@ export function Transactions() {
     finally { if (revision === loadRevision.current) setLoading(false); }
   }, [from, provider, to, account]);
   useEffect(() => { void load(); }, [load]);
+  useTransactionDeepLink(initialRoute.details, loading, Boolean(data));
   useEffect(() => { invoke<Account[]>("list_accounts").then(setAccounts).catch(() => setError(t("Konten konnten nicht geladen werden."))); }, []);
   const categorizedTransactions = useMemo(() => {
     const transactions = detailMode === "income"
@@ -392,9 +392,11 @@ export function Transactions() {
     finally { setSavingSettlement(false); }
   }
 
-  async function changeCategory(transactionId: number, categoryKey: string) {
-    const count = await invoke<number>("set_transaction_category", { transactionId, categoryKey });
-    setCategoryMessage(tr`Kategorie für ${count} passende Buchungen übernommen. Die Zuordnung gilt auch für zukünftige Importe.`);
+  async function changeCategory(transactionId: number, categoryKey: string, createMerchantRule: boolean) {
+    const count = await invoke<number>("set_transaction_category", { transactionId, categoryKey, createMerchantRule });
+    setCategoryMessage(createMerchantRule
+      ? tr`Kategorie für ${count} passende Buchungen übernommen. Die Zuordnung gilt auch für zukünftige Importe.`
+      : t("Kategorie nur für diese Buchung geändert."));
     await load();
   }
 
@@ -576,14 +578,14 @@ export function Transactions() {
         </div>
         {hasDetailFilter && <p className="drilldown-result" role="status">{tr`${filteredTransactions.length} von ${drilldownTransactions.length} Buchungen · Gefilterte Summe: ${money(filteredTotal)}`}</p>}
         <div className="expense-table"><div className="expense-row header"><span>{sortHeader("bookingDate", t("Datum"))}</span><span>{sortHeader("description", t("Beschreibung"))}</span><span>{t("Kategorie")}</span><span>{sortHeader("accountName", t("Konto"))}</span><span>{sortHeader("amountMinor", t("Betrag"))}</span><span aria-label={t("Aktionen")} /></div>
-          {filteredTransactions.slice(0, rowLimit).map(item => <div className={`expense-row ${item.excludedFromTotals ? "card-detail-row" : ""}`} data-amount-row={item.id} key={item.id}><span>{shortDate(item.bookingDate)}</span><div><strong title={item.description}>{item.description}</strong><small>{item.provider}{item.industry ? ` · ${item.industry}` : ""}{item.excludedFromTotals && <> · <span className="transfer-badge">{t(item.isCardSettlement ? "Kartenausgleich" : "Umbuchung")}</span></>}</small></div><span className="transaction-category-label" tabIndex={0} title={item.excludedFromTotals ? t("Nicht in Auswertungen enthalten") : item.categorySource === "manual" ? t("Manuell gewählt") : item.categorySource === "merchant" ? t("Anhand Händlerregel") : item.categorySource === "industry" ? t("Anhand Branche") : t("Anhand Buchungstext")}><span className="transaction-category-dot" style={{background:item.categoryColor}} aria-hidden="true"/>{categoryName(item.categoryKey,item.categoryLabel)}</span><span>{item.accountName}</span><button type="button" className={`amount-select ${item.amountMinor > 0 ? "income-amount" : ""}`} aria-pressed={selectedAmounts.includes(item.id)} aria-label={tr`Betrag auswählen: ${money(Math.abs(item.amountMinor))} · ${item.description}`} onMouseDown={event => {
+          {filteredTransactions.slice(0, rowLimit).map(item => { const categorySource = item.categorySource === "manual" ? t("Manuell gewählt") : item.categorySource === "merchant" ? t("Anhand Händlerregel") : item.categorySource === "industry" ? t("Anhand Branche") : t("Anhand Buchungstext"); return <div className={`expense-row ${item.excludedFromTotals ? "card-detail-row" : ""}`} data-amount-row={item.id} key={item.id}><span>{shortDate(item.bookingDate)}</span><div><strong title={item.description}>{item.description}</strong><small>{item.provider}{item.industry ? ` · ${item.industry}` : ""}{item.excludedFromTotals && <> · <span className="transfer-badge">{t(item.isCardSettlement ? "Kartenausgleich" : "Umbuchung")}</span></>}</small></div><span className="transaction-category-label" tabIndex={0} title={item.excludedFromTotals ? `${t("Nicht in Auswertungen enthalten")} · ${categorySource}` : categorySource}><span className="transaction-category-dot" style={{background:item.categoryColor}} aria-hidden="true"/><span>{categoryName(item.categoryKey,item.categoryLabel)}<small className="category-source-badge">{categorySource}</small></span></span><span>{item.accountName}</span><button type="button" className={`amount-select ${item.amountMinor > 0 ? "income-amount" : ""}`} aria-pressed={selectedAmounts.includes(item.id)} aria-label={tr`Betrag auswählen: ${money(Math.abs(item.amountMinor))} · ${item.description}`} onMouseDown={event => {
             if (event.button !== 0) return;
             event.preventDefault(); event.currentTarget.focus();
             const selecting = !selectedAmounts.includes(item.id);
             amountDrag.current = { start: item.id, base: selectedAmounts, selecting };
             setSelectedAmounts(selectAmountRange(selectedAmounts, amountRows.map(row => row.id), item.id, item.id, selecting));
           }} onClick={event => { if (event.detail === 0) setSelectedAmounts(current => current.includes(item.id) ? current.filter(id => id !== item.id) : [...current, item.id]); }}>{money(item.excludedFromTotals ? item.amountMinor : contribution(item))}</button><TransactionActions neutral={item.excludedFromTotals} description={item.description} disabled={savingSettlement || savingDuplicate} onChange={kind => changeSettlement(item, kind)} onEditCategory={() => { setCategoryMessage(null); setEditingCategory(item.id); }} onRemoveDuplicate={() => { setDuplicateError(null); setDuplicateTransaction(item); }} />
-            {editingCategory === item.id && <InlineCategoryEditor description={item.description} initialKey={item.categoryKey} options={categoryOptions} onSave={key => changeCategory(item.id,key)} onClose={() => closeCategoryEditor(item.id)}/>}</div>)}
+            {editingCategory === item.id && <InlineCategoryEditor description={item.description} initialKey={item.categoryKey} options={categoryOptions} onSave={(key, createMerchantRule) => changeCategory(item.id,key,createMerchantRule)} onClose={() => closeCategoryEditor(item.id)}/>}</div>;})}
           {!filteredTransactions.length && <p className="intro">{t("Keine Buchungen für diese Auswahl gefunden.")}</p>}
           {filteredTransactions.length > rowLimit && <button className="secondary-button" onClick={() => setRowLimit(limit => limit + 200)}>{t("Weitere Buchungen anzeigen (")}{rowLimit}  {t("von")} {filteredTransactions.length})</button>}
         </div>

@@ -1,10 +1,26 @@
 //! Tauri-Eingänge für Kategorien und Branchenregeln.
-use crate::storage::categories::{self as repository, IndustryRule, ManagedCategory};
+use crate::storage::categories::{self as repository, CategoryRule, IndustryRule, ManagedCategory};
 use crate::storage::Storage;
 use tauri::State;
 #[tauri::command]
 pub fn list_categories(storage: State<'_, Storage>) -> Result<Vec<ManagedCategory>, String> {
     repository::list_categories(&storage)
+}
+#[tauri::command]
+pub fn list_category_rules(
+    storage: State<'_, Storage>,
+    category_key: String,
+) -> Result<Vec<CategoryRule>, String> {
+    repository::list_category_rules(&storage, category_key)
+}
+#[tauri::command]
+pub fn delete_category_rule(
+    storage: State<'_, Storage>,
+    category_key: String,
+    rule_type: String,
+    label: String,
+) -> Result<usize, String> {
+    repository::delete_category_rule(&storage, category_key, rule_type, label)
 }
 #[tauri::command]
 pub fn list_industry_rules(storage: State<'_, Storage>) -> Result<Vec<IndustryRule>, String> {

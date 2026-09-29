@@ -1,17 +1,17 @@
 // Rendert lokale Zeitreihen mit Lightweight Charts; Navigation und Messung ändern keine Auswertungsfilter.
 import { createPortal } from "react-dom";
 import { useEffect, useId, useMemo, useRef, useState } from "react";
-import { AreaSeries, LineSeries, ColorType, CrosshairMode, LineType, createChart, type IChartApi, type ISeriesApi, type Time } from "lightweight-charts";
+import { AreaSeries, LineSeries, ColorType, CrosshairMode, LineType, createChart, type AutoscaleInfo, type IChartApi, type ISeriesApi, type Time } from "lightweight-charts";
 import { isTauri } from "@tauri-apps/api/core";
 import { openUrl } from "@tauri-apps/plugin-opener";
 import { locale, t, tr } from "../../i18n";
-import { measureTimeline, prepareTimeline, zoomRange, type DailyValue } from "./timelineModel";
+import { expandValueRange, measureTimeline, prepareTimeline, zoomRange, type DailyValue } from "./timelineModel";
 import "./interactiveTimeline.css";
 
 function timeDate(time: Time) {
   return typeof time === "string" ? time : typeof time === "number" ? new Date(time * 1000).toISOString().slice(0, 10) : `${time.year}-${String(time.month).padStart(2, "0")}-${String(time.day).padStart(2, "0")}`;
 }
-export function InteractiveTimelineChart({ history, currency, controlsContainer, indexed = false, comparison, topScaleMargin = 0.12, ariaLabel }: { history: DailyValue[]; currency: string; controlsContainer: HTMLElement | null; indexed?: boolean; comparison?: DailyValue[]; topScaleMargin?: number; ariaLabel?: string }) {
+export function InteractiveTimelineChart({ history, currency, controlsContainer, indexed = false, comparison, topScaleMargin = 0.12, minimumValueSpanRatio = 0, ariaLabel }: { history: DailyValue[]; currency: string; controlsContainer: HTMLElement | null; indexed?: boolean; comparison?: DailyValue[]; topScaleMargin?: number; minimumValueSpanRatio?: number; ariaLabel?: string }) {
   const comparisonSignature = JSON.stringify(comparison ?? []);
   const signature = JSON.stringify(history);
   const model = useMemo(() => {
@@ -54,6 +54,12 @@ export function InteractiveTimelineChart({ history, currency, controlsContainer,
       lineColor: color("--accent-positive"), topColor: color("--accent-positive") + "47", bottomColor: color("--accent-positive") + "00",
       lineWidth: 2, lineType: LineType.Simple, priceLineVisible: false, lastValueVisible: false,
       pointMarkersVisible: model.points.length === 1, pointMarkersRadius: 4,
+      autoscaleInfoProvider: (original: () => AutoscaleInfo | null) => {
+        const info = original();
+        if (!info?.priceRange || minimumValueSpanRatio <= 0) return info;
+        info.priceRange = expandValueRange(info.priceRange.minValue, info.priceRange.maxValue, minimumValueSpanRatio);
+        return info;
+      },
     });
     series.setData(model.data);
     const comparisonData = JSON.parse(comparisonSignature) as DailyValue[];
@@ -112,7 +118,7 @@ export function InteractiveTimelineChart({ history, currency, controlsContainer,
     };
     host.addEventListener("mousedown", mouseDown, true);
     return () => { window.removeEventListener("appearance-changed", updateAppearance); stopDragRef.current?.(); host.removeEventListener("mousedown", mouseDown, true); chart.remove(); chartRef.current = null; seriesRef.current = null; };
-  }, [model, currency, region, comparisonSignature, indexed, topScaleMargin]);
+  }, [model, currency, region, comparisonSignature, indexed, topScaleMargin, minimumValueSpanRatio]);
 
   useEffect(() => {
     const chart = chartRef.current, series = seriesRef.current;
